@@ -23,8 +23,12 @@
     </dependencies>
   </metadata>
   <files>
+    <file src=".\Release\PMS.WMI.dll" target="lib\net47"></file>
+    <file src=".\Release\PMS.WMI.xml" target="lib\net47"></file>
     <file src=".\Release\PMS.COMMON.dll" target="lib\net47"></file>
     <file src=".\Release\PMS.COMMON.xml" target="lib\net47"></file>
+    <file src=".\Release\PMS.WMI35.dll" target="lib\net35"></file>
+    <file src=".\Release\PMS.WMI35.xml" target="lib\net35"></file>
     <file src=".\Release\PMS.COMMON35.dll" target="lib\net35"></file>
     <file src=".\Release\PMS.COMMON35.xml" target="lib\net35"></file>
   </files>

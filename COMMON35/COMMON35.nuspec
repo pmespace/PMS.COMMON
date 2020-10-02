@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>PMS.COMMON35</id>
+    <version>1.0.0</version>
+    <title>PMS.COMMON35</title>
+    <authors>philippemp31</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/pmespace/PMS.COMMON/</projectUrl>
+    <description>Shared tools for PMS.CHPN35 and PMS.NEXO35 projects</description>
+    <releaseNotes>Creation.</releaseNotes>
+    <copyright>PMS - philippemp31</copyright>
+    <developmentDependency>true</developmentDependency>
+    <frameworkAssemblies>net35</frameworkAssemblies>
+    <dependencies></dependencies>
+    <tags>CHPN NEXO</tags>
+  </metadata>
+</package>

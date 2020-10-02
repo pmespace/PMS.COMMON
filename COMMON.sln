@@ -1,0 +1,60 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30523.141
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "WMI_SHARED", "WMI_SHARED\WMI_SHARED.shproj", "{7E3DD9DF-AFB8-40B3-9919-1880DA032F83}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "WMI", "WMI\WMI.vbproj", "{C34F0236-F5E0-4175-9FDF-F9BFBC88F356}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "WMI35", "WMI35\WMI35.vbproj", "{C1E606BC-4D11-4F27-9B58-9DC75702E05B}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "COMMON_SHARED", "COMMON_SHARED\COMMON_SHARED.shproj", "{FCA4181F-59B5-42FD-8015-E10AF44C0DAC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "COMMON", "COMMON\COMMON.csproj", "{8293F43E-FD5D-4FB7-A22F-E5968515947F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "COMMON35", "COMMON35\COMMON35.csproj", "{2A6367EE-7D3C-4756-8FD2-2C386AD9F464}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A4CD66B1-7E2B-4A93-97D9-A64740B216AD}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		COMMON_SHARED\COMMON_SHARED.projitems*{2a6367ee-7d3c-4756-8fd2-2c386ad9f464}*SharedItemsImports = 4
+		WMI_SHARED\WMI_SHARED.projitems*{7e3dd9df-afb8-40b3-9919-1880da032f83}*SharedItemsImports = 13
+		COMMON_SHARED\COMMON_SHARED.projitems*{8293f43e-fd5d-4fb7-a22f-e5968515947f}*SharedItemsImports = 4
+		WMI_SHARED\WMI_SHARED.projitems*{c1e606bc-4d11-4f27-9b58-9dc75702e05b}*SharedItemsImports = 4
+		WMI_SHARED\WMI_SHARED.projitems*{c34f0236-f5e0-4175-9fdf-f9bfbc88f356}*SharedItemsImports = 4
+		COMMON_SHARED\COMMON_SHARED.projitems*{fca4181f-59b5-42fd-8015-e10af44c0dac}*SharedItemsImports = 13
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C34F0236-F5E0-4175-9FDF-F9BFBC88F356}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C34F0236-F5E0-4175-9FDF-F9BFBC88F356}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C34F0236-F5E0-4175-9FDF-F9BFBC88F356}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C34F0236-F5E0-4175-9FDF-F9BFBC88F356}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1E606BC-4D11-4F27-9B58-9DC75702E05B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1E606BC-4D11-4F27-9B58-9DC75702E05B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1E606BC-4D11-4F27-9B58-9DC75702E05B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1E606BC-4D11-4F27-9B58-9DC75702E05B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8293F43E-FD5D-4FB7-A22F-E5968515947F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8293F43E-FD5D-4FB7-A22F-E5968515947F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8293F43E-FD5D-4FB7-A22F-E5968515947F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8293F43E-FD5D-4FB7-A22F-E5968515947F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A6367EE-7D3C-4756-8FD2-2C386AD9F464}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A6367EE-7D3C-4756-8FD2-2C386AD9F464}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A6367EE-7D3C-4756-8FD2-2C386AD9F464}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A6367EE-7D3C-4756-8FD2-2C386AD9F464}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FD10E091-FE93-4BEE-BE53-C94BD728C1DD}
+	EndGlobalSection
+EndGlobal

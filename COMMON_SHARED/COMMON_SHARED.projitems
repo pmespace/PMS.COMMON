@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>fca4181f-59b5-42fd-8015-e10af44c0dac</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>COMMON</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)CJson\CJson.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CJson\CJsonConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CLog\CLog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CMisc\CMisc.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CExceptions\CNotImplemented.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CStream\CStream.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CStream\CStreamBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CStream\CStreamIO.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CStream\CStreamDelegates.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CStream\CStreamServer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CStream\CStreamSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CStream\CStreamThreadSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CThread\CThread.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CThread\CThreadData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CWin32\Win32.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)CLog\" />
+    <Folder Include="$(MSBuildThisFileDirectory)CMisc\" />
+    <Folder Include="$(MSBuildThisFileDirectory)CExceptions\" />
+    <Folder Include="$(MSBuildThisFileDirectory)CWin32\" />
+  </ItemGroup>
+</Project>

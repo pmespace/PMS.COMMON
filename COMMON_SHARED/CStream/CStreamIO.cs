@@ -117,8 +117,7 @@ namespace COMMON
 					read = networkStream.Read(data, 0, data.Length);
 				}
 			}
-			catch (Exception ex)
-			{ read = 0; }
+			catch (Exception ex) { read = 0; }
 			return read;
 		}
 		/// <summary>

@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using System.Reflection;
 using System.Text;
 using System;
+using System.IO;
 
 namespace COMMON
 {
@@ -514,6 +515,46 @@ namespace COMMON
 			if (Enum.IsDefined(T, value))
 				return value;
 			return def;
+		}
+		/// <summary>
+		/// Allows verifying a folder exists, eventually with write privileges if required
+		/// </summary>
+		/// <param name="dir">Folder to verify existence</param>
+		/// <param name="addtrailer">Indicates whether the returned value must contain a final "\" or not</param>
+		/// <param name="writeaccess">Indicates whether write privilege is required or not</param>
+		/// <returns>The folder path (eventually with a #\" trailer if required) if exists with the requested privileges, null otherwise</returns>
+		public static string VerifyDirectory(string dir, bool addtrailer, bool writeaccess = true)
+		{
+			string final = dir, fullfinal;
+			// chech whether directory exists or not
+			if (Directory.Exists(final))
+			{
+				fullfinal = final;
+				// add "\" if required
+				if (!final.EndsWith(@"\"))
+					fullfinal += @"\";
+				if (addtrailer)
+					final = fullfinal;
+
+				// test write access if required
+				if (!writeaccess)
+					return final;
+				// try creating a temp file with write access (then delete it)
+				string s = Path.GetRandomFileName();
+				try
+				{
+					string sdir = fullfinal + s;
+					FileStream fs = File.Open(sdir, FileMode.CreateNew);
+					// arrived here write access is granted
+					fs.Close();
+					File.Delete(sdir);
+					return final;
+				}
+				catch (Exception) { }
+				// arrived here write access is not granted
+				return null;
+			}
+			return null;
 		}
 	}
 }

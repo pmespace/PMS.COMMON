@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>PMS.COMMON</id>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <title>PMS.COMMON</title>
     <authors>philippemp31</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -10,8 +10,13 @@
     <repository type="git" url="https://github.com/pmespace/PMS.COMMON.git" branch="master" />
     <projectUrl>https://github.com/pmespace/PMS.COMMON/</projectUrl>
     <description>Shared tools for PMS.CHPN and PMS.NEXO projects</description>
-    <releaseNotes>Creation</releaseNotes>
-    <copyright>PMS - philippemp31</copyright>
+    <releaseNotes>
+      - 1.0.2
+      .Added a function to CMisc allowing to test a folder for existence and written rights
+      .Made some objects available to COM
+      - Creation
+    </releaseNotes>
+    <copyright>PMS - philippemp31 ar outlook dot com</copyright>
     <developmentDependency>true</developmentDependency>
     <tags>CHPN NEXO</tags>
     <dependencies>
@@ -27,6 +32,7 @@
     <file src=".\Release\PMS.WMI.xml" target="lib\net47"></file>
     <file src=".\Release\PMS.COMMON.dll" target="lib\net47"></file>
     <file src=".\Release\PMS.COMMON.xml" target="lib\net47"></file>
+    <file src=".\Release\PMS.COMMON.tlb" target="lib\net47"></file>
     <file src=".\Release\PMS.WMI35.dll" target="lib\net35"></file>
     <file src=".\Release\PMS.WMI35.xml" target="lib\net35"></file>
     <file src=".\Release\PMS.COMMON35.dll" target="lib\net35"></file>

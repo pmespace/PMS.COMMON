@@ -8,12 +8,12 @@ Imports System.Runtime.InteropServices
 
 ' Review the values of the assembly attributes
 
-<Assembly: AssemblyTitle("WMI35")>
-<Assembly: AssemblyDescription("")>
-<Assembly: AssemblyCompany("")>
-<Assembly: AssemblyProduct("WMI35")>
+<Assembly: AssemblyTitle("PMS.WMI .NET 3.5")>
+<Assembly: AssemblyDescription("PMS.WMI .NET 3.5")>
+<Assembly: AssemblyCompany("PMS")>
+<Assembly: AssemblyProduct("PMS.WMI .NET 3.5")>
 <Assembly: AssemblyCopyright("Copyright ©  2020")>
-<Assembly: AssemblyTrademark("")>
+<Assembly: AssemblyTrademark("PMS")>
 
 <Assembly: ComVisible(False)>
 
@@ -31,5 +31,5 @@ Imports System.Runtime.InteropServices
 ' by using the '*' as shown below:
 ' <Assembly: AssemblyVersion("1.0.*")>
 
-<Assembly: AssemblyVersion("2020.280.2355.0")>
-<Assembly: AssemblyFileVersion("2020.280.2355.0")>
+<Assembly: AssemblyVersion("2020.281.0812.0")>
+<Assembly: AssemblyFileVersion("2020.281.0812.0")>

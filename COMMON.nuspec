@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>PMS.COMMON</id>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <title>PMS.COMMON</title>
     <authors>philippemp31</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -11,10 +11,15 @@
     <projectUrl>https://github.com/pmespace/PMS.COMMON/</projectUrl>
     <description>Shared tools for PMS.CHPN and PMS.NEXO projects</description>
     <releaseNotes>
-      - 1.0.2
+      1.0.3
+      .Updates to project properties
+      
+      1.0.2
       .Added a function to CMisc allowing to test a folder for existence and written rights
       .Made some objects available to COM
-      - Creation
+      
+      1.0.0
+      .Creation
     </releaseNotes>
     <copyright>PMS - philippemp31 ar outlook dot com</copyright>
     <developmentDependency>true</developmentDependency>

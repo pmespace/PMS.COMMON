@@ -223,19 +223,18 @@ namespace COMMON
 		/// <returns>The string as it has been written, null if an error has occurred</returns>
 		private static string AddToLog(string s, TLog severity)
 		{
-			if (!string.IsNullOrEmpty(LogFileName))
+			string v = BuildDate(dateFormats.YYYYMMDDhhmmssWithSeparators) + " - " + severity.ToString() + " - " + Thread.CurrentThread.ManagedThreadId.ToString("X8") + " - " + RemoveCRLF(s.Trim());
+			try
 			{
-				string v = BuildDate(dateFormats.YYYYMMDDhhmmssWithSeparators) + " - " + severity.ToString() + " - " + Thread.CurrentThread.ManagedThreadId.ToString("X8") + " - " + RemoveCRLF(s.Trim());
-				try
+				if (!string.IsNullOrEmpty(LogFileName))
 				{
 					using (StreamWriter file = new StreamWriter(LogFileName, true, Encoding.UTF8))
 						file.WriteLine(v);
-					return v;
 				}
-				catch (Exception)
-				{ }
 			}
-			return null;
+			catch (Exception)
+			{ }
+			return string.IsNullOrEmpty(s) ? string.Empty : s;
 		}
 		/// <summary>
 		/// Open the log file

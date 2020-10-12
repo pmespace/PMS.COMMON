@@ -324,17 +324,16 @@ namespace COMMON
 								if (client.ProcessingThread.Start(StreamServerProcessorMethod, streamServerStartSettings.ThreadData, client, client.ProcessorEvents.Started))
 								{
 									// arrived here everything's in place, let's verify whether the client is accepted or not from that ip address
-									bool fConnected = false;
 									try
 									{
 										if (null != streamServerStartSettings.OnConnect)
-											fConnected = streamServerStartSettings.OnConnect(tcp, streamServerStartSettings.ThreadData, streamServerStartSettings.Parameters);
+											client.Connected = streamServerStartSettings.OnConnect(tcp, streamServerStartSettings.ThreadData, streamServerStartSettings.Parameters);
 									}
 									catch (Exception ex)
 									{
 										CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "OnConnect generated an exception");
 									}
-									if (fConnected)
+									if (client.Connected)
 									{
 										CLog.Add(threadName + "Client: " + clientEndPoint.ToString() + " is connected to the server");
 										lock (myLock)
@@ -485,7 +484,8 @@ namespace COMMON
 			// warn the client is disconnecting from the server
 			try
 			{
-				streamServerStartSettings.OnDisconnect?.Invoke(null != clientEndPoint ? clientEndPoint.ToString() : "[address not available]", streamServerStartSettings.ThreadData, streamServerStartSettings.Parameters);
+				if (client.Connected)
+					streamServerStartSettings.OnDisconnect?.Invoke(null != clientEndPoint ? clientEndPoint.ToString() : "[address not available]", streamServerStartSettings.ThreadData, streamServerStartSettings.Parameters);
 			}
 			catch (Exception ex)
 			{
@@ -632,6 +632,7 @@ namespace COMMON
 				Messages = new QueueOfMessages();
 				StreamIO = new CStreamServerIO(Tcp, Settings);
 				WaitBeforeAbort = 5;
+				Connected = false;
 			}
 			~Client()
 			{
@@ -640,6 +641,7 @@ namespace COMMON
 			#endregion
 
 			#region properties
+			public bool Connected { get; set; }
 			public string Key { get => ToString(); }
 			public Guid ID { get; private set; }
 			public object myLock = new object();

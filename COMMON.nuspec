@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>PMS.COMMON</id>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <title>PMS.COMMON</title>
     <authors>philippemp31</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -11,15 +11,19 @@
     <projectUrl>https://github.com/pmespace/PMS.COMMON/</projectUrl>
     <description>Shared tools for PMS.CHPN and PMS.NEXO projects</description>
     <releaseNotes>
+      1.0.4
+      - Fixed an issue: connecting and disconnecting immediately stopped the CStreamServer
+      - Added a OnDisconnect property to the CStreamServerSettings to warn a client has been disconnected
+      
       1.0.3
-      .Updates to project properties
+      - Updates to project properties
       
       1.0.2
-      .Added a function to CMisc allowing to test a folder for existence and written rights
-      .Made some objects available to COM
+      - Added a function to CMisc allowing to test a folder for existence and written rights
+      - Made some objects available to COM
       
       1.0.0
-      .Creation
+      - Creation
     </releaseNotes>
     <copyright>PMS - philippemp31 ar outlook dot com</copyright>
     <developmentDependency>true</developmentDependency>

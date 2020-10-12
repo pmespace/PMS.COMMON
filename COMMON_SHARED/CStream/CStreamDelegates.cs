@@ -33,6 +33,14 @@ namespace COMMON
 		/// <returns>A message to send or null if no message to send back</returns>
 		public delegate byte[] ServerOnMessageDelegate(TcpClient client, byte[] request, out bool addBufferSize, CThreadData threadData, object o);
 		/// <summary>
+		/// Function called when a client disconnects from the server
+		/// </summary>
+		/// <param name="remoteClient">The remote address being disconnected</param>
+		/// <param name="threadData">Thread ID as given by the creator of the thread</param>
+		/// <param name="o">Private parameters to pass to the thread</param>
+		/// <returns>FALSE if the server must stop immediately before receiving any request, TRUE if the server must carry on</returns>
+		public delegate bool ServerOnDisconnectDelegate(string remoteClient, CThreadData threadData, object o);
+		/// <summary>
 		/// Function called when a the server has received a stop request from any client
 		/// </summary>
 		/// <param name="threadData">Thread ID as given by the creator of the thread</param>

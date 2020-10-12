@@ -70,20 +70,20 @@ namespace COMMON
 		/// <returns>TRUE if write operation has been made, FALSE otherwise</returns>
 		private bool Write(byte[] data)
 		{
-			try
+			//try
+			//{
+			if (null != sslStream)
 			{
-				if (null != sslStream)
-				{
-					sslStream.Write(data);
-					return true;
-				}
-				else if (null != networkStream)
-				{
-					networkStream.Write(data, 0, data.Length);
-					return true;
-				}
+				sslStream.Write(data);
+				return true;
 			}
-			catch (Exception) { }
+			else if (null != networkStream)
+			{
+				networkStream.Write(data, 0, data.Length);
+				return true;
+			}
+			//}
+			//catch (Exception) { }
 			return false;
 		}
 		/// <summary>
@@ -106,18 +106,20 @@ namespace COMMON
 		private int Read(byte[] data, int offset, int count)
 		{
 			int read = 0;
-			try
+			//try
+			//{
+			if (null != sslStream)
 			{
-				if (null != sslStream)
-				{
-					read = sslStream.Read(data, offset, count);
-				}
-				else if (null != networkStream)
-				{
-					read = networkStream.Read(data, 0, data.Length);
-				}
+				read = sslStream.Read(data, offset, count);
 			}
-			catch (Exception ex) { read = 0; }
+			else if (null != networkStream)
+			{
+				read = networkStream.Read(data, 0, data.Length);
+			}
+			//}
+			//catch (Exception ex) { read = 0; }
+			if (0 == read)
+				throw new CDisconnected();
 			return read;
 		}
 		/// <summary>
@@ -168,34 +170,34 @@ namespace COMMON
 		/// <returns>The received buffer</returns>
 		private byte[] Receive(int bufferSize)
 		{
-			try
+			//try
+			//{
+			// allocate buffer to receive
+			byte[] buffer = new byte[bufferSize];
+			int bytesRead = 0;
+			bool doContinue;
+			do
 			{
-				// allocate buffer to receive
-				byte[] buffer = new byte[bufferSize];
-				int bytesRead = 0;
-				bool doContinue;
-				do
+				// read stream for the specified buffer
+				int nbBytes = Read(buffer, bytesRead, buffer.Length - bytesRead);
+				if (doContinue = (0 != nbBytes))
 				{
-					// read stream for the specified buffer
-					int nbBytes = Read(buffer, bytesRead, buffer.Length - bytesRead);
-					if (doContinue = (0 != nbBytes))
-					{
-						bytesRead += nbBytes;
-						// we continue until we've filled up the buffer
-						doContinue = bytesRead < bufferSize;
-					}
+					bytesRead += nbBytes;
+					// we continue until we've filled up the buffer
+					doContinue = bytesRead < bufferSize;
 				}
-				while (doContinue);
-				// create a buffer of the real number of bytes received (which can't be higher than the expected number of bytes)
-				byte[] bufferReceived = new byte[bytesRead];
-				Buffer.BlockCopy(buffer, 0, bufferReceived, 0, bytesRead);
-				return bufferReceived;
 			}
-			catch (Exception ex)
-			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
-			}
-			return null;
+			while (doContinue);
+			// create a buffer of the real number of bytes received (which can't be higher than the expected number of bytes)
+			byte[] bufferReceived = new byte[bytesRead];
+			Buffer.BlockCopy(buffer, 0, bufferReceived, 0, bytesRead);
+			return bufferReceived;
+			//}
+			//catch (Exception ex)
+			//{
+			//	CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+			//}
+			//return null;
 		}
 		/// <summary>
 		/// Receive a buffer of an unknown size from the server.
@@ -208,22 +210,22 @@ namespace COMMON
 		public byte[] Receive(out int size)
 		{
 			size = 0;
-			try
+			//try
+			//{
+			// get the size of the buffer to receive
+			byte[] bufferSize = Receive((int)LengthBufferSize);
+			if ((int)LengthBufferSize == bufferSize.Length)
 			{
-				// get the size of the buffer to receive
-				byte[] bufferSize = Receive((int)LengthBufferSize);
-				if ((int)LengthBufferSize == bufferSize.Length)
-				{
-					// get the size of the buffer to read and start reading it
-					size = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, LengthBufferSize);
-					byte[] buffer = Receive(size);
-					return buffer;
-				}
+				// get the size of the buffer to read and start reading it
+				size = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, LengthBufferSize);
+				byte[] buffer = Receive(size);
+				return buffer;
 			}
-			catch (Exception ex)
-			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
-			}
+			//}
+			//catch (Exception ex)
+			//{
+			//	CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+			//}
 			return null;
 		}
 		/// <summary>

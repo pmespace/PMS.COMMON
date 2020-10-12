@@ -9,6 +9,7 @@
     <Import_RootNamespace>COMMON</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)CExceptions\CDisconnected.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CJson\CJson.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CJson\CJsonConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CLog\CLog.cs" />
@@ -28,7 +29,6 @@
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)CLog\" />
     <Folder Include="$(MSBuildThisFileDirectory)CMisc\" />
-    <Folder Include="$(MSBuildThisFileDirectory)CExceptions\" />
     <Folder Include="$(MSBuildThisFileDirectory)CWin32\" />
   </ItemGroup>
 </Project>

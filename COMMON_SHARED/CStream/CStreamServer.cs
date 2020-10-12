@@ -59,6 +59,11 @@ namespace COMMON
 		/// </summary>
 		public CStreamDelegates.ServerOnMessageDelegate OnMessage { get; set; } = null;
 		/// <summary>
+		/// Called when a client connected to the server.
+		/// This function allows to initialise the client context inside the server.
+		/// </summary>
+		public CStreamDelegates.ServerOnDisconnectDelegate OnDisconnect { get; set; } = null;
+		/// <summary>
 		/// Called after the server has received a stop order.
 		/// This function allows to clear the server context.
 		/// </summary>
@@ -70,7 +75,7 @@ namespace COMMON
 		#endregion
 
 		#region methods
-		public static CStreamServerStartSettings Prepare(CStreamServerSettings streamServerSettings, CThreadData threadData, CStreamDelegates.ServerOnMessageDelegate onMessage, CStreamDelegates.ServerOnStartDelegate onStart = null, CStreamDelegates.ServerOnConnectDelegate onConnect = null, CStreamDelegates.ServerOnStopDelegate onStop = null, object parameters = null)
+		public static CStreamServerStartSettings Prepare(CStreamServerSettings streamServerSettings, CThreadData threadData, CStreamDelegates.ServerOnMessageDelegate onMessage, CStreamDelegates.ServerOnStartDelegate onStart = null, CStreamDelegates.ServerOnConnectDelegate onConnect = null, CStreamDelegates.ServerOnDisconnectDelegate onDisconnect = null, CStreamDelegates.ServerOnStopDelegate onStop = null, object parameters = null)
 		{
 			return new CStreamServerStartSettings()
 			{
@@ -78,6 +83,7 @@ namespace COMMON
 				StreamServerSettings = streamServerSettings,
 				OnStart = onStart,
 				OnConnect = onConnect,
+				OnDisconnect = onDisconnect,
 				OnMessage = onMessage,
 				OnStop = onStop,
 				Parameters = parameters,
@@ -140,15 +146,26 @@ namespace COMMON
 			connectedClients.Clear();
 			try
 			{
+				bool fOK = true;
 				// verify wether starting the server is accepted or not
-				if (null == streamServerStartSettings.OnStart
-					|| streamServerStartSettings.OnStart(streamServerStartSettings.ThreadData, streamServerStartSettings.Parameters))
+				if (null != streamServerStartSettings.OnStart)
+					try
+					{
+						fOK = streamServerStartSettings.OnStart(streamServerStartSettings.ThreadData, streamServerStartSettings.Parameters);
+					}
+					catch (Exception ex)
+					{
+						CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "OnStart generated an exception");
+						// by default let's start the server
+						fOK = true;
+					}
+				if (fOK)
 				{
 					// create a TCP/IP socket and start listenning for incoming connections
 					listener = new TcpListener(IPAddress.Any, (int)streamServerStartSettings.StreamServerSettings.Port);
 					try
 					{
-						CLog.Add(Description + "Server listener created at " + listener.LocalEndpoint.ToString());
+						CLog.Add(Description + "Server listener created reading port " + streamServerStartSettings.StreamServerSettings.Port);
 						//listenerEvents.Reset();
 						listener.Start();
 						try
@@ -262,7 +279,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Server.OnStop generated an exception");
+					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "OnStop generated an exception");
 				}
 				//CThread.SendNotification(ThreadData, ID, 0, true);
 			}
@@ -285,61 +302,92 @@ namespace COMMON
 			listenerEvents.SetStarted();
 			while (keepOnRunning)
 			{
+				bool fOK = false;
+				TcpClient tcp = null;
 				try
 				{
 					// accept client connection
-					TcpClient tcp = listener.AcceptTcpClient();
-					// verify if connection is accepted from that ip address
-					if (null == streamServerStartSettings.OnConnect
-						|| streamServerStartSettings.OnConnect(tcp, streamServerStartSettings.ThreadData, streamServerStartSettings.Parameters))
+					tcp = listener.AcceptTcpClient();
+					Client client = null;
+					try
 					{
-						tcp.SendTimeout = streamServerStartSettings.StreamServerSettings.SendTimeout * CStreamSettings.ONESECOND;
-						tcp.ReceiveTimeout = streamServerStartSettings.StreamServerSettings.ReceiveTimeout * CStreamSettings.ONESECOND;
-						Client client = new Client(tcp, streamServerStartSettings.StreamServerSettings);
-
-						// start the processing and reader threads to process messages from this client
-						if (client.ReceivingThread.Start(StreamServerReceiverMethod, streamServerStartSettings.ThreadData, client, client.ReceiverEvents.Started))
+						EndPoint clientEndPoint = tcp.Client.RemoteEndPoint;
+						client = new Client(tcp, streamServerStartSettings.StreamServerSettings);
+						string clientKey = client.Key;
+						try
 						{
-							if (client.ProcessingThread.Start(StreamServerProcessorMethod, streamServerStartSettings.ThreadData, client, client.ProcessorEvents.Started))
+							tcp.SendTimeout = streamServerStartSettings.StreamServerSettings.SendTimeout * CStreamSettings.ONESECOND;
+							tcp.ReceiveTimeout = streamServerStartSettings.StreamServerSettings.ReceiveTimeout * CStreamSettings.ONESECOND;
+							// start the processing and receiving threads to process messages from this client
+							if (client.ReceivingThread.Start(StreamServerReceiverMethod, streamServerStartSettings.ThreadData, client, client.ReceiverEvents.Started))
 							{
-								lock (myLock)
+								if (client.ProcessingThread.Start(StreamServerProcessorMethod, streamServerStartSettings.ThreadData, client, client.ProcessorEvents.Started))
 								{
-									CLog.Add(threadName + "Client: " + tcp.Client.RemoteEndPoint.ToString() + " is connected to the server");
-									connectedClients.Add(client.Key, client);
+									// arrived here everything's in place, let's verify whether the client is accepted or not from that ip address
+									bool fConnected = false;
+									try
+									{
+										if (null != streamServerStartSettings.OnConnect)
+											fConnected = streamServerStartSettings.OnConnect(tcp, streamServerStartSettings.ThreadData, streamServerStartSettings.Parameters);
+									}
+									catch (Exception ex)
+									{
+										CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "OnConnect generated an exception");
+									}
+									if (fConnected)
+									{
+										CLog.Add(threadName + "Client: " + clientEndPoint.ToString() + " is connected to the server");
+										lock (myLock)
+										{
+											connectedClients.Add(client.Key, client);
+											fOK = true;
+										}
+									}
+									else
+									{
+										CLog.Add(threadName + "Connection from " + clientEndPoint.ToString() + " has been refused", TLog.WARNG);
+									}
+								}
+								else
+								{
+									CLog.Add(threadName + "Failed to start processor thread for client " + clientEndPoint.ToString(), TLog.ERROR);
 								}
 							}
 							else
 							{
-								CLog.Add(threadName + "Failed to start processor thread for client " + tcp.Client.RemoteEndPoint.ToString(), TLog.ERROR);
-								client.StopReceivingThread();
+								CLog.Add(threadName + "Failed to start receiver thread for client " + clientEndPoint.ToString(), TLog.ERROR);
 							}
 						}
-						else
+						catch (Exception ex)
 						{
-							CLog.Add(threadName + "Failed to start receiver thread for client " + tcp.Client.RemoteEndPoint.ToString(), TLog.ERROR);
+							CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "failed to start server");
+							if (!fOK)
+								try
+								{
+									if (connectedClients.ContainsKey(clientKey))
+										connectedClients.Remove(clientKey);
+								}
+								catch (Exception) { }
 						}
 					}
-					else
+					catch (Exception ex)
 					{
-						CLog.Add(threadName + "Connection from " + tcp.Client.RemoteEndPoint.ToString() + " has been refused", TLog.WARNG);
+						CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "failed to prepare server to start");
 					}
+					finally
+					{
+						// cleanup if necesary
+						if (null != client && !fOK)
+						{
+							client.Stop();
+						}
+					}
+					if (!fOK && null != tcp)
+						tcp.Close();
 				}
 				catch (Exception ex)
 				{
-					if (ex is SocketException)
-					{
-						res = (int)ThreadResult.OK;
-					}
-					if (ex is ObjectDisposedException)
-					{
-						CLog.Add(threadName + "Socket disposed, shutting down");
-						res = (int)ThreadResult.OK;
-					}
-					else
-					{
-						CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
-						res = (int)ThreadResult.Exception;
-					}
+					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Server is stopping");
 					keepOnRunning = false;
 				}
 			}
@@ -366,6 +414,12 @@ namespace COMMON
 			bool keepOnRunning = true;
 			bool clientShutdown = false;
 			client.ReceiverEvents.SetStarted();
+			EndPoint clientEndPoint = null;
+			try
+			{
+				clientEndPoint = client.Tcp.Client.RemoteEndPoint;
+			}
+			catch (Exception) { }
 			// start receiving messages for that server
 			while (keepOnRunning)
 			{
@@ -409,13 +463,15 @@ namespace COMMON
 						// no message received, might be an exception because the socket was closed
 						CLog.Add(threadName + "Reception of an empty message, probably client disconnection");
 						//res = (int)StreamServerResult.clientReceivedInvalidMessage;
-						//keepOnRunning = false;
+						keepOnRunning = false;
 					}
 				}
 				catch (Exception ex)
 				{
-					if (ex is IOException)
+					if (ex is IOException || ex is CDisconnected)
 					{
+						// the connection has been closed, normal stop
+						CLog.Add(threadName + "Client " + (null != clientEndPoint ? clientEndPoint.ToString() : "[address not available]") + " is disconnecting");
 						res = (int)ThreadResult.OK;
 					}
 					else
@@ -425,6 +481,15 @@ namespace COMMON
 					}
 					keepOnRunning = false;
 				}
+			}
+			// warn the client is disconnecting from the server
+			try
+			{
+				streamServerStartSettings.OnDisconnect?.Invoke(null != clientEndPoint ? clientEndPoint.ToString() : "[address not available]", streamServerStartSettings.ThreadData, streamServerStartSettings.Parameters);
+			}
+			catch (Exception ex)
+			{
+				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "OnDisconnect generated an exception");
 			}
 			client.ReceiverEvents.SetStopped();
 			client.Stop();
@@ -590,6 +655,7 @@ namespace COMMON
 			public AutoResetEvent StopProcessingThreadEvent { get; private set; }
 			public int WaitBeforeAbort { get; set; }
 			private Mutex isStoppingMutex = new Mutex(false);
+			internal string Server = null;
 			#endregion
 
 			#region methods
@@ -629,7 +695,12 @@ namespace COMMON
 			}
 			public override string ToString()
 			{
-				return Tcp.Client.RemoteEndPoint.ToString();
+				try
+				{
+					return Tcp.Client.RemoteEndPoint.ToString();
+				}
+				catch (Exception) { }
+				return "[not connected]";
 			}
 			#endregion
 		}

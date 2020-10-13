@@ -11,6 +11,9 @@
     <projectUrl>https://github.com/pmespace/PMS.COMMON/</projectUrl>
     <description>Shared tools for PMS.CHPN and PMS.NEXO projects</description>
     <releaseNotes>
+      1.0.6 
+      - Exceptions inside CMisc are nolonger. IMPACTLESS
+      
       1.0.5
       - Changed the return value for OnDisconnect in CStreamServerStartSettings
       - Made sure no exception can plague calling OnConnect and OnDisconnect

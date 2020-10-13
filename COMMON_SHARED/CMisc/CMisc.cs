@@ -53,7 +53,7 @@ namespace COMMON
 			catch (Exception ex)
 			{
 				res = string.Empty;
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+				//CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
 			}
 			return res;
 		}
@@ -74,7 +74,7 @@ namespace COMMON
 			catch (Exception ex)
 			{
 				res = string.Empty;
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+				//CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
 			}
 			return res;
 		}
@@ -96,7 +96,7 @@ namespace COMMON
 			catch (Exception ex)
 			{
 				i = 0;
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Received: '" + s + "' (length: " + s.Length + ")");
+				//CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Received: '" + s + "' (length: " + s.Length + ")");
 			}
 			return i;
 		}

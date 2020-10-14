@@ -115,6 +115,7 @@ namespace COMMON
 		private CThreadEvents listenerEvents = new CThreadEvents();
 		private Clients connectedClients = new Clients();
 		private Mutex isCleaningUpMutex = new Mutex(false);
+		private bool isCleaningUp = false;
 		#endregion
 
 		#region constants
@@ -242,6 +243,8 @@ namespace COMMON
 		{
 			if (isCleaningUpMutex.WaitOne(0))
 			{
+				// indicate the server is stopping
+				isCleaningUp = true;
 				// stop listener (that will stop the thread waiting for clients)
 				if (null != listener)
 				{
@@ -484,7 +487,12 @@ namespace COMMON
 			// warn the client is disconnecting from the server
 			try
 			{
-				if (client.Connected)
+				/* 
+				 * OnDisconnect is called ONLY if the server is not stopping because: if the server is stopping the main thread
+				 * is waiting for the server to stop. Calling OnDisconnect if any UI request is issued (displaying a status,...)
+				 * will block the main thread preventing the application to close.
+				 */
+				if (client.Connected && !isCleaningUp)
 					streamServerStartSettings.OnDisconnect?.Invoke(null != clientEndPoint ? clientEndPoint.ToString() : "[address not available]", streamServerStartSettings.ThreadData, streamServerStartSettings.Parameters);
 			}
 			catch (Exception ex)
@@ -518,61 +526,61 @@ namespace COMMON
 			{
 				try
 				{
-					switch (WaitHandle.WaitAny(handles))
+					int index = WaitHandle.WaitAny(handles);
+					if (client.StopProcessingThreadEvent == handles[index])
 					{
 						// thread termination event
-						case 0:
-							keepOnRunning = false;
-							break;
-						// message reception event
-						case 1:
-							byte[] request = null;
-							// dequeue the message
-							lock (client.myLock)
-							{
-								try
-								{
-									request = client.Messages.Dequeue();
-								}
-								catch (Exception ex)
-								{
-									CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, threadName + "Fetching message generated an exception");
-									request = null;
-								}
-							}
-							// if a message has been fetched, process it
+						keepOnRunning = false;
+					}
+					else if (client.MessageReceivedEvent == handles[index])
+					{
+
+						byte[] request = null;
+						// dequeue the message
+						lock (client.myLock)
+						{
 							try
 							{
-								if (null != request)
-								{
-									// forward request for processing
-									byte[] reply = streamServerStartSettings.OnMessage(client.Tcp, request, out bool addBufferSize, streamServerStartSettings.ThreadData, streamServerStartSettings.Parameters);
-									if (null != reply)
-									{
-										if (client.StreamIO.Send(reply, addBufferSize))
-										{
-											CLog.Add(threadName + "Exchange complete - Message [" + reply.Length + " bytes]: " + CMisc.BytesToHexStr(request) + " - Reply (" + reply.Length + "): " + CMisc.BytesToHexStr(reply));
-										}
-										else
-										{
-											CLog.Add(threadName + "Error sending message back to the client - Request [" + request.Length + " bytes]: " + CMisc.BytesToHexStr(request));
-										}
-									}
-									else
-									{
-										CLog.Add(threadName + "No reply to send - Request [" + request.Length + " bytes]: " + CMisc.BytesToHexStr(request));
-									}
-								}
+								request = client.Messages.Dequeue();
 							}
 							catch (Exception ex)
 							{
-								CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, threadName + "OnRequest method generated an exception");
+								CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, threadName + "Fetching message generated an exception");
+								request = null;
 							}
-							break;
-						// error
-						default:
-							CLog.Add(threadName + "Unknown non fatal error");
-							break;
+						}
+						// if a message has been fetched, process it
+						try
+						{
+							if (null != request)
+							{
+								// forward request for processing
+								byte[] reply = streamServerStartSettings.OnMessage(client.Tcp, request, out bool addBufferSize, streamServerStartSettings.ThreadData, streamServerStartSettings.Parameters);
+								if (null != reply)
+								{
+									if (client.StreamIO.Send(reply, addBufferSize))
+									{
+										CLog.Add(threadName + "Exchange complete - Message [" + reply.Length + " bytes]: " + CMisc.BytesToHexStr(request) + " - Reply (" + reply.Length + "): " + CMisc.BytesToHexStr(reply));
+									}
+									else
+									{
+										CLog.Add(threadName + "Error sending message back to the client - Request [" + request.Length + " bytes]: " + CMisc.BytesToHexStr(request));
+									}
+								}
+								else
+								{
+									CLog.Add(threadName + "No reply to send - Request [" + request.Length + " bytes]: " + CMisc.BytesToHexStr(request));
+								}
+							}
+						}
+						catch (Exception ex)
+						{
+							CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, threadName + "OnRequest method generated an exception");
+						}
+					}
+					else
+					{
+						CLog.Add(threadName + "Unknown non fatal error");
 					}
 				}
 				catch (Exception ex)

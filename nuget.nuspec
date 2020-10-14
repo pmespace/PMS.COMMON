@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>PMS.COMMON</id>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
     <title>PMS.COMMON</title>
     <authors>philippemp31</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -13,6 +13,7 @@
     <releaseNotes>
       1.0.6 
       - Exceptions inside CMisc are nolonger. IMPACTLESS
+      - The OnDisconnect function is not called if the server is shutting down because this may cause the main threda to hang
       
       1.0.5
       - Changed the return value for OnDisconnect in CStreamServerStartSettings

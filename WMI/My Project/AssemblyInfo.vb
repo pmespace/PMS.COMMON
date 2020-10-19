@@ -15,7 +15,7 @@ Imports System.Runtime.InteropServices
 <Assembly: AssemblyCopyright("Copyright ©  2020")>
 <Assembly: AssemblyTrademark("PMS")>
 
-<Assembly: ComVisible(False)>
+<Assembly: ComVisible(True)>
 
 'The following GUID is for the ID of the typelib if this project is exposed to COM
 <Assembly: Guid("885b22b5-8e9f-4594-9842-665cf15777e3")>
@@ -31,5 +31,5 @@ Imports System.Runtime.InteropServices
 ' by using the '*' as shown below:
 ' <Assembly: AssemblyVersion("1.0.*")>
 
-<Assembly: AssemblyVersion("2020.288.1611.0")>
-<Assembly: AssemblyFileVersion("2020.288.1611.0")>
+<Assembly: AssemblyVersion("1.1.7597.0")>
+<Assembly: AssemblyFileVersion("1.1.7597.0")>

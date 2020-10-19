@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>PMS.COMMON</id>
-    <version>1.0.6</version>
+    <version>2.0.0</version>
     <title>PMS.COMMON</title>
     <authors>philippemp31</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -11,6 +11,12 @@
     <projectUrl>https://github.com/pmespace/PMS.COMMON/</projectUrl>
     <description>Shared tools for PMS.CHPN and PMS.NEXO projects</description>
     <releaseNotes>
+      2.0.0
+      - Removed WMI from the package
+      
+      1.1.0
+      - Adjusted version number
+      
       1.0.6 
       - Exceptions inside CMisc are nolonger. IMPACTLESS
       - The OnDisconnect function is not called if the server is shutting down because this may cause the main threda to hang
@@ -33,7 +39,7 @@
       1.0.0
       - Creation
     </releaseNotes>
-    <copyright>PMS - philippemp31 ar outlook dot com</copyright>
+    <copyright>PMS - philippemp31 at outlook dot com</copyright>
     <developmentDependency>true</developmentDependency>
     <tags>CHPN NEXO</tags>
     <dependencies>
@@ -45,13 +51,9 @@
     </dependencies>
   </metadata>
   <files>
-    <file src=".\Release\PMS.WMI.dll" target="lib\net47"></file>
-    <file src=".\Release\PMS.WMI.xml" target="lib\net47"></file>
     <file src=".\Release\PMS.COMMON.dll" target="lib\net47"></file>
     <file src=".\Release\PMS.COMMON.xml" target="lib\net47"></file>
     <file src=".\Release\PMS.COMMON.tlb" target="lib\net47"></file>
-    <file src=".\Release\PMS.WMI35.dll" target="lib\net35"></file>
-    <file src=".\Release\PMS.WMI35.xml" target="lib\net35"></file>
     <file src=".\Release\PMS.COMMON35.dll" target="lib\net35"></file>
     <file src=".\Release\PMS.COMMON35.xml" target="lib\net35"></file>
   </files>

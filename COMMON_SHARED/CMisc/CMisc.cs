@@ -39,6 +39,7 @@ namespace COMMON
 		public const int UNKNOWN = -int.MaxValue;
 		/// <summary>
 		/// Converts an array of bytes to an hexadecimal string
+		/// Each byte gives a 2 chars hexadecimal value
 		/// </summary>
 		/// <param name="buffer">The array of bytes to convert</param>
 		/// <returns>The converted array into a string if successful, an empty string if any error occured</returns>
@@ -53,28 +54,24 @@ namespace COMMON
 			catch (Exception ex)
 			{
 				res = string.Empty;
-				//CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
 			}
 			return res;
 		}
 		/// <summary>
-		/// Converts an array of bytes to a string
+		/// Converts an array of bytes to a UTF-8 string (if possible)
 		/// </summary>
 		/// <param name="buffer">The array of bytes to convert</param>
-		/// <returns>The converted array into a string if successful, an empty string if any error occured</returns>
+		/// <returns>The converted array into a UTF-8 string if successful, an empty string if any error occured</returns>
 		public static string BytesToStr(byte[] buffer)
 		{
 			string res = string.Empty;
 			try
 			{
-				//foreach (byte b in buffer)
-				//res += b;
 				Encoding.UTF8.GetString(buffer);
 			}
 			catch (Exception ex)
 			{
 				res = string.Empty;
-				//CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
 			}
 			return res;
 		}
@@ -96,7 +93,6 @@ namespace COMMON
 			catch (Exception ex)
 			{
 				i = 0;
-				//CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Received: '" + s + "' (length: " + s.Length + ")");
 			}
 			return i;
 		}

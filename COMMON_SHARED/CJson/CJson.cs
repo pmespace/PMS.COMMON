@@ -76,7 +76,7 @@ namespace COMMON
 			try
 			{
 				// open file and deserialize it
-				using (FileStream stream = new FileStream(FileName, FileMode.OpenOrCreate))
+				using (FileStream stream = new FileStream(FileName, FileMode.OpenOrCreate, FileAccess.Read))
 				{
 					using (StreamReader reader = new StreamReader(stream))
 					{
@@ -102,7 +102,7 @@ namespace COMMON
 			try
 			{
 				// open file and deserialize it
-				using (FileStream stream = new FileStream(FileName, FileMode.Create))
+				using (FileStream stream = new FileStream(FileName, FileMode.Create, FileAccess.Write))
 				{
 					using (StreamWriter writer = new StreamWriter(stream))
 					{

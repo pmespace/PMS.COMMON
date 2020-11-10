@@ -52,7 +52,7 @@ namespace COMMON
 	[Guid("87BB223F-6A59-4592-8A0F-057625532B8C")]
 	[ClassInterface(ClassInterfaceType.None)]
 	[ComVisible(true)]
-	public class CThread: IThread
+	public class CThread : IThread
 	{
 		#region constructor
 		public CThread()
@@ -251,8 +251,7 @@ namespace COMMON
 		/// <param name="value">Value to send</param>
 		public void SendNotification(int value, bool stopped)
 		{
-			if (0 != ID
-				&& null != ThreadData
+			if (null != ThreadData
 				&& IntPtr.Zero != ThreadData.WindowToWarn)
 				SendNotification(ThreadData, ID, value, stopped);
 		}
@@ -265,8 +264,7 @@ namespace COMMON
 		/// <param name="stopped">Tru if use <see cref="CThreadData.StoppedMessage"/>, using <see cref="CThreadData.InformationMessage"/> otherwise</param>
 		public static void SendNotification(CThreadData threadData, int id, int value, bool stopped = true)
 		{
-			if (0 != id
-				&& null != threadData
+			if (null != threadData
 				&& IntPtr.Zero != threadData.WindowToWarn)
 				Win32.PostMessage(threadData.WindowToWarn, stopped ? threadData.StoppedMessage : threadData.InformationMessage, id, value);
 		}

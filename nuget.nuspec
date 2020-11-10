@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>PMS.COMMON</id>
-    <version>2.0.2</version>
+    <version>2.0.3</version>
     <title>PMS.COMMON</title>
     <authors>philippemp31</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -11,6 +11,9 @@
     <projectUrl>https://github.com/pmespace/PMS.COMMON/</projectUrl>
     <description>Shared tools for PMS.CHPN and PMS.NEXO projects</description>
     <releaseNotes>
+      2.0.3
+      - CThread no longer requires an ID to be set to send a notificatioin to the window
+      
       2.0.2
       - Fixed access to readonly json files in CJson: files could not be read if shared only as file access was set to read/write
       

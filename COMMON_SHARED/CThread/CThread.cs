@@ -47,6 +47,8 @@ namespace COMMON
 
 		[DispId(5100)]
 		bool Wait(int timer = Timeout.Infinite);
+		[DispId(5101)]
+		void SendNotification(int value, bool stopped);
 		#endregion
 	}
 	[Guid("87BB223F-6A59-4592-8A0F-057625532B8C")]
@@ -238,6 +240,8 @@ namespace COMMON
 				Result = (int)ThreadResult.Exception;
 			}
 			// indicates the thread is off
+			if (null != ThreadData && null != ThreadData.EventToSignal)
+				ThreadData.EventToSignal.Set();
 			SendNotification(Result, true);
 			// this MUST be the final statements
 			// indicate the thread is finished
@@ -245,10 +249,12 @@ namespace COMMON
 			Events.SetStopped();
 		}
 		/// <summary>
-		/// Send an event notification to the caller
+		/// Send an event notification to the caller if a window handle has been provided
+		/// lParam will be set using the "value"
+		/// wParam will be set using the thread ID
 		/// </summary>
 		/// <param name="stopped">Tru if use <see cref="CThreadData.StoppedMessage"/>, using <see cref="CThreadData.InformationMessage"/> otherwise</param>
-		/// <param name="value">Value to send</param>
+		/// <param name="value">Value to send, inside lParam</param>
 		public void SendNotification(int value, bool stopped)
 		{
 			if (null != ThreadData
@@ -259,8 +265,8 @@ namespace COMMON
 		/// Send an event notification to the caller
 		/// </summary>
 		/// <param name="threadData">Data to use to send the notification</param>
-		/// <param name="id">Thread ID</param>
-		/// <param name="value">Value to send</param>
+		/// <param name="id">Thread ID, inside wParam</param>
+		/// <param name="value">Value to send, inside lParam</param>
 		/// <param name="stopped">Tru if use <see cref="CThreadData.StoppedMessage"/>, using <see cref="CThreadData.InformationMessage"/> otherwise</param>
 		public static void SendNotification(CThreadData threadData, int id, int value, bool stopped = true)
 		{

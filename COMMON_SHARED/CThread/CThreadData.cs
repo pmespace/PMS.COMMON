@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System;
 using System.Reflection;
+using System.Threading;
 
 namespace COMMON
 {
@@ -22,6 +23,8 @@ namespace COMMON
 		uint WMThreadStopped { get; }
 		[DispId(51)]
 		uint WMThreadInformation { get; }
+		[DispId(60)]
+		EventWaitHandle EventToSignal { get; set; }
 		#endregion
 	}
 	[Guid("A6DA1EAA-A706-4D89-A790-B34710EB2818")]
@@ -76,6 +79,15 @@ namespace COMMON
 			set => _windowtowarn = value;
 		}
 		private IntPtr _windowtowarn = IntPtr.Zero;
+		/// <summary>
+		/// Event which will be signaled when the thread terminates
+		/// </summary>
+		public EventWaitHandle EventToSignal
+		{
+			get => _eventtosignal;
+			set => _eventtosignal = value;
+		}
+		private EventWaitHandle _eventtosignal = null;
 		#endregion
 
 		#region methods

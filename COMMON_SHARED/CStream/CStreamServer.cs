@@ -10,20 +10,6 @@ using System.Collections.ObjectModel;
 
 namespace COMMON
 {
-	[ComVisible(true)]
-	public enum StreamServerResult
-	{
-		_begin = ThreadResult._end,
-		serverIsStarting,
-		serverFailedToStart,
-		serverStartDeclined,
-		serverIsStopping,
-		clientConnectionDeclined,
-		clientStartFailed,
-		clientReceivedInvalidMessage,
-		_end,
-	}
-
 	/// <summary>
 	/// Structure to use to start a <see cref="CStreamServer"/>
 	/// </summary>
@@ -31,6 +17,9 @@ namespace COMMON
 	public class CStreamServerStartSettings
 	{
 		#region properties
+		/// <summary>
+		/// Indicates whether the object is valid or not
+		/// </summary>
 		public bool IsValid { get => (null != StreamServerSettings && StreamServerSettings.IsValid) && (null != ThreadData && ThreadData.IsValid) && null != OnMessage; }
 		/// <summary>
 		/// Synchrounous server (1 thread) or not (1 main thread + 1 thread per client)
@@ -75,6 +64,18 @@ namespace COMMON
 		#endregion
 
 		#region methods
+		/// <summary>
+		/// Prepare a full structure
+		/// </summary>
+		/// <param name="streamServerSettings"></param>
+		/// <param name="threadData"><see cref="CThreadData"/></param>
+		/// <param name="onMessage">Functioncalled when a message is received</param>
+		/// <param name="onStart">Function called when the server starts</param>
+		/// <param name="onConnect">Function called when a client tries to connect</param>
+		/// <param name="onDisconnect">Function called when a client disconnects</param>
+		/// <param name="onStop">Function called when the server stops</param>
+		/// <param name="parameters">Parameters to pass to all these functions</param>
+		/// <returns></returns>
 		public static CStreamServerStartSettings Prepare(CStreamServerSettings streamServerSettings, CThreadData threadData, CStreamDelegates.ServerOnMessageDelegate onMessage, CStreamDelegates.ServerOnStartDelegate onStart = null, CStreamDelegates.ServerOnConnectDelegate onConnect = null, CStreamDelegates.ServerOnDisconnectDelegate onDisconnect = null, CStreamDelegates.ServerOnStopDelegate onStop = null, object parameters = null)
 		{
 			return new CStreamServerStartSettings()

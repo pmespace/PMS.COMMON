@@ -147,7 +147,7 @@ namespace COMMON
 				}
 				else
 				{
-					CLog.Add("Timeout receiving data");
+					CLog.Add("No data received");
 					timeout = true;
 				}
 			}

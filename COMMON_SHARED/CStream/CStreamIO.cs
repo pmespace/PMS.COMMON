@@ -118,8 +118,8 @@ namespace COMMON
 			}
 			//}
 			//catch (Exception ex) { read = 0; }
-			if (0 == read)
-				throw new CDisconnected();
+			//if (0 == read)
+			//	throw new CDisconnected();
 			return read;
 		}
 		/// <summary>

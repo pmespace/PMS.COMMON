@@ -108,14 +108,16 @@ namespace COMMON
 		/// <param name="hwnd">window to warn</param>
 		/// <param name="threadstopped">message sent to that window when the thread is stopping</param>
 		/// <param name="information">message sent to that window when the thread needs to inform of an event</param>
+		/// <param name="eventOnTerminate">event to signal when the thread terminates</param>
 		/// <returns>A <see cref="CThreadData"/> object</returns>
-		public static CThreadData Prepare(IntPtr hwnd, uint threadstopped = WM_THREAD_STOPPED, uint information = WM_THREAD_INFORMATION)
+		public static CThreadData Prepare(IntPtr hwnd, uint threadstopped = WM_THREAD_STOPPED, uint information = WM_THREAD_INFORMATION, EventWaitHandle eventOnTerminate=null)
 		{
 			return new CThreadData()
 			{
 				WindowToWarn = hwnd,
 				StoppedMessage = threadstopped,
 				InformationMessage = information,
+				EventToSignal=eventOnTerminate,
 			};
 		}
 		#endregion

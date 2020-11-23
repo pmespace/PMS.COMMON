@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>PMS.COMMON</id>
-    <version>2.0.5</version>
+    <version>3.0.0</version>
     <title>PMS.COMMON</title>
     <authors>philippemp31</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -11,6 +11,10 @@
     <projectUrl>https://github.com/pmespace/PMS.COMMON/</projectUrl>
     <description>Shared tools for PMS.CHPN and PMS.NEXO projects</description>
     <releaseNotes>
+      3.0.0
+      - Update CThreadData.Prepare to allow specify a terminate event
+      - Added a new CDatabase object to easily reach OLEDB databases
+      
       2.0.5
       - Cosmetic update
 

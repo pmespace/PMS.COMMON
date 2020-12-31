@@ -93,7 +93,25 @@ Public Class FTestCommon
 			lblSelectRes.ForeColor = Color.Yellow
 			lblSelectRes.Text = "KO"
 		End If
+
+		'Dim ds As New DataSet
+		'Dim l As List(Of Object)
+		'l = database.SelectRequest(Of Object)(efSelect.Text, AddressOf Feed)
+		'If Not IsNothing(l) Then
+		'	lblSelectRes.BackColor = Color.Transparent
+		'	lblSelectRes.ForeColor = SystemColors.ControlText
+		'	lblSelectRes.Text = "OK"
+		'Else
+		'	lblSelectRes.ForeColor = Color.Crimson
+		'	lblSelectRes.ForeColor = Color.Yellow
+		'	lblSelectRes.Text = "KO"
+		'End If
 	End Sub
+
+	Private Function Feed(reader As OleDbDataReader) As Object
+
+		Return New Object
+	End Function
 
 	Private Sub FTestCommon_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
 		WriteSettings()

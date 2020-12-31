@@ -4,62 +4,20 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Data.OleDb;
 using System.Data;
-using COMMON;
-using System.ComponentModel;
 
 namespace COMMON
 {
 	[ComVisible(false)]
-	public class CDatabase
+	public class CDatabase : CDatabaseBase
 	{
 		#region delegates
 		public delegate object FeedRecordDelegate(OleDbDataReader reader);
 		#endregion
 
 		#region constructors
-		public CDatabase() { }
-		public CDatabase(string connectString) { ConnectionString = connectString; }
 		#endregion
 
 		#region properties
-		/// <summary>
-		/// The database connection object
-		/// </summary>
-		public OleDbConnection Database { get => _dbconnection; private set => _dbconnection = value; }
-		private OleDbConnection _dbconnection = new OleDbConnection();
-		/// <summary>
-		/// ConnectionString string to connect to the database
-		/// </summary>
-		public string ConnectionString
-		{
-			get => Database.ConnectionString;
-			set
-			{
-				if (!string.IsNullOrEmpty(value))
-				{
-					if (IsOpen)
-					{
-						DoDisconnect();
-					}
-					Database.ConnectionString = value;
-					DoConnect();
-				}
-			}
-		}
-		/// <summary>
-		/// Indicate whether the connection to the database is open or not and allows to connect to or disconnect from the database
-		/// </summary>
-		public bool IsOpen
-		{
-			get => null != Database ? ConnectionState.Open == Database.State : false;
-			set
-			{
-				if (value)
-					DoConnect();
-				else
-					DoDisconnect();
-			}
-		}
 		#endregion
 
 		#region data management methods
@@ -149,7 +107,7 @@ namespace COMMON
 			return null;
 		}
 		/// <summary>
-		/// Selects a set of objects from the database and returns them inside a <see cref="OleDbDataAdapter"/> object to be extracted by the caller
+		/// Selects a set of objects from the database and returns them inside a <see cref="DataSet"/> object to be extracted by the caller
 		/// </summary>
 		/// <param name="sql">Select request to run</param>
 		/// <param name="dataSet">An <see cref="DataSet"/> object which can be used to fetch data from the result set</param>
@@ -181,56 +139,6 @@ namespace COMMON
 			}
 			return f;
 		}
-		///// <summary>
-		///// Selects a set of objects from the database and returns them inside a <see cref="OleDbDataAdapter"/> object to be extracted by the caller
-		///// </summary>
-		///// <param name="sql">Select request to run</param>
-		///// <param name="dataSet">An <see cref="DataSet"/> object which can be used to fetch data from the result set</param>
-		///// <returns>True if successfull, false otherwise</returns>
-		//public bool SelectRequest(string sql, ref DataSet dataSet)
-		//{
-		//	OleDbDataReader reader = null;
-		//	if (SelectRequest(sql, ref reader))
-		//	{
-		//		dataSet = new DataSet();
-		//		while (reader.Read())
-		//		{
-		//			DataSet TnX record = (TnX)feedRecordFunction(reader);
-		//			if (null != record)
-		//				l.Add(record);
-		//		}
-		//		return l;
-		//	}
-		//	return null;
-
-
-
-
-		//	bool f = false;
-		//	if (IsOpen && !string.IsNullOrEmpty(sql) && null != dataSet)
-		//	{
-		//		OleDbDataAdapter command = null;
-		//		try
-		//		{
-		//			CLog.Add("SQL: " + sql);
-		//			command = new OleDbDataAdapter(sql, Database);
-		//			command.Fill(dataSet);
-		//			command.Update()
-		//			dataSet.
-		//			f = true;
-		//		}
-		//		catch (Exception ex)
-		//		{
-		//			CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
-		//		}
-		//		finally
-		//		{
-		//			if (null != command)
-		//				command.Dispose();
-		//		}
-		//	}
-		//	return f;
-		//}
 		/// <summary>
 		/// Retrieve the value of a column inside an <see cref="OleDbDataAdapter"/>
 		/// </summary>
@@ -251,56 +159,6 @@ namespace COMMON
 				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Column name: " + columnName);
 			}
 			return false;
-		}
-		#endregion
-
-		#region database management methods
-		/// <summary>
-		/// Manage the connection state and behaviour
-		/// </summary>
-		/// <returns></returns>
-		private bool DoConnect()
-		{
-			try
-			{
-				if (DoDisconnect())
-				{
-					try
-					{
-						Database.Open();
-						return true;
-					}
-					catch (Exception ex)
-					{
-						CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Connection string: " + ConnectionString);
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
-			}
-			return false;
-		}
-		/// <summary>
-		/// Disconnect from the database
-		/// </summary>
-		/// <returns><see langword="true"/>if disconnected, false otherwise</returns>
-		private bool DoDisconnect()
-		{
-			if (IsOpen)
-			{
-				try
-				{
-					Database.Close();
-					return true;
-				}
-				catch (Exception ex)
-				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, Database.Database + " still open");
-				}
-			}
-			return !IsOpen;
 		}
 		#endregion
 	}

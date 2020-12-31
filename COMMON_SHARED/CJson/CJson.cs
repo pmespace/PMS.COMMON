@@ -193,7 +193,7 @@ namespace COMMON
 #else
 			JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings();
 			jsonSerializerSettings.NullValueHandling = addNull ? NullValueHandling.Include : NullValueHandling.Ignore;
-			jsonSerializerSettings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
+			jsonSerializerSettings.DefaultValueHandling = DefaultValueHandling.Include;
 			jsonSerializerSettings.MissingMemberHandling = MissingMemberHandling.Ignore;
 			return jsonSerializerSettings;
 #endif

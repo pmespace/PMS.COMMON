@@ -6,6 +6,8 @@ Public Class FTestCommon
 	Private json As New CJson(Of Settings)
 	Private Const CONNECT As String = "Connect database"
 	Private Const DISCONNECT As String = "Disconnect database"
+	Private DbM As New CDatabaseTableManager
+	Private DataTable As DataTable
 
 	Private Sub FTestCommon_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 		json.FileName = "testcommon.settings.json"
@@ -23,6 +25,7 @@ Public Class FTestCommon
 			efConnectionString.Text = settings.ConnectionString
 			efAnyRequest.Text = settings.SQLCommand
 			efSelect.Text = settings.SelectCommand
+			efTableName.Text = settings.TableName
 		End If
 	End Sub
 
@@ -31,6 +34,7 @@ Public Class FTestCommon
 		settings.ConnectionString = efConnectionString.Text
 		settings.SQLCommand = efAnyRequest.Text
 		settings.SelectCommand = efSelect.Text
+		settings.TableName = efTableName.Text
 
 		json.WriteSettings(settings)
 	End Sub
@@ -109,7 +113,6 @@ Public Class FTestCommon
 	End Sub
 
 	Private Function Feed(reader As OleDbDataReader) As Object
-
 		Return New Object
 	End Function
 
@@ -123,5 +126,13 @@ Public Class FTestCommon
 
 	Private Sub pbClose_Click(sender As Object, e As EventArgs) Handles pbClose.Click
 		Close()
+	End Sub
+
+	Private Sub pbTable_Click(sender As Object, e As EventArgs) Handles pbTable.Click
+		DbM.ConnectionString = database.ConnectionString
+		DataTable = DbM.FillTable($"SELECT * FROM {efTableName.Text}")
+		DataGridView1.Columns.Clear()
+		DataGridView1.AutoGenerateColumns = True
+		DataGridView1.DataSource = DataTable
 	End Sub
 End Class

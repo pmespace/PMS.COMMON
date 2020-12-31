@@ -25,6 +25,8 @@ Partial Class FTestCommon
 		Me.components = New System.ComponentModel.Container()
 		Me.pnlMain = New System.Windows.Forms.TableLayoutPanel()
 		Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
+		Me.pbSaveSettings = New System.Windows.Forms.Button()
+		Me.pbClose = New System.Windows.Forms.Button()
 		Me.TabControl1 = New System.Windows.Forms.TabControl()
 		Me.databasePage = New System.Windows.Forms.TabPage()
 		Me.TableLayoutPanel2 = New System.Windows.Forms.TableLayoutPanel()
@@ -34,21 +36,22 @@ Partial Class FTestCommon
 		Me.efConnectionString = New System.Windows.Forms.TextBox()
 		Me.pbTestConnectionString = New System.Windows.Forms.Button()
 		Me.pnlSQL = New System.Windows.Forms.TableLayoutPanel()
-		Me.lblSelectRes = New System.Windows.Forms.Label()
+		Me.Label4 = New System.Windows.Forms.Label()
 		Me.Label2 = New System.Windows.Forms.Label()
-		Me.pbSelect = New System.Windows.Forms.Button()
 		Me.Label3 = New System.Windows.Forms.Label()
-		Me.pbAnyRequest = New System.Windows.Forms.Button()
 		Me.efAnyRequest = New System.Windows.Forms.TextBox()
 		Me.efSelect = New System.Windows.Forms.TextBox()
+		Me.pbAnyRequest = New System.Windows.Forms.Button()
+		Me.pbSelect = New System.Windows.Forms.Button()
+		Me.lblSelectRes = New System.Windows.Forms.Label()
 		Me.TableLayoutPanel3 = New System.Windows.Forms.TableLayoutPanel()
 		Me.lblSQLRes = New System.Windows.Forms.Label()
 		Me.lblSQLNbRows = New System.Windows.Forms.Label()
-		Me.DataSet1 = New System.Data.DataSet()
-		Me.BindingSource1 = New System.Windows.Forms.BindingSource(Me.components)
+		Me.efTableName = New System.Windows.Forms.TextBox()
+		Me.pbTable = New System.Windows.Forms.Button()
 		Me.DataGridView1 = New System.Windows.Forms.DataGridView()
-		Me.pbSaveSettings = New System.Windows.Forms.Button()
-		Me.pbClose = New System.Windows.Forms.Button()
+		Me.BindingSource1 = New System.Windows.Forms.BindingSource(Me.components)
+		Me.DataSet1 = New System.Data.DataSet()
 		Me.pnlMain.SuspendLayout()
 		Me.TableLayoutPanel1.SuspendLayout()
 		Me.TabControl1.SuspendLayout()
@@ -58,9 +61,9 @@ Partial Class FTestCommon
 		Me.pnlConnection.SuspendLayout()
 		Me.pnlSQL.SuspendLayout()
 		Me.TableLayoutPanel3.SuspendLayout()
-		CType(Me.DataSet1, System.ComponentModel.ISupportInitialize).BeginInit()
-		CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).BeginInit()
 		CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).BeginInit()
+		CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).BeginInit()
+		CType(Me.DataSet1, System.ComponentModel.ISupportInitialize).BeginInit()
 		Me.SuspendLayout()
 		'
 		'pnlMain
@@ -78,7 +81,7 @@ Partial Class FTestCommon
 		Me.pnlMain.RowCount = 2
 		Me.pnlMain.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
 		Me.pnlMain.RowStyles.Add(New System.Windows.Forms.RowStyle())
-		Me.pnlMain.Size = New System.Drawing.Size(780, 412)
+		Me.pnlMain.Size = New System.Drawing.Size(746, 393)
 		Me.pnlMain.TabIndex = 0
 		'
 		'TableLayoutPanel1
@@ -94,12 +97,37 @@ Partial Class FTestCommon
 		Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle())
 		Me.TableLayoutPanel1.Controls.Add(Me.pbSaveSettings, 1, 0)
 		Me.TableLayoutPanel1.Controls.Add(Me.pbClose, 2, 0)
-		Me.TableLayoutPanel1.Location = New System.Drawing.Point(3, 380)
+		Me.TableLayoutPanel1.Location = New System.Drawing.Point(3, 361)
 		Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
 		Me.TableLayoutPanel1.RowCount = 1
 		Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle())
-		Me.TableLayoutPanel1.Size = New System.Drawing.Size(774, 29)
+		Me.TableLayoutPanel1.Size = New System.Drawing.Size(740, 29)
 		Me.TableLayoutPanel1.TabIndex = 0
+		'
+		'pbSaveSettings
+		'
+		Me.pbSaveSettings.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+		Me.pbSaveSettings.AutoSize = True
+		Me.pbSaveSettings.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
+		Me.pbSaveSettings.Location = New System.Drawing.Point(607, 3)
+		Me.pbSaveSettings.Name = "pbSaveSettings"
+		Me.pbSaveSettings.Size = New System.Drawing.Size(81, 23)
+		Me.pbSaveSettings.TabIndex = 0
+		Me.pbSaveSettings.Text = "&Save settings"
+		Me.pbSaveSettings.UseVisualStyleBackColor = True
+		'
+		'pbClose
+		'
+		Me.pbClose.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+		Me.pbClose.AutoSize = True
+		Me.pbClose.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
+		Me.pbClose.DialogResult = System.Windows.Forms.DialogResult.Cancel
+		Me.pbClose.Location = New System.Drawing.Point(694, 3)
+		Me.pbClose.Name = "pbClose"
+		Me.pbClose.Size = New System.Drawing.Size(43, 23)
+		Me.pbClose.TabIndex = 1
+		Me.pbClose.Text = "&Close"
+		Me.pbClose.UseVisualStyleBackColor = True
 		'
 		'TabControl1
 		'
@@ -110,7 +138,7 @@ Partial Class FTestCommon
 		Me.TabControl1.Location = New System.Drawing.Point(3, 3)
 		Me.TabControl1.Name = "TabControl1"
 		Me.TabControl1.SelectedIndex = 0
-		Me.TabControl1.Size = New System.Drawing.Size(774, 371)
+		Me.TabControl1.Size = New System.Drawing.Size(740, 352)
 		Me.TabControl1.TabIndex = 2
 		'
 		'databasePage
@@ -119,7 +147,7 @@ Partial Class FTestCommon
 		Me.databasePage.Location = New System.Drawing.Point(4, 22)
 		Me.databasePage.Name = "databasePage"
 		Me.databasePage.Padding = New System.Windows.Forms.Padding(3)
-		Me.databasePage.Size = New System.Drawing.Size(766, 345)
+		Me.databasePage.Size = New System.Drawing.Size(732, 326)
 		Me.databasePage.TabIndex = 0
 		Me.databasePage.Text = "Database"
 		Me.databasePage.UseVisualStyleBackColor = True
@@ -139,7 +167,7 @@ Partial Class FTestCommon
 		Me.TableLayoutPanel2.RowCount = 2
 		Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle())
 		Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle())
-		Me.TableLayoutPanel2.Size = New System.Drawing.Size(754, 333)
+		Me.TableLayoutPanel2.Size = New System.Drawing.Size(720, 314)
 		Me.TableLayoutPanel2.TabIndex = 1
 		'
 		'pnlCommands
@@ -158,7 +186,7 @@ Partial Class FTestCommon
 		Me.pnlCommands.RowCount = 2
 		Me.pnlCommands.RowStyles.Add(New System.Windows.Forms.RowStyle())
 		Me.pnlCommands.RowStyles.Add(New System.Windows.Forms.RowStyle())
-		Me.pnlCommands.Size = New System.Drawing.Size(748, 99)
+		Me.pnlCommands.Size = New System.Drawing.Size(714, 128)
 		Me.pnlCommands.TabIndex = 2
 		'
 		'pnlConnection
@@ -179,7 +207,7 @@ Partial Class FTestCommon
 		Me.pnlConnection.Name = "pnlConnection"
 		Me.pnlConnection.RowCount = 1
 		Me.pnlConnection.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-		Me.pnlConnection.Size = New System.Drawing.Size(742, 29)
+		Me.pnlConnection.Size = New System.Drawing.Size(708, 29)
 		Me.pnlConnection.TabIndex = 0
 		'
 		'Label1
@@ -197,13 +225,13 @@ Partial Class FTestCommon
 		Me.efConnectionString.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
 		Me.efConnectionString.Location = New System.Drawing.Point(101, 4)
 		Me.efConnectionString.Name = "efConnectionString"
-		Me.efConnectionString.Size = New System.Drawing.Size(557, 20)
+		Me.efConnectionString.Size = New System.Drawing.Size(523, 20)
 		Me.efConnectionString.TabIndex = 0
 		'
 		'pbTestConnectionString
 		'
 		Me.pbTestConnectionString.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-		Me.pbTestConnectionString.Location = New System.Drawing.Point(664, 3)
+		Me.pbTestConnectionString.Location = New System.Drawing.Point(630, 3)
 		Me.pbTestConnectionString.Name = "pbTestConnectionString"
 		Me.pbTestConnectionString.Size = New System.Drawing.Size(75, 23)
 		Me.pbTestConnectionString.TabIndex = 1
@@ -223,6 +251,7 @@ Partial Class FTestCommon
 		Me.pnlSQL.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
 		Me.pnlSQL.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle())
 		Me.pnlSQL.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle())
+		Me.pnlSQL.Controls.Add(Me.Label4, 0, 2)
 		Me.pnlSQL.Controls.Add(Me.Label2, 0, 1)
 		Me.pnlSQL.Controls.Add(Me.Label3, 0, 0)
 		Me.pnlSQL.Controls.Add(Me.efAnyRequest, 1, 1)
@@ -231,25 +260,26 @@ Partial Class FTestCommon
 		Me.pnlSQL.Controls.Add(Me.pbSelect, 2, 0)
 		Me.pnlSQL.Controls.Add(Me.lblSelectRes, 3, 0)
 		Me.pnlSQL.Controls.Add(Me.TableLayoutPanel3, 3, 1)
+		Me.pnlSQL.Controls.Add(Me.efTableName, 1, 2)
+		Me.pnlSQL.Controls.Add(Me.pbTable, 2, 2)
 		Me.pnlSQL.Location = New System.Drawing.Point(3, 38)
 		Me.pnlSQL.Name = "pnlSQL"
-		Me.pnlSQL.RowCount = 2
+		Me.pnlSQL.RowCount = 3
 		Me.pnlSQL.RowStyles.Add(New System.Windows.Forms.RowStyle())
 		Me.pnlSQL.RowStyles.Add(New System.Windows.Forms.RowStyle())
-		Me.pnlSQL.Size = New System.Drawing.Size(742, 58)
+		Me.pnlSQL.RowStyles.Add(New System.Windows.Forms.RowStyle())
+		Me.pnlSQL.Size = New System.Drawing.Size(708, 87)
 		Me.pnlSQL.TabIndex = 9
 		'
-		'lblSelectRes
+		'Label4
 		'
-		Me.lblSelectRes.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-		Me.lblSelectRes.AutoSize = True
-		Me.lblSelectRes.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
-		Me.lblSelectRes.Location = New System.Drawing.Point(649, 7)
-		Me.lblSelectRes.Name = "lblSelectRes"
-		Me.lblSelectRes.Size = New System.Drawing.Size(90, 15)
-		Me.lblSelectRes.TabIndex = 9
-		Me.lblSelectRes.Text = "Label4"
-		Me.lblSelectRes.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+		Me.Label4.Anchor = System.Windows.Forms.AnchorStyles.Right
+		Me.Label4.AutoSize = True
+		Me.Label4.Location = New System.Drawing.Point(15, 66)
+		Me.Label4.Name = "Label4"
+		Me.Label4.Size = New System.Drawing.Size(66, 13)
+		Me.Label4.TabIndex = 10
+		Me.Label4.Text = "Table name:"
 		'
 		'Label2
 		'
@@ -261,16 +291,6 @@ Partial Class FTestCommon
 		Me.Label2.TabIndex = 2
 		Me.Label2.Text = "SQL request:"
 		'
-		'pbSelect
-		'
-		Me.pbSelect.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-		Me.pbSelect.Location = New System.Drawing.Point(568, 3)
-		Me.pbSelect.Name = "pbSelect"
-		Me.pbSelect.Size = New System.Drawing.Size(75, 23)
-		Me.pbSelect.TabIndex = 1
-		Me.pbSelect.Text = "Start"
-		Me.pbSelect.UseVisualStyleBackColor = True
-		'
 		'Label3
 		'
 		Me.Label3.Anchor = System.Windows.Forms.AnchorStyles.Right
@@ -281,22 +301,12 @@ Partial Class FTestCommon
 		Me.Label3.TabIndex = 6
 		Me.Label3.Text = "Select request:"
 		'
-		'pbAnyRequest
-		'
-		Me.pbAnyRequest.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-		Me.pbAnyRequest.Location = New System.Drawing.Point(568, 32)
-		Me.pbAnyRequest.Name = "pbAnyRequest"
-		Me.pbAnyRequest.Size = New System.Drawing.Size(75, 23)
-		Me.pbAnyRequest.TabIndex = 3
-		Me.pbAnyRequest.Text = "Start"
-		Me.pbAnyRequest.UseVisualStyleBackColor = True
-		'
 		'efAnyRequest
 		'
 		Me.efAnyRequest.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
 		Me.efAnyRequest.Location = New System.Drawing.Point(87, 33)
 		Me.efAnyRequest.Name = "efAnyRequest"
-		Me.efAnyRequest.Size = New System.Drawing.Size(475, 20)
+		Me.efAnyRequest.Size = New System.Drawing.Size(441, 20)
 		Me.efAnyRequest.TabIndex = 2
 		'
 		'efSelect
@@ -304,8 +314,40 @@ Partial Class FTestCommon
 		Me.efSelect.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
 		Me.efSelect.Location = New System.Drawing.Point(87, 4)
 		Me.efSelect.Name = "efSelect"
-		Me.efSelect.Size = New System.Drawing.Size(475, 20)
+		Me.efSelect.Size = New System.Drawing.Size(441, 20)
 		Me.efSelect.TabIndex = 0
+		'
+		'pbAnyRequest
+		'
+		Me.pbAnyRequest.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+		Me.pbAnyRequest.Location = New System.Drawing.Point(534, 32)
+		Me.pbAnyRequest.Name = "pbAnyRequest"
+		Me.pbAnyRequest.Size = New System.Drawing.Size(75, 23)
+		Me.pbAnyRequest.TabIndex = 3
+		Me.pbAnyRequest.Text = "Start"
+		Me.pbAnyRequest.UseVisualStyleBackColor = True
+		'
+		'pbSelect
+		'
+		Me.pbSelect.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+		Me.pbSelect.Location = New System.Drawing.Point(534, 3)
+		Me.pbSelect.Name = "pbSelect"
+		Me.pbSelect.Size = New System.Drawing.Size(75, 23)
+		Me.pbSelect.TabIndex = 1
+		Me.pbSelect.Text = "Start"
+		Me.pbSelect.UseVisualStyleBackColor = True
+		'
+		'lblSelectRes
+		'
+		Me.lblSelectRes.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+		Me.lblSelectRes.AutoSize = True
+		Me.lblSelectRes.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+		Me.lblSelectRes.Location = New System.Drawing.Point(615, 7)
+		Me.lblSelectRes.Name = "lblSelectRes"
+		Me.lblSelectRes.Size = New System.Drawing.Size(90, 15)
+		Me.lblSelectRes.TabIndex = 9
+		Me.lblSelectRes.Text = "Label4"
+		Me.lblSelectRes.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
 		'
 		'TableLayoutPanel3
 		'
@@ -318,7 +360,7 @@ Partial Class FTestCommon
 		Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
 		Me.TableLayoutPanel3.Controls.Add(Me.lblSQLRes, 0, 0)
 		Me.TableLayoutPanel3.Controls.Add(Me.lblSQLNbRows, 1, 0)
-		Me.TableLayoutPanel3.Location = New System.Drawing.Point(649, 32)
+		Me.TableLayoutPanel3.Location = New System.Drawing.Point(615, 32)
 		Me.TableLayoutPanel3.Name = "TableLayoutPanel3"
 		Me.TableLayoutPanel3.RowCount = 1
 		Me.TableLayoutPanel3.RowStyles.Add(New System.Windows.Forms.RowStyle())
@@ -349,58 +391,53 @@ Partial Class FTestCommon
 		Me.lblSQLNbRows.Text = "nb"
 		Me.lblSQLNbRows.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
 		'
-		'DataSet1
+		'efTableName
 		'
-		Me.DataSet1.DataSetName = "NewDataSet"
-		Me.DataSet1.Locale = New System.Globalization.CultureInfo("")
+		Me.efTableName.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+		Me.efTableName.Location = New System.Drawing.Point(87, 62)
+		Me.efTableName.Name = "efTableName"
+		Me.efTableName.Size = New System.Drawing.Size(441, 20)
+		Me.efTableName.TabIndex = 11
+		'
+		'pbTable
+		'
+		Me.pbTable.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+		Me.pbTable.Location = New System.Drawing.Point(534, 61)
+		Me.pbTable.Name = "pbTable"
+		Me.pbTable.Size = New System.Drawing.Size(75, 23)
+		Me.pbTable.TabIndex = 12
+		Me.pbTable.Text = "Display"
+		Me.pbTable.UseVisualStyleBackColor = True
+		'
+		'DataGridView1
+		'
+		Me.DataGridView1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+			Or System.Windows.Forms.AnchorStyles.Left) _
+			Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+		Me.DataGridView1.AutoGenerateColumns = False
+		Me.DataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+		Me.DataGridView1.DataSource = Me.BindingSource1
+		Me.DataGridView1.Location = New System.Drawing.Point(3, 137)
+		Me.DataGridView1.Name = "DataGridView1"
+		Me.DataGridView1.Size = New System.Drawing.Size(714, 174)
+		Me.DataGridView1.TabIndex = 0
 		'
 		'BindingSource1
 		'
 		Me.BindingSource1.DataSource = Me.DataSet1
 		Me.BindingSource1.Position = 0
 		'
-		'DataGridView1
+		'DataSet1
 		'
-		Me.DataGridView1.AutoGenerateColumns = False
-		Me.DataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-		Me.DataGridView1.DataSource = Me.BindingSource1
-		Me.DataGridView1.Dock = System.Windows.Forms.DockStyle.Fill
-		Me.DataGridView1.Location = New System.Drawing.Point(3, 108)
-		Me.DataGridView1.Name = "DataGridView1"
-		Me.DataGridView1.Size = New System.Drawing.Size(748, 222)
-		Me.DataGridView1.TabIndex = 0
-		'
-		'pbSaveSettings
-		'
-		Me.pbSaveSettings.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-		Me.pbSaveSettings.AutoSize = True
-		Me.pbSaveSettings.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-		Me.pbSaveSettings.Location = New System.Drawing.Point(641, 3)
-		Me.pbSaveSettings.Name = "pbSaveSettings"
-		Me.pbSaveSettings.Size = New System.Drawing.Size(81, 23)
-		Me.pbSaveSettings.TabIndex = 0
-		Me.pbSaveSettings.Text = "&Save settings"
-		Me.pbSaveSettings.UseVisualStyleBackColor = True
-		'
-		'pbClose
-		'
-		Me.pbClose.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-		Me.pbClose.AutoSize = True
-		Me.pbClose.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-		Me.pbClose.DialogResult = System.Windows.Forms.DialogResult.Cancel
-		Me.pbClose.Location = New System.Drawing.Point(728, 3)
-		Me.pbClose.Name = "pbClose"
-		Me.pbClose.Size = New System.Drawing.Size(43, 23)
-		Me.pbClose.TabIndex = 1
-		Me.pbClose.Text = "&Close"
-		Me.pbClose.UseVisualStyleBackColor = True
+		Me.DataSet1.DataSetName = "NewDataSet"
+		Me.DataSet1.Locale = New System.Globalization.CultureInfo("")
 		'
 		'FTestCommon
 		'
 		Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
 		Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
 		Me.CancelButton = Me.pbClose
-		Me.ClientSize = New System.Drawing.Size(804, 436)
+		Me.ClientSize = New System.Drawing.Size(770, 417)
 		Me.Controls.Add(Me.pnlMain)
 		Me.Name = "FTestCommon"
 		Me.Text = "Test COMMON Services"
@@ -420,9 +457,9 @@ Partial Class FTestCommon
 		Me.pnlSQL.PerformLayout()
 		Me.TableLayoutPanel3.ResumeLayout(False)
 		Me.TableLayoutPanel3.PerformLayout()
-		CType(Me.DataSet1, System.ComponentModel.ISupportInitialize).EndInit()
-		CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).EndInit()
 		CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).EndInit()
+		CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).EndInit()
+		CType(Me.DataSet1, System.ComponentModel.ISupportInitialize).EndInit()
 		Me.ResumeLayout(False)
 		Me.PerformLayout()
 
@@ -454,4 +491,7 @@ Partial Class FTestCommon
 	Friend WithEvents DataGridView1 As DataGridView
 	Friend WithEvents pbSaveSettings As Button
 	Friend WithEvents pbClose As Button
+	Friend WithEvents Label4 As Label
+	Friend WithEvents efTableName As TextBox
+	Friend WithEvents pbTable As Button
 End Class

@@ -35,8 +35,15 @@ namespace COMMON
 					{
 						DoDisconnect();
 					}
-					Database.ConnectionString = value;
-					DoConnect();
+					try
+					{
+						Database.ConnectionString = value;
+						DoConnect();
+					}
+					catch (Exception ex)
+					{
+						CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Connection string: " + ConnectionString);
+					}
 				}
 			}
 		}

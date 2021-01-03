@@ -135,4 +135,10 @@ Public Class FTestCommon
 		DataGridView1.AutoGenerateColumns = True
 		DataGridView1.DataSource = DataTable
 	End Sub
+
+	Private Sub efConnectionString_TextChanged(sender As Object, e As EventArgs) Handles efConnectionString.TextChanged
+		efConnectionString.BackColor = SystemColors.Window
+		database.IsOpen = False
+		SetButtons()
+	End Sub
 End Class

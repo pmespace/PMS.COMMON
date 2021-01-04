@@ -112,6 +112,43 @@ namespace COMMON
 			return !IsOpen;
 		}
 		#endregion
+
+		#region methods
+		/// <summary>
+		/// Return the value to use to test TRUE or FALSE
+		/// (ACCESS has a different way to use these values)
+		/// That function MUST NOT be used to feed an <see cref="OleDbParameter"/>
+		/// </summary>
+		/// <param name="value">The value to set</param>
+		/// <returns>The appropriate value if successfull, null otherwise</returns>
+		public string TrueFalseDBValue(bool value)
+		{
+			return TrueFalseDBValue(Database, value);
+		}
+		/// <summary>
+		/// Return the value to use to test TRUE or FALSE
+		/// (ACCESS has a different way to use these values)
+		/// That function MUST NOT be used to feed an <see cref="OleDbParameter"/>
+		/// </summary>
+		/// <param name="db">The database to use</param>
+		/// <param name="value">The value to set</param>
+		/// <returns>The appropriate value if successfull, null otherwise</returns>
+		public static string TrueFalseDBValue(OleDbConnection db, bool value)
+		{
+			if (ConnectionState.Open == db.State)
+			{
+				if (db.Provider.Contains("Microsoft.ACE.OLEDB"))
+				{
+					return value.ToString();
+				}
+				else
+				{
+					return $"'{value}'";
+				}
+			}
+			return null;
+		}
+		#endregion
 	}
 
 	[ComVisible(false)]
@@ -126,6 +163,11 @@ namespace COMMON
 		#endregion
 
 		#region delegates
+		/// <summary>
+		/// Delegate function called to feed a record from s SELECT command
+		/// </summary>
+		/// <param name="reader">Reader to use to feed a record</param>
+		/// <returns>An fed record is successfull, null otherwise</returns>
 		public delegate object FeedRecordDelegate(OleDbDataReader reader);
 		#endregion
 
@@ -133,20 +175,17 @@ namespace COMMON
 		/// <summary>
 		/// Execute a non select request (insert, update, delete)
 		/// </summary>
-		/// <param name="sql">Update request to launch</param>
+		/// <param name="command">A complete <see cref="OleDbCommand"/> detailing a non select request to launch</param>
 		/// <param name="nbRows">Number of rows impacted by the request</param>
 		/// <returns>True if the request was successfull processed, false otherwise</returns>
-		public bool NonSelectRequest(string sql, ref int nbRows)
+		public bool NonSelectRequest(OleDbCommand command, ref int nbRows)
 		{
 			nbRows = 0;
-			if (IsOpen && !string.IsNullOrEmpty(sql))
+			if (IsOpen && null != command)
 			{
-				OleDbCommand command = new OleDbCommand();
 				try
 				{
 					command.Connection = Database;
-					command.CommandText = sql;
-					CLog.Add("SQL: " + command.CommandText);
 					nbRows = command.ExecuteNonQuery();
 					return true;
 				}
@@ -162,23 +201,36 @@ namespace COMMON
 			return false;
 		}
 		/// <summary>
-		/// Selects a set of objects from the database and returns them inside a <see cref="OleDbDataAdapter"/> object to be extracted by the caller
+		/// Execute a non select request (insert, update, delete)
 		/// </summary>
-		/// <param name="sql">Select request to run</param>
-		/// <param name="reader">An <see cref="OleDbDataReader"/> object which can be used to fetch data from the result set</param>
-		/// <returns>True if successfull, false otherwise</returns>
-		public bool SelectRequest(string sql, ref OleDbDataReader reader)
+		/// <param name="sql">A non select request to launch</param>
+		/// <param name="nbRows">Number of rows impacted by the request</param>
+		/// <returns>True if the request was successfull processed, false otherwise</returns>
+		public bool NonSelectRequest(string sql, ref int nbRows)
 		{
-			bool f = false;
-			reader = null;
+			nbRows = 0;
 			if (IsOpen && !string.IsNullOrEmpty(sql))
 			{
-				OleDbCommand command = new OleDbCommand();
+				CLog.Add($"SQL: {sql}");
+				return NonSelectRequest(new OleDbCommand(sql), ref nbRows);
+			}
+			return false;
+		}
+		/// <summary>
+		/// Selects a set of objects from the database and returns them inside a <see cref="OleDbDataAdapter"/> object to be extracted by the caller
+		/// </summary>
+		/// <param name="command">A complete <see cref="OleDbCommand"/> detailing a select request to launch</param>
+		/// <param name="reader">An <see cref="OleDbDataReader"/> object which can be used to fetch data from the result set</param>
+		/// <returns>True if successfull, false otherwise</returns>
+		public bool SelectRequest(OleDbCommand command, ref OleDbDataReader reader)
+		{
+			reader = null;
+			bool f = false;
+			if (IsOpen && null != command)
+			{
 				try
 				{
-					CLog.Add("SQL: " + sql);
 					command.Connection = Database;
-					command.CommandText = sql;
 					reader = command.ExecuteReader();
 					f = true;
 				}
@@ -194,16 +246,32 @@ namespace COMMON
 			return f;
 		}
 		/// <summary>
+		/// Selects a set of objects from the database and returns them inside a <see cref="OleDbDataAdapter"/> object to be extracted by the caller
+		/// </summary>
+		/// <param name="sql">A select request to launch</param>
+		/// <param name="reader">An <see cref="OleDbDataReader"/> object which can be used to fetch data from the result set</param>
+		/// <returns>True if successfull, false otherwise</returns>
+		public bool SelectRequest(string sql, ref OleDbDataReader reader)
+		{
+			reader = null;
+			if (IsOpen && !string.IsNullOrEmpty(sql))
+			{
+				CLog.Add($"SQL: {sql}");
+				return SelectRequest(new OleDbCommand(sql), ref reader);
+			}
+			return false;
+		}
+		/// <summary>
 		/// Launch a select request and feed a list of records fetched using the request
 		/// </summary>
-		/// <param name="sql">Select request to run</param>
+		/// <param name="command">A complete <see cref="OleDbCommand"/> detailing a select request to launch</param>
 		/// <param name="feedRecordFunction">Functions called to feed a TnX object</param>
 		/// <returns>A list of records fetched using the select request, null if an error has occurred</returns>
-		public List<TnX> SelectRequest<TnX>(string sql, FeedRecordDelegate feedRecordFunction)
+		public List<TnX> SelectRequest<TnX>(OleDbCommand command, FeedRecordDelegate feedRecordFunction)
 		{
 			List<TnX> l = new List<TnX>();
 			OleDbDataReader reader = null;
-			if (SelectRequest(sql, ref reader))
+			if (SelectRequest(command, ref reader))
 			{
 				while (reader.Read())
 				{
@@ -216,24 +284,39 @@ namespace COMMON
 			return null;
 		}
 		/// <summary>
+		/// Launch a select request and feed a list of records fetched using the request
+		/// </summary>
+		/// <param name="sql">A select request to launch</param>
+		/// <param name="feedRecordFunction">Functions called to feed a TnX object</param>
+		/// <returns>A list of records fetched using the select request, null if an error has occurred</returns>
+		public List<TnX> SelectRequest<TnX>(string sql, FeedRecordDelegate feedRecordFunction)
+		{
+			if (!string.IsNullOrEmpty(sql))
+			{
+				CLog.Add($"SQL: {sql}");
+				return SelectRequest<TnX>(new OleDbCommand(sql), feedRecordFunction);
+			}
+			return null;
+		}
+		/// <summary>
 		/// Selects a set of objects from the database and returns them inside a <see cref="DataSet"/> object to be extracted by the caller
 		/// </summary>
-		/// <param name="sql">Select request to run</param>
+		/// <param name="command">A complete <see cref="OleDbCommand"/> detailing a select request to launch</param>
 		/// <param name="dataSet">An <see cref="DataSet"/> object which can be used to fetch data from the result set</param>
 		/// <returns>True if successfull, false otherwise</returns>
-		public bool SelectRequest(string sql, ref DataSet dataSet)
+		public bool SelectRequest(OleDbCommand command, ref DataSet dataSet)
 		{
 			bool f = false;
-			if (IsOpen && !string.IsNullOrEmpty(sql) && null != dataSet)
+			if (IsOpen && null != command && null != dataSet)
 			{
-				OleDbDataAdapter command = null;
+				OleDbDataAdapter da = null;
 				try
 				{
-					CLog.Add("SQL: " + sql);
-					command = new OleDbDataAdapter();
-					command.SelectCommand = new OleDbCommand(sql);
-					command.SelectCommand.Connection = Database;
-					command.Fill(dataSet);
+					command.Connection = Database;
+					da = new OleDbDataAdapter();
+					da.SelectCommand = command;
+					da.SelectCommand.Connection = Database;
+					da.Fill(dataSet);
 					f = true;
 				}
 				catch (Exception ex)
@@ -242,11 +325,26 @@ namespace COMMON
 				}
 				finally
 				{
-					if (null != command)
-						command.Dispose();
+					if (null != da)
+						da.Dispose();
 				}
 			}
 			return f;
+		}
+		/// <summary>
+		/// Selects a set of objects from the database and returns them inside a <see cref="DataSet"/> object to be extracted by the caller
+		/// </summary>
+		/// <param name="sql">A select request to launch</param>
+		/// <param name="dataSet">An <see cref="DataSet"/> object which can be used to fetch data from the result set</param>
+		/// <returns>True if successfull, false otherwise</returns>
+		public bool SelectRequest(string sql, ref DataSet dataSet)
+		{
+			if (IsOpen && !string.IsNullOrEmpty(sql) && null != dataSet)
+			{
+				CLog.Add($"SQL: {sql}");
+				return SelectRequest(new OleDbCommand(sql), ref dataSet);
+			}
+			return false;
 		}
 		/// <summary>
 		/// Retrieve the value of a column inside an <see cref="OleDbDataAdapter"/>
@@ -281,8 +379,14 @@ namespace COMMON
 		#endregion
 
 		#region properties
-		public OleDbDataAdapter DataAdapter { get; private set; }
-		public OleDbCommandBuilder CommandBuilder { get; private set; }
+		/// <summary>
+		/// <see cref="OleDbDataAdapter"/> object created to feed the table
+		/// </summary>
+		public OleDbDataAdapter DataAdapter { get; private set; } = null;
+		/// <summary>
+		/// <see cref="OleDbCommandBuilder"/> object created to manage the table
+		/// </summary>
+		public OleDbCommandBuilder CommandBuilder { get; private set; } = null;
 		#endregion
 
 		#region methods
@@ -293,27 +397,24 @@ namespace COMMON
 		/// <returns></returns>
 		public DataTable FillTable(string sql)
 		{
-			if (string.IsNullOrEmpty(sql))
-				throw new Exception("Sql command is empty");
-
-			if (!IsOpen)
-				return null;
-
-			try
+			if (IsOpen && !string.IsNullOrEmpty(sql))
 			{
-				OleDbDataAdapter da = new OleDbDataAdapter(sql, Database);
-				DataTable dataTable = new DataTable();
-				da.Fill(dataTable);
-				DataAdapter = da;
-				CommandBuilder = new OleDbCommandBuilder(DataAdapter);
-				DataAdapter.InsertCommand = CommandBuilder.GetInsertCommand();
-				DataAdapter.UpdateCommand = CommandBuilder.GetUpdateCommand();
-				DataAdapter.DeleteCommand = CommandBuilder.GetDeleteCommand();
-				return dataTable;
-			}
-			catch (Exception ex)
-			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Connection string: " + ConnectionString);
+				try
+				{
+					OleDbDataAdapter da = new OleDbDataAdapter(sql, Database);
+					DataTable dataTable = new DataTable();
+					da.Fill(dataTable);
+					DataAdapter = da;
+					CommandBuilder = new OleDbCommandBuilder(DataAdapter);
+					DataAdapter.InsertCommand = CommandBuilder.GetInsertCommand();
+					DataAdapter.UpdateCommand = CommandBuilder.GetUpdateCommand();
+					DataAdapter.DeleteCommand = CommandBuilder.GetDeleteCommand();
+					return dataTable;
+				}
+				catch (Exception ex)
+				{
+					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Connection string: " + ConnectionString);
+				}
 			}
 			return null;
 		}
@@ -324,9 +425,9 @@ namespace COMMON
 		/// <returns>The number of elements updated is successfull, 0 otherwise</returns>
 		public int UpdateData(DataTable dt)
 		{
-			if (!IsOpen)
-				return 0;
-			return DataAdapter.Update(dt);
+			if (IsOpen && null != DataAdapter && null != dt)
+				return DataAdapter.Update(dt);
+			return 0;
 		}
 		#endregion
 	}

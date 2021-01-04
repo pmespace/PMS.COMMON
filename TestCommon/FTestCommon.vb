@@ -139,6 +139,7 @@ Public Class FTestCommon
 	Private Sub efConnectionString_TextChanged(sender As Object, e As EventArgs) Handles efConnectionString.TextChanged
 		efConnectionString.BackColor = SystemColors.Window
 		database.IsOpen = False
+		DataGridView1.DataSource = Nothing
 		SetButtons()
 	End Sub
 End Class

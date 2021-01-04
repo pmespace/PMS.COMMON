@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>PMS.COMMON</id>
-    <version>3.0.3</version>
+    <version>3.0.4</version>
     <title>PMS.COMMON</title>
     <authors>philippemp31</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -11,6 +11,9 @@
     <projectUrl>https://github.com/pmespace/PMS.COMMON/</projectUrl>
     <description>Shared tools for PMS.CHPN, PMS.NEXO and other projects</description>
     <releaseNotes>
+      3.0.4
+      - Added some functions to CDatabase to use OleDbComand objects directly
+      
       3.0.3
       - Fixed a bug when the connection string a a CDatabase object was incomplete
       

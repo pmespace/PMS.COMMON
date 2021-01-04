@@ -115,19 +115,50 @@ namespace COMMON
 
 		#region methods
 		/// <summary>
-		/// Return the value to use to test TRUE or FALSE
+		/// Return the value to use to test TRUE in SQL
 		/// (ACCESS has a different way to use these values)
 		/// That function MUST NOT be used to feed an <see cref="OleDbParameter"/>
 		/// </summary>
-		/// <param name="value">The value to set</param>
 		/// <returns>The appropriate value if successfull, null otherwise</returns>
-		public string TrueFalseDBValue(bool value)
+		public string TRUE()
 		{
-			return TrueFalseDBValue(Database, value);
+			return TRUE(Database);
+		}
+		/// <summary>
+		/// Return the value to use to test FALSE in SQL
+		/// (ACCESS has a different way to use these values)
+		/// That function MUST NOT be used to feed an <see cref="OleDbParameter"/>
+		/// </summary>
+		/// <returns>The appropriate value if successfull, null otherwise</returns>
+		public string FALSE()
+		{
+			return FALSE(Database);
+		}
+		/// <summary>
+		/// Return the value to use to test TRUE in SQL
+		/// (ACCESS has a different way to use these values)
+		/// That function MUST NOT be used to feed an <see cref="OleDbParameter"/>
+		/// </summary>
+		/// <param name="db">The database to use</param>
+		/// <returns>The appropriate value if successfull, null otherwise</returns>
+		public static string TRUE(OleDbConnection db)
+		{
+			return TrueFalseDBValue(db, true);
+		}
+		/// <summary>
+		/// Return the value to use to test TRUE in SQL
+		/// (ACCESS has a different way to use these values)
+		/// That function MUST NOT be used to feed an <see cref="OleDbParameter"/>
+		/// </summary>
+		/// <param name="db">The database to use</param>
+		/// <returns>The appropriate value if successfull, null otherwise</returns>
+		public static string FALSE(OleDbConnection db)
+		{
+			return TrueFalseDBValue(db, false);
 		}
 		/// <summary>
 		/// Return the value to use to test TRUE or FALSE
-		/// (ACCESS has a different way to use these values)
+		/// - ACCESS has a different way to use these values
 		/// That function MUST NOT be used to feed an <see cref="OleDbParameter"/>
 		/// </summary>
 		/// <param name="db">The database to use</param>

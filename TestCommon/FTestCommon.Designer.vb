@@ -22,7 +22,6 @@ Partial Class FTestCommon
 	'Do not modify it using the code editor.
 	<System.Diagnostics.DebuggerStepThrough()> _
 	Private Sub InitializeComponent()
-		Me.components = New System.ComponentModel.Container()
 		Me.pnlMain = New System.Windows.Forms.TableLayoutPanel()
 		Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
 		Me.pbSaveSettings = New System.Windows.Forms.Button()
@@ -50,8 +49,6 @@ Partial Class FTestCommon
 		Me.efTableName = New System.Windows.Forms.TextBox()
 		Me.pbTable = New System.Windows.Forms.Button()
 		Me.DataGridView1 = New System.Windows.Forms.DataGridView()
-		Me.BindingSource1 = New System.Windows.Forms.BindingSource(Me.components)
-		Me.DataSet1 = New System.Data.DataSet()
 		Me.pnlMain.SuspendLayout()
 		Me.TableLayoutPanel1.SuspendLayout()
 		Me.TabControl1.SuspendLayout()
@@ -62,15 +59,13 @@ Partial Class FTestCommon
 		Me.pnlSQL.SuspendLayout()
 		Me.TableLayoutPanel3.SuspendLayout()
 		CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).BeginInit()
-		CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).BeginInit()
-		CType(Me.DataSet1, System.ComponentModel.ISupportInitialize).BeginInit()
 		Me.SuspendLayout()
 		'
 		'pnlMain
 		'
 		Me.pnlMain.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-			Or System.Windows.Forms.AnchorStyles.Left) _
-			Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+				Or System.Windows.Forms.AnchorStyles.Left) _
+				Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
 		Me.pnlMain.AutoSize = True
 		Me.pnlMain.ColumnCount = 1
 		Me.pnlMain.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
@@ -87,8 +82,8 @@ Partial Class FTestCommon
 		'TableLayoutPanel1
 		'
 		Me.TableLayoutPanel1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-			Or System.Windows.Forms.AnchorStyles.Left) _
-			Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+				Or System.Windows.Forms.AnchorStyles.Left) _
+				Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
 		Me.TableLayoutPanel1.AutoSize = True
 		Me.TableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
 		Me.TableLayoutPanel1.ColumnCount = 3
@@ -132,8 +127,8 @@ Partial Class FTestCommon
 		'TabControl1
 		'
 		Me.TabControl1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-			Or System.Windows.Forms.AnchorStyles.Left) _
-			Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+				Or System.Windows.Forms.AnchorStyles.Left) _
+				Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
 		Me.TabControl1.Controls.Add(Me.databasePage)
 		Me.TabControl1.Location = New System.Drawing.Point(3, 3)
 		Me.TabControl1.Name = "TabControl1"
@@ -155,8 +150,8 @@ Partial Class FTestCommon
 		'TableLayoutPanel2
 		'
 		Me.TableLayoutPanel2.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-			Or System.Windows.Forms.AnchorStyles.Left) _
-			Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+				Or System.Windows.Forms.AnchorStyles.Left) _
+				Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
 		Me.TableLayoutPanel2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
 		Me.TableLayoutPanel2.ColumnCount = 1
 		Me.TableLayoutPanel2.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
@@ -173,8 +168,8 @@ Partial Class FTestCommon
 		'pnlCommands
 		'
 		Me.pnlCommands.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-			Or System.Windows.Forms.AnchorStyles.Left) _
-			Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+				Or System.Windows.Forms.AnchorStyles.Left) _
+				Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
 		Me.pnlCommands.AutoSize = True
 		Me.pnlCommands.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
 		Me.pnlCommands.ColumnCount = 1
@@ -192,8 +187,8 @@ Partial Class FTestCommon
 		'pnlConnection
 		'
 		Me.pnlConnection.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-			Or System.Windows.Forms.AnchorStyles.Left) _
-			Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+				Or System.Windows.Forms.AnchorStyles.Left) _
+				Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
 		Me.pnlConnection.AutoSize = True
 		Me.pnlConnection.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
 		Me.pnlConnection.ColumnCount = 3
@@ -241,8 +236,8 @@ Partial Class FTestCommon
 		'pnlSQL
 		'
 		Me.pnlSQL.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-			Or System.Windows.Forms.AnchorStyles.Left) _
-			Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+				Or System.Windows.Forms.AnchorStyles.Left) _
+				Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
 		Me.pnlSQL.AutoScroll = True
 		Me.pnlSQL.AutoSize = True
 		Me.pnlSQL.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
@@ -352,8 +347,8 @@ Partial Class FTestCommon
 		'TableLayoutPanel3
 		'
 		Me.TableLayoutPanel3.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-			Or System.Windows.Forms.AnchorStyles.Left) _
-			Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+				Or System.Windows.Forms.AnchorStyles.Left) _
+				Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
 		Me.TableLayoutPanel3.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
 		Me.TableLayoutPanel3.ColumnCount = 2
 		Me.TableLayoutPanel3.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
@@ -412,25 +407,13 @@ Partial Class FTestCommon
 		'DataGridView1
 		'
 		Me.DataGridView1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-			Or System.Windows.Forms.AnchorStyles.Left) _
-			Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-		Me.DataGridView1.AutoGenerateColumns = False
+				Or System.Windows.Forms.AnchorStyles.Left) _
+				Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
 		Me.DataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-		Me.DataGridView1.DataSource = Me.BindingSource1
 		Me.DataGridView1.Location = New System.Drawing.Point(3, 137)
 		Me.DataGridView1.Name = "DataGridView1"
 		Me.DataGridView1.Size = New System.Drawing.Size(714, 174)
 		Me.DataGridView1.TabIndex = 0
-		'
-		'BindingSource1
-		'
-		Me.BindingSource1.DataSource = Me.DataSet1
-		Me.BindingSource1.Position = 0
-		'
-		'DataSet1
-		'
-		Me.DataSet1.DataSetName = "NewDataSet"
-		Me.DataSet1.Locale = New System.Globalization.CultureInfo("")
 		'
 		'FTestCommon
 		'
@@ -458,8 +441,6 @@ Partial Class FTestCommon
 		Me.TableLayoutPanel3.ResumeLayout(False)
 		Me.TableLayoutPanel3.PerformLayout()
 		CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).EndInit()
-		CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).EndInit()
-		CType(Me.DataSet1, System.ComponentModel.ISupportInitialize).EndInit()
 		Me.ResumeLayout(False)
 		Me.PerformLayout()
 
@@ -486,8 +467,6 @@ Partial Class FTestCommon
 	Friend WithEvents TableLayoutPanel3 As TableLayoutPanel
 	Friend WithEvents lblSQLRes As Label
 	Friend WithEvents lblSQLNbRows As Label
-	Friend WithEvents DataSet1 As DataSet
-	Friend WithEvents BindingSource1 As BindingSource
 	Friend WithEvents DataGridView1 As DataGridView
 	Friend WithEvents pbSaveSettings As Button
 	Friend WithEvents pbClose As Button

@@ -242,6 +242,7 @@ namespace COMMON
 			nbRows = 0;
 			if (IsOpen && !string.IsNullOrEmpty(sql))
 			{
+				sql = sql.Replace("=true", $"={TRUE()}", StringComparison.OrdinalIgnoreCase).Replace("=false", $"={FALSE()}", StringComparison.OrdinalIgnoreCase);
 				CLog.Add($"SQL: {sql}");
 				return NonSelectRequest(new OleDbCommand(sql), ref nbRows);
 			}
@@ -287,6 +288,7 @@ namespace COMMON
 			reader = null;
 			if (IsOpen && !string.IsNullOrEmpty(sql))
 			{
+				sql = sql.Replace("=true", $"={TRUE()}", StringComparison.OrdinalIgnoreCase).Replace("=false", $"={FALSE()}", StringComparison.OrdinalIgnoreCase);
 				CLog.Add($"SQL: {sql}");
 				return SelectRequest(new OleDbCommand(sql), ref reader);
 			}
@@ -324,6 +326,7 @@ namespace COMMON
 		{
 			if (!string.IsNullOrEmpty(sql))
 			{
+				sql = sql.Replace("=true", $"={TRUE()}", StringComparison.OrdinalIgnoreCase).Replace("=false", $"={FALSE()}", StringComparison.OrdinalIgnoreCase);
 				CLog.Add($"SQL: {sql}");
 				return SelectRequest<TnX>(new OleDbCommand(sql), feedRecordFunction);
 			}
@@ -338,7 +341,7 @@ namespace COMMON
 		public bool SelectRequest(OleDbCommand command, ref DataSet dataSet)
 		{
 			bool f = false;
-			if (IsOpen && null != command && null != dataSet)
+			if (IsOpen && null != command)
 			{
 				OleDbDataAdapter da = null;
 				try
@@ -347,6 +350,7 @@ namespace COMMON
 					da = new OleDbDataAdapter();
 					da.SelectCommand = command;
 					da.SelectCommand.Connection = Database;
+					dataSet = new DataSet();
 					da.Fill(dataSet);
 					f = true;
 				}
@@ -370,8 +374,9 @@ namespace COMMON
 		/// <returns>True if successfull, false otherwise</returns>
 		public bool SelectRequest(string sql, ref DataSet dataSet)
 		{
-			if (IsOpen && !string.IsNullOrEmpty(sql) && null != dataSet)
+			if (IsOpen && !string.IsNullOrEmpty(sql))
 			{
+				sql = sql.Replace("=true", $"={TRUE()}", StringComparison.OrdinalIgnoreCase).Replace("=false", $"={FALSE()}", StringComparison.OrdinalIgnoreCase);
 				CLog.Add($"SQL: {sql}");
 				return SelectRequest(new OleDbCommand(sql), ref dataSet);
 			}
@@ -432,6 +437,7 @@ namespace COMMON
 			{
 				try
 				{
+					sql = sql.Replace("=true", $"={TRUE()}", StringComparison.OrdinalIgnoreCase).Replace("=false", $"={FALSE()}", StringComparison.OrdinalIgnoreCase);
 					OleDbDataAdapter da = new OleDbDataAdapter(sql, Database);
 					DataTable dataTable = new DataTable();
 					da.Fill(dataTable);

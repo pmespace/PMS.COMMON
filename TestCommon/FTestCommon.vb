@@ -83,15 +83,15 @@ Public Class FTestCommon
 	End Sub
 
 	Private Sub pbSelect_Click(sender As Object, e As EventArgs) Handles pbSelect.Click
-		Dim ds As New DataSet
-		If database.SelectRequest(efSelect.Text, DataSet1) Then
+		Dim ds As DataSet
+		If database.SelectRequest(efSelect.Text, ds) Then
 			lblSelectRes.BackColor = Color.Transparent
 			lblSelectRes.ForeColor = SystemColors.ControlText
 			lblSelectRes.Text = "OK"
 			'display content of select request
 			DataGridView1.Columns.Clear()
 			DataGridView1.AutoGenerateColumns = True
-			DataGridView1.DataSource = DataSet1.Tables(0).DefaultView
+			DataGridView1.DataSource = ds.Tables(0).DefaultView
 		Else
 			lblSelectRes.ForeColor = Color.Crimson
 			lblSelectRes.ForeColor = Color.Yellow

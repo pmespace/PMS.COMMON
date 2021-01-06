@@ -13,7 +13,7 @@ namespace COMMON
 	/// Basic ClientServer class
 	/// </summary>
 	[ComVisible(false)]
-	public abstract class CStreamIO: CStreamBase
+	public abstract class CStreamIO : CStreamBase
 	{
 		#region constructors
 		public CStreamIO(int maxlen, TcpClient tcp) : base(maxlen)
@@ -70,8 +70,8 @@ namespace COMMON
 		/// <returns>TRUE if write operation has been made, FALSE otherwise</returns>
 		private bool Write(byte[] data)
 		{
-			//try
-			//{
+			if (null == data || 0 == data.Length)
+				return false;
 			if (null != sslStream)
 			{
 				sslStream.Write(data);
@@ -82,8 +82,6 @@ namespace COMMON
 				networkStream.Write(data, 0, data.Length);
 				return true;
 			}
-			//}
-			//catch (Exception) { }
 			return false;
 		}
 		/// <summary>
@@ -106,20 +104,16 @@ namespace COMMON
 		private int Read(byte[] data, int offset, int count)
 		{
 			int read = 0;
-			//try
-			//{
+			if (null == data || 0 == data.Length)
+				return 0;
 			if (null != sslStream)
 			{
 				read = sslStream.Read(data, offset, count);
 			}
 			else if (null != networkStream)
 			{
-				read = networkStream.Read(data, 0, data.Length);
+				read = networkStream.Read(data, offset, count); //0, data.Length);
 			}
-			//}
-			//catch (Exception ex) { read = 0; }
-			//if (0 == read)
-			//	throw new CDisconnected();
 			return read;
 		}
 		/// <summary>
@@ -130,10 +124,9 @@ namespace COMMON
 		/// <returns>TRUE if the message has been sent, HALSE otherwise</returns>
 		public bool Send(byte[] data, bool addSizeHeader)
 		{
-			if (null == data)
+			if (null == data || 0 == data.Length)
 				return false;
 			// if requested, add the size header to the message to send
-			//int lengthSize = (addSizeHeader ? SIZE_HEADER_BUFFER_LENGTH : 0);
 			int lengthSize = (addSizeHeader ? LengthBufferSize : 0);
 			int size = data.Length + lengthSize;
 			byte[] messageToSend = new byte[size];
@@ -158,21 +151,38 @@ namespace COMMON
 		/// <returns>TRUE if the message has been sent, HALSE otherwise</returns>
 		public bool Send(string data)
 		{
-			byte[] bdata = Encoding.UTF8.GetBytes(data);
+			byte[] bdata = (null != data ? Encoding.UTF8.GetBytes(data) : null);
 			return Send(bdata, true);
 		}
 		/// <summary>
+		/// Send a buffer to an outer entity
+		/// This function prevents using any size header, using CR+LF as an EOT
+		/// </summary>
+		/// <param name="data">The message to send</param>
+		/// <returns>TRUE if the message has been sent, HALSE otherwise</returns>
+		public bool SendLine(string data)
+		{
+			// verify the EOL is there, add it if necessary
+			if (!string.IsNullOrEmpty(data) && !data.Contains("\r\n"))
+				data += "\r\n";
+			byte[] bdata = (null != data ? Encoding.UTF8.GetBytes(data) : null);
+			return Send(bdata, false);
+		}
+		/// <summary>
 		/// Receive a buffer of a specific size from the server.
-		/// The function will not return until the buffer has been fully received or an error occurred (timeout).
-		/// >> This function may raise an exception
+		/// The function will allocate the buffer of the specified size to receive data.
+		/// The function will not return until the buffer has been fully received or an error has occurred (timeout,...).
+		/// 
+		/// >> THIS FUNCTION MAY RAISE AN EXCEPTION
+		/// 
 		/// </summary>
 		/// <param name="bufferSize">Size of the buffer to receive</param>
-		/// <returns>The received buffer</returns>
-		private byte[] Receive(int bufferSize)
+		/// <returns>The received buffer, with a 0 length if no data has been received</returns>
+		private byte[] ReceiveSizedBuffer(int bufferSize)
 		{
-			//try
-			//{
 			// allocate buffer to receive
+			if (0 == bufferSize)
+				return null;
 			byte[] buffer = new byte[bufferSize];
 			int bytesRead = 0;
 			bool doContinue;
@@ -192,59 +202,115 @@ namespace COMMON
 			byte[] bufferReceived = new byte[bytesRead];
 			Buffer.BlockCopy(buffer, 0, bufferReceived, 0, bytesRead);
 			return bufferReceived;
-			//}
-			//catch (Exception ex)
-			//{
-			//	CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
-			//}
-			//return null;
+		}
+		/// <summary>
+		/// Receive a buffer of any size, reallocating memory to fit the buffer.
+		/// The function will constantly reallocate the buffer to receive data .
+		/// The function will not return until the buffer has been fully received or an error has occurred (timeout,...).
+		/// 
+		/// >> THIS FUNCTION MAY RAISE AN EXCEPTION
+		/// 
+		/// </summary>
+		/// <returns>The received buffer, with a 0 length if no data has been received</returns>
+		private byte[] ReceiveNonSizedBuffer()
+		{
+			// allocate buffer to receive
+			byte[] buffer = new byte[CStreamSettings.ONEKB];
+			int bytesRead = 0;
+			bool doContinue;
+			do
+			{
+				// read stream for the specified buffer
+				int nbBytes = Read(buffer, bytesRead, buffer.Length - bytesRead);
+				if (doContinue = (0 != nbBytes))
+				{
+					bytesRead += nbBytes;
+					// allocate more memory if the buffer is full
+					if (bytesRead == buffer.Length)
+					{
+						byte[] newbuffer = new byte[bytesRead + CStreamSettings.ONEKB];
+						Buffer.BlockCopy(buffer, 0, newbuffer, 0, bytesRead);
+						buffer = newbuffer;
+					}
+				}
+			}
+			while (doContinue);
+			// create a buffer of the real number of bytes received (which can't be higher than the expected number of bytes)
+			byte[] bufferReceived = new byte[bytesRead];
+			Buffer.BlockCopy(buffer, 0, bufferReceived, 0, bytesRead);
+			return bufferReceived;
 		}
 		/// <summary>
 		/// Receive a buffer of an unknown size from the server.
-		/// The function will not return until the buffer has been fully received or an error occurred (timeout)
+		/// The buffer MUST begin with a size header of <see cref="CStreamBase.LengthBufferSize"/>
+		/// The function will not return until the buffer has been fully received or an error has occurred (timeout,...)
 		/// The returned buffer NEVER contains the size header (which is sent back using the "size" data).
-		/// >> This function may raise an exception
+		/// 
+		/// >> THIS FUNCTION MAY RAISE AN EXCEPTION
+		/// 
 		/// </summary>
-		/// <param name="size"> size of the buffer to receive actually declared by the sender</param>
-		/// <returns>The received buffer if no error occurred, NULL otherwise</returns>
-		public byte[] Receive(out int size)
+		/// <param name="announcedSize">Size of the buffer as declared by the caller , therefore expected by the receiver.
+		/// If that size differs from the size of the actually received buffer then an error has occurred</param>
+		/// <returns>The received buffer WITHOUT the heaser size (whose value is indicated in announcedSize) if no error occurred, NULL if any error occured</returns>
+		public byte[] Receive(out int announcedSize)
 		{
-			size = 0;
-			//try
+			//size = 0;
+			//// get the size of the buffer to receive
+			//byte[] bufferSize = Receive((int)LengthBufferSize);
+			//if ((int)LengthBufferSize == bufferSize.Length)
 			//{
+			//	// get the size of the buffer to read and start reading it
+			//	size = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, LengthBufferSize);
+			//	byte[] buffer = Receive(size);
+			//	return buffer;
+			//}
+			//return null;
+
+			announcedSize = 0;
 			// get the size of the buffer to receive
-			byte[] bufferSize = Receive((int)LengthBufferSize);
-			if ((int)LengthBufferSize == bufferSize.Length)
+			byte[] bufferSize = ReceiveSizedBuffer(LengthBufferSize);
+			if (LengthBufferSize == bufferSize.Length)
 			{
 				// get the size of the buffer to read and start reading it
-				size = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, LengthBufferSize);
-				byte[] buffer = Receive(size);
-				return buffer;
+				announcedSize = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, LengthBufferSize);
+				byte[] buffer = ReceiveSizedBuffer(announcedSize);
+				if (announcedSize == buffer.Length)
+					return buffer;
 			}
-			//}
-			//catch (Exception ex)
-			//{
-			//	CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
-			//}
 			return null;
 		}
 		/// <summary>
 		/// Receive a string of an unknown size from the server.
+		/// The buffer MUST begin with a size header of <see cref="CStreamBase.LengthBufferSize"/>
 		/// The function will not return until the string has been fully received or an error occurred (timeout).
 		/// The returned string NEVER contains the size header.
-		/// >> This function may raise an exception
+		/// 
+		/// >> THIS FUNCTION MAY RAISE AN EXCEPTION
+		/// 
 		/// </summary>
 		/// <returns>The received buffer as a string if no error occurred, an empty string otherwise</returns>
 		public string Receive()
 		{
-			int size;
 			// receive the buffer
-			byte[] buffer = Receive(out size);
-			if (size == buffer.Length)
-				// a buffer has been received, the returned buffer does not contain the size header, we convert the message to a string
-				return Encoding.UTF8.GetString(buffer);
-			else
-				return string.Empty;
+			byte[] buffer = Receive(out int size);
+			return (size == buffer.Length ? Encoding.UTF8.GetString(buffer) : null);
+		}
+		/// <summary>
+		/// Receive a string of an unknown size from the server.
+		/// The string does not need to begin by a size header of <see cref="CStreamBase.LengthBufferSize"/> which will be ignored.
+		/// The string MUST however finish (or at least contain) a CR+LF sequence (or contain it) marking the EOT.
+		/// The function will not return until the string has been fully received or an error occurred (timeout).
+		/// The returned string NEVER contains the size header.
+		/// 
+		/// >> THIS FUNCTION MAY RAISE AN EXCEPTION
+		/// 
+		/// </summary>
+		/// <returns>The received buffer as a string if no error occurred, an empty string otherwise</returns>
+		public string ReceiveLine()
+		{
+			// receive the buffer
+			byte[] buffer = ReceiveNonSizedBuffer();
+			return (null != buffer ? Encoding.UTF8.GetString(buffer) : null);
 		}
 		/// <summary>
 		/// Close the adequate Stream
@@ -275,7 +341,7 @@ namespace COMMON
 	/// Client class
 	/// </summary>
 	[ComVisible(false)]
-	public class CStreamClientIO: CStreamIO
+	public class CStreamClientIO : CStreamIO
 	{
 		#region constructors
 		/// <summary>
@@ -339,7 +405,7 @@ namespace COMMON
 	/// Server class
 	/// </summary>
 	[ComVisible(false)]
-	public class CStreamServerIO: CStreamIO
+	public class CStreamServerIO : CStreamIO
 	{
 		#region constructors
 		/// <summary>

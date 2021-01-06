@@ -26,15 +26,13 @@ namespace COMMON
 	public static class CStream
 	{
 		#region methods
+		/// <summary>
+		/// Returns the local IP address
+		/// </summary>
+		/// <returns>A string containing the local IP address</returns>
 		public static string Localhost()
 		{
 			return IPAddress.Loopback.ToString();
-			//IPAddress[] localIPs = Dns.GetHostAddresses(Dns.GetHostName());
-			//foreach (IPAddress ip in localIPs)
-			//	if (AddressFamily.InterNetwork == ip.AddressFamily)
-			//		return ip.ToString();
-			//// no local IP address
-			//return string.Empty;
 		}
 		/// <summary>
 		/// Connect a stream according to the settings provided.
@@ -55,8 +53,9 @@ namespace COMMON
 				// Create an SSL stream that will close the client's stream.
 				stream = new CStreamClientIO(tcpclient, settings);
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
+				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
 				tcpclient.Close();
 			}
 			return stream;
@@ -77,66 +76,126 @@ namespace COMMON
 		/// </summary>
 		/// <param name="stream">The connected stream</param>
 		/// <param name="request">A array of bytes to send</param>
-		/// <param name="addBufferSize">Indicates whether a buffer size block must be added before the buffer to send</param>
+		/// <param name="addSizeHeader">Indicates whether a buffer size block must be added before the buffer to send</param>
 		/// <returns>An arry of bytes received in response or if an error occured. In case of a client only request, the function returns the request, as no reply can be returned, if everything went right</returns>
-		public static bool Send(CStreamIO stream, byte[] request, bool addBufferSize)
+		public static bool Send(CStreamIO stream, byte[] request, bool addSizeHeader)
 		{
 			if (null == stream)
 				return false;
-			if (null == request || 0 == request.Length)
-				return false;
-			bool fOK = false;
 			try
 			{
 				// Send message to the server
-				CLog.Add("Sending message (message size: " + (addBufferSize ? request.Length : request.Length - (int)stream.LengthBufferSize) + ")");
-				if (stream.Send(request, addBufferSize))
-				{
-					fOK = true;
-				}
-				else
-				{
-					CLog.Add("NO MESSAGE HAS BEEN SENT");
-				}
+				CLog.Add("Sending message (message size: " + (addSizeHeader ? request.Length : request.Length - (int)stream.LengthBufferSize) + ")");
+				if (stream.Send(request, addSizeHeader))
+					return true;
+				// arrived here the message hasn't been sent
+				CLog.Add("NO MESSAGE HAS BEEN SENT");
 			}
 			catch (Exception ex)
 			{
 				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
 			}
-			return fOK;
+			return false;
 		}
+		/// <summary>
+		/// Refer to <see cref="Send(CStreamIO, byte[], bool)"/>
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <param name="request"></param>
+		/// <returns></returns>
 		public static bool Send(CStreamIO stream, string request)
 		{
 			byte[] brequest = string.IsNullOrEmpty(request) ? null : Encoding.UTF8.GetBytes(request);
 			return Send(stream, brequest, true);
 		}
 		/// <summary>
+		/// Refer to <see cref="CStreamIO.SendLine(string)"/>
+		/// This function prevents using any size header, using CR+LF as an EOT
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <param name="request"></param>
+		/// <returns></returns>
+		public static bool SendLine(CStreamIO stream, string request)
+		{
+			if (null == stream)
+				return false;
+			try
+			{
+				return stream.SendLine(request);
+			}
+			catch (Exception ex)
+			{
+				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+			}
+			return false;
+		}
+		/// <summary>
 		/// Receive data on the indicated stream.
+		/// The buffer MUST begin with a size header of <see cref="CStreamBase.LengthBufferSize"/>
 		/// </summary>
 		/// <param name="stream">The connected stream</param>
-		/// <param name="replySize">The size of the reply as received</param>
-		/// <param name="addBufferSize">Indicates whether a buffer size block must be added before the buffer to send</param>
-		/// <param name="timeout">True indicates the function ended up witha timeout, false otherwise</param>
+		/// <param name="announcedSize">The size of the reply as announced by the sender</param>
+		/// <param name="sizeHeaderAdded">Indicates whether a buffer size header was natively or not inside the request.
+		/// If TRUE then the size header has been added by the system meaning the application does not care about it and won't care about it inside the received buffer which will be returned without any size header.
+		/// If FALSE then the size header was already part of the buffer meaning the application added it and cares about it. The received buffer must therefore contain the size header.</param>
+		/// <param name="error">True indicates the function ended up with an error as no more data was available, false otherwise</param>
 		/// <returns>An arry of bytes received in response or if an error occured. In case of a client only request, the function returns the request, as no reply can be returned, if everything went right</returns>
-		public static byte[] Receive(CStreamIO stream, out int replySize, out bool timeout, bool addBufferSize)
+		public static byte[] Receive(CStreamIO stream, out int announcedSize, out bool error, bool sizeHeaderAdded)
 		{
+			//byte[] reply = null;
+			//announcedSize = 0;
+			//error = false;
+			//if (null == stream)
+			//	return null;
+			//try
+			//{
+			//	// Read message from the server
+			//	CLog.Add("Waiting to receive a message (buffer size: " + stream.Tcp.ReceiveBufferSize + ")");
+			//	byte[] tmp = stream.Receive(out announcedSize);
+			//	if (null != tmp)
+			//	{
+			//		CLog.Add("Received message (size: " + (addSizeHeader ? tmp.Length : tmp.Length - (int)stream.LengthBufferSize) + ")");
+			//		// rebuild the buffer is required
+			//		if (!addSizeHeader)
+			//		{
+			//			// the request was already carrying a size header, we therefore must reinsert the size header inside the received buffer
+			//			reply = new byte[tmp.Length + stream.LengthBufferSize];
+			//			byte[] bb = CMisc.SetBytesFromIntegralTypeValue(tmp.Length, stream.LengthBufferSize);
+			//			Buffer.BlockCopy(bb, 0, reply, 0, stream.LengthBufferSize);
+			//			Buffer.BlockCopy(tmp, 0, reply, stream.LengthBufferSize, tmp.Length);
+			//		}
+			//		else
+			//			reply = tmp;
+			//	}
+			//	else
+			//	{
+			//		CLog.Add("No data received or an error has occurred while receiving data (invalid length,...)");
+			//		error = true;
+			//	}
+			//}
+			//catch (Exception ex)
+			//{
+			//	CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+			//}
+			//return reply;
+
 			byte[] reply = null;
-			replySize = 0;
-			timeout = false;
+			announcedSize = 0;
+			error = false;
 			if (null == stream)
 				return null;
 			try
 			{
 				// Read message from the server
 				CLog.Add("Waiting to receive a message (buffer size: " + stream.Tcp.ReceiveBufferSize + ")");
-				byte[] tmp = stream.Receive(out replySize);
+				byte[] tmp = stream.Receive(out announcedSize);
 				if (null != tmp)
 				{
-					CLog.Add("Received message (size: " + (addBufferSize ? tmp.Length : tmp.Length - (int)stream.LengthBufferSize) + ")");
+					CLog.Add("Received message (size: " + (sizeHeaderAdded ? tmp.Length : tmp.Length - (int)stream.LengthBufferSize) + ")");
 					// rebuild the buffer is required
-					if (!addBufferSize)
+					if (!sizeHeaderAdded)
 					{
-						// the request was already carrying a size header, we therefore must reinsert the size header inside the received buffer
+						// the request natively contained a size header, meaningfull to the application, we therefore must reinsert the size header inside the received buffer
 						reply = new byte[tmp.Length + stream.LengthBufferSize];
 						byte[] bb = CMisc.SetBytesFromIntegralTypeValue(tmp.Length, stream.LengthBufferSize);
 						Buffer.BlockCopy(bb, 0, reply, 0, stream.LengthBufferSize);
@@ -147,8 +206,8 @@ namespace COMMON
 				}
 				else
 				{
-					CLog.Add("No data received");
-					timeout = true;
+					CLog.Add("No data received or an error has occurred while receiving data (invalid length,...)");
+					error = true;
 				}
 			}
 			catch (Exception ex)
@@ -157,9 +216,41 @@ namespace COMMON
 			}
 			return reply;
 		}
-		public static string Receive(CStreamIO stream, out int replySize, out bool timeout)
+		/// <summary>
+		/// Refer to <see cref="Receive(CStreamIO, out int, out bool, bool)"/>
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <param name="announcedSize"></param>
+		/// <param name="error"></param>
+		/// <returns></returns>
+		public static string Receive(CStreamIO stream, out int announcedSize, out bool error)
 		{
-			return Encoding.UTF8.GetString(Receive(stream, out replySize, out timeout, true));
+			byte[] reply = Receive(stream, out announcedSize, out error, true);
+			return (null != reply ? Encoding.UTF8.GetString(Receive(stream, out announcedSize, out error, true)) : null);
+		}
+		/// <summary>
+		/// Refer to <see cref="CStreamIO.ReceiveLine"/>
+		/// The string does not need to begin by a size header of <see cref="CStreamBase.LengthBufferSize"/> which will be ignored.
+		/// The string MUST however finish (or at least contain) a CR+LF sequence (or contain it) marking the EOT.
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <param name="error">True indicates the function ended up with a error, false otherwise</param>
+		/// <returns></returns>
+		public static string ReceiveLine(CStreamIO stream, out bool error)
+		{
+			error = false;
+			if (null == stream)
+				return null;
+			try
+			{
+				return stream.ReceiveLine();
+			}
+			catch (Exception ex)
+			{
+				error = true;
+				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+			}
+			return null;
 		}
 		/// <summary>
 		/// Send (<see cref="Send(CStreamIO, byte[], bool)"/> and <see cref="Send(CStreamIO, string)"/>),
@@ -168,76 +259,166 @@ namespace COMMON
 		/// </summary>
 		/// <param name="stream">The connected stream</param>
 		/// <param name="request">A array of bytes to send</param>
-		/// <param name="replySize">The size of the reply as received</param>
-		/// <param name="addBufferSize">Indicates whether a buffer size block must be added before the buffer to send</param>
-		/// <param name="timeout">True indicates the function ended up witha timeout, false otherwise</param>
+		/// <param name="announcedSize">The size of the reply as announced by the sender</param>
+		/// <param name="addSizeHeader">Indicates whether a buffer size block must be added before the buffer to send</param>
+		/// <param name="error">True indicates the function ended up with a error, false otherwise</param>
 		/// <returns></returns>
-		public static byte[] SendReceive(CStreamIO stream, byte[] request, bool addBufferSize, out int replySize, out bool timeout)
+		public static byte[] SendReceive(CStreamIO stream, byte[] request, bool addSizeHeader, out int announcedSize, out bool error)
 		{
-			replySize = 0;
-			timeout = false;
-			if (Send(stream, request, addBufferSize))
-				return Receive(stream, out replySize, out timeout, addBufferSize);
+			announcedSize = 0;
+			error = false;
+			if (Send(stream, request, addSizeHeader))
+				return Receive(stream, out announcedSize, out error, addSizeHeader);
 			return null;
 		}
-		public static string SendReceived(CStreamIO stream, string request, out int replySize, out bool timeout)
+		/// <summary>
+		/// Refer to <see cref="SendReceive(CStreamIO, byte[], bool, out int, out bool)"/>
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <param name="request"></param>
+		/// <param name="announcedSize"></param>
+		/// <param name="error"></param>
+		/// <returns></returns>
+		public static string SendReceive(CStreamIO stream, string request, out int announcedSize, out bool error)
 		{
-			return Encoding.UTF8.GetString(SendReceive(stream, Encoding.UTF8.GetBytes(request), true, out replySize, out timeout));
+			byte[] reply = SendReceive(stream, null != request ? Encoding.UTF8.GetBytes(request) : null, true, out announcedSize, out error);
+			return (null != reply ? Encoding.UTF8.GetString(reply) : null);
+		}
+		/// <summary>
+		/// This function prevents using any size header, using CR+LF as an EOT
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <param name="request"></param>
+		/// <param name="error"></param>
+		/// <returns></returns>
+		public static string SendReceiveLine(CStreamIO stream, string request, out bool error)
+		{
+			error = false;
+			if (SendLine(stream, request))
+				return ReceiveLine(stream, out error);
+			return null;
 		}
 		/// <summary>
 		/// Connect (<see cref="Connect(CStreamClientSettings)"/>) and send data (<see cref="Send(CStreamIO, byte[], bool)"/> and <see cref="Send(CStreamIO, string)"/>).
 		/// </summary>
 		/// <param name="settings">The settings to use for sending data</param>
 		/// <param name="request">A array of bytes to send</param>
-		/// <param name="addBufferSize">Indicates whether a buffer size block must be added before the buffer to send</param>
+		/// <param name="addSizeHeader">Indicates whether a buffer size block must be added before the buffer to send</param>
 		/// <returns>An arry of bytes received in response or if an error occured. In case of a client only request, the function returns the request, as no reply can be returned, if everything went right</returns>
-		public static bool ConnectSend(CStreamClientSettings settings, byte[] request, bool addBufferSize)
+		public static bool ConnectSend(CStreamClientSettings settings, byte[] request, bool addSizeHeader)
 		{
-			bool fOK;
-			// adjust buffer size according to buffer to send
-			int fullBufferSize = (addBufferSize ? request.Length + (int)settings.LengthBufferSize : request.Length);
-			settings.SendBufferSize = (settings.SendBufferSize > fullBufferSize ? settings.SendBufferSize : fullBufferSize + 1);
-			CStreamClientIO stream = Connect(settings);
-			if (fOK = (null != stream))
+			if (null == request || 0 == request.Length)
+				return false;
+			CStreamClientIO stream = ConnectToSend(settings, request, addSizeHeader);
+			if (null != stream)
 			{
-				fOK = Send(stream, request, addBufferSize);
+				bool fOK = Send(stream, request, addSizeHeader);
 				Disconnect(stream);
+				return fOK;
 			}
-			return fOK;
+			return false;
 		}
+		private static CStreamClientIO ConnectToSend(CStreamClientSettings settings, byte[] request, bool addSizeHeader)
+		{
+			// adjust buffer size according to buffer to send
+			int fullBufferSize = (addSizeHeader ? request.Length + (int)settings.LengthBufferSize : request.Length);
+			settings.SendBufferSize = (settings.SendBufferSize > fullBufferSize ? settings.SendBufferSize : fullBufferSize + 1);
+			return Connect(settings);
+		}
+		/// <summary>
+		/// Refer to <see cref="ConnectSend(CStreamClientSettings, byte[], bool)"/>
+		/// </summary>
+		/// <param name="settings"></param>
+		/// <param name="request"></param>
+		/// <returns></returns>
 		public static bool ConnectSend(CStreamClientSettings settings, string request)
 		{
-			return ConnectSend(settings, Encoding.UTF8.GetBytes(request), true);
+			return ConnectSend(settings, string.IsNullOrEmpty(request) ? null : Encoding.UTF8.GetBytes(request), true);
+		}
+		/// <summary>
+		/// This function prevents using any size header, using CR+LF as an EOT
+		/// </summary>
+		/// <param name="settings"></param>
+		/// <param name="request"></param>
+		/// <returns></returns>
+		public static bool ConnectSendLine(CStreamClientSettings settings, string request)
+		{
+			if (string.IsNullOrEmpty(request))
+				return false;
+			CStreamClientIO stream = ConnectToSend(settings, request);
+			if (null != stream)
+			{
+				bool fOK = SendLine(stream, request);
+				Disconnect(stream);
+				return fOK;
+			}
+			return false;
+		}
+		private static CStreamClientIO ConnectToSend(CStreamClientSettings settings, string request)
+		{
+			// adjust buffer size according to buffer to send
+			int fullBufferSize = request.Length + (int)settings.LengthBufferSize;
+			settings.SendBufferSize = (settings.SendBufferSize > fullBufferSize ? settings.SendBufferSize : fullBufferSize + 1);
+			return Connect(settings);
 		}
 		/// <summary>
 		/// Connect (<see cref="Connect(CStreamClientSettings)"/>), send (<see cref="Send(CStreamIO, byte[], bool)"/> and <see cref="Send(CStreamIO, string)"/>) and receive (<see cref="Receive(CStreamIO, out int, out bool, bool)"/> and <see cref="Receive(CStreamIO, out int, out bool)"/>) data.
 		/// </summary>
 		/// <param name="settings">The settings to use for sending data</param>
 		/// <param name="request">A array of bytes to send</param>
-		/// <param name="addBufferSize">Indicates whether a buffer size block must be added before the buffer to send</param>
-		/// <param name="replySize">The size of the reply as received</param>
-		/// <param name="timeout">True indicates the function ended up witha timeout, false otherwise</param>
+		/// <param name="addSizeHeader">Indicates whether a buffer size block must be added before the buffer to send</param>
+		/// <param name="announcedSize">The size of the reply as announced by the sender</param>
+		/// <param name="error">True indicates the function ended up with a error, false otherwise</param>
 		/// <returns>An arry of bytes received in response or if an error occured. In case of a client only request, the function returns the request, as no reply can be returned, if everything went right</returns>
-		public static byte[] ConnectSendReceive(CStreamClientSettings settings, byte[] request, bool addBufferSize, out int replySize, out bool timeout)
+		public static byte[] ConnectSendReceive(CStreamClientSettings settings, byte[] request, bool addSizeHeader, out int announcedSize, out bool error)
 		{
-			timeout = false;
 			byte[] reply = null;
-			replySize = 0;
-			// adjust buffer size according to buffer to send
-			int fullBufferSize = (addBufferSize ? request.Length + (int)settings.LengthBufferSize : request.Length);
-			settings.SendBufferSize = (settings.SendBufferSize > fullBufferSize ? settings.SendBufferSize : fullBufferSize + 1);
-			CStreamClientIO stream = Connect(settings);
+			error = false;
+			announcedSize = 0;
+			if (null == request || 0 == request.Length)
+				return null;
+			CStreamClientIO stream = ConnectToSend(settings, request, addSizeHeader);
 			if (null != stream)
 			{
-				if (Send(stream, request, addBufferSize))
-					reply = Receive(stream, out replySize, out timeout, addBufferSize);
+				if (Send(stream, request, addSizeHeader))
+					reply = Receive(stream, out announcedSize, out error, addSizeHeader);
 				Disconnect(stream);
 			}
 			return reply;
 		}
-		public static string ConnectSendReceive(CStreamClientSettings settings, string request, out int replySize, out bool timeout)
+		/// <summary>
+		/// Refer to <see cref="ConnectSendReceive(CStreamClientSettings, byte[], bool, out int, out bool)"/>
+		/// </summary>
+		/// <param name="settings"></param>
+		/// <param name="request"></param>
+		/// <param name="announcedSize"></param>
+		/// <param name="error"></param>
+		/// <returns></returns>
+		public static string ConnectSendReceive(CStreamClientSettings settings, string request, out int announcedSize, out bool error)
 		{
-			return Encoding.UTF8.GetString(ConnectSendReceive(settings, Encoding.UTF8.GetBytes(request), true, out replySize, out timeout));
+			byte[] reply = ConnectSendReceive(settings, Encoding.UTF8.GetBytes(request), true, out announcedSize, out error);
+			return (null != reply ? Encoding.UTF8.GetString(reply) : null);
+		}
+		/// <summary>
+		/// This function prevents using any size header, using CR+LF as an EOT
+		/// </summary>
+		/// <param name="settings"></param>
+		/// <param name="request"></param>
+		/// <param name="error"></param>
+		/// <returns></returns>
+		public static string ConnectSendReceiveLine(CStreamClientSettings settings, string request, out bool error)
+		{
+			error = false;
+			if (string.IsNullOrEmpty(request))
+				return null;
+			CStreamClientIO stream = ConnectToSend(settings, request);
+			if (null != stream)
+			{
+				string reply = SendReceiveLine(stream, request, out error);
+				Disconnect(stream);
+				return reply;
+			}
+			return null;
 		}
 		/// <summary>
 		/// Start a client thread to send and receive data.
@@ -245,9 +426,12 @@ namespace COMMON
 		/// </summary>
 		/// <param name="sendAsync">Settings to start the thread</param>
 		/// <param name="request">The request as bytes array</param>
-		/// <param name="addBufferSize">Indicates whether or not adding a size header when sending the request</param>
+		/// <param name="addSizeHeader">Indicates whether or not adding a size header when sending the request</param>
+		/// <param name="lineExchanges">Indicates whether (true) or not (false) the exchanges complete by a new line, not using the size header.
+		/// If set to true no buffer size is never used during the exchanges (present or not) and the EOT is always represented by a CR+LF.
+		/// Setting this parameter to true supersedes the addSizeHeader one</param>
 		/// <returns>A <see cref="CThread"/> object if the thread has been started, null otherwise</returns>
-		public static CThread SendAsync(SendAsyncType sendAsync, byte[] request, bool addBufferSize)
+		public static CThread SendAsync(SendAsyncType sendAsync, byte[] request, bool addSizeHeader, bool lineExchanges = false)
 		{
 			if (null == sendAsync
 				|| null == sendAsync.Settings
@@ -262,8 +446,9 @@ namespace COMMON
 				{
 					SendAsync = sendAsync,
 					Request = request,
-					AddBufferSize = addBufferSize,
+					AddSizeHeader = addSizeHeader,
 					ClientOnly = null == sendAsync.OnReply,
+					LineExchanges = lineExchanges,
 				};
 				// prepare the thread object
 				CThread thread = new CThread();
@@ -278,10 +463,30 @@ namespace COMMON
 			}
 			return null;
 		}
+		/// <summary>
+		/// Refer to <see cref="SendAsync(SendAsyncType, byte[], bool, bool)"/>
+		/// </summary>
+		/// <param name="sendAsync"></param>
+		/// <param name="request"></param>
+		/// <returns></returns>
 		public static CThread SendAsync(SendAsyncType sendAsync, string request)
 		{
-			return SendAsync(sendAsync, Encoding.UTF8.GetBytes(request), true);
+			return SendAsync(sendAsync, Encoding.UTF8.GetBytes(request), true, false);
 		}
+		/// <summary>
+		/// Refer to <see cref="SendAsync(SendAsyncType, byte[], bool, bool)"/>
+		/// This function prevents using any size header, using CR+LF as an EOT
+		/// </summary>
+		/// <param name="sendAsync"></param>
+		/// <param name="request"></param>
+		/// <returns></returns>
+		public static CThread SendAsyncLine(SendAsyncType sendAsync, string request)
+		{
+			return SendAsync(sendAsync, Encoding.UTF8.GetBytes(request), false, true);
+		}
+		/// <summary>
+		/// Class used to specify how to handle asynchronous sending of data
+		/// </summary>
 		public class SendAsyncType
 		{
 			/// <summary>
@@ -303,7 +508,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// <see cref="CThread.CThreadFunction"/>.
-		/// That function supports <see cref="SendAsync(SendAsyncType, byte[], bool)"/> processing/
+		/// That function supports <see cref="SendAsync(SendAsyncType, byte[], bool, bool)"/> processing/
 		/// </summary>
 		/// <param name="threadData"></param>
 		/// <param name="o"></param>
@@ -316,32 +521,62 @@ namespace COMMON
 			CLog.Add("SendAsync - Connecting to: " + clientThread.SendAsync.Settings.FullIP);
 			if (null != clientThread.SendAsync.OnReply)
 			{
+
 				// send & receive 
-				byte[] reply = ConnectSendReceive(clientThread.SendAsync.Settings, clientThread.Request, clientThread.AddBufferSize, out int replySize, out bool timeout);
-				if (null == reply || 0 == reply.Length)
+				if (clientThread.LineExchanges)
 				{
-					res = SendAsyncEnum.NoData;
-				}
-				else if (reply.Length != replySize)
-				{
-					res = SendAsyncEnum.ReceiveError;
+					string reply = ConnectSendReceiveLine(clientThread.SendAsync.Settings, Encoding.UTF8.GetString(clientThread.Request), out bool error);
+					if (string.IsNullOrEmpty(reply))
+					{
+						res = SendAsyncEnum.NoData;
+					}
+					else
+					{
+						// forward reply to the caller
+						if (clientThread.SendAsync.OnReply(Encoding.UTF8.GetBytes(reply), error, threadData, o))
+							res = SendAsyncEnum.OK;
+						else
+							res = SendAsyncEnum.ReceiveError;
+					}
 				}
 				else
 				{
-					// forward reply to the caller
-					if (clientThread.SendAsync.OnReply(reply, timeout, threadData, o))
-						res = SendAsyncEnum.OK;
-					else
+					byte[] reply = ConnectSendReceive(clientThread.SendAsync.Settings, clientThread.Request, clientThread.AddSizeHeader, out int announcedSize, out bool error);
+					if (null == reply || 0 == reply.Length)
+					{
+						res = SendAsyncEnum.NoData;
+					}
+					else if (reply.Length != announcedSize)
+					{
 						res = SendAsyncEnum.ReceiveError;
+					}
+					else
+					{
+						// forward reply to the caller
+						if (clientThread.SendAsync.OnReply(reply, error, threadData, o))
+							res = SendAsyncEnum.OK;
+						else
+							res = SendAsyncEnum.ReceiveError;
+					}
 				}
 			}
 			else
 			{
 				// send only
-				if (ConnectSend(clientThread.SendAsync.Settings, clientThread.Request, clientThread.AddBufferSize))
-					res = SendAsyncEnum.OK;
+				if (clientThread.LineExchanges)
+				{
+					if (ConnectSendLine(clientThread.SendAsync.Settings, Encoding.UTF8.GetString(clientThread.Request)))
+						res = SendAsyncEnum.OK;
+					else
+						res = SendAsyncEnum.SendError;
+				}
 				else
-					res = SendAsyncEnum.SendError;
+				{
+					if (ConnectSend(clientThread.SendAsync.Settings, clientThread.Request, clientThread.AddSizeHeader))
+						res = SendAsyncEnum.OK;
+					else
+						res = SendAsyncEnum.SendError;
+				}
 			}
 			CLog.Add("SendAsync - Result: " + res.ToString(), SendAsyncEnum.OK == res ? TLog.INFOR : TLog.ERROR);
 			return (int)res;
@@ -350,8 +585,9 @@ namespace COMMON
 		{
 			public SendAsyncType SendAsync { get; set; }
 			public byte[] Request { get; set; } = null;
-			public bool AddBufferSize { get; set; } = true;
+			public bool AddSizeHeader { get; set; } = true;
 			public bool ClientOnly { get; set; } = false;
+			public bool LineExchanges { get; set; } = false;
 		}
 		#endregion
 	}

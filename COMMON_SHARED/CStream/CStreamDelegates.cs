@@ -75,10 +75,10 @@ namespace COMMON
 		/// </summary>
 		/// <param name="threadData">Thread ID as given by the creator of the thread</param>
 		/// <param name="reply">Reply as received</param>
-		/// <param name="timeout">True if a timeout occurred </param>
+		/// <param name="error">True if an error occurred while receiving the reply</param>
 		/// <param name="o">Private parameters to pass to the thread</param>
 		/// <returns>True if processing was OK, False otherwise</returns>
-		public delegate bool ClientOnReplyDelegate(byte[] reply, bool timeout, CThreadData threadData, object o);
+		public delegate bool ClientOnReplyDelegate(byte[] reply, bool error, CThreadData threadData, object o);
 		#endregion
 	}
 }

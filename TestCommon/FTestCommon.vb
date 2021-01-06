@@ -1,5 +1,10 @@
 ﻿Imports System.Data.OleDb
+Imports System.IO
+Imports System.Text
+Imports System.Xml
+Imports System.Xml.Serialization
 Imports COMMON
+Imports Newtonsoft.Json
 
 Public Class FTestCommon
 	Private database As New CDatabase
@@ -83,7 +88,7 @@ Public Class FTestCommon
 	End Sub
 
 	Private Sub pbSelect_Click(sender As Object, e As EventArgs) Handles pbSelect.Click
-		Dim ds As DataSet
+		Dim ds As DataSet = Nothing
 		If database.SelectRequest(efSelect.Text, ds) Then
 			lblSelectRes.BackColor = Color.Transparent
 			lblSelectRes.ForeColor = SystemColors.ControlText
@@ -141,5 +146,85 @@ Public Class FTestCommon
 		database.IsOpen = False
 		DataGridView1.DataSource = Nothing
 		SetButtons()
+	End Sub
+
+	Class ConnectRequestData
+		Public Property ICCD As String
+		Public Property user As String
+		Public Property password As String
+		Public Property port As Integer
+	End Class
+
+	Class ConnectRequest
+		Public Sub New()
+			connect = New ConnectRequestData
+		End Sub
+		Public connect As ConnectRequestData
+	End Class
+
+	Class ConnectReplyData
+		Public Property status As Integer
+	End Class
+	Private Const CONNECT_STATUS_OK As Integer = 0
+	Private Const CONNECT_STATUS_KO As Integer = -1
+
+	Class ConnectReply
+		Public Sub New()
+			connect = New ConnectReplyData
+		End Sub
+		Public Property connect As ConnectReplyData
+	End Class
+
+	Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+		'create the XML request
+		Dim request As New ConnectRequest
+		request.connect.ICCD = "9517039264045"
+		request.connect.user = "cnce"
+		request.connect.password = "cnce"
+		request.connect.port = 2018
+		Dim xml As XmlDocument = JsonConvert.DeserializeXmlNode(JsonConvert.SerializeObject(request))
+		Dim clientSettings As New CStreamClientSettings() With
+			{
+			.IP = "194.50.38.6",
+			.Port = 3470,
+			.ReceiveTimeout = 5,
+			.CheckCertificate = True,
+			.ServerName = "sslstca.lyra-network.com"
+			}
+		'send xml request waiting for an xml reply
+		Dim err As Boolean
+		Dim s As String = xml.InnerXml + vbCrLf
+		Dim xmls As String = CStream.ConnectSendReceiveLine(clientSettings, s, err)
+		If Not String.IsNullOrEmpty(xmls) Then
+			Try
+				'deserialize the reply to a structure
+
+				'remove version
+				Dim xmlSetting As New XmlReaderSettings()
+				xmlSetting.IgnoreComments = True
+				xmlSetting.IgnoreProcessingInstructions = True
+				xmlSetting.IgnoreWhitespace = True
+				xmlSetting.CloseInput = True
+
+				Dim xsSubmit As New XmlSerializer(GetType(ConnectReply))
+				Dim stream As New StreamReader(New MemoryStream(Encoding.UTF8.GetBytes(xmls)), Encoding.UTF8, False)
+				Dim reader As XmlReader = XmlReader.Create(stream, xmlSetting)
+				Dim reply As ConnectReply = xsSubmit.Deserialize(reader)
+				If Not IsNothing(reply) Then
+					'test the result
+					If reply.connect.status Then
+					Else
+					End If
+				Else
+					'error, not a valid object
+				End If
+			Catch ex As Exception
+
+			End Try
+			'test the returned status
+
+		Else
+			'error connecting to the gateway
+		End If
 	End Sub
 End Class

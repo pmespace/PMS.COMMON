@@ -11,6 +11,9 @@
     <projectUrl>https://github.com/pmespace/PMS.COMMON/</projectUrl>
     <description>Shared tools for PMS.CHPN, PMS.NEXO and other projects</description>
     <releaseNotes>
+      3.0.6
+      - Automatically managed CR+LF when using SendLine and ReceiveLine in CStreamIO
+
       3.0.5
       - Added the possibility to exchanges messages over socket without buffer size header
 

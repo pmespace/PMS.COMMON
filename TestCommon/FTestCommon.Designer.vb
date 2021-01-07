@@ -50,6 +50,7 @@ Partial Class FTestCommon
 		Me.efTableName = New System.Windows.Forms.TextBox()
 		Me.pbTable = New System.Windows.Forms.Button()
 		Me.DataGridView1 = New System.Windows.Forms.DataGridView()
+		Me.lblResult = New System.Windows.Forms.Label()
 		Me.pnlMain.SuspendLayout()
 		Me.TableLayoutPanel1.SuspendLayout()
 		Me.TabControl1.SuspendLayout()
@@ -87,13 +88,16 @@ Partial Class FTestCommon
 			Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
 		Me.TableLayoutPanel1.AutoSize = True
 		Me.TableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-		Me.TableLayoutPanel1.ColumnCount = 3
+		Me.TableLayoutPanel1.ColumnCount = 4
+		Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle())
 		Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
 		Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle())
 		Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle())
-		Me.TableLayoutPanel1.Controls.Add(Me.pbSaveSettings, 1, 0)
-		Me.TableLayoutPanel1.Controls.Add(Me.pbClose, 2, 0)
+		Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
+		Me.TableLayoutPanel1.Controls.Add(Me.pbSaveSettings, 2, 0)
+		Me.TableLayoutPanel1.Controls.Add(Me.pbClose, 3, 0)
 		Me.TableLayoutPanel1.Controls.Add(Me.Button1, 0, 0)
+		Me.TableLayoutPanel1.Controls.Add(Me.lblResult, 1, 0)
 		Me.TableLayoutPanel1.Location = New System.Drawing.Point(3, 361)
 		Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
 		Me.TableLayoutPanel1.RowCount = 1
@@ -428,6 +432,16 @@ Partial Class FTestCommon
 		Me.DataGridView1.Size = New System.Drawing.Size(714, 174)
 		Me.DataGridView1.TabIndex = 0
 		'
+		'lblResult
+		'
+		Me.lblResult.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+		Me.lblResult.AutoSize = True
+		Me.lblResult.Location = New System.Drawing.Point(115, 8)
+		Me.lblResult.Name = "lblResult"
+		Me.lblResult.Size = New System.Drawing.Size(486, 13)
+		Me.lblResult.TabIndex = 3
+		Me.lblResult.Text = "..."
+		'
 		'FTestCommon
 		'
 		Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -487,4 +501,5 @@ Partial Class FTestCommon
 	Friend WithEvents efTableName As TextBox
 	Friend WithEvents pbTable As Button
 	Friend WithEvents Button1 As Button
+	Friend WithEvents lblResult As Label
 End Class

@@ -163,8 +163,13 @@ namespace COMMON
 		public bool SendLine(string data)
 		{
 			// verify the EOL is there, add it if necessary
-			if (!string.IsNullOrEmpty(data) && !data.Contains("\r\n"))
+			if (!string.IsNullOrEmpty(data))
+			{
+				// replace intermediate EOL
+				data = data.Replace("\r\n", "");
+				// add the EOL at the end of string
 				data += "\r\n";
+			}
 			byte[] bdata = (null != data ? Encoding.UTF8.GetBytes(data) : null);
 			return Send(bdata, false);
 		}
@@ -254,18 +259,6 @@ namespace COMMON
 		/// <returns>The received buffer WITHOUT the heaser size (whose value is indicated in announcedSize) if no error occurred, NULL if any error occured</returns>
 		public byte[] Receive(out int announcedSize)
 		{
-			//size = 0;
-			//// get the size of the buffer to receive
-			//byte[] bufferSize = Receive((int)LengthBufferSize);
-			//if ((int)LengthBufferSize == bufferSize.Length)
-			//{
-			//	// get the size of the buffer to read and start reading it
-			//	size = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, LengthBufferSize);
-			//	byte[] buffer = Receive(size);
-			//	return buffer;
-			//}
-			//return null;
-
 			announcedSize = 0;
 			// get the size of the buffer to receive
 			byte[] bufferSize = ReceiveSizedBuffer(LengthBufferSize);
@@ -310,7 +303,11 @@ namespace COMMON
 		{
 			// receive the buffer
 			byte[] buffer = ReceiveNonSizedBuffer();
-			return (null != buffer ? Encoding.UTF8.GetString(buffer) : null);
+			string s = (null != buffer ? Encoding.UTF8.GetString(buffer) : null);
+			// remove EOL if necessary
+			if (!string.IsNullOrEmpty(s))
+				s = s.Replace("\r\n", "");
+			return s;
 		}
 		/// <summary>
 		/// Close the adequate Stream

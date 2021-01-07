@@ -162,6 +162,7 @@ Public Class FTestCommon
 		Public connect As ConnectRequestData
 	End Class
 
+	<Serializable, XmlRoot(ElementName:="connect")>
 	Class ConnectReplyData
 		Public Property status As Integer
 	End Class
@@ -176,6 +177,8 @@ Public Class FTestCommon
 	End Class
 
 	Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+		lblResult.Visible = False
+		lblResult.Text = "KO"
 		'create the XML request
 		Dim request As New ConnectRequest
 		request.connect.ICCD = "9517039264045"
@@ -193,7 +196,7 @@ Public Class FTestCommon
 			}
 		'send xml request waiting for an xml reply
 		Dim err As Boolean
-		Dim s As String = xml.InnerXml + vbCrLf
+		Dim s As String = xml.InnerXml
 		Dim xmls As String = CStream.ConnectSendReceiveLine(clientSettings, s, err)
 		If Not String.IsNullOrEmpty(xmls) Then
 			Try
@@ -206,14 +209,16 @@ Public Class FTestCommon
 				xmlSetting.IgnoreWhitespace = True
 				xmlSetting.CloseInput = True
 
-				Dim xsSubmit As New XmlSerializer(GetType(ConnectReply))
+				Dim xsSubmit As New XmlSerializer(GetType(ConnectReplyData))
 				Dim stream As New StreamReader(New MemoryStream(Encoding.UTF8.GetBytes(xmls)), Encoding.UTF8, False)
 				Dim reader As XmlReader = XmlReader.Create(stream, xmlSetting)
-				Dim reply As ConnectReply = xsSubmit.Deserialize(reader)
+				Dim reply As ConnectReplyData = xsSubmit.Deserialize(reader)
 				If Not IsNothing(reply) Then
 					'test the result
-					If reply.connect.status Then
+					If 0 = reply.status Then
+						lblResult.Text = "OK"
 					Else
+						lblResult.Text = $"KO [{reply.status}]"
 					End If
 				Else
 					'error, not a valid object
@@ -226,5 +231,6 @@ Public Class FTestCommon
 		Else
 			'error connecting to the gateway
 		End If
+		lblResult.Visible = True
 	End Sub
 End Class

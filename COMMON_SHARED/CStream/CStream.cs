@@ -226,7 +226,7 @@ namespace COMMON
 		public static string Receive(CStreamIO stream, out int announcedSize, out bool error)
 		{
 			byte[] reply = Receive(stream, out announcedSize, out error, true);
-			return (null != reply ? Encoding.UTF8.GetString(Receive(stream, out announcedSize, out error, true)) : null);
+			return (null != reply ? Encoding.UTF8.GetString(reply) : null);
 		}
 		/// <summary>
 		/// Refer to <see cref="CStreamIO.ReceiveLine"/>

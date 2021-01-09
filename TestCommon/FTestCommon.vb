@@ -182,15 +182,15 @@ Public Class FTestCommon
 		'create the XML request
 		Dim request As New ConnectRequest
 		request.connect.ICCD = "9517039264045"
-		request.connect.user = "cnce"
-		request.connect.password = "cnce"
+		request.connect.user = "JTHURIN"
+		request.connect.password = "AThenes2004"
 		request.connect.port = 2018
 		Dim xml As XmlDocument = JsonConvert.DeserializeXmlNode(JsonConvert.SerializeObject(request))
 		Dim clientSettings As New CStreamClientSettings() With
 			{
 			.IP = "194.50.38.6",
 			.Port = 3470,
-			.ReceiveTimeout = 5,
+			.ReceiveTimeout = 0,
 			.CheckCertificate = True,
 			.ServerName = "sslstca.lyra-network.com"
 			}

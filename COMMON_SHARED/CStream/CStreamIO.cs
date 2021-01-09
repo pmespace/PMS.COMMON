@@ -62,6 +62,13 @@ namespace COMMON
 		private NetworkStream _networkstream = null;
 		#endregion
 
+		#region constants
+		public const string CRLF = "\r\n";
+		public const string LFCR = "\n\r";
+		public const byte ETX = 0x03;
+		public const byte EOT = 0x04;
+		#endregion
+
 		#region methods
 		/// <summary>
 		/// Write to the adequate stream
@@ -159,16 +166,19 @@ namespace COMMON
 		/// This function prevents using any size header, using CR+LF as an EOT
 		/// </summary>
 		/// <param name="data">The message to send</param>
+		/// <param name="EOT"></param>
 		/// <returns>TRUE if the message has been sent, HALSE otherwise</returns>
-		public bool SendLine(string data)
+		public bool SendLine(string data, string EOT = CRLF)
 		{
+			if (string.IsNullOrEmpty(EOT))
+				EOT = CRLF;
 			// verify the EOL is there, add it if necessary
 			if (!string.IsNullOrEmpty(data))
 			{
 				// replace intermediate EOL
-				data = data.Replace("\r\n", "");
+				data = data.Replace(EOT, "");
 				// add the EOL at the end of string
-				data += "\r\n";
+				data += EOT;
 			}
 			byte[] bdata = (null != data ? Encoding.UTF8.GetBytes(data) : null);
 			return Send(bdata, false);
@@ -216,9 +226,12 @@ namespace COMMON
 		/// >> THIS FUNCTION MAY RAISE AN EXCEPTION
 		/// 
 		/// </summary>
+		/// <param name="EOT">A string which if found marks the end of transmission</param>
 		/// <returns>The received buffer, with a 0 length if no data has been received</returns>
-		private byte[] ReceiveNonSizedBuffer()
+		private byte[] ReceiveNonSizedBuffer(string EOT)
 		{
+			if (string.IsNullOrEmpty(EOT))
+				EOT = CRLF;
 			// allocate buffer to receive
 			byte[] buffer = new byte[CStreamSettings.ONEKB];
 			int bytesRead = 0;
@@ -237,6 +250,9 @@ namespace COMMON
 						Buffer.BlockCopy(buffer, 0, newbuffer, 0, bytesRead);
 						buffer = newbuffer;
 					}
+					// if the EOT is found stop reading
+					if (!string.IsNullOrEmpty(EOT))
+						doContinue = !Encoding.UTF8.GetString(buffer).Contains(EOT);
 				}
 			}
 			while (doContinue);
@@ -298,11 +314,12 @@ namespace COMMON
 		/// >> THIS FUNCTION MAY RAISE AN EXCEPTION
 		/// 
 		/// </summary>
+		/// <param name="EOT">A string which if found marks the end of transmission</param>
 		/// <returns>The received buffer as a string if no error occurred, an empty string otherwise</returns>
-		public string ReceiveLine()
+		public string ReceiveLine(string EOT = CRLF)
 		{
 			// receive the buffer
-			byte[] buffer = ReceiveNonSizedBuffer();
+			byte[] buffer = ReceiveNonSizedBuffer(EOT);
 			string s = (null != buffer ? Encoding.UTF8.GetString(buffer) : null);
 			// remove EOL if necessary
 			if (!string.IsNullOrEmpty(s))

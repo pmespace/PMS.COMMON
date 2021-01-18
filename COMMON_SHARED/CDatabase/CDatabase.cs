@@ -126,7 +126,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Return the value to use to test FALSE in SQL
-		/// (ACCESS has a different way to use these values)
+		/// - ACCESS has a different way to use these values
 		/// That function MUST NOT be used to feed an <see cref="OleDbParameter"/>
 		/// </summary>
 		/// <returns>The appropriate value if successfull, null otherwise</returns>
@@ -136,7 +136,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Return the value to use to test TRUE in SQL
-		/// (ACCESS has a different way to use these values)
+		/// - ACCESS has a different way to use these values
 		/// That function MUST NOT be used to feed an <see cref="OleDbParameter"/>
 		/// </summary>
 		/// <param name="db">The database to use</param>
@@ -178,6 +178,19 @@ namespace COMMON
 				}
 			}
 			return null;
+		}
+		/// <summary>
+		/// Make sure the "=true" and "=false"
+		/// </summary>
+		/// <param name="sql"></param>
+		/// <returns></returns>
+		public string TryToFixTestTrueFalse(string sql)
+		{
+			return TryToFixTestTrueFalse(Database, sql);
+		}
+		public static string TryToFixTestTrueFalse(OleDbConnection db, string sql)
+		{
+			return sql.Replace("=true", $"={TRUE(db)}", StringComparison.OrdinalIgnoreCase).Replace("=false", $"={FALSE(db)}", StringComparison.OrdinalIgnoreCase).Replace("= false", $"={FALSE(db)}", StringComparison.OrdinalIgnoreCase).Replace("= true", $"={TRUE(db)}", StringComparison.OrdinalIgnoreCase);
 		}
 		#endregion
 	}
@@ -242,7 +255,7 @@ namespace COMMON
 			nbRows = 0;
 			if (IsOpen && !string.IsNullOrEmpty(sql))
 			{
-				sql = sql.Replace("=true", $"={TRUE()}", StringComparison.OrdinalIgnoreCase).Replace("=false", $"={FALSE()}", StringComparison.OrdinalIgnoreCase);
+				sql = TryToFixTestTrueFalse(sql);
 				CLog.Add($"SQL: {sql}");
 				return NonSelectRequest(new OleDbCommand(sql), ref nbRows);
 			}
@@ -288,7 +301,7 @@ namespace COMMON
 			reader = null;
 			if (IsOpen && !string.IsNullOrEmpty(sql))
 			{
-				sql = sql.Replace("=true", $"={TRUE()}", StringComparison.OrdinalIgnoreCase).Replace("=false", $"={FALSE()}", StringComparison.OrdinalIgnoreCase);
+				sql = TryToFixTestTrueFalse(sql);
 				CLog.Add($"SQL: {sql}");
 				return SelectRequest(new OleDbCommand(sql), ref reader);
 			}
@@ -326,7 +339,7 @@ namespace COMMON
 		{
 			if (!string.IsNullOrEmpty(sql))
 			{
-				sql = sql.Replace("=true", $"={TRUE()}", StringComparison.OrdinalIgnoreCase).Replace("=false", $"={FALSE()}", StringComparison.OrdinalIgnoreCase);
+				sql = TryToFixTestTrueFalse(sql);
 				CLog.Add($"SQL: {sql}");
 				return SelectRequest<TnX>(new OleDbCommand(sql), feedRecordFunction);
 			}
@@ -376,18 +389,69 @@ namespace COMMON
 		{
 			if (IsOpen && !string.IsNullOrEmpty(sql))
 			{
-				sql = sql.Replace("=true", $"={TRUE()}", StringComparison.OrdinalIgnoreCase).Replace("=false", $"={FALSE()}", StringComparison.OrdinalIgnoreCase);
+				sql = TryToFixTestTrueFalse(sql);
 				CLog.Add($"SQL: {sql}");
 				return SelectRequest(new OleDbCommand(sql), ref dataSet);
 			}
 			return false;
 		}
 		/// <summary>
+		/// Refer to <see cref="OleDbCommand.ExecuteScalar"/>
+		/// </summary>
+		/// <param name="sql">SQL request to run</param>
+		/// <returns>The scalar value if successfull, -1 in an error has occurred</returns>
+		public int SelectScalar(string sql)
+		{
+			int scalar = -1;
+			if (IsOpen && !string.IsNullOrEmpty(sql))
+			{
+				sql = TryToFixTestTrueFalse(sql);
+				CLog.Add($"SQL: {sql}");
+
+				OleDbDataAdapter da = new OleDbDataAdapter();
+				da.SelectCommand = new OleDbCommand();
+				try
+				{
+					da.SelectCommand.Connection = Database;
+					da.SelectCommand.CommandText = sql;
+					scalar = (int)da.SelectCommand.ExecuteScalar();
+				}
+				catch (Exception ex)
+				{
+					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+				}
+				finally
+				{
+					da.SelectCommand.Dispose();
+				}
+			}
+			return scalar;
+		}
+		/// <summary>
+		/// Refer to <see cref="SelectScalar(string)"/>
+		/// </summary>
+		/// <param name="tableName">Table to look for the records</param>
+		/// <param name="filter">Filter to apply</param>
+		/// <returns> Refer to <see cref="SelectScalar(string)"/></returns>
+		public int NbRows(string tableName, string filter)
+		{
+			return SelectScalar($"SELECT COUNT(*) FROM {tableName}" + (string.IsNullOrEmpty(filter) ? null : $" WHERE {filter}"));
+		}
+		/// <summary>
+		/// Refer to <see cref="SelectScalar(string)"/>
+		/// </summary>
+		/// <param name="tableName">Table to look for the records</param>
+		/// <returns> Refer to <see cref="SelectScalar(string)"/></returns>
+		public int NbRows(string tableName)
+		{
+			return NbRows(tableName, null);
+		}
+		/// <summary>
 		/// Retrieve the value of a column inside an <see cref="OleDbDataAdapter"/>
 		/// </summary>
 		/// <param name="reader">The reader to look inside</param>
 		/// <param name="columnName">The column name to fetch</param>
-		/// <param name="value">The content of the coumn it it exists, null otherwise</param>
+		/// <param name="value">The content of the column it it exists, null otherwise</param>
 		/// <returns>True if the column has been found and its value returned to the caller, false otherwise</returns>
 		public static bool ItemValue<TnX>(OleDbDataReader reader, string columnName, ref TnX value)
 		{
@@ -402,6 +466,29 @@ namespace COMMON
 				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Column name: " + columnName);
 			}
 			return false;
+		}
+		/// <summary>
+		/// Retrieve the value of a column inside an <see cref="OleDbDataAdapter"/>
+		/// 
+		/// WARNING THIS FUNCTION MAY RAISE AN EXCEPTION
+		/// 
+		/// </summary>
+		/// <param name="reader">The reader to look inside</param>
+		/// <param name="columnName">The column name to fetch</param>
+		/// <returns>The content of the column it it exists, AN EXCEPTION IF AN ERROR OCCURS</returns>
+		public static object ItemValue<TnX>(OleDbDataReader reader, string columnName)
+		{
+			object value = null;
+			try
+			{
+				value = reader[columnName];
+				return value;
+			}
+			catch (Exception ex)
+			{
+				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Column name: " + columnName);
+				throw;
+			}
 		}
 		#endregion
 	}
@@ -437,7 +524,7 @@ namespace COMMON
 			{
 				try
 				{
-					sql = sql.Replace("=true", $"={TRUE()}", StringComparison.OrdinalIgnoreCase).Replace("=false", $"={FALSE()}", StringComparison.OrdinalIgnoreCase);
+					sql = TryToFixTestTrueFalse(sql);
 					OleDbDataAdapter da = new OleDbDataAdapter(sql, Database);
 					DataTable dataTable = new DataTable();
 					da.Fill(dataTable);

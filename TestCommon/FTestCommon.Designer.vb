@@ -27,6 +27,7 @@ Partial Class FTestCommon
 		Me.pbSaveSettings = New System.Windows.Forms.Button()
 		Me.pbClose = New System.Windows.Forms.Button()
 		Me.Button1 = New System.Windows.Forms.Button()
+		Me.lblResult = New System.Windows.Forms.Label()
 		Me.TabControl1 = New System.Windows.Forms.TabControl()
 		Me.databasePage = New System.Windows.Forms.TabPage()
 		Me.TableLayoutPanel2 = New System.Windows.Forms.TableLayoutPanel()
@@ -50,7 +51,9 @@ Partial Class FTestCommon
 		Me.efTableName = New System.Windows.Forms.TextBox()
 		Me.pbTable = New System.Windows.Forms.Button()
 		Me.DataGridView1 = New System.Windows.Forms.DataGridView()
-		Me.lblResult = New System.Windows.Forms.Label()
+		Me.pbNbRows = New System.Windows.Forms.Button()
+		Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
+		Me.lblTableNbRows = New System.Windows.Forms.Label()
 		Me.pnlMain.SuspendLayout()
 		Me.TableLayoutPanel1.SuspendLayout()
 		Me.TabControl1.SuspendLayout()
@@ -61,6 +64,7 @@ Partial Class FTestCommon
 		Me.pnlSQL.SuspendLayout()
 		Me.TableLayoutPanel3.SuspendLayout()
 		CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).BeginInit()
+		Me.TableLayoutPanel4.SuspendLayout()
 		Me.SuspendLayout()
 		'
 		'pnlMain
@@ -88,11 +92,12 @@ Partial Class FTestCommon
 			Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
 		Me.TableLayoutPanel1.AutoSize = True
 		Me.TableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-		Me.TableLayoutPanel1.ColumnCount = 4
+		Me.TableLayoutPanel1.ColumnCount = 5
 		Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle())
 		Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
 		Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle())
 		Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle())
+		Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
 		Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
 		Me.TableLayoutPanel1.Controls.Add(Me.pbSaveSettings, 2, 0)
 		Me.TableLayoutPanel1.Controls.Add(Me.pbClose, 3, 0)
@@ -110,7 +115,7 @@ Partial Class FTestCommon
 		Me.pbSaveSettings.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
 		Me.pbSaveSettings.AutoSize = True
 		Me.pbSaveSettings.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-		Me.pbSaveSettings.Location = New System.Drawing.Point(607, 3)
+		Me.pbSaveSettings.Location = New System.Drawing.Point(587, 3)
 		Me.pbSaveSettings.Name = "pbSaveSettings"
 		Me.pbSaveSettings.Size = New System.Drawing.Size(81, 23)
 		Me.pbSaveSettings.TabIndex = 0
@@ -123,7 +128,7 @@ Partial Class FTestCommon
 		Me.pbClose.AutoSize = True
 		Me.pbClose.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
 		Me.pbClose.DialogResult = System.Windows.Forms.DialogResult.Cancel
-		Me.pbClose.Location = New System.Drawing.Point(694, 3)
+		Me.pbClose.Location = New System.Drawing.Point(674, 3)
 		Me.pbClose.Name = "pbClose"
 		Me.pbClose.Size = New System.Drawing.Size(43, 23)
 		Me.pbClose.TabIndex = 1
@@ -140,6 +145,16 @@ Partial Class FTestCommon
 		Me.Button1.TabIndex = 2
 		Me.Button1.Text = "Try pre-connection"
 		Me.Button1.UseVisualStyleBackColor = True
+		'
+		'lblResult
+		'
+		Me.lblResult.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+		Me.lblResult.AutoSize = True
+		Me.lblResult.Location = New System.Drawing.Point(115, 8)
+		Me.lblResult.Name = "lblResult"
+		Me.lblResult.Size = New System.Drawing.Size(466, 13)
+		Me.lblResult.TabIndex = 3
+		Me.lblResult.Text = "..."
 		'
 		'TabControl1
 		'
@@ -198,7 +213,7 @@ Partial Class FTestCommon
 		Me.pnlCommands.RowCount = 2
 		Me.pnlCommands.RowStyles.Add(New System.Windows.Forms.RowStyle())
 		Me.pnlCommands.RowStyles.Add(New System.Windows.Forms.RowStyle())
-		Me.pnlCommands.Size = New System.Drawing.Size(714, 128)
+		Me.pnlCommands.Size = New System.Drawing.Size(714, 134)
 		Me.pnlCommands.TabIndex = 2
 		'
 		'pnlConnection
@@ -274,20 +289,21 @@ Partial Class FTestCommon
 		Me.pnlSQL.Controls.Add(Me.TableLayoutPanel3, 3, 1)
 		Me.pnlSQL.Controls.Add(Me.efTableName, 1, 2)
 		Me.pnlSQL.Controls.Add(Me.pbTable, 2, 2)
+		Me.pnlSQL.Controls.Add(Me.TableLayoutPanel4, 3, 2)
 		Me.pnlSQL.Location = New System.Drawing.Point(3, 38)
 		Me.pnlSQL.Name = "pnlSQL"
 		Me.pnlSQL.RowCount = 3
 		Me.pnlSQL.RowStyles.Add(New System.Windows.Forms.RowStyle())
 		Me.pnlSQL.RowStyles.Add(New System.Windows.Forms.RowStyle())
 		Me.pnlSQL.RowStyles.Add(New System.Windows.Forms.RowStyle())
-		Me.pnlSQL.Size = New System.Drawing.Size(708, 87)
+		Me.pnlSQL.Size = New System.Drawing.Size(708, 93)
 		Me.pnlSQL.TabIndex = 9
 		'
 		'Label4
 		'
 		Me.Label4.Anchor = System.Windows.Forms.AnchorStyles.Right
 		Me.Label4.AutoSize = True
-		Me.Label4.Location = New System.Drawing.Point(15, 66)
+		Me.Label4.Location = New System.Drawing.Point(15, 69)
 		Me.Label4.Name = "Label4"
 		Me.Label4.Size = New System.Drawing.Size(66, 13)
 		Me.Label4.TabIndex = 10
@@ -406,7 +422,7 @@ Partial Class FTestCommon
 		'efTableName
 		'
 		Me.efTableName.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-		Me.efTableName.Location = New System.Drawing.Point(87, 62)
+		Me.efTableName.Location = New System.Drawing.Point(87, 65)
 		Me.efTableName.Name = "efTableName"
 		Me.efTableName.Size = New System.Drawing.Size(441, 20)
 		Me.efTableName.TabIndex = 11
@@ -414,7 +430,7 @@ Partial Class FTestCommon
 		'pbTable
 		'
 		Me.pbTable.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-		Me.pbTable.Location = New System.Drawing.Point(534, 61)
+		Me.pbTable.Location = New System.Drawing.Point(534, 64)
 		Me.pbTable.Name = "pbTable"
 		Me.pbTable.Size = New System.Drawing.Size(75, 23)
 		Me.pbTable.TabIndex = 12
@@ -427,20 +443,53 @@ Partial Class FTestCommon
 			Or System.Windows.Forms.AnchorStyles.Left) _
 			Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
 		Me.DataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-		Me.DataGridView1.Location = New System.Drawing.Point(3, 137)
+		Me.DataGridView1.Location = New System.Drawing.Point(3, 143)
 		Me.DataGridView1.Name = "DataGridView1"
 		Me.DataGridView1.Size = New System.Drawing.Size(714, 174)
 		Me.DataGridView1.TabIndex = 0
 		'
-		'lblResult
+		'pbNbRows
 		'
-		Me.lblResult.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-		Me.lblResult.AutoSize = True
-		Me.lblResult.Location = New System.Drawing.Point(115, 8)
-		Me.lblResult.Name = "lblResult"
-		Me.lblResult.Size = New System.Drawing.Size(486, 13)
-		Me.lblResult.TabIndex = 3
-		Me.lblResult.Text = "..."
+		Me.pbNbRows.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+		Me.pbNbRows.AutoSize = True
+		Me.pbNbRows.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
+		Me.pbNbRows.Location = New System.Drawing.Point(3, 3)
+		Me.pbNbRows.Name = "pbNbRows"
+		Me.pbNbRows.Size = New System.Drawing.Size(39, 23)
+		Me.pbNbRows.TabIndex = 13
+		Me.pbNbRows.Text = "Nb"
+		Me.pbNbRows.UseVisualStyleBackColor = True
+		'
+		'TableLayoutPanel4
+		'
+		Me.TableLayoutPanel4.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+			Or System.Windows.Forms.AnchorStyles.Left) _
+			Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+		Me.TableLayoutPanel4.AutoSize = True
+		Me.TableLayoutPanel4.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
+		Me.TableLayoutPanel4.ColumnCount = 2
+		Me.TableLayoutPanel4.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+		Me.TableLayoutPanel4.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+		Me.TableLayoutPanel4.Controls.Add(Me.lblTableNbRows, 1, 0)
+		Me.TableLayoutPanel4.Controls.Add(Me.pbNbRows, 0, 0)
+		Me.TableLayoutPanel4.Location = New System.Drawing.Point(615, 61)
+		Me.TableLayoutPanel4.Name = "TableLayoutPanel4"
+		Me.TableLayoutPanel4.RowCount = 1
+		Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
+		Me.TableLayoutPanel4.Size = New System.Drawing.Size(90, 29)
+		Me.TableLayoutPanel4.TabIndex = 13
+		'
+		'lblTableNbRows
+		'
+		Me.lblTableNbRows.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+		Me.lblTableNbRows.AutoSize = True
+		Me.lblTableNbRows.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D
+		Me.lblTableNbRows.Location = New System.Drawing.Point(48, 7)
+		Me.lblTableNbRows.Name = "lblTableNbRows"
+		Me.lblTableNbRows.Size = New System.Drawing.Size(39, 15)
+		Me.lblTableNbRows.TabIndex = 14
+		Me.lblTableNbRows.Text = "nb"
+		Me.lblTableNbRows.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
 		'
 		'FTestCommon
 		'
@@ -468,6 +517,8 @@ Partial Class FTestCommon
 		Me.TableLayoutPanel3.ResumeLayout(False)
 		Me.TableLayoutPanel3.PerformLayout()
 		CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).EndInit()
+		Me.TableLayoutPanel4.ResumeLayout(False)
+		Me.TableLayoutPanel4.PerformLayout()
 		Me.ResumeLayout(False)
 		Me.PerformLayout()
 
@@ -502,4 +553,7 @@ Partial Class FTestCommon
 	Friend WithEvents pbTable As Button
 	Friend WithEvents Button1 As Button
 	Friend WithEvents lblResult As Label
+	Friend WithEvents pbNbRows As Button
+	Friend WithEvents TableLayoutPanel4 As TableLayoutPanel
+	Friend WithEvents lblTableNbRows As Label
 End Class

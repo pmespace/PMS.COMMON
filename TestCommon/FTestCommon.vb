@@ -233,4 +233,8 @@ Public Class FTestCommon
 		End If
 		lblResult.Visible = True
 	End Sub
+
+	Private Sub pbNbRows_Click(sender As Object, e As EventArgs) Handles pbNbRows.Click
+		lblTableNbRows.Text = database.NbRows(efTableName.Text)
+	End Sub
 End Class

@@ -9,7 +9,6 @@
     <Import_RootNamespace>COMMON</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)CDatabase\CDatabase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CExceptions\CDisconnected.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CJson\CJson.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CJson\CJsonConverter.cs" />
@@ -25,11 +24,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)CStream\CStreamThreadSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CThread\CThread.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CThread\CThreadData.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)CWin32\Win32.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)CLog\" />
     <Folder Include="$(MSBuildThisFileDirectory)CMisc\" />
-    <Folder Include="$(MSBuildThisFileDirectory)CWin32\" />
   </ItemGroup>
 </Project>

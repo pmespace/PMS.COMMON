@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>PMS.COMMON</id>
-    <version>3.0.9</version>
+    <version>3.0.10</version>
     <title>PMS.COMMON</title>
     <authors>philippemp31</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -11,15 +11,19 @@
     <projectUrl>https://github.com/pmespace/PMS.COMMON/</projectUrl>
     <description>Shared tools for PMS.CHPN, PMS.NEXO and other projects</description>
     <releaseNotes>
+      3.0.10
+      - CheckCertificate inside CStreamClientSettings is now obsolete
+      - New AllowedSsslErrors added inside CStreamClientSettings, allowing to decide what SSL errors are acceptable when exchanging with a SSL server
+
       3.0.9
       - Added functions to the CDatabase object
-      
+
       3.0.8
       - Added the possibility to specify the end of line in CStreamIO.ReceiveLine
-      
+
       3.0.7
       - Fixed a regression inside CStreamIO, introduced in 3.0.6
-      
+
       3.0.6
       - Automatically managed CR+LF when using SendLine and ReceiveLine in CStreamIO
 

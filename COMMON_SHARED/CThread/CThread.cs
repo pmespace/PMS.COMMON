@@ -16,9 +16,9 @@ namespace COMMON
 		_end,
 	}
 
-	[Guid("420E0E6B-C6D4-499A-87A7-992FECBFEFC3")]
-	[InterfaceType(ComInterfaceType.InterfaceIsDual)]
 	[ComVisible(true)]
+	[Guid("420E0E6B-C6D4-499A-87A7-992FECBFEFC3")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 	public interface IThread
 	{
 		#region IThread
@@ -47,8 +47,10 @@ namespace COMMON
 
 		[DispId(5100)]
 		bool Wait(int timer = Timeout.Infinite);
+#if !NETCORE
 		[DispId(5101)]
 		void SendNotification(int value, bool stopped);
+#endif
 		#endregion
 	}
 	[Guid("87BB223F-6A59-4592-8A0F-057625532B8C")]
@@ -87,7 +89,7 @@ namespace COMMON
 		/// </summary>
 		/// <param name="data"><see cref="CThreadData"/> structure passed by the caller</param>
 		/// <param name="o">Parameters passed to the thread</param>
-		/// <returns>The result of the function, any muneric value pertaining to the caller. That value will be set inside <see cref="Result"/> and passed to the <see cref="CThreadData.WindowToWarn"/></returns>
+		/// <returns>The result of the function, any muneric value pertaining to the caller. That value will be set inside <see cref="Result"/></returns>
 		public delegate int CThreadFunction(CThreadData data = null, object o = null);
 		/// <summary>
 		/// Timer to hold thread waiting for 
@@ -242,12 +244,17 @@ namespace COMMON
 			// indicates the thread is off
 			if (null != ThreadData && null != ThreadData.EventToSignal)
 				ThreadData.EventToSignal.Set();
+
+#if !NETCORE
 			SendNotification(Result, true);
+#endif
+
 			// this MUST be the final statements
 			// indicate the thread is finished
 			IsRunning = false;
 			Events.SetStopped();
 		}
+#if !NETCORE
 		/// <summary>
 		/// Send an event notification to the caller if a window handle has been provided
 		/// lParam will be set using the "value"
@@ -274,6 +281,7 @@ namespace COMMON
 				&& IntPtr.Zero != threadData.WindowToWarn)
 				Win32.PostMessage(threadData.WindowToWarn, stopped ? threadData.StoppedMessage : threadData.InformationMessage, id, value);
 		}
+#endif
 		#endregion
 	}
 

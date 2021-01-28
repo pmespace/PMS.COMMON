@@ -5,12 +5,14 @@ using System.Threading;
 
 namespace COMMON
 {
-	[Guid("CD4AB05D-ED37-493A-B658-C4D5D86B6864")]
-	[InterfaceType(ComInterfaceType.InterfaceIsDual)]
 	[ComVisible(true)]
+	[Guid("CD4AB05D-ED37-493A-B658-C4D5D86B6864")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 	public interface IThreadData
 	{
 		#region IThreadData
+
+#if !NETCORE
 		[DispId(1)]
 		IntPtr WindowToWarn { get; set; }
 		[DispId(2)]
@@ -23,16 +25,18 @@ namespace COMMON
 		uint WMThreadStopped { get; }
 		[DispId(51)]
 		uint WMThreadInformation { get; }
+#endif
+
 		[DispId(60)]
 		EventWaitHandle EventToSignal { get; set; }
-		#endregion
+#endregion
 	}
 	[Guid("A6DA1EAA-A706-4D89-A790-B34710EB2818")]
 	[ClassInterface(ClassInterfaceType.None)]
 	[ComVisible(true)]
-	public class CThreadData: IThreadData
+	public class CThreadData : IThreadData
 	{
-		#region constructor
+#region constructor
 		public CThreadData() { }
 		public CThreadData(CThreadData t)
 		{
@@ -40,14 +44,20 @@ namespace COMMON
 		}
 		private void Assign(CThreadData t)
 		{
+
+#if !NETCORE
 			WindowToWarn = t.WindowToWarn;
 			StoppedMessage = t.StoppedMessage;
 			InformationMessage = t.InformationMessage;
-		}
-		#endregion
+#endif
 
-		#region properties
+		}
+#endregion
+
+#region properties
 		public bool IsValid { get => true; }
+
+#if !NETCORE
 		/// <summary>
 		/// Message sent (by PostMessage) to the caller when the thread has stopped.
 		/// </summary>
@@ -71,7 +81,7 @@ namespace COMMON
 		public const uint WM_THREAD_INFORMATION = WM_THREAD_STOPPED + 1;
 		public uint WMThreadInformation { get => WM_THREAD_INFORMATION; }
 		/// <summary>
-		/// Handle of window to wardn when the thread terminates
+		/// Handle of window to warn when the thread terminates
 		/// </summary>
 		public IntPtr WindowToWarn
 		{
@@ -79,6 +89,8 @@ namespace COMMON
 			set => _windowtowarn = value;
 		}
 		private IntPtr _windowtowarn = IntPtr.Zero;
+#endif
+
 		/// <summary>
 		/// Event which will be signaled when the thread terminates
 		/// </summary>
@@ -88,38 +100,48 @@ namespace COMMON
 			set => _eventtosignal = value;
 		}
 		private EventWaitHandle _eventtosignal = null;
-		#endregion
+#endregion
 
-		#region methods
+#region methods
 		/// <summary>
 		/// Returns the content of the class
 		/// </summary>
 		/// <returns></returns>
 		public override string ToString()
 		{
+
+#if NETCORE
+			return base.ToString();
+#else
 			string SEP = " - ";
 			return "Window to warn: " + (null != WindowToWarn).ToString() + SEP
 				+ (null != WindowToWarn ? "Stopped message: " + StoppedMessage + SEP : null)
 				+ (null != WindowToWarn ? "Information message: " + InformationMessage + SEP : null);
+#endif
+
 		}
-		/// <summary>
-		/// Prepare a structure to use
-		/// </summary>
-		/// <param name="hwnd">window to warn</param>
-		/// <param name="threadstopped">message sent to that window when the thread is stopping</param>
-		/// <param name="information">message sent to that window when the thread needs to inform of an event</param>
-		/// <param name="eventOnTerminate">event to signal when the thread terminates</param>
-		/// <returns>A <see cref="CThreadData"/> object</returns>
-		public static CThreadData Prepare(IntPtr hwnd, uint threadstopped = WM_THREAD_STOPPED, uint information = WM_THREAD_INFORMATION, EventWaitHandle eventOnTerminate=null)
-		{
-			return new CThreadData()
-			{
-				WindowToWarn = hwnd,
-				StoppedMessage = threadstopped,
-				InformationMessage = information,
-				EventToSignal=eventOnTerminate,
-			};
-		}
-		#endregion
+
+//#if !NETCORE
+//		/// <summary>
+//		/// Prepare a structure to use
+//		/// </summary>
+//		/// <param name="hwnd">window to warn</param>
+//		/// <param name="threadstopped">message sent to that window when the thread is stopping</param>
+//		/// <param name="information">message sent to that window when the thread needs to inform of an event</param>
+//		/// <param name="eventOnTerminate">event to signal when the thread terminates</param>
+//		/// <returns>A <see cref="CThreadData"/> object</returns>
+//		public static CThreadData Prepare(IntPtr hwnd, uint threadstopped = WM_THREAD_STOPPED, uint information = WM_THREAD_INFORMATION, EventWaitHandle eventOnTerminate = null)
+//		{
+//			return new CThreadData()
+//			{
+//				WindowToWarn = hwnd,
+//				StoppedMessage = threadstopped,
+//				InformationMessage = information,
+//				EventToSignal = eventOnTerminate,
+//			};
+//		}
+//#endif
+
+#endregion
 	}
 }

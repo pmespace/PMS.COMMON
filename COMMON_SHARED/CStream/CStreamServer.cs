@@ -62,42 +62,13 @@ namespace COMMON
 		/// </summary>
 		public object Parameters { get; set; }
 		#endregion
-
-		#region methods
-		/// <summary>
-		/// Prepare a full structure
-		/// </summary>
-		/// <param name="streamServerSettings"></param>
-		/// <param name="threadData"><see cref="CThreadData"/></param>
-		/// <param name="onMessage">Functioncalled when a message is received</param>
-		/// <param name="onStart">Function called when the server starts</param>
-		/// <param name="onConnect">Function called when a client tries to connect</param>
-		/// <param name="onDisconnect">Function called when a client disconnects</param>
-		/// <param name="onStop">Function called when the server stops</param>
-		/// <param name="parameters">Parameters to pass to all these functions</param>
-		/// <returns></returns>
-		public static CStreamServerStartSettings Prepare(CStreamServerSettings streamServerSettings, CThreadData threadData, CStreamDelegates.ServerOnMessageDelegate onMessage, CStreamDelegates.ServerOnStartDelegate onStart = null, CStreamDelegates.ServerOnConnectDelegate onConnect = null, CStreamDelegates.ServerOnDisconnectDelegate onDisconnect = null, CStreamDelegates.ServerOnStopDelegate onStop = null, object parameters = null)
-		{
-			return new CStreamServerStartSettings()
-			{
-				ThreadData = threadData,
-				StreamServerSettings = streamServerSettings,
-				OnStart = onStart,
-				OnConnect = onConnect,
-				OnDisconnect = onDisconnect,
-				OnMessage = onMessage,
-				OnStop = onStop,
-				Parameters = parameters,
-			};
-		}
-		#endregion
 	}
 
 	/// <summary>
 	/// Server processing implementation
 	/// </summary>
 	[ComVisible(false)]
-	public class CStreamServer: CThread
+	public class CStreamServer : CThread
 	{
 		#region constructor
 		public CStreamServer() { }
@@ -619,7 +590,7 @@ namespace COMMON
 		/// <summary>
 		/// Queue of messages to process
 		/// </summary>
-		class QueueOfMessages: Queue<byte[]> { }
+		class QueueOfMessages : Queue<byte[]> { }
 
 		/// <summary>
 		/// Connected client
@@ -690,7 +661,9 @@ namespace COMMON
 				{
 					StopProcessingThreadEvent.Set();
 					if (!ProcessorEvents.WaitStopped(WaitBeforeAbort * CStreamSettings.ONESECOND))
+#pragma warning disable SYSLIB0006
 						ProcessingThread.Thread.Abort();
+#pragma warning restore SYSLIB0006
 				}
 			}
 			public void Stop()
@@ -715,7 +688,7 @@ namespace COMMON
 			}
 			#endregion
 		}
-		class Clients: Dictionary<string, Client> { }
+		class Clients : Dictionary<string, Client> { }
 		#endregion
 	}
 }

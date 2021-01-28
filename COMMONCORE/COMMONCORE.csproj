@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>COMMON</RootNamespace>
+    <PackageId>PMS.COMMONCORE</PackageId>
+    <Authors>PME</Authors>
+    <Product>PMS.COMMONCORE</Product>
+    <Description>Common library</Description>
+    <Copyright>PMS 2021</Copyright>
+    <AssemblyVersion>3.0.10</AssemblyVersion>
+    <Version>3.0.10</Version>
+    <FileVersion>3.0.10</FileVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <AssemblyName>PMS.COMMONCORE</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>C:\Users\philippe\Documents\Dev\COMMON\COMMONCORE\COMMONCORE.xml</DocumentationFile>
+    <DefineConstants>TRACE;NETCORE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;NETCORE</DefineConstants>
+  </PropertyGroup>
+
+  <Import Project="..\COMMON_SHARED\COMMON_SHARED.projitems" Label="Shared" />
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.Data.OleDb" Version="5.0.0" />
+  </ItemGroup>
+
+</Project>

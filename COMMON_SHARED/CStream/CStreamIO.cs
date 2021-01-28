@@ -367,14 +367,15 @@ namespace COMMON
 		{
 			if (settings.IsValid)
 			{
+				Settings = settings;
 				// determine the kind of link to use
-				if (settings.UseSsl)
+				if (Settings.UseSsl)
 				{
-					sslStream = new SslStream(client.GetStream(), false, (settings.CheckCertificate ? new RemoteCertificateValidationCallback(ValidateServerCertificate) : null), null);
+					sslStream = new SslStream(client.GetStream(), false, new RemoteCertificateValidationCallback(ValidateServerCertificate), null);
 					try
 					{
 						// The server name must match the name on the server certificate.
-						sslStream.AuthenticateAsClient(settings.ServerName);
+						sslStream.AuthenticateAsClient(Settings.ServerName);
 					}
 					catch (Exception ex)
 					{
@@ -391,6 +392,10 @@ namespace COMMON
 		}
 		#endregion
 
+		#region properties
+		private CStreamClientSettings Settings = null;
+		#endregion
+
 		#region methods
 		/// <summary>
 		/// The following method is invoked by the RemoteCertificateValidationDelegate
@@ -401,10 +406,10 @@ namespace COMMON
 		/// <param name="chain"></param>
 		/// <param name="sslPolicyErrors"></param>
 		/// <returns></returns>
-		public static bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+		public bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
 		{
 			//return true;
-			if (sslPolicyErrors == SslPolicyErrors.None)
+			if (Settings.AllowedSslErrors == (sslPolicyErrors | Settings.AllowedSslErrors))
 				return true;
 
 			// arrived here a certificate error occured

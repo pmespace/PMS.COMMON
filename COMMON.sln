@@ -18,10 +18,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "TestCommon", "TestCommon\TestCommon.vbproj", "{3E5BAF1A-A375-47CB-94F4-E170E98B62F2}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "COMMONCORE", "COMMONCORE\COMMONCORE.csproj", "{0F1AB1EC-DAF2-4F28-8FE2-AB1FDF6D18EE}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "COMMON_WINDOWS_SHARED", "COMMON_WINDOWS_SHARED\COMMON_WINDOWS_SHARED.shproj", "{17FCBE0E-34F3-4B4C-A0A1-882FD3E0A062}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		COMMON_SHARED\COMMON_SHARED.projitems*{0f1ab1ec-daf2-4f28-8fe2-ab1fdf6d18ee}*SharedItemsImports = 5
+		COMMON_WINDOWS_SHARED\COMMON_WINDOWS_SHARED.projitems*{17fcbe0e-34f3-4b4c-a0a1-882fd3e0a062}*SharedItemsImports = 13
 		COMMON_SHARED\COMMON_SHARED.projitems*{2a6367ee-7d3c-4756-8fd2-2c386ad9f464}*SharedItemsImports = 4
+		COMMON_WINDOWS_SHARED\COMMON_WINDOWS_SHARED.projitems*{2a6367ee-7d3c-4756-8fd2-2c386ad9f464}*SharedItemsImports = 4
 		COMMON_SHARED\COMMON_SHARED.projitems*{8293f43e-fd5d-4fb7-a22f-e5968515947f}*SharedItemsImports = 4
+		COMMON_WINDOWS_SHARED\COMMON_WINDOWS_SHARED.projitems*{8293f43e-fd5d-4fb7-a22f-e5968515947f}*SharedItemsImports = 4
 		COMMON_SHARED\COMMON_SHARED.projitems*{fca4181f-59b5-42fd-8015-e10af44c0dac}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +49,10 @@ Global
 		{3E5BAF1A-A375-47CB-94F4-E170E98B62F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E5BAF1A-A375-47CB-94F4-E170E98B62F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3E5BAF1A-A375-47CB-94F4-E170E98B62F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F1AB1EC-DAF2-4F28-8FE2-AB1FDF6D18EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F1AB1EC-DAF2-4F28-8FE2-AB1FDF6D18EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F1AB1EC-DAF2-4F28-8FE2-AB1FDF6D18EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F1AB1EC-DAF2-4F28-8FE2-AB1FDF6D18EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

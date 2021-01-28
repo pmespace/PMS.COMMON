@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Net;
 using System;
 using System.Threading;
+using System.Net.Security;
 
 namespace COMMON
 {
@@ -30,7 +31,7 @@ namespace COMMON
 		#endregion
 	}
 	[ComVisible(false)]
-	public abstract class CStreamSettings: CStreamBase
+	public abstract class CStreamSettings : CStreamBase
 	{
 		#region constructors
 		public CStreamSettings() { }
@@ -126,9 +127,9 @@ namespace COMMON
 		#endregion
 	}
 
-	[Guid("BE7495F7-DA7A-4584-AEB9-789AF316C971")]
-	[InterfaceType(ComInterfaceType.InterfaceIsDual)]
 	[ComVisible(true)]
+	[Guid("BE7495F7-DA7A-4584-AEB9-789AF316C971")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 	public interface IStreamClientSettings
 	{
 		#region IStreamClientSettings
@@ -146,6 +147,8 @@ namespace COMMON
 		bool CheckCertificate { get; set; }
 		[DispId(7)]
 		string FullIP { get; }
+		[DispId(8)]
+		SslPolicyErrors AllowedSslErrors { get; set; }
 
 		[DispId(100)]
 		string ToString();
@@ -173,7 +176,7 @@ namespace COMMON
 	[Guid("990A2D0C-1A1C-4E34-9C9D-75905AC95915")]
 	[ClassInterface(ClassInterfaceType.None)]
 	[ComVisible(true)]
-	public class CStreamClientSettings: CStreamSettings, IStreamClientSettings
+	public class CStreamClientSettings : CStreamSettings, IStreamClientSettings
 	{
 		#region constructors
 		public CStreamClientSettings() { SetIP(null); }
@@ -220,11 +223,21 @@ namespace COMMON
 		/// <summary>
 		/// Use certificate security or not
 		/// </summary>
+		[Obsolete("This property is no longer used, check AllowedSslErrors instead")]
 		public bool CheckCertificate { get; set; } = true;
 		/// <summary>
 		/// The full IP address
 		/// </summary>
 		public string FullIP { get => (IsValid ? IP + (0 != Port ? ":" + Port : string.Empty) : string.Empty); }
+		/// <summary>
+		/// Allowed SSL errors while trying to connect
+		/// </summary>
+		public SslPolicyErrors AllowedSslErrors
+		{
+			get => _allowedsslerrors;
+			set { _allowedsslerrors = value & (SslPolicyErrors.RemoteCertificateChainErrors | SslPolicyErrors.RemoteCertificateNameMismatch | SslPolicyErrors.RemoteCertificateNotAvailable); }
+		}
+		private SslPolicyErrors _allowedsslerrors = SslPolicyErrors.None;
 		#endregion
 
 		#region private properties
@@ -293,32 +306,12 @@ namespace COMMON
 			}
 			return false;
 		}
-		/// <summary>
-		/// Create a <see cref="CStreamClientSettings"/> object
-		/// </summary>
-		/// <param name="ip">IP address or URL to target</param>
-		/// <param name="port">Port to target</param>
-		/// <param name="servername">Server name to authenticate against</param>
-		/// <param name="sendtimeout">Send timeout</param>
-		/// <param name="receivetimeout">Receive timeout</param>
-		/// <param name="lengthBufferSize">Size of size buffer</param>
-		/// <returns>A CStreamSettings object</returns>
-		public static CStreamClientSettings Prepare(string ip, uint port, string servername = null, int receivetimeout = NO_TIMEOUT, int sendtimeout = NO_TIMEOUT, int lengthBufferSize = CMisc.FOURBYTES)
-		{
-			return new CStreamClientSettings(lengthBufferSize, ip, port)
-			{
-				ServerName = servername,
-				CheckCertificate = !string.IsNullOrEmpty(servername),
-				SendTimeout = sendtimeout,
-				ReceiveTimeout = receivetimeout,
-			};
-		}
 		#endregion
 	}
 
-	[Guid("F4BC72B2-4375-4723-B59D-809182C8CFDE")]
-	[InterfaceType(ComInterfaceType.InterfaceIsDual)]
 	[ComVisible(true)]
+	[Guid("F4BC72B2-4375-4723-B59D-809182C8CFDE")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 	public interface IStreamServerSettings
 	{
 		#region IStreamServerSettings
@@ -357,7 +350,7 @@ namespace COMMON
 	[Guid("EF1D0636-72B9-4F21-98A2-6F0EE3B048B5")]
 	[ClassInterface(ClassInterfaceType.None)]
 	[ComVisible(true)]
-	public class CStreamServerSettings: CStreamSettings, IStreamServerSettings
+	public class CStreamServerSettings : CStreamSettings, IStreamServerSettings
 	{
 		#region constructors
 		public CStreamServerSettings() { }
@@ -423,27 +416,6 @@ namespace COMMON
 			}
 		}
 		private X509Certificate _servercertificate = null;
-		#endregion
-
-		#region methods
-		/// <summary>
-		/// Create a <see cref="CStreamServerSettings"/> object
-		/// </summary>
-		/// <param name="lengthBufferSize">Size of size buffer</param>
-		/// <param name="port">Port to target</param>
-		/// <param name="certificate">The certificate file ".CER" to use to authenticate th server. If empty no authentication is done</param>
-		/// <param name="sendtimeout">Send timeout</param>
-		/// <param name="receivetimeout">Receive timeout</param>
-		/// <returns>A CStreamSettings object</returns>
-		public static CStreamServerSettings Prepare(uint port, string certificate = null, int receivetimeout = CStreamSettings.NO_TIMEOUT, int sendtimeout = CStreamSettings.NO_TIMEOUT, int lengthBufferSize = CMisc.FOURBYTES)
-		{
-			return new CStreamServerSettings(lengthBufferSize, port)
-			{
-				Certificate = certificate,
-				SendTimeout = sendtimeout,
-				ReceiveTimeout = receivetimeout,
-			};
-		}
 		#endregion
 	}
 }

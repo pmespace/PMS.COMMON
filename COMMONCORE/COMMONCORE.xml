@@ -1,0 +1,1430 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PMS.COMMONCORE</name>
+    </assembly>
+    <members>
+        <member name="M:COMMON.CDisconnected.#ctor">
+            <summary>
+            Details the exception
+            </summary>
+        </member>
+        <member name="T:COMMON.CJson`1">
+            <summary>
+            Provides an easy way to read and write settings to a JSON file
+            </summary>
+            <typeparam name="TSettings"></typeparam>
+        </member>
+        <member name="M:COMMON.CJson`1.#ctor">
+            <summary>
+            Creates a JSON settings file managed in memory
+            </summary>
+        </member>
+        <member name="M:COMMON.CJson`1.#ctor(System.String)">
+            <summary>
+            Creates a JSON settings file, allowing to easily manipulate a TSettings class
+            </summary>
+            <param name="fname"></param>
+        </member>
+        <member name="P:COMMON.CJson`1.FileName">
+            <summary>
+            The fully qualified file name for the settings file
+            Setting this file name will open a LOG file if it is valid
+            If the file name is not valid a temp file is opened whose name is tored inside this variable
+            </summary>
+        </member>
+        <member name="M:COMMON.CJson`1.ReadSettings(System.Boolean)">
+            <summary>
+            Read settings from a file
+            </summary>
+            <param name="addNull">Indicates whether null values must be kept or not inside </param>
+            <returns>A structure of the specified settings if successful, null otherwise</returns>
+        </member>
+        <member name="M:COMMON.CJson`1.WriteSettings(`0,System.Boolean)">
+            <summary>
+            Write settings of the specified type
+            </summary>
+            <param name="settings">The settings to write</param>
+            <param name="addNull">Indicates whether null values must be kept or not when serializing</param>
+            <returns>TRUE if the settings have been written, FALSE otherwise</returns>
+        </member>
+        <member name="M:COMMON.CJson`1.Serialize(`0,System.Boolean)">
+            <summary>
+            Serialize a TSettings object
+            </summary>
+            <param name="settings">The object to serialize</param>
+            <param name="addNull">Indicates whether <see langword="null"/>values must be kept or not</param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CJson`1.Deserialize(System.String,System.Boolean)">
+            <summary>
+            Deserialize an object to a string
+            </summary>
+            <param name="settings">The object to deserialize</param>
+            <param name="addNull">Indicates whether <see langword="null"/>values must be kept or not</param>
+            <returns>The desirialized object or null if an error has occurred</returns>
+        </member>
+        <member name="M:COMMON.CJson`1.Prepare(System.Boolean)">
+            <summary>
+            Prepare json settings to use
+            </summary>
+            <param name="addNull">Indicates whether <see langword="null"/>values must be kept or not</param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CJsonConverter.JsonToXML(System.String)">
+            <summary>
+            Converts a JSON to an XML representation
+            </summary>
+            <param name="json">The JSON string to convert</param>
+            <returns>The XML produced from the JSON string, or an empty string if an error has occurred. This is required for non .NET 3.5 builds</returns>
+        </member>
+        <member name="M:COMMON.CJsonConverter.XMLToJson(System.String)">
+            <summary>
+            Converts a XML to a JSPN representation
+            </summary>
+            <param name="xml">The XML string to convert</param>
+            <returns>The JSON produced from the XML string, or an empty string if an error has occurred</returns>
+        </member>
+        <member name="T:COMMON.Chars">
+            <summary>
+            Various useful strings
+            </summary>
+        </member>
+        <member name="T:COMMON.CLog">
+            <summary>
+            Provides an easy to use log service
+            </summary>
+        </member>
+        <member name="F:COMMON.CLog.KEEP_ALL_FILES">
+            <summary>
+            Value to use to indicate no file will be purged
+            </summary>
+        </member>
+        <member name="P:COMMON.CLog.CreatedOn">
+            <summary>
+            The date the file was created
+            </summary>
+        </member>
+        <member name="P:COMMON.CLog.OriginalFName">
+            <summary>
+            Original fname used to create the log file
+            </summary>
+        </member>
+        <member name="P:COMMON.CLog.OriginalFNameWithoutExtension">
+            <summary>
+            Original name (given by the log file creator) of the log file, without its extension
+            </summary>
+        </member>
+        <member name="P:COMMON.CLog.LogFileName">
+            <summary>
+            Full name of log file
+            </summary>
+        </member>
+        <member name="P:COMMON.CLog.LogFilePath">
+            <summary>
+            Path of the log file, without the log file name.
+            It always ends with "\"
+            </summary>
+        </member>
+        <member name="P:COMMON.CLog.AutoPurgeLogFiles">
+            <summary>
+            Indicates whether autopurge previous log file when opening a new one
+            </summary>
+        </member>
+        <member name="P:COMMON.CLog.NumberOfFilesToKeep">
+            <summary>
+            Indicates the number of files to keep if <see cref="P:COMMON.CLog.AutoPurgeLogFiles"/> is set to true
+            </summary>
+        </member>
+        <member name="M:COMMON.CLog.Add(System.String,COMMON.TLog)">
+            <summary>
+            Log a message to the log file
+            </summary>
+            <param name="s">message to log</param>
+            <param name="severity">severity level</param>
+            <returns>The string as it has been written, null if an error has occurred</returns>
+        </member>
+        <member name="M:COMMON.CLog.AddException(System.String,System.Exception,System.String)">
+            <summary>
+            Log an exception to the log file (the whole exception tree is written)
+            </summary>
+            <param name="method">calling method</param>
+            <param name="ex">exception to log</param>
+            <param name="msg">message to complete the log entry</param>
+            <returns>The string as it has been written, null if an error has occurred</returns>
+        </member>
+        <member name="M:COMMON.CLog.BuildFileName">
+            <summary>
+            Build the name of the log file, setting properties accordingly
+            </summary>
+            <returns>Complete log file name</returns>
+        </member>
+        <member name="M:COMMON.CLog.BuildDate(COMMON.CLog.dateFormats,System.DateTime)">
+            <summary>
+            Build a date to a specied format
+            </summary>
+            <param name="fmt">format to use to build the date</param>
+            <param name="dt">date to use to build the date</param>
+            <returns>A string representing the date in the desired format</returns>
+        </member>
+        <member name="M:COMMON.CLog.RemoveCRLF(System.String)">
+            <summary>
+            Remove unwanted chars (CR, LF, TAB) from a string
+            </summary>
+            <param name="s"></param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CLog.AddToLog(System.String,COMMON.TLog)">
+            <summary>
+            Actually write message to the log file
+            </summary>
+            <param name="s"></param>
+            <param name="severity">severity level</param>
+            <returns>The string as it has been written, null if an error has occurred</returns>
+        </member>
+        <member name="M:COMMON.CLog.OpenLogFile">
+            <summary>
+            Open the log file
+            </summary>
+        </member>
+        <member name="M:COMMON.CLog.CloseLogFile">
+            <summary>
+            Close the current log file
+            </summary>
+        </member>
+        <member name="M:COMMON.CLog.ResetLogFile">
+            <summary>
+            Reset the current log file (keeping context to reopen it)
+            </summary>
+        </member>
+        <member name="M:COMMON.CLog.DeleteLogFile">
+            <summary>
+            Delete the current log file
+            </summary>
+        </member>
+        <member name="M:COMMON.CLog.PurgeFiles(System.Int32)">
+            <summary>
+            Purge existing log file with the same name
+            </summary>
+            <param name="numerberOfFilesToKeep">the number of log files to keep</param>
+        </member>
+        <member name="F:COMMON.RegexIP.REGEX_IPV4_PORT_NUMBER">
+            <summary>
+            IP formats
+            </summary>
+        </member>
+        <member name="T:COMMON.CMiscExtensions">
+            <summary>
+            COMMON extensions to c#
+            </summary>
+        </member>
+        <member name="M:COMMON.CMiscExtensions.Replace(System.String,System.String,System.String,System.StringComparison)">
+            <summary>
+            Returns a new string in which all occurrences of a specified string in the current instance are replaced with another 
+            specified string according the type of search to use for the specified string.
+            [created by: Oleg Zarevennyi - https://stackoverflow.com/questions/6275980/string-replace-ignoring-case]
+            </summary>
+            <param name="str">The string performing the replace method.</param>
+            <param name="oldValue">The string to be replaced.</param>
+            <param name="newValue">The string replace all occurrences of <paramref name="oldValue"/>. 
+            If value is equal to <c>null</c>, than all occurrences of <paramref name="oldValue"/> will be removed from the <paramref name="str"/>.</param>
+            <param name="comparisonType">One of the enumeration values that specifies the rules for the search.</param>
+            <returns>A string that is equivalent to the current string except that all instances of <paramref name="oldValue"/> are replaced with <paramref name="newValue"/>. 
+            If <paramref name="oldValue"/> is not found in the current instance, the method returns the current instance unchanged.</returns>
+        </member>
+        <member name="T:COMMON.CMisc">
+            <summary>
+            Various tool functions
+            </summary>
+        </member>
+        <member name="M:COMMON.CMisc.BytesToHexStr(System.Byte[])">
+            <summary>
+            Converts an array of bytes to an hexadecimal string
+            Each byte gives a 2 chars hexadecimal value
+            </summary>
+            <param name="buffer">The array of bytes to convert</param>
+            <returns>The converted array into a string if successful, an empty string if any error occured</returns>
+        </member>
+        <member name="M:COMMON.CMisc.BytesToStr(System.Byte[])">
+            <summary>
+            Converts an array of bytes to a UTF-8 string (if possible)
+            </summary>
+            <param name="buffer">The array of bytes to convert</param>
+            <returns>The converted array into a UTF-8 string if successful, an empty string if any error occured</returns>
+        </member>
+        <member name="M:COMMON.CMisc.StrToLong(System.String,System.Boolean)">
+            <summary>
+            Safe string to int function
+            </summary>
+            <param name="s">The string to convert to int</param>
+            <param name="alwayspositive">Indicates whether the value must always be positive or not</param>
+            <returns>The value of the string, 0 if an error occured</returns>
+        </member>
+        <member name="M:COMMON.CMisc.SetBytesFromIntegralTypeValue(System.Int16)">
+            <summary>
+            Copy bytes from short integral type to byte[].
+            The array of bytes is 2 bytes long (size of short).
+            This function is useful to transform an integral type to bytes
+            </summary>
+            <param name="value">The integral type to copy to an array of butes</param>
+            <returns>The array of bytes created after copying the integral type</returns>
+        </member>
+        <member name="M:COMMON.CMisc.SetBytesFromIntegralTypeValue(System.Int32)">
+            <summary>
+            Copy bytes from int integral type to byte[].
+            The array of bytes is 4 bytes long (size of int).
+            This function is useful to transform an integral type to bytes
+            </summary>
+            <param name="value">The integral type to copy to an array of butes</param>
+            <returns>The array of bytes created after copying the integral type</returns>
+        </member>
+        <member name="M:COMMON.CMisc.SetBytesFromIntegralTypeValue(System.Int64)">
+            <summary>
+            Copy bytes from long integral type to byte[].
+            The array of bytes is 8 bytes long (size of long).
+            This function is useful to transform an integral type to bytes
+            </summary>
+            <param name="value">The integral type to copy to an array of butes</param>
+            <returns>The array of bytes created after copying the integral type</returns>
+        </member>
+        <member name="M:COMMON.CMisc.SetBytesFromIntegralTypeValue(System.Int64,System.Int32)">
+            <summary>
+            Copy bytes from long integral type to byte[].
+            The array of bytes is 8 bytes long (size of long).
+            This function is useful to transform an integral type to bytes
+            </summary>
+            <param name="value">The integral type to copy to an array of butes</param>
+            <param name="maxlen">Size of the buffer to create that will receive the value computed</param>
+            <returns>The array of bytes created after copying the integral type</returns>
+        </member>
+        <member name="M:COMMON.CMisc.GetIntegralTypeValueFromBytes(System.Byte[],System.Int32)">
+            <summary>
+            Get integral long value value from an array of bytes where each byte (up to 8 bytes) represents a part of the integral value.
+            This function is useful to retrieve an integral value from a set of bytes
+            </summary>
+            <param name="buffer">The array of bytes to analyse</param>
+            <param name="maxlen">The number of bytes to use to build the integral value</param>
+            <returns>A long describing the value stored inside the array of bytes, 0 otherwise</returns>
+        </member>
+        <member name="M:COMMON.CMisc.GetIntegralTypeValueFromBytes(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Get integral long value value from an array of bytes where each byte (up to 8 bytes) represents a part of the integral value.
+            This function is useful to retrieve an integral value from a set of bytes
+            </summary>
+            <param name="buffer">The array of bytes to analyse</param>
+            <param name="start">The starting position, inside the array of bytes, to get the value</param>
+            <param name="maxlen">The number of bytes to use to build the integral value</param>
+            <returns>A long describing the value stored inside the array of bytes, 0 otherwise</returns>
+        </member>
+        <member name="M:COMMON.CMisc.AdjustMinMax1N(System.Int32@,System.Int32@)">
+            <summary>
+            Adjust min and max value (inverting them if necessary).
+            It also changes boundaries if minimum is less than 1, setting it to 1, and if maxlen is higher then 65535, setting it to 65535
+            </summary>
+            <param name="minlen">Minimum length to use</param>
+            <param name="maxlen">Maximum length to use</param>
+        </member>
+        <member name="M:COMMON.CMisc.AdjustMinMax0N(System.Int32@,System.Int32@)">
+            <summary>
+            Adjust min and max value (inverting them if necessary).
+            It also changes boundaries if minimum is less than 1, setting it to 1, and if maxlen is higher then 65535, setting it to 65535
+            </summary>
+            <param name="minlen">Minimum length to use</param>
+            <param name="maxlen">Maximum length to use</param>
+        </member>
+        <member name="M:COMMON.CMisc.AdjustMinMax(System.Int32,System.Int32@,System.Int32@)">
+            <summary>
+            Adjust min and max value (inverting them if necessary).
+            It also changes boundaries if minimum is less than 1, setting it to 1, and if maxlen is higher then 65535, setting it to 65535
+            </summary>
+            <param name="min">The minimum to not go over</param>
+            <param name="minlen">Minimum length to use</param>
+            <param name="maxlen">Maximum length to use</param>
+        </member>
+        <member name="M:COMMON.CMisc.AdjustMinMax1N(System.Byte[],System.Int32@,System.Int32@)">
+            <summary>
+            Adjust min and max value (inverting them if necessary).
+            Throws an Exception if the array of bytes length does not comply with the min and max bounds
+            </summary>
+            <param name="value">The array of bytes to check</param>
+            <param name="minlen">The minimum length</param>
+            <param name="maxlen">The maximum length</param>
+        </member>
+        <member name="M:COMMON.CMisc.AdjustMinMax1N(System.String,System.Int32@,System.Int32@)">
+            <summary>
+            Adjust min and max value (inverting them if necessary).
+            Throws an Exception if the string length does not comply with the min and max bounds
+            </summary>
+            <param name="value">The string to check</param>
+            <param name="minlen">The minimum length</param>
+            <param name="maxlen">The maximum length</param>
+        </member>
+        <member name="M:COMMON.CMisc.LenToUse(System.Byte[],System.Int32@,System.Int32@)">
+            <summary>
+            Help deciding the length to use when manipulating an array of bytes, according to the min and max considered.
+            Beware, the function will invert minlen and maxlen if they are not accurate
+            </summary>
+            <param name="buffer">Buffer to evaluate</param>
+            <param name="minlen">Minimum length to use</param>
+            <param name="maxlen">Maximum length to use</param>
+            <returns>The length to use, buffer length if between boundaries, 0 otherwise</returns>
+        </member>
+        <member name="M:COMMON.CMisc.IsValidFormat(System.String,System.String,System.Boolean)">
+            <summary>
+            Test whether a string is composed according to a specified regular expression
+            </summary>
+            <param name="value">The value to test</param>
+            <param name="format">The regular expression to match. The regular expression must be complete and well formatted</param>
+            <param name="validIfEmpty">TRUE if an empty string bypasses the verification (en empty string is always valid), FALSE otherwise</param>
+            <returns>TRUE if the value complies with the regular expression (or is empty if allowed), FALSE otherwise</returns>
+        </member>
+        <member name="M:COMMON.CMisc.IsValidFormat(System.String,System.String,System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            Test whether a string is composed according to a specified character set and length complies with specified bounds
+            </summary>
+            <param name="value">The value to check</param>
+            <param name="characterSet">The character set the value must comply with</param>
+            <param name="minlen">The minimum length the value must comply with</param>
+            <param name="maxlen">The maximum length the value must comply with</param>
+            <param name="validIfEmpty">TRUE if an empty string bypasses the verification (en empty string is always valid), FALSE otherwise</param>
+            <returns>TRUE if the value complies with the regular expression (or is empty if allowed), FALSE otherwise</returns>
+        </member>
+        <member name="M:COMMON.CMisc.OneHexToBin(System.Char)">
+            <summary>
+            Converts a char holding an hexadecimal value to its binary value (A=10,...).
+            If the character is not hexadecimal compliant (0123456789ABCDEF) a value 0 is returned
+            </summary>
+            <param name="c">The char to convert</param>
+            <returns>The binary value, 0 if the char is not hexadecimal compatible</returns>
+        </member>
+        <member name="M:COMMON.CMisc.TwoHexToBin(System.String)">
+            <summary>
+            Converts a 2 characters string holding an hexadecimal value to its binary value.
+            Only the first 2 characters are considered.
+            If the string is less than 2 characters an Exception is raised
+            </summary>
+            <param name="s">The string to convert</param>
+            <returns>The binary value of valid chars composing the 2 chars string, 0 if the string char is not hexadecimal compatible</returns>
+        </member>
+        <member name="M:COMMON.CMisc.StringToEnumValue(System.Type,System.String)">
+            <summary>
+            Check a string value against an enum type values
+            </summary>
+            <param name="type">the enum type to consider</param>
+            <param name="value">the string to search inside this enum</param>
+            <returns>the value inside the enum matching the string, 0xFFFFFFFF otherwise</returns>
+        </member>
+        <member name="M:COMMON.CMisc.EnumValueToString(System.Type,System.Object)">
+            <summary>
+            Get the name of a value inside an enum
+            </summary>
+            <param name="type">the enum type to consider</param>
+            <param name="value">the value to search for</param>
+            <returns>The name of the value inside the enum if available, an empty string otherwise</returns>
+        </member>
+        <member name="M:COMMON.CMisc.IsEnumValue(System.Type,System.Object)">
+            <summary>
+            Indicates whether a value is contained inside an enum type
+            </summary>
+            <param name="type">enum type to consider</param>
+            <param name="value">value to search inside the enum</param>
+            <returns>true if the value is contained inside the enum type, false otherwise</returns>
+        </member>
+        <member name="M:COMMON.CMisc.Trimmed(System.String)">
+            <summary>
+            Returns the simples form of a string
+            </summary>
+            <param name="s"></param>
+            <returns>a trimmed and set to lowercase string or null if string is empty</returns>
+        </member>
+        <member name="M:COMMON.CMisc.Lowered(System.String)">
+            <summary>
+            Returns the simples form of a string
+            </summary>
+            <param name="s"></param>
+            <returns>a trimmed and set to lowercase string or null if string is empty</returns>
+        </member>
+        <member name="M:COMMON.CMisc.AsString(System.String)">
+            <summary>
+            Makes sure a string is always returned
+            </summary>
+            <param name="s">The string to test</param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CMisc.IsString(System.String)">
+            <summary>
+            Safely return a string content, even if the original string is null
+            </summary>
+            <param name="s">The string to test</param>
+            <returns>The string or an empty string if that string doesn't exist (is null)</returns>
+        </member>
+        <member name="M:COMMON.CMisc.Version(COMMON.CMisc.VersionType)">
+            <summary>
+            Get the different versions included inside the module
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CMisc.GetEnumValue(System.Type,System.String,System.Object)">
+            <summary>
+            Get the value associated to an enum entry from its name
+            </summary>
+            <param name="T">The enum type to check against</param>
+            <param name="s">The name of the value</param>
+            <param name="def">Default value to use, if null <see cref="F:COMMON.CMisc.UNKNOWN"/> will be used</param>
+            <returns>The value represented by the string inside the enum, UNKNOWN if the string does not exist inside the enum</returns>
+        </member>
+        <member name="M:COMMON.CMisc.GetEnumName(System.Type,System.Object,System.Object)">
+            <summary>
+            Get the litteral name of an enum value
+            </summary>
+            <param name="T">The enum type to check against</param>
+            <param name="value">The value to find</param>
+            <param name="def">Default value to use, if null <see cref="F:COMMON.CMisc.UNKNOWN"/> will be used</param>
+            <returns>The litteral string describing the value inside the enum, null if it does not exist</returns>
+        </member>
+        <member name="M:COMMON.CMisc.GetEnumValue(System.Type,System.Object,System.Object)">
+            <summary>
+            Verify a value is valid inside an enumeration
+            </summary>
+            <param name="T">The enum type to check against</param>
+            <param name="value">The value to verify</param>
+            <param name="def">Default value to use, if null <see cref="F:COMMON.CMisc.UNKNOWN"/> will be used</param>
+            <returns>"value" if it is inside the enumeration, "def" is not inside the enumeration</returns>
+        </member>
+        <member name="M:COMMON.CMisc.VerifyDirectory(System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Allows verifying a folder exists, eventually with write privileges if required
+            </summary>
+            <param name="dir">Folder to verify existence</param>
+            <param name="addtrailer">Indicates whether the returned value must contain a final "\" or not</param>
+            <param name="writeaccess">Indicates whether write privilege is required or not</param>
+            <returns>The folder path (eventually with a #\" trailer if required) if exists with the requested privileges, null otherwise</returns>
+        </member>
+        <member name="T:COMMON.CNotImplemented">
+            <summary>
+            Create an exception to raise when a method is not implemented
+            </summary>
+        </member>
+        <member name="M:COMMON.CNotImplemented.#ctor(System.String,System.String)">
+            <summary>
+            Details the exception
+            </summary>
+            <param name="methodename">Not implemented method which was called</param>
+            <param name="objectname">Object not having implemented the method</param>
+        </member>
+        <member name="T:COMMON.CStream">
+            <summary>
+            SSL or IP stream class
+            </summary>
+        </member>
+        <member name="M:COMMON.CStream.Localhost">
+            <summary>
+            Returns the local IP address
+            </summary>
+            <returns>A string containing the local IP address</returns>
+        </member>
+        <member name="M:COMMON.CStream.Connect(COMMON.CStreamClientSettings)">
+            <summary>
+            Connect a stream according to the settings provided.
+            </summary>
+            <param name="settings">Network settings to use to connect the stream</param>
+            <returns>A <see cref="T:COMMON.CStreamClientIO"/> object is evrything went fine, null otherwise</returns>
+        </member>
+        <member name="M:COMMON.CStream.Disconnect(COMMON.CStreamIO)">
+            <summary>
+            Disconnect a stream freeing resources.
+            </summary>
+            <param name="stream">the stream to disconnect</param>
+        </member>
+        <member name="M:COMMON.CStream.Send(COMMON.CStreamIO,System.Byte[],System.Boolean)">
+            <summary>
+            Send data on the given stream.
+            </summary>
+            <param name="stream">The connected stream</param>
+            <param name="request">A array of bytes to send</param>
+            <param name="addSizeHeader">Indicates whether a buffer size block must be added before the buffer to send</param>
+            <returns>An arry of bytes received in response or if an error occured. In case of a client only request, the function returns the request, as no reply can be returned, if everything went right</returns>
+        </member>
+        <member name="M:COMMON.CStream.Send(COMMON.CStreamIO,System.String)">
+            <summary>
+            Refer to <see cref="M:COMMON.CStream.Send(COMMON.CStreamIO,System.Byte[],System.Boolean)"/>
+            </summary>
+            <param name="stream"></param>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CStream.SendLine(COMMON.CStreamIO,System.String,System.String)">
+            <summary>
+            Refer to <see cref="M:COMMON.CStreamIO.SendLine(System.String,System.String)"/>
+            This function prevents using any size header, using CR+LF as an EOT
+            </summary>
+            <param name="stream"></param>
+            <param name="request"></param>
+            <param name="EOT"></param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CStream.Receive(COMMON.CStreamIO,System.Int32@,System.Boolean@,System.Boolean)">
+            <summary>
+            Receive data on the indicated stream.
+            The buffer MUST begin with a size header of <see cref="P:COMMON.CStreamBase.LengthBufferSize"/>
+            </summary>
+            <param name="stream">The connected stream</param>
+            <param name="announcedSize">The size of the reply as announced by the sender</param>
+            <param name="sizeHeaderAdded">Indicates whether a buffer size header was natively or not inside the request.
+            If TRUE then the size header has been added by the system meaning the application does not care about it and won't care about it inside the received buffer which will be returned without any size header.
+            If FALSE then the size header was already part of the buffer meaning the application added it and cares about it. The received buffer must therefore contain the size header.</param>
+            <param name="error">True indicates the function ended up with an error as no more data was available, false otherwise</param>
+            <returns>An arry of bytes received in response or if an error occured. In case of a client only request, the function returns the request, as no reply can be returned, if everything went right</returns>
+        </member>
+        <member name="M:COMMON.CStream.Receive(COMMON.CStreamIO,System.Int32@,System.Boolean@)">
+            <summary>
+            Refer to <see cref="M:COMMON.CStream.Receive(COMMON.CStreamIO,System.Int32@,System.Boolean@,System.Boolean)"/>
+            </summary>
+            <param name="stream"></param>
+            <param name="announcedSize"></param>
+            <param name="error"></param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CStream.ReceiveLine(COMMON.CStreamIO,System.Boolean@,System.String)">
+            <summary>
+            Refer to <see cref="M:COMMON.CStreamIO.ReceiveLine(System.String)"/>
+            The string does not need to begin by a size header of <see cref="P:COMMON.CStreamBase.LengthBufferSize"/> which will be ignored.
+            The string MUST however finish (or at least contain) a CR+LF sequence (or contain it) marking the EOT.
+            </summary>
+            <param name="stream"></param>
+            <param name="error">True indicates the function ended up with a error, false otherwise</param>
+            <param name="EOT">A string which if found marks the end of transmission</param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CStream.SendReceive(COMMON.CStreamIO,System.Byte[],System.Boolean,System.Int32@,System.Boolean@)">
+            <summary>
+            Send (<see cref="M:COMMON.CStream.Send(COMMON.CStreamIO,System.Byte[],System.Boolean)"/> and <see cref="M:COMMON.CStream.Send(COMMON.CStreamIO,System.String)"/>),
+            then receive data (<see cref="M:COMMON.CStream.Receive(COMMON.CStreamIO,System.Int32@,System.Boolean@,System.Boolean)"/>.
+            The stream must pre-exist
+            </summary>
+            <param name="stream">The connected stream</param>
+            <param name="request">A array of bytes to send</param>
+            <param name="announcedSize">The size of the reply as announced by the sender</param>
+            <param name="addSizeHeader">Indicates whether a buffer size block must be added before the buffer to send</param>
+            <param name="error">True indicates the function ended up with a error, false otherwise</param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CStream.SendReceive(COMMON.CStreamIO,System.String,System.Int32@,System.Boolean@)">
+            <summary>
+            Refer to <see cref="M:COMMON.CStream.SendReceive(COMMON.CStreamIO,System.Byte[],System.Boolean,System.Int32@,System.Boolean@)"/>
+            </summary>
+            <param name="stream"></param>
+            <param name="request"></param>
+            <param name="announcedSize"></param>
+            <param name="error"></param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CStream.SendReceiveLine(COMMON.CStreamIO,System.String,System.Boolean@,System.String)">
+            <summary>
+            This function prevents using any size header, using CR+LF as an EOT
+            </summary>
+            <param name="stream"></param>
+            <param name="request"></param>
+            <param name="error"></param>
+            <param name="EOT"></param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CStream.ConnectSend(COMMON.CStreamClientSettings,System.Byte[],System.Boolean)">
+            <summary>
+            Connect (<see cref="M:COMMON.CStream.Connect(COMMON.CStreamClientSettings)"/>) and send data (<see cref="M:COMMON.CStream.Send(COMMON.CStreamIO,System.Byte[],System.Boolean)"/> and <see cref="M:COMMON.CStream.Send(COMMON.CStreamIO,System.String)"/>).
+            </summary>
+            <param name="settings">The settings to use for sending data</param>
+            <param name="request">A array of bytes to send</param>
+            <param name="addSizeHeader">Indicates whether a buffer size block must be added before the buffer to send</param>
+            <returns>An arry of bytes received in response or if an error occured. In case of a client only request, the function returns the request, as no reply can be returned, if everything went right</returns>
+        </member>
+        <member name="M:COMMON.CStream.ConnectSend(COMMON.CStreamClientSettings,System.String)">
+            <summary>
+            Refer to <see cref="M:COMMON.CStream.ConnectSend(COMMON.CStreamClientSettings,System.Byte[],System.Boolean)"/>
+            </summary>
+            <param name="settings"></param>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CStream.ConnectSendLine(COMMON.CStreamClientSettings,System.String,System.String)">
+            <summary>
+            This function prevents using any size header, using CR+LF as an EOT
+            </summary>
+            <param name="settings"></param>
+            <param name="request"></param>
+            <param name="EOT"></param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CStream.ConnectSendReceive(COMMON.CStreamClientSettings,System.Byte[],System.Boolean,System.Int32@,System.Boolean@)">
+            <summary>
+            Connect (<see cref="M:COMMON.CStream.Connect(COMMON.CStreamClientSettings)"/>), send (<see cref="M:COMMON.CStream.Send(COMMON.CStreamIO,System.Byte[],System.Boolean)"/> and <see cref="M:COMMON.CStream.Send(COMMON.CStreamIO,System.String)"/>) and receive (<see cref="M:COMMON.CStream.Receive(COMMON.CStreamIO,System.Int32@,System.Boolean@,System.Boolean)"/> and <see cref="M:COMMON.CStream.Receive(COMMON.CStreamIO,System.Int32@,System.Boolean@)"/>) data.
+            </summary>
+            <param name="settings">The settings to use for sending data</param>
+            <param name="request">A array of bytes to send</param>
+            <param name="addSizeHeader">Indicates whether a buffer size block must be added before the buffer to send</param>
+            <param name="announcedSize">The size of the reply as announced by the sender</param>
+            <param name="error">True indicates the function ended up with a error, false otherwise</param>
+            <returns>An arry of bytes received in response or if an error occured. In case of a client only request, the function returns the request, as no reply can be returned, if everything went right</returns>
+        </member>
+        <member name="M:COMMON.CStream.ConnectSendReceive(COMMON.CStreamClientSettings,System.String,System.Int32@,System.Boolean@)">
+            <summary>
+            Refer to <see cref="M:COMMON.CStream.ConnectSendReceive(COMMON.CStreamClientSettings,System.Byte[],System.Boolean,System.Int32@,System.Boolean@)"/>
+            </summary>
+            <param name="settings"></param>
+            <param name="request"></param>
+            <param name="announcedSize"></param>
+            <param name="error"></param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CStream.ConnectSendReceiveLine(COMMON.CStreamClientSettings,System.String,System.Boolean@,System.String)">
+            <summary>
+            This function prevents using any size header, using CR+LF as an EOT
+            </summary>
+            <param name="settings"></param>
+            <param name="request"></param>
+            <param name="error"></param>
+            <param name="EOT"></param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CStream.SendAsync(COMMON.CStream.SendAsyncType,System.Byte[],System.Boolean,System.Boolean,System.String)">
+            <summary>
+            Start a client thread to send and receive data.
+            The caller is warned when a reply is received by a call to the specified function (<see cref="T:COMMON.CStream.SendAsyncType"/>).
+            </summary>
+            <param name="sendAsync">Settings to start the thread</param>
+            <param name="request">The request as bytes array</param>
+            <param name="addSizeHeader">Indicates whether or not adding a size header when sending the request</param>
+            <param name="lineExchanges">Indicates whether (true) or not (false) the exchanges complete by a new line, not using the size header.
+            If set to true no buffer size is never used during the exchanges (present or not) and the EOT is always represented by a CR+LF.
+            Setting this parameter to true supersedes the addSizeHeader one</param>
+            <param name="EOT"></param>
+            <returns>A <see cref="T:COMMON.CThread"/> object if the thread has been started, null otherwise</returns>
+        </member>
+        <member name="M:COMMON.CStream.SendAsync(COMMON.CStream.SendAsyncType,System.String)">
+            <summary>
+            Refer to <see cref="M:COMMON.CStream.SendAsync(COMMON.CStream.SendAsyncType,System.Byte[],System.Boolean,System.Boolean,System.String)"/>
+            </summary>
+            <param name="sendAsync"></param>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CStream.SendAsyncLine(COMMON.CStream.SendAsyncType,System.String,System.String)">
+            <summary>
+            Refer to <see cref="M:COMMON.CStream.SendAsync(COMMON.CStream.SendAsyncType,System.Byte[],System.Boolean,System.Boolean,System.String)"/>
+            This function prevents using any size header, using CR+LF as an EOT
+            </summary>
+            <param name="sendAsync"></param>
+            <param name="request"></param>
+            <param name="EOT"></param>
+            <returns></returns>
+        </member>
+        <member name="T:COMMON.CStream.SendAsyncType">
+            <summary>
+            Class used to specify how to handle asynchronous sending of data
+            </summary>
+        </member>
+        <member name="P:COMMON.CStream.SendAsyncType.ThreadData">
+            <summary>
+            Data used by the thread to communicate with the outside world.
+            </summary>
+        </member>
+        <member name="P:COMMON.CStream.SendAsyncType.Settings">
+            <summary>
+            Settings to use to reach the server.
+            </summary>
+        </member>
+        <member name="P:COMMON.CStream.SendAsyncType.OnReply">
+            <summary>
+            Function that will be called when the reply has been received.
+            </summary>
+        </member>
+        <member name="P:COMMON.CStream.SendAsyncType.Parameters">
+            <summary>
+            Parameters to pass to the <see cref="P:COMMON.CStream.SendAsyncType.OnReply"/> function
+            </summary>
+        </member>
+        <member name="M:COMMON.CStream.SendAsyncThreadMethod(COMMON.CThreadData,System.Object)">
+            <summary>
+            <see cref="T:COMMON.CThread.CThreadFunction"/>.
+            That function supports <see cref="M:COMMON.CStream.SendAsync(COMMON.CStream.SendAsyncType,System.Byte[],System.Boolean,System.Boolean,System.String)"/> processing/
+            </summary>
+            <param name="threadData"></param>
+            <param name="o"></param>
+            <returns></returns>
+        </member>
+        <member name="P:COMMON.CStreamBase.LengthBufferSize">
+            <summary>
+            Size of buffer containg the size of a message
+            </summary>
+        </member>
+        <member name="T:COMMON.CStreamIO">
+            <summary>
+            Basic ClientServer class
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamIO.sslStream">
+            <summary>
+            SSL stream if SSL security is required
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamIO.networkStream">
+            <summary>
+            Standard stream if no security is required
+            </summary>
+        </member>
+        <member name="M:COMMON.CStreamIO.Write(System.Byte[])">
+            <summary>
+            Write to the adequate stream
+            </summary>
+            <param name="data">buffer to write</param>
+            <returns>TRUE if write operation has been made, FALSE otherwise</returns>
+        </member>
+        <member name="M:COMMON.CStreamIO.Flush">
+            <summary>
+            Flush the adequate stream
+            </summary>
+        </member>
+        <member name="M:COMMON.CStreamIO.Read(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Read the adequate stream
+            </summary>
+            <param name="data">buffer where read data will be put</param>
+            <param name="offset">offset at which to put data inside the buffer</param>
+            <param name="count">maximum size of data the buffer can contain</param>
+            <returns>The number of bytes read</returns>
+        </member>
+        <member name="M:COMMON.CStreamIO.Send(System.Byte[],System.Boolean)">
+            <summary>
+            Send a buffer to an outer entity
+            </summary>
+            <param name="data">The message to send</param>
+            <param name="addSizeHeader">Indicates whether to add a 4 bytes header or not (it might be already included)</param>
+            <returns>TRUE if the message has been sent, HALSE otherwise</returns>
+        </member>
+        <member name="M:COMMON.CStreamIO.Send(System.String)">
+            <summary>
+            Send a buffer to an outer entity
+            </summary>
+            <param name="data">The message to send as a string</param>
+            <returns>TRUE if the message has been sent, HALSE otherwise</returns>
+        </member>
+        <member name="M:COMMON.CStreamIO.SendLine(System.String,System.String)">
+            <summary>
+            Send a buffer to an outer entity
+            This function prevents using any size header, using CR+LF as an EOT
+            </summary>
+            <param name="data">The message to send</param>
+            <param name="EOT"></param>
+            <returns>TRUE if the message has been sent, HALSE otherwise</returns>
+        </member>
+        <member name="M:COMMON.CStreamIO.ReceiveSizedBuffer(System.Int32)">
+            <summary>
+            Receive a buffer of a specific size from the server.
+            The function will allocate the buffer of the specified size to receive data.
+            The function will not return until the buffer has been fully received or an error has occurred (timeout,...).
+            
+            >> THIS FUNCTION MAY RAISE AN EXCEPTION
+            
+            </summary>
+            <param name="bufferSize">Size of the buffer to receive</param>
+            <returns>The received buffer, with a 0 length if no data has been received</returns>
+        </member>
+        <member name="M:COMMON.CStreamIO.ReceiveNonSizedBuffer(System.String)">
+            <summary>
+            Receive a buffer of any size, reallocating memory to fit the buffer.
+            The function will constantly reallocate the buffer to receive data .
+            The function will not return until the buffer has been fully received or an error has occurred (timeout,...).
+            
+            >> THIS FUNCTION MAY RAISE AN EXCEPTION
+            
+            </summary>
+            <param name="EOT">A string which if found marks the end of transmission</param>
+            <returns>The received buffer, with a 0 length if no data has been received</returns>
+        </member>
+        <member name="M:COMMON.CStreamIO.Receive(System.Int32@)">
+            <summary>
+            Receive a buffer of an unknown size from the server.
+            The buffer MUST begin with a size header of <see cref="P:COMMON.CStreamBase.LengthBufferSize"/>
+            The function will not return until the buffer has been fully received or an error has occurred (timeout,...)
+            The returned buffer NEVER contains the size header (which is sent back using the "size" data).
+            
+            >> THIS FUNCTION MAY RAISE AN EXCEPTION
+            
+            </summary>
+            <param name="announcedSize">Size of the buffer as declared by the caller , therefore expected by the receiver.
+            If that size differs from the size of the actually received buffer then an error has occurred</param>
+            <returns>The received buffer WITHOUT the heaser size (whose value is indicated in announcedSize) if no error occurred, NULL if any error occured</returns>
+        </member>
+        <member name="M:COMMON.CStreamIO.Receive">
+            <summary>
+            Receive a string of an unknown size from the server.
+            The buffer MUST begin with a size header of <see cref="P:COMMON.CStreamBase.LengthBufferSize"/>
+            The function will not return until the string has been fully received or an error occurred (timeout).
+            The returned string NEVER contains the size header.
+            
+            >> THIS FUNCTION MAY RAISE AN EXCEPTION
+            
+            </summary>
+            <returns>The received buffer as a string if no error occurred, an empty string otherwise</returns>
+        </member>
+        <member name="M:COMMON.CStreamIO.ReceiveLine(System.String)">
+            <summary>
+            Receive a string of an unknown size from the server.
+            The string does not need to begin by a size header of <see cref="P:COMMON.CStreamBase.LengthBufferSize"/> which will be ignored.
+            The string MUST however finish (or at least contain) a CR+LF sequence (or contain it) marking the EOT.
+            The function will not return until the string has been fully received or an error occurred (timeout).
+            The returned string NEVER contains the size header.
+            
+            >> THIS FUNCTION MAY RAISE AN EXCEPTION
+            
+            </summary>
+            <param name="EOT">A string which if found marks the end of transmission</param>
+            <returns>The received buffer as a string if no error occurred, an empty string otherwise</returns>
+        </member>
+        <member name="M:COMMON.CStreamIO.Close">
+            <summary>
+            Close the adequate Stream
+            </summary>
+        </member>
+        <member name="T:COMMON.CStreamClientIO">
+            <summary>
+            Client class
+            </summary>
+        </member>
+        <member name="M:COMMON.CStreamClientIO.#ctor(System.Net.Sockets.TcpClient,COMMON.CStreamClientSettings)">
+            <summary>
+            Open the adequate stream to the server.
+            </summary>
+            <param name="client">TCP client to use to open the stream</param>
+            <param name="settings">Settings to use when manipulating the stream</param>
+        </member>
+        <member name="M:COMMON.CStreamClientIO.ValidateServerCertificate(System.Object,System.Security.Cryptography.X509Certificates.X509Certificate,System.Security.Cryptography.X509Certificates.X509Chain,System.Net.Security.SslPolicyErrors)">
+            <summary>
+            The following method is invoked by the RemoteCertificateValidationDelegate
+            Refer to .NET specs for a full description
+            </summary>
+            <param name="sender"></param>
+            <param name="certificate"></param>
+            <param name="chain"></param>
+            <param name="sslPolicyErrors"></param>
+            <returns></returns>
+        </member>
+        <member name="T:COMMON.CStreamServerIO">
+            <summary>
+            Server class
+            </summary>
+        </member>
+        <member name="M:COMMON.CStreamServerIO.#ctor(System.Net.Sockets.TcpClient,COMMON.CStreamServerSettings)">
+            <summary>
+            Open the adequate stream to the server.
+            </summary>
+            <param name="client">TCP client to use to open the stream</param>
+            <param name="settings">Settings to use when manipulating the stream</param>
+        </member>
+        <member name="T:COMMON.CStreamDelegates.ServerOnStartDelegate">
+            <summary>
+            Function called when the server thread starts, before having received any request to process.
+            </summary>
+            <param name="threadData">Thread ID as given by the creator of the thread</param>
+            <param name="o">Private parameters to pass to the thread</param>
+            <returns>FALSE if the server must stop immediately before receiving any request, TRUE if the server must carry on</returns>
+        </member>
+        <member name="T:COMMON.CStreamDelegates.ServerOnConnectDelegate">
+            <summary>
+            Function called when a client got connected to the server
+            </summary>
+            <param name="client">TCP client which connected to the server</param>
+            <param name="threadData">Thread ID as given by the creator of the thread</param>
+            <param name="o">Private parameters to pass to the thread</param>
+            <returns>FALSE if the server must stop immediately before receiving any request, TRUE if the server must carry on</returns>
+        </member>
+        <member name="T:COMMON.CStreamDelegates.ServerOnMessageDelegate">
+            <summary>
+            Function called inside server context to process a server received message and prepare a reply
+            </summary>
+            <param name="client">TCP client which connected to the server</param>
+            <param name="request">Request received as a byte array</param>
+            <param name="addBufferSize">Indicates whether the size header has been added or not when creating the reply</param>
+            <param name="threadData">Thread ID as given by the creator of the thread</param>
+            <param name="o">Private parameters to pass to the thread</param>
+            <returns>A message to send or null if no message to send back</returns>
+        </member>
+        <member name="T:COMMON.CStreamDelegates.ServerOnDisconnectDelegate">
+            <summary>
+            Function called when a client disconnects from the server
+            </summary>
+            <param name="remoteClient">The remote address being disconnected</param>
+            <param name="threadData">Thread ID as given by the creator of the thread</param>
+            <param name="o">Private parameters to pass to the thread</param>
+        </member>
+        <member name="T:COMMON.CStreamDelegates.ServerOnStopDelegate">
+            <summary>
+            Function called when a the server has received a stop request from any client
+            </summary>
+            <param name="threadData">Thread ID as given by the creator of the thread</param>
+            <param name="o">Private parameters to pass to the thread</param>
+        </member>
+        <member name="T:COMMON.CStreamDelegates.ClientOnReceivedMessageDelegate">
+            <summary>
+            Function called inside server context to process a server received message and prepare a reply
+            </summary>
+            <param name="msg">Message received from the server as a byte array</param>
+            <param name="addBufferSize">Indicates whether the size header has been added or not when creating the reply</param>
+            <param name="timer">Timer to use if a message is to send after having processed the received one</param>
+            <param name="header">String to use when logging</param>
+            <param name="stopClient">An indicator set to true by the applictaion is the client must stop after the message, false otherwise</param>
+            <param name="threadData">Thread data as given by the creator of the thread</param>
+            <param name="o">Private parameters to pass to the thread</param>
+            <returns>A reply to send back in byte array format or NULL if the server must stop receiving messages</returns>
+        </member>
+        <member name="T:COMMON.CStreamDelegates.ClientOnSendMessageDelegate">
+            <summary>
+            Function called inside server context to process a server received message and prepare a reply
+            </summary>
+            <param name="msg">Message received from the server as a byte array</param>
+            <param name="addBufferSize">Indicates whether the size header has been added or not when creating the reply</param>
+            <param name="threadData">Thread ID as given by the creator of the thread</param>
+            <param name="o">Private parameters to pass to the thread</param>
+            <returns>A reply to send back in byte array format or NULL if the server must stop receiving messages</returns>
+        </member>
+        <member name="T:COMMON.CStreamDelegates.ClientOnReplyDelegate">
+            <summary>
+            Function called when a client thread received a reply which has been validated.
+            It is called in the context of the client who can take actions dependinf on the received message.
+            </summary>
+            <param name="threadData">Thread ID as given by the creator of the thread</param>
+            <param name="reply">Reply as received</param>
+            <param name="error">True if an error occurred while receiving the reply</param>
+            <param name="o">Private parameters to pass to the thread</param>
+            <returns>True if processing was OK, False otherwise</returns>
+        </member>
+        <member name="T:COMMON.CStreamServerStartSettings">
+            <summary>
+            Structure to use to start a <see cref="T:COMMON.CStreamServer"/>
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamServerStartSettings.IsValid">
+            <summary>
+            Indicates whether the object is valid or not
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamServerStartSettings.Synchronous">
+            <summary>
+            Synchrounous server (1 thread) or not (1 main thread + 1 thread per client)
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamServerStartSettings.ThreadData">
+            <summary>
+            Thread data to use to identify the thread
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamServerStartSettings.StreamServerSettings">
+            <summary>
+            Server 
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamServerStartSettings.OnStart">
+            <summary>
+            Called before starting processing requests from a client.
+            This function allows to initialise the server context.
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamServerStartSettings.OnConnect">
+            <summary>
+            Called when a client connected to the server.
+            This function allows to initialise the client context inside the server.
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamServerStartSettings.OnMessage">
+            <summary>
+            Called when a request has been received to process it and prepare the reply
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamServerStartSettings.OnDisconnect">
+            <summary>
+            Called when a client connected to the server.
+            This function allows to initialise the client context inside the server.
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamServerStartSettings.OnStop">
+            <summary>
+            Called after the server has received a stop order.
+            This function allows to clear the server context.
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamServerStartSettings.Parameters">
+            <summary>
+            Private parameters passed to the thread
+            </summary>
+        </member>
+        <member name="T:COMMON.CStreamServer">
+            <summary>
+            Server processing implementation
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamServer.streamServerStartSettings">
+            <summary>
+            Copy of start server settings
+            </summary>
+        </member>
+        <member name="F:COMMON.CStreamServer.myLock">
+            <summary>
+            All clients connected to the server
+            </summary>
+        </member>
+        <member name="M:COMMON.CStreamServer.StartServer(COMMON.CStreamServerStartSettings)">
+            <summary>
+            Start a server thread to receive messages
+            </summary>
+            <param name="settings">The settings to use to start the server
+            A synchronous server forwards replies inside the same thread, preventing receiving messages in the meantime.
+            An asynchronous server forwards replies inside another thread, allowing receiving messages at the same time.</param>
+            <returns>True if started, false otherwise</returns>
+        </member>
+        <member name="M:COMMON.CStreamServer.StopServer">
+            <summary>
+            Stop the server 
+            </summary>
+            <returns>TRUE if the server has been stopped or did not exist, FALSE otherwise</returns>
+        </member>
+        <member name="M:COMMON.CStreamServer.StopServer(COMMON.CStreamIO)">
+            <summary>
+            Stop the server from an external object already connected.
+            </summary>
+            <param name="stream"><see cref="T:COMMON.CStreamIO"/> stream to the server</param>
+            <returns>True if stopped, false otherwise</returns>
+        </member>
+        <member name="M:COMMON.CStreamServer.Cleanup">
+            <summary>
+            Clean up server context
+            </summary>
+        </member>
+        <member name="M:COMMON.CStreamServer.StreamServerListenerMethod(COMMON.CThreadData,System.Object)">
+            <summary>
+            <see cref="T:COMMON.CThread.CThreadFunction"/>
+            Server thread processing all incoming connections.
+            When a connection is approved a set of threads is created to (first thread) receive messages (second thread) process these messages
+            in an asynchronous way (without preventing connections or message reception)
+            </summary>
+            <param name="threadData"></param>
+            <param name="o"></param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CStreamServer.StreamServerReceiverMethod(COMMON.CThreadData,System.Object)">
+            <summary>
+            Server thread processing all incoming messages.
+            When a message is received it is transfered to the server for processing, then looping on receiving next message.
+            Exiting the server loop is instructed by the server by a returning FALSE after having processed a message.		/// </summary>
+            <param name="threadData"></param>
+            <param name="o"></param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CStreamServer.StreamServerProcessorMethod(COMMON.CThreadData,System.Object)">
+            <summary>
+            <see cref="T:COMMON.CThread.CThreadFunction"/>
+            Server thread processing all incoming messages.
+            When a message is received it is transfered to the server for processing, then looping on receiving next message.
+            Exiting the server loop is instructed by the server by a returning FALSE after having processed a message.
+            </summary>
+            <param name="threadData"></param>
+            <param name="o"></param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CStreamServer.ArraysAreEqual(System.Byte[],System.Byte[])">
+            <summary>
+            Test 2 array of bytes are equal.
+            Both being null returns false.
+            </summary>
+            <param name="b1">First array of bytes</param>
+            <param name="b2">Second array of bytes</param>
+            <returns>TRUE if equal, FALSE otherwise</returns>
+        </member>
+        <member name="T:COMMON.CStreamServer.QueueOfMessages">
+            <summary>
+            Queue of messages to process
+            </summary>
+        </member>
+        <member name="T:COMMON.CStreamServer.Client">
+            <summary>
+            Connected client
+            </summary>
+        </member>
+        <member name="M:COMMON.CStreamServer.Client.StopReceivingThread">
+            <summary>
+            Stop running threads for this client
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamSettings.ReceiveTimeout">
+            <summary>
+            Reception timer specified in SECONDS
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamSettings.SendTimeout">
+            <summary>
+            Specified in SECONDS
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamSettings.ReceiveBufferSize">
+            <summary>
+            Buffer size in bytes
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamSettings.SendBufferSize">
+            <summary>
+            Buffer size in bytes
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamSettings.UseSsl">
+            <summary>
+            Use SSL layer or not
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamSettings.Localhost">
+            <summary>
+            The local host IP address
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamSettings.DefaultServerPort">
+            <summary>
+            Default server port to use
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamClientSettings.IP">
+            <summary>
+            The IP address to reach or an empty string if invalid
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamClientSettings.Port">
+            <summary>
+            The IP port to use or 0 if invalid
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamClientSettings.FoundOnDNS">
+            <summary>
+            The IP port to use or 0 if invalid
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamClientSettings.ServerName">
+            <summary>
+            The name of the server to authenticate against. It must be empty if no authentication is required
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamClientSettings.CheckCertificate">
+            <summary>
+            Use certificate security or not
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamClientSettings.FullIP">
+            <summary>
+            The full IP address
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamClientSettings.AllowedSslErrors">
+            <summary>
+            Allowed SSL errors while trying to connect
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamClientSettings.Address">
+            <summary>
+            IP address to targer
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamClientSettings.EndPoint">
+            <summary>
+            IP end point to target
+            </summary>
+        </member>
+        <member name="M:COMMON.CStreamClientSettings.ToString">
+            <summary>
+            Returns the full TCP/IP address or an empty string
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CStreamClientSettings.SetIP(System.String,System.UInt32)">
+            <summary>
+            Set the TCP/IP address to use
+            </summary>
+            <param name="ip">IP or URL to reach</param>
+            <param name="port">Port to use on this IP</param>
+            <returns>TRUE if the IP has been set, FALSE otherwise</returns>
+        </member>
+        <member name="P:COMMON.CStreamServerSettings.Port">
+            <summary>
+            The IP port to use or 0 if invalid
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamServerSettings.Certificate">
+            <summary>
+            Certificate file to use to secure the connection
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamServerSettings.ServerCertificate">
+            <summary>
+            The SSL certificate to use to authenticate the server
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamClientThreadSettings.Parameters">
+            <summary>
+            Parameters to pass to the <see cref="P:COMMON.CStreamClientThreadSettings.OnReply"/> function when called from within the thread
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamClientThreadSettings.ThreadData">
+            <summary>
+            Thread data to use to identify the thread
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamClientThreadSettings.OnReply">
+            <summary>
+            Function called from within the thread when a reply is received
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamServerThreadSettings.Parameters">
+            <summary>
+            Parameters to pass to any function when called from within the thread
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamServerThreadSettings.ThreadData">
+            <summary>
+            Thread data to use to identify the thread
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamServerThreadSettings.OnStart">
+            <summary>
+            Called before starting processing requests from a client.
+            This function allows to initialise the server context.
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamServerThreadSettings.OnConnect">
+            <summary>
+            Called before starting processing requests from a client.
+            This function allows to initialise the server context.
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamServerThreadSettings.OnMessage">
+            <summary>
+            Called when a request has been received to process it and prepare the reply
+            Bytes array request processing function
+            </summary>
+        </member>
+        <member name="P:COMMON.CStreamServerThreadSettings.OnStop">
+            <summary>
+            Called after the server has received a stop order.
+            This function allows to clear the server context.
+            </summary>
+        </member>
+        <member name="P:COMMON.CThread.IsRunning">
+            <summary>
+            Indicates whether the thread has ended or not
+            </summary>
+        </member>
+        <member name="P:COMMON.CThread.Result">
+            <summary>
+            Thread final result
+            </summary>
+        </member>
+        <member name="P:COMMON.CThread.UniqueID">
+            <summary>
+            The thread unique ID
+            </summary>
+        </member>
+        <member name="T:COMMON.CThread.CThreadFunction">
+            <summary>
+            Function called from inside the thread and inside the caller's environement
+            </summary>
+            <param name="data"><see cref="T:COMMON.CThreadData"/> structure passed by the caller</param>
+            <param name="o">Parameters passed to the thread</param>
+            <returns>The result of the function, any muneric value pertaining to the caller. That value will be set inside <see cref="P:COMMON.CThread.Result"/></returns>
+        </member>
+        <member name="P:COMMON.CThread.FinalDelayWhenThreadTerminates">
+            <summary>
+            Timer to hold thread waiting for 
+            </summary>
+        </member>
+        <member name="P:COMMON.CThread.Thread">
+            <summary>
+            The thread object itself
+            </summary>
+        </member>
+        <member name="P:COMMON.CThread.ThreadData">
+            <summary>
+            Parameters used to call the thread
+            </summary>
+        </member>
+        <member name="P:COMMON.CThread.ID">
+            <summary>
+            The ID which can be used to identify the thread when it ends.
+            The ID will be returned to the warned window (through a PostMessage), when the thread ends, inside the wParam
+            </summary>
+        </member>
+        <member name="P:COMMON.CThread.Name">
+            <summary>
+            Thread name
+            </summary>
+        </member>
+        <member name="P:COMMON.CThread.Description">
+            <summary>
+            Description of the thread
+            </summary>
+        </member>
+        <member name="P:COMMON.CThread.HasBeenStarted">
+            <summary>
+            Indicate whether the thread has already been started
+            </summary>
+        </member>
+        <member name="P:COMMON.CThread.CanStart">
+            <summary>
+            Indicate whethre the thread can be started
+            </summary>
+        </member>
+        <member name="F:COMMON.CThread.Events">
+            <summary>
+            Events to use to know if the thread is started or stopped
+            </summary>
+        </member>
+        <member name="P:COMMON.CThread.ThreadMethod">
+            <summary>
+            The function to call inside the caller's environement to create the thread
+            </summary>
+        </member>
+        <member name="M:COMMON.CThread.Start(COMMON.CThread.CThreadFunction,COMMON.CThreadData,System.Object,System.Threading.ManualResetEvent,System.Boolean)">
+            <summary>
+            Start the thread
+            </summary>
+            <param name="method">the method to run inside the thread</param>
+            <param name="threadData">data used inside the thread to communicate with the caller's environment</param>
+            <param name="o">Parameters to pass to the thread</param>
+            <param name="evt">An <see cref="T:System.Threading.ManualResetEvent"/> object to wait for when starting the thread</param>
+            <param name="isBackground">Indicates whether the created thread is a background one or not</param>
+            <returns>True if started, false otherwise</returns>
+        </member>
+        <member name="M:COMMON.CThread.Wait(System.Int32)">
+            <summary>
+            Allows waiting for the thread to end either indefinitely or some time only
+            </summary>
+            <param name="timer">Timer to wait for</param>
+            <returns>TRUE if the thread has ended, FALSE if it is still running</returns>
+        </member>
+        <member name="M:COMMON.CThread.Method">
+            <summary>
+            Internal thread method starting the requested method
+            </summary>
+        </member>
+        <member name="T:COMMON.CThreadEvents">
+            <summary>
+            Class used to manage started and stopped flegs of a thread
+            </summary>
+        </member>
+        <member name="P:COMMON.CThreadData.EventToSignal">
+            <summary>
+            Event which will be signaled when the thread terminates
+            </summary>
+        </member>
+        <member name="M:COMMON.CThreadData.ToString">
+            <summary>
+            Returns the content of the class
+            </summary>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

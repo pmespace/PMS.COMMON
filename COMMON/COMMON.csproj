@@ -63,6 +63,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="..\COMMON_SHARED\COMMON_SHARED.projitems" Label="Shared" />
+  <Import Project="..\COMMON_WINDOWS_SHARED\COMMON_WINDOWS_SHARED.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

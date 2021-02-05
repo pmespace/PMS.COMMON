@@ -9,7 +9,6 @@
     <Import_RootNamespace>COMMON_WINDOWS_SHARED</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)CDatabase\CDatabase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CWin32\Win32.cs" />
   </ItemGroup>
 </Project>

@@ -3,20 +3,25 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>COMMON</RootNamespace>
-    <PackageId>PMS.COMMONCORE</PackageId>
+    <PackageId>PMS.COMMON.CORE</PackageId>
     <Authors>PME</Authors>
-    <Product>PMS.COMMONCORE</Product>
+    <Product>PMS.COMMON.CORE</Product>
     <Description>Common library</Description>
     <Copyright>PMS 2021</Copyright>
-    <AssemblyVersion>3.0.10</AssemblyVersion>
-    <Version>3.0.10</Version>
-    <FileVersion>3.0.10</FileVersion>
+    <AssemblyVersion>4.0.0</AssemblyVersion>
+    <Version>4.0.0</Version>
+    <FileVersion>4.0.0</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyName>PMS.COMMONCORE</AssemblyName>
+    <AssemblyName>PMS.COMMON.CORE</AssemblyName>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes>4.0.0
+- First .NET CORE version</PackageReleaseNotes>
+    <PackageIcon>Taxi-64.png</PackageIcon>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>C:\Users\philippe\Documents\Dev\COMMON\COMMONCORE\COMMONCORE.xml</DocumentationFile>
+    <DocumentationFile>C:\Users\philippe\Documents\Dev\COMMON\COMMONCORE\PMS.COMMON.CORE.xml</DocumentationFile>
     <DefineConstants>TRACE;NETCORE</DefineConstants>
   </PropertyGroup>
 
@@ -28,7 +33,14 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="System.Data.OleDb" Version="5.0.0" />
+    <PackageReference Include="System.Data.Odbc" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\Taxi-64.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

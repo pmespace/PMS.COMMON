@@ -1,9 +1,231 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>PMS.COMMONCORE</name>
+        <name>PMS.COMMON.CORE</name>
     </assembly>
     <members>
+        <member name="P:COMMON.CDatabaseBase.Database">
+            <summary>
+            The database connection object
+            </summary>
+        </member>
+        <member name="P:COMMON.CDatabaseBase.ConnectionString">
+            <summary>
+            ConnectionString string to connect to the database
+            </summary>
+        </member>
+        <member name="P:COMMON.CDatabaseBase.IsOpen">
+            <summary>
+            Indicate whether the connection to the database is open or not and allows to connect to or disconnect from the database
+            </summary>
+        </member>
+        <member name="M:COMMON.CDatabaseBase.DoConnect">
+            <summary>
+            Manage the connection state and behaviour
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CDatabaseBase.DoDisconnect">
+            <summary>
+            Disconnect from the database
+            </summary>
+            <returns><see langword="true"/>if disconnected, false otherwise</returns>
+        </member>
+        <member name="M:COMMON.CDatabaseBase.TRUE">
+            <summary>
+            Return the value to use to test TRUE in SQL
+            (ACCESS has a different way to use these values)
+            That function MUST NOT be used to feed an <see cref="T:System.Data.Odbc.OdbcParameter"/>
+            </summary>
+            <returns>The appropriate value if successfull, null otherwise</returns>
+        </member>
+        <member name="M:COMMON.CDatabaseBase.FALSE">
+            <summary>
+            Return the value to use to test FALSE in SQL
+            - ACCESS has a different way to use these values
+            That function MUST NOT be used to feed an <see cref="T:System.Data.Odbc.OdbcParameter"/>
+            </summary>
+            <returns>The appropriate value if successfull, null otherwise</returns>
+        </member>
+        <member name="M:COMMON.CDatabaseBase.TRUE(System.Data.Odbc.OdbcConnection)">
+            <summary>
+            Return the value to use to test TRUE in SQL
+            - ACCESS has a different way to use these values
+            That function MUST NOT be used to feed an <see cref="T:System.Data.Odbc.OdbcParameter"/>
+            </summary>
+            <param name="db">The database to use</param>
+            <returns>The appropriate value if successfull, null otherwise</returns>
+        </member>
+        <member name="M:COMMON.CDatabaseBase.FALSE(System.Data.Odbc.OdbcConnection)">
+            <summary>
+            Return the value to use to test TRUE in SQL
+            (ACCESS has a different way to use these values)
+            That function MUST NOT be used to feed an <see cref="T:System.Data.Odbc.OdbcParameter"/>
+            </summary>
+            <param name="db">The database to use</param>
+            <returns>The appropriate value if successfull, null otherwise</returns>
+        </member>
+        <member name="M:COMMON.CDatabaseBase.TrueFalseDBValue(System.Data.Odbc.OdbcConnection,System.Boolean)">
+            <summary>
+            Return the value to use to test TRUE or FALSE
+            - ACCESS has a different way to use these values
+            That function MUST NOT be used to feed an <see cref="T:System.Data.Odbc.OdbcParameter"/>
+            </summary>
+            <param name="db">The database to use</param>
+            <param name="value">The value to set</param>
+            <returns>The appropriate value if successfull, null otherwise</returns>
+        </member>
+        <member name="M:COMMON.CDatabaseBase.TryToFixTrueFalseTesting(System.String)">
+            <summary>
+            Make sure the "=true" and "=false"
+            </summary>
+            <param name="sql"></param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CDatabaseBase.IsAccess(System.Data.Odbc.OdbcConnection)">
+            <summary>
+            Identifies an ACCESS database
+            </summary>
+            <param name="db"></param>
+            <returns>True if ACCESS, false otherwise</returns>
+        </member>
+        <member name="T:COMMON.CDatabase.FeedRecordDelegate">
+            <summary>
+            Delegate function called to feed a record from s SELECT command
+            </summary>
+            <param name="reader">Reader to use to feed a record</param>
+            <returns>An fed record is successfull, null otherwise</returns>
+        </member>
+        <member name="M:COMMON.CDatabase.NonSelectRequest(System.Data.Odbc.OdbcCommand,System.Int32@)">
+            <summary>
+            Execute a non select request (insert, update, delete)
+            </summary>
+            <param name="command">A complete <see cref="T:System.Data.Odbc.OdbcCommand"/> detailing a non select request to launch</param>
+            <param name="nbRows">Number of rows impacted by the request</param>
+            <returns>True if the request was successfull processed, false otherwise</returns>
+        </member>
+        <member name="M:COMMON.CDatabase.NonSelectRequest(System.String,System.Int32@)">
+            <summary>
+            Execute a non select request (insert, update, delete)
+            </summary>
+            <param name="sql">A non select request to launch</param>
+            <param name="nbRows">Number of rows impacted by the request</param>
+            <returns>True if the request was successfull processed, false otherwise</returns>
+        </member>
+        <member name="M:COMMON.CDatabase.SelectRequest(System.Data.Odbc.OdbcCommand,System.Data.Odbc.OdbcDataReader@)">
+            <summary>
+            Selects a set of objects from the database and returns them inside a <see cref="T:System.Data.Odbc.OdbcDataAdapter"/> object to be extracted by the caller
+            </summary>
+            <param name="command">A complete <see cref="T:System.Data.Odbc.OdbcCommand"/> detailing a select request to launch</param>
+            <param name="reader">An <see cref="T:System.Data.Odbc.OdbcDataReader"/> object which can be used to fetch data from the result set</param>
+            <returns>True if successfull, false otherwise</returns>
+        </member>
+        <member name="M:COMMON.CDatabase.SelectRequest(System.String,System.Data.Odbc.OdbcDataReader@)">
+            <summary>
+            Selects a set of objects from the database and returns them inside a <see cref="T:System.Data.Odbc.OdbcDataAdapter"/> object to be extracted by the caller
+            </summary>
+            <param name="sql">A select request to launch</param>
+            <param name="reader">An <see cref="T:System.Data.Odbc.OdbcDataReader"/> object which can be used to fetch data from the result set</param>
+            <returns>True if successfull, false otherwise</returns>
+        </member>
+        <member name="M:COMMON.CDatabase.SelectRequest``1(System.Data.Odbc.OdbcCommand,COMMON.CDatabase.FeedRecordDelegate)">
+            <summary>
+            Launch a select request and feed a list of records fetched using the request
+            </summary>
+            <param name="command">A complete <see cref="T:System.Data.Odbc.OdbcCommand"/> detailing a select request to launch</param>
+            <param name="feedRecordFunction">Functions called to feed a TnX object</param>
+            <returns>A list of records fetched using the select request, null if an error has occurred</returns>
+        </member>
+        <member name="M:COMMON.CDatabase.SelectRequest``1(System.String,COMMON.CDatabase.FeedRecordDelegate)">
+            <summary>
+            Launch a select request and feed a list of records fetched using the request
+            </summary>
+            <param name="sql">A select request to launch</param>
+            <param name="feedRecordFunction">Functions called to feed a TnX object</param>
+            <returns>A list of records fetched using the select request, null if an error has occurred</returns>
+        </member>
+        <member name="M:COMMON.CDatabase.SelectRequest(System.Data.Odbc.OdbcCommand,System.Data.DataSet@)">
+            <summary>
+            Selects a set of objects from the database and returns them inside a <see cref="T:System.Data.DataSet"/> object to be extracted by the caller
+            </summary>
+            <param name="command">A complete <see cref="T:System.Data.Odbc.OdbcCommand"/> detailing a select request to launch</param>
+            <param name="dataSet">An <see cref="T:System.Data.DataSet"/> object which can be used to fetch data from the result set</param>
+            <returns>True if successfull, false otherwise</returns>
+        </member>
+        <member name="M:COMMON.CDatabase.SelectRequest(System.String,System.Data.DataSet@)">
+            <summary>
+            Selects a set of objects from the database and returns them inside a <see cref="T:System.Data.DataSet"/> object to be extracted by the caller
+            </summary>
+            <param name="sql">A select request to launch</param>
+            <param name="dataSet">An <see cref="T:System.Data.DataSet"/> object which can be used to fetch data from the result set</param>
+            <returns>True if successfull, false otherwise</returns>
+        </member>
+        <member name="M:COMMON.CDatabase.SelectScalar(System.String)">
+            <summary>
+            Refer to <see cref="M:System.Data.Odbc.OdbcCommand.ExecuteScalar"/>
+            </summary>
+            <param name="sql">SQL request to run</param>
+            <returns>The scalar value if successfull, -1 in an error has occurred</returns>
+        </member>
+        <member name="M:COMMON.CDatabase.NbRows(System.String,System.String)">
+            <summary>
+            Refer to <see cref="M:COMMON.CDatabase.SelectScalar(System.String)"/>
+            </summary>
+            <param name="tableName">Table to look for the records</param>
+            <param name="filter">Filter to apply</param>
+            <returns> Refer to <see cref="M:COMMON.CDatabase.SelectScalar(System.String)"/></returns>
+        </member>
+        <member name="M:COMMON.CDatabase.NbRows(System.String)">
+            <summary>
+            Refer to <see cref="M:COMMON.CDatabase.SelectScalar(System.String)"/>
+            </summary>
+            <param name="tableName">Table to look for the records</param>
+            <returns> Refer to <see cref="M:COMMON.CDatabase.SelectScalar(System.String)"/></returns>
+        </member>
+        <member name="M:COMMON.CDatabase.ItemValue``1(System.Data.Odbc.OdbcDataReader,System.String,``0@)">
+            <summary>
+            Retrieve the value of a column inside an <see cref="T:System.Data.Odbc.OdbcDataAdapter"/>
+            </summary>
+            <param name="reader">The reader to look inside</param>
+            <param name="columnName">The column name to fetch</param>
+            <param name="value">The content of the column it it exists, null otherwise</param>
+            <returns>True if the column has been found and its value returned to the caller, false otherwise</returns>
+        </member>
+        <member name="M:COMMON.CDatabase.ItemValue``1(System.Data.Odbc.OdbcDataReader,System.String)">
+            <summary>
+            Retrieve the value of a column inside an <see cref="T:System.Data.Odbc.OdbcDataAdapter"/>
+            
+            WARNING THIS FUNCTION MAY RAISE AN EXCEPTION
+            
+            </summary>
+            <param name="reader">The reader to look inside</param>
+            <param name="columnName">The column name to fetch</param>
+            <returns>The content of the column it it exists, AN EXCEPTION IF AN ERROR OCCURS</returns>
+        </member>
+        <member name="P:COMMON.CDatabaseTableManager.DataAdapter">
+            <summary>
+            <see cref="T:System.Data.Odbc.OdbcDataAdapter"/> object created to feed the table
+            </summary>
+        </member>
+        <member name="P:COMMON.CDatabaseTableManager.CommandBuilder">
+            <summary>
+            <see cref="T:System.Data.Odbc.OdbcCommandBuilder"/> object created to manage the table
+            </summary>
+        </member>
+        <member name="M:COMMON.CDatabaseTableManager.FillTable(System.String)">
+            <summary>
+            Fill a <see cref="T:System.Data.DataTable"/> with data contained inside a database table
+            </summary>
+            <param name="sql"></param>
+            <returns></returns>
+        </member>
+        <member name="M:COMMON.CDatabaseTableManager.UpdateData(System.Data.DataTable)">
+            <summary>
+            Update the content of a <see cref="T:System.Data.DataTable"/> object
+            </summary>
+            <param name="dt">The <see cref="T:System.Data.DataTable"/> object to update</param>
+            <returns>The number of elements updated is successfull, 0 otherwise</returns>
+        </member>
         <member name="M:COMMON.CDisconnected.#ctor">
             <summary>
             Details the exception

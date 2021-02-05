@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Reflection;
 using System.Collections.Generic;
-using System.Data.OleDb;
+using System.Data.Odbc;
 using System.Data;
 
 namespace COMMON
@@ -19,8 +19,8 @@ namespace COMMON
 		/// <summary>
 		/// The database connection object
 		/// </summary>
-		public OleDbConnection Database { get => _dbconnection; private set => _dbconnection = value; }
-		private OleDbConnection _dbconnection = new OleDbConnection();
+		public OdbcConnection Database { get => _dbconnection; private set => _dbconnection = value; }
+		private OdbcConnection _dbconnection = new OdbcConnection();
 		/// <summary>
 		/// ConnectionString string to connect to the database
 		/// </summary>
@@ -117,7 +117,7 @@ namespace COMMON
 		/// <summary>
 		/// Return the value to use to test TRUE in SQL
 		/// (ACCESS has a different way to use these values)
-		/// That function MUST NOT be used to feed an <see cref="OleDbParameter"/>
+		/// That function MUST NOT be used to feed an <see cref="OdbcParameter"/>
 		/// </summary>
 		/// <returns>The appropriate value if successfull, null otherwise</returns>
 		public string TRUE()
@@ -127,7 +127,7 @@ namespace COMMON
 		/// <summary>
 		/// Return the value to use to test FALSE in SQL
 		/// - ACCESS has a different way to use these values
-		/// That function MUST NOT be used to feed an <see cref="OleDbParameter"/>
+		/// That function MUST NOT be used to feed an <see cref="OdbcParameter"/>
 		/// </summary>
 		/// <returns>The appropriate value if successfull, null otherwise</returns>
 		public string FALSE()
@@ -137,38 +137,38 @@ namespace COMMON
 		/// <summary>
 		/// Return the value to use to test TRUE in SQL
 		/// - ACCESS has a different way to use these values
-		/// That function MUST NOT be used to feed an <see cref="OleDbParameter"/>
+		/// That function MUST NOT be used to feed an <see cref="OdbcParameter"/>
 		/// </summary>
 		/// <param name="db">The database to use</param>
 		/// <returns>The appropriate value if successfull, null otherwise</returns>
-		public static string TRUE(OleDbConnection db)
+		public static string TRUE(OdbcConnection db)
 		{
 			return TrueFalseDBValue(db, true);
 		}
 		/// <summary>
 		/// Return the value to use to test TRUE in SQL
 		/// (ACCESS has a different way to use these values)
-		/// That function MUST NOT be used to feed an <see cref="OleDbParameter"/>
+		/// That function MUST NOT be used to feed an <see cref="OdbcParameter"/>
 		/// </summary>
 		/// <param name="db">The database to use</param>
 		/// <returns>The appropriate value if successfull, null otherwise</returns>
-		public static string FALSE(OleDbConnection db)
+		public static string FALSE(OdbcConnection db)
 		{
 			return TrueFalseDBValue(db, false);
 		}
 		/// <summary>
 		/// Return the value to use to test TRUE or FALSE
 		/// - ACCESS has a different way to use these values
-		/// That function MUST NOT be used to feed an <see cref="OleDbParameter"/>
+		/// That function MUST NOT be used to feed an <see cref="OdbcParameter"/>
 		/// </summary>
 		/// <param name="db">The database to use</param>
 		/// <param name="value">The value to set</param>
 		/// <returns>The appropriate value if successfull, null otherwise</returns>
-		public static string TrueFalseDBValue(OleDbConnection db, bool value)
+		public static string TrueFalseDBValue(OdbcConnection db, bool value)
 		{
 			if (ConnectionState.Open == db.State)
 			{
-				if (db.Provider.Contains("Microsoft.ACE.OLEDB"))
+				if (IsAccess(db))
 				{
 					return value.ToString();
 				}
@@ -184,13 +184,22 @@ namespace COMMON
 		/// </summary>
 		/// <param name="sql"></param>
 		/// <returns></returns>
-		public string TryToFixTestTrueFalse(string sql)
+		public string TryToFixTrueFalseTesting(string sql)
 		{
-			return TryToFixTestTrueFalse(Database, sql);
+			return TryToFixTrueFalseTesting(Database, sql);
 		}
-		public static string TryToFixTestTrueFalse(OleDbConnection db, string sql)
+		public static string TryToFixTrueFalseTesting(OdbcConnection db, string sql)
 		{
 			return sql.Replace("=true", $"={TRUE(db)}", StringComparison.OrdinalIgnoreCase).Replace("=false", $"={FALSE(db)}", StringComparison.OrdinalIgnoreCase).Replace("= false", $"={FALSE(db)}", StringComparison.OrdinalIgnoreCase).Replace("= true", $"={TRUE(db)}", StringComparison.OrdinalIgnoreCase);
+		}
+		/// <summary>
+		/// Identifies an ACCESS database
+		/// </summary>
+		/// <param name="db"></param>
+		/// <returns>True if ACCESS, false otherwise</returns>
+		private static bool IsAccess(OdbcConnection db)
+		{
+			return db.DataSource.ToLower().Contains("access".ToLower());
 		}
 		#endregion
 	}
@@ -212,17 +221,17 @@ namespace COMMON
 		/// </summary>
 		/// <param name="reader">Reader to use to feed a record</param>
 		/// <returns>An fed record is successfull, null otherwise</returns>
-		public delegate object FeedRecordDelegate(OleDbDataReader reader);
+		public delegate object FeedRecordDelegate(OdbcDataReader reader);
 		#endregion
 
 		#region data management methods
 		/// <summary>
 		/// Execute a non select request (insert, update, delete)
 		/// </summary>
-		/// <param name="command">A complete <see cref="OleDbCommand"/> detailing a non select request to launch</param>
+		/// <param name="command">A complete <see cref="OdbcCommand"/> detailing a non select request to launch</param>
 		/// <param name="nbRows">Number of rows impacted by the request</param>
 		/// <returns>True if the request was successfull processed, false otherwise</returns>
-		public bool NonSelectRequest(OleDbCommand command, ref int nbRows)
+		public bool NonSelectRequest(OdbcCommand command, ref int nbRows)
 		{
 			nbRows = 0;
 			if (IsOpen && null != command)
@@ -255,19 +264,19 @@ namespace COMMON
 			nbRows = 0;
 			if (IsOpen && !string.IsNullOrEmpty(sql))
 			{
-				sql = TryToFixTestTrueFalse(sql);
+				sql = TryToFixTrueFalseTesting(sql);
 				CLog.Add($"SQL: {sql}");
-				return NonSelectRequest(new OleDbCommand(sql), ref nbRows);
+				return NonSelectRequest(new OdbcCommand(sql), ref nbRows);
 			}
 			return false;
 		}
 		/// <summary>
-		/// Selects a set of objects from the database and returns them inside a <see cref="OleDbDataAdapter"/> object to be extracted by the caller
+		/// Selects a set of objects from the database and returns them inside a <see cref="OdbcDataAdapter"/> object to be extracted by the caller
 		/// </summary>
-		/// <param name="command">A complete <see cref="OleDbCommand"/> detailing a select request to launch</param>
-		/// <param name="reader">An <see cref="OleDbDataReader"/> object which can be used to fetch data from the result set</param>
+		/// <param name="command">A complete <see cref="OdbcCommand"/> detailing a select request to launch</param>
+		/// <param name="reader">An <see cref="OdbcDataReader"/> object which can be used to fetch data from the result set</param>
 		/// <returns>True if successfull, false otherwise</returns>
-		public bool SelectRequest(OleDbCommand command, ref OleDbDataReader reader)
+		public bool SelectRequest(OdbcCommand command, ref OdbcDataReader reader)
 		{
 			reader = null;
 			bool f = false;
@@ -291,32 +300,32 @@ namespace COMMON
 			return f;
 		}
 		/// <summary>
-		/// Selects a set of objects from the database and returns them inside a <see cref="OleDbDataAdapter"/> object to be extracted by the caller
+		/// Selects a set of objects from the database and returns them inside a <see cref="OdbcDataAdapter"/> object to be extracted by the caller
 		/// </summary>
 		/// <param name="sql">A select request to launch</param>
-		/// <param name="reader">An <see cref="OleDbDataReader"/> object which can be used to fetch data from the result set</param>
+		/// <param name="reader">An <see cref="OdbcDataReader"/> object which can be used to fetch data from the result set</param>
 		/// <returns>True if successfull, false otherwise</returns>
-		public bool SelectRequest(string sql, ref OleDbDataReader reader)
+		public bool SelectRequest(string sql, ref OdbcDataReader reader)
 		{
 			reader = null;
 			if (IsOpen && !string.IsNullOrEmpty(sql))
 			{
-				sql = TryToFixTestTrueFalse(sql);
+				sql = TryToFixTrueFalseTesting(sql);
 				CLog.Add($"SQL: {sql}");
-				return SelectRequest(new OleDbCommand(sql), ref reader);
+				return SelectRequest(new OdbcCommand(sql), ref reader);
 			}
 			return false;
 		}
 		/// <summary>
 		/// Launch a select request and feed a list of records fetched using the request
 		/// </summary>
-		/// <param name="command">A complete <see cref="OleDbCommand"/> detailing a select request to launch</param>
+		/// <param name="command">A complete <see cref="OdbcCommand"/> detailing a select request to launch</param>
 		/// <param name="feedRecordFunction">Functions called to feed a TnX object</param>
 		/// <returns>A list of records fetched using the select request, null if an error has occurred</returns>
-		public List<TnX> SelectRequest<TnX>(OleDbCommand command, FeedRecordDelegate feedRecordFunction)
+		public List<TnX> SelectRequest<TnX>(OdbcCommand command, FeedRecordDelegate feedRecordFunction)
 		{
 			List<TnX> l = new List<TnX>();
-			OleDbDataReader reader = null;
+			OdbcDataReader reader = null;
 			if (SelectRequest(command, ref reader))
 			{
 				while (reader.Read())
@@ -339,28 +348,28 @@ namespace COMMON
 		{
 			if (!string.IsNullOrEmpty(sql))
 			{
-				sql = TryToFixTestTrueFalse(sql);
+				sql = TryToFixTrueFalseTesting(sql);
 				CLog.Add($"SQL: {sql}");
-				return SelectRequest<TnX>(new OleDbCommand(sql), feedRecordFunction);
+				return SelectRequest<TnX>(new OdbcCommand(sql), feedRecordFunction);
 			}
 			return null;
 		}
 		/// <summary>
 		/// Selects a set of objects from the database and returns them inside a <see cref="DataSet"/> object to be extracted by the caller
 		/// </summary>
-		/// <param name="command">A complete <see cref="OleDbCommand"/> detailing a select request to launch</param>
+		/// <param name="command">A complete <see cref="OdbcCommand"/> detailing a select request to launch</param>
 		/// <param name="dataSet">An <see cref="DataSet"/> object which can be used to fetch data from the result set</param>
 		/// <returns>True if successfull, false otherwise</returns>
-		public bool SelectRequest(OleDbCommand command, ref DataSet dataSet)
+		public bool SelectRequest(OdbcCommand command, ref DataSet dataSet)
 		{
 			bool f = false;
 			if (IsOpen && null != command)
 			{
-				OleDbDataAdapter da = null;
+				OdbcDataAdapter da = null;
 				try
 				{
 					command.Connection = Database;
-					da = new OleDbDataAdapter();
+					da = new OdbcDataAdapter();
 					da.SelectCommand = command;
 					da.SelectCommand.Connection = Database;
 					dataSet = new DataSet();
@@ -389,14 +398,14 @@ namespace COMMON
 		{
 			if (IsOpen && !string.IsNullOrEmpty(sql))
 			{
-				sql = TryToFixTestTrueFalse(sql);
+				sql = TryToFixTrueFalseTesting(sql);
 				CLog.Add($"SQL: {sql}");
-				return SelectRequest(new OleDbCommand(sql), ref dataSet);
+				return SelectRequest(new OdbcCommand(sql), ref dataSet);
 			}
 			return false;
 		}
 		/// <summary>
-		/// Refer to <see cref="OleDbCommand.ExecuteScalar"/>
+		/// Refer to <see cref="OdbcCommand.ExecuteScalar"/>
 		/// </summary>
 		/// <param name="sql">SQL request to run</param>
 		/// <returns>The scalar value if successfull, -1 in an error has occurred</returns>
@@ -405,11 +414,11 @@ namespace COMMON
 			int scalar = -1;
 			if (IsOpen && !string.IsNullOrEmpty(sql))
 			{
-				sql = TryToFixTestTrueFalse(sql);
+				sql = TryToFixTrueFalseTesting(sql);
 				CLog.Add($"SQL: {sql}");
 
-				OleDbDataAdapter da = new OleDbDataAdapter();
-				da.SelectCommand = new OleDbCommand();
+				OdbcDataAdapter da = new OdbcDataAdapter();
+				da.SelectCommand = new OdbcCommand();
 				try
 				{
 					da.SelectCommand.Connection = Database;
@@ -447,13 +456,13 @@ namespace COMMON
 			return NbRows(tableName, null);
 		}
 		/// <summary>
-		/// Retrieve the value of a column inside an <see cref="OleDbDataAdapter"/>
+		/// Retrieve the value of a column inside an <see cref="OdbcDataAdapter"/>
 		/// </summary>
 		/// <param name="reader">The reader to look inside</param>
 		/// <param name="columnName">The column name to fetch</param>
 		/// <param name="value">The content of the column it it exists, null otherwise</param>
 		/// <returns>True if the column has been found and its value returned to the caller, false otherwise</returns>
-		public static bool ItemValue<TnX>(OleDbDataReader reader, string columnName, ref TnX value)
+		public static bool ItemValue<TnX>(OdbcDataReader reader, string columnName, ref TnX value)
 		{
 			value = default(TnX);
 			try
@@ -468,7 +477,7 @@ namespace COMMON
 			return false;
 		}
 		/// <summary>
-		/// Retrieve the value of a column inside an <see cref="OleDbDataAdapter"/>
+		/// Retrieve the value of a column inside an <see cref="OdbcDataAdapter"/>
 		/// 
 		/// WARNING THIS FUNCTION MAY RAISE AN EXCEPTION
 		/// 
@@ -476,7 +485,7 @@ namespace COMMON
 		/// <param name="reader">The reader to look inside</param>
 		/// <param name="columnName">The column name to fetch</param>
 		/// <returns>The content of the column it it exists, AN EXCEPTION IF AN ERROR OCCURS</returns>
-		public static object ItemValue<TnX>(OleDbDataReader reader, string columnName)
+		public static object ItemValue<TnX>(OdbcDataReader reader, string columnName)
 		{
 			object value = null;
 			try
@@ -503,13 +512,13 @@ namespace COMMON
 
 		#region properties
 		/// <summary>
-		/// <see cref="OleDbDataAdapter"/> object created to feed the table
+		/// <see cref="OdbcDataAdapter"/> object created to feed the table
 		/// </summary>
-		public OleDbDataAdapter DataAdapter { get; private set; } = null;
+		public OdbcDataAdapter DataAdapter { get; private set; } = null;
 		/// <summary>
-		/// <see cref="OleDbCommandBuilder"/> object created to manage the table
+		/// <see cref="OdbcCommandBuilder"/> object created to manage the table
 		/// </summary>
-		public OleDbCommandBuilder CommandBuilder { get; private set; } = null;
+		public OdbcCommandBuilder CommandBuilder { get; private set; } = null;
 		#endregion
 
 		#region methods
@@ -524,12 +533,12 @@ namespace COMMON
 			{
 				try
 				{
-					sql = TryToFixTestTrueFalse(sql);
-					OleDbDataAdapter da = new OleDbDataAdapter(sql, Database);
+					sql = TryToFixTrueFalseTesting(sql);
+					OdbcDataAdapter da = new OdbcDataAdapter(sql, Database);
 					DataTable dataTable = new DataTable();
 					da.Fill(dataTable);
 					DataAdapter = da;
-					CommandBuilder = new OleDbCommandBuilder(DataAdapter);
+					CommandBuilder = new OdbcCommandBuilder(DataAdapter);
 					DataAdapter.InsertCommand = CommandBuilder.GetInsertCommand();
 					DataAdapter.UpdateCommand = CommandBuilder.GetUpdateCommand();
 					DataAdapter.DeleteCommand = CommandBuilder.GetDeleteCommand();

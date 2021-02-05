@@ -9,6 +9,7 @@
     <Import_RootNamespace>COMMON</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)CDatabase\CDatabase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CExceptions\CDisconnected.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CJson\CJson.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CJson\CJsonConverter.cs" />

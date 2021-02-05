@@ -141,10 +141,7 @@ namespace COMMON
 				foreach (byte b in buffer)
 					res += b.ToString("X2");
 			}
-			catch (Exception ex)
-			{
-				res = string.Empty;
-			}
+			catch (Exception) { res = string.Empty; }
 			return res;
 		}
 		/// <summary>
@@ -159,10 +156,7 @@ namespace COMMON
 			{
 				Encoding.UTF8.GetString(buffer);
 			}
-			catch (Exception ex)
-			{
-				res = string.Empty;
-			}
+			catch (Exception) { res = string.Empty; }
 			return res;
 		}
 		/// <summary>
@@ -180,10 +174,7 @@ namespace COMMON
 				if (alwayspositive && 0 > i)
 					i = -i;
 			}
-			catch (Exception ex)
-			{
-				i = 0;
-			}
+			catch (Exception) { i = 0; }
 			return i;
 		}
 		/// <summary>
@@ -475,10 +466,14 @@ namespace COMMON
 		/// <returns>true if the value is contained inside the enum type, false otherwise</returns>
 		public static bool IsEnumValue(Type type, object value)
 		{
-			Array array = Enum.GetValues(type);
-			foreach (object i in array)
-				if (value.Equals(i))
-					return true;
+			try
+			{
+				Array array = Enum.GetValues(type);
+				foreach (object i in array)
+					if (value.Equals(i))
+						return true;
+			}
+			catch (Exception) { }
 			// arrived here the value isn't inside the enum
 			return false;
 		}

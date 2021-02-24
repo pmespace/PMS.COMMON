@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System;
-
+using Microsoft.Win32;
 
 namespace COMMON
 {
@@ -374,8 +374,25 @@ namespace COMMON
 					sslStream = new SslStream(client.GetStream(), false, new RemoteCertificateValidationCallback(ValidateServerCertificate), null);
 					try
 					{
-						// The server name must match the name on the server certificate.
+						// authenticate aginst the server
+#if NET35
+						// check if TLS is supported
+						bool useTLS = false;
+						try
+						{
+							RegistryKey key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5");
+							object value = (null != key ? key.GetValue("SP") : null);
+							useTLS = (null != value && 1 <= (int)value);
+						}
+						catch (Exception ex) { }
+						CLog.Add($".NET 3.5 {(useTLS ? "using TLS 1.2" : "not using TLS")}");
+						if (useTLS)
+							sslStream.AuthenticateAsClient(Settings.ServerName, null, (System.Security.Authentication.SslProtocols)3072, false);
+						else
+							sslStream.AuthenticateAsClient(Settings.ServerName);
+#else
 						sslStream.AuthenticateAsClient(Settings.ServerName);
+#endif
 					}
 					catch (Exception ex)
 					{

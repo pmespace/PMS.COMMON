@@ -4,9 +4,9 @@
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>COMMON</RootNamespace>
     <PackageId>PMS.COMMON.CORE</PackageId>
-    <Authors>PME</Authors>
+    <Authors>PMS</Authors>
     <Product>PMS.COMMON.CORE</Product>
-    <Description>Common library</Description>
+    <Description>Common library for .NET CORE</Description>
     <Copyright>PMS 2021</Copyright>
     <AssemblyVersion>4.0.0</AssemblyVersion>
     <Version>4.0.0</Version>
@@ -16,17 +16,21 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>4.0.0
 - First .NET CORE version</PackageReleaseNotes>
-    <PackageIcon>Taxi-64.png</PackageIcon>
+    <PackageIcon></PackageIcon>
     <SignAssembly>false</SignAssembly>
+    <Company>PMS</Company>
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>C:\Users\philippe\Documents\Dev\COMMON\COMMONCORE\PMS.COMMON.CORE.xml</DocumentationFile>
+    <DocumentationFile>..\Release\PMS.COMMON.CORE.xml</DocumentationFile>
     <DefineConstants>TRACE;NETCORE</DefineConstants>
+    <OutputPath>..\Release</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;NETCORE</DefineConstants>
+    <OutputPath>..\Debug\</OutputPath>
   </PropertyGroup>
 
   <Import Project="..\COMMON_SHARED\COMMON_SHARED.projitems" Label="Shared" />
@@ -36,11 +40,8 @@
     <PackageReference Include="System.Data.Odbc" Version="5.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\Taxi-64.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="rem copy $(TargetDir)..\*.nupkg $(SolutionDir)Nuget" />
+  </Target>
 
 </Project>

@@ -12,8 +12,9 @@
     <description>Shared tools for PMS.CHPN, PMS.NEXO and other projects</description>
     <releaseNotes>
       4.0.0
-      - Shared code with PMS.COMMON.CORE (.NET 5.0 library)
+      - PMS.COMMON.CORE introduced (.NET 5.0)
       - CDatabase now relies on ODBC instead of OleDB
+      - CStreamIO now uses TLS 1.2 inside PMS.COMMON35 (requires .NET 3.5 SP1 installed). To check whether installed refer to HKLM\SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5\SP = 1
 
       3.0.10
       - CheckCertificate inside CStreamClientSettings is now obsolete

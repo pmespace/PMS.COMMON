@@ -103,9 +103,7 @@ Public Class FTestCommon
 			lblSelectRes.Text = "KO"
 		End If
 
-		'Dim ds As New DataSet
-		'Dim l As List(Of Object)
-		'l = database.SelectRequest(Of Object)(efSelect.Text, AddressOf Feed)
+		'Dim l As List(Of String) = database.SelectRequest(Of String)(efSelect.Text, AddressOf Feed)
 		'If Not IsNothing(l) Then
 		'	lblSelectRes.BackColor = Color.Transparent
 		'	lblSelectRes.ForeColor = SystemColors.ControlText
@@ -117,8 +115,8 @@ Public Class FTestCommon
 		'End If
 	End Sub
 
-	Private Function Feed(reader As OleDbDataReader) As Object
-		Return New Object
+	Private Function Feed(reader As Odbc.OdbcDataReader) As String
+		Return CDatabase.ItemValue(Of String)(reader, "IP")
 	End Function
 
 	Private Sub FTestCommon_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
@@ -236,4 +234,5 @@ Public Class FTestCommon
 	Private Sub pbNbRows_Click(sender As Object, e As EventArgs) Handles pbNbRows.Click
 		lblTableNbRows.Text = database.NbRows(efTableName.Text)
 	End Sub
+
 End Class

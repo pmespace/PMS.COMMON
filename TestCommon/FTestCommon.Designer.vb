@@ -50,10 +50,12 @@ Partial Class FTestCommon
 		Me.lblSQLNbRows = New System.Windows.Forms.Label()
 		Me.efTableName = New System.Windows.Forms.TextBox()
 		Me.pbTable = New System.Windows.Forms.Button()
-		Me.DataGridView1 = New System.Windows.Forms.DataGridView()
-		Me.pbNbRows = New System.Windows.Forms.Button()
 		Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
 		Me.lblTableNbRows = New System.Windows.Forms.Label()
+		Me.pbNbRows = New System.Windows.Forms.Button()
+		Me.DataGridView1 = New System.Windows.Forms.DataGridView()
+		Me.FlowLayoutPanel1 = New System.Windows.Forms.FlowLayoutPanel()
+		Me.Button2 = New System.Windows.Forms.Button()
 		Me.pnlMain.SuspendLayout()
 		Me.TableLayoutPanel1.SuspendLayout()
 		Me.TabControl1.SuspendLayout()
@@ -63,8 +65,9 @@ Partial Class FTestCommon
 		Me.pnlConnection.SuspendLayout()
 		Me.pnlSQL.SuspendLayout()
 		Me.TableLayoutPanel3.SuspendLayout()
-		CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).BeginInit()
 		Me.TableLayoutPanel4.SuspendLayout()
+		CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).BeginInit()
+		Me.FlowLayoutPanel1.SuspendLayout()
 		Me.SuspendLayout()
 		'
 		'pnlMain
@@ -82,7 +85,7 @@ Partial Class FTestCommon
 		Me.pnlMain.RowCount = 2
 		Me.pnlMain.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
 		Me.pnlMain.RowStyles.Add(New System.Windows.Forms.RowStyle())
-		Me.pnlMain.Size = New System.Drawing.Size(746, 393)
+		Me.pnlMain.Size = New System.Drawing.Size(746, 481)
 		Me.pnlMain.TabIndex = 0
 		'
 		'TableLayoutPanel1
@@ -103,7 +106,7 @@ Partial Class FTestCommon
 		Me.TableLayoutPanel1.Controls.Add(Me.pbClose, 3, 0)
 		Me.TableLayoutPanel1.Controls.Add(Me.Button1, 0, 0)
 		Me.TableLayoutPanel1.Controls.Add(Me.lblResult, 1, 0)
-		Me.TableLayoutPanel1.Location = New System.Drawing.Point(3, 361)
+		Me.TableLayoutPanel1.Location = New System.Drawing.Point(3, 449)
 		Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
 		Me.TableLayoutPanel1.RowCount = 1
 		Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle())
@@ -165,7 +168,7 @@ Partial Class FTestCommon
 		Me.TabControl1.Location = New System.Drawing.Point(3, 3)
 		Me.TabControl1.Name = "TabControl1"
 		Me.TabControl1.SelectedIndex = 0
-		Me.TabControl1.Size = New System.Drawing.Size(740, 352)
+		Me.TabControl1.Size = New System.Drawing.Size(740, 440)
 		Me.TabControl1.TabIndex = 2
 		'
 		'databasePage
@@ -174,7 +177,7 @@ Partial Class FTestCommon
 		Me.databasePage.Location = New System.Drawing.Point(4, 22)
 		Me.databasePage.Name = "databasePage"
 		Me.databasePage.Padding = New System.Windows.Forms.Padding(3)
-		Me.databasePage.Size = New System.Drawing.Size(732, 326)
+		Me.databasePage.Size = New System.Drawing.Size(732, 414)
 		Me.databasePage.TabIndex = 0
 		Me.databasePage.Text = "Database"
 		Me.databasePage.UseVisualStyleBackColor = True
@@ -194,7 +197,7 @@ Partial Class FTestCommon
 		Me.TableLayoutPanel2.RowCount = 2
 		Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle())
 		Me.TableLayoutPanel2.RowStyles.Add(New System.Windows.Forms.RowStyle())
-		Me.TableLayoutPanel2.Size = New System.Drawing.Size(720, 314)
+		Me.TableLayoutPanel2.Size = New System.Drawing.Size(720, 402)
 		Me.TableLayoutPanel2.TabIndex = 1
 		'
 		'pnlCommands
@@ -208,12 +211,14 @@ Partial Class FTestCommon
 		Me.pnlCommands.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
 		Me.pnlCommands.Controls.Add(Me.pnlConnection, 0, 0)
 		Me.pnlCommands.Controls.Add(Me.pnlSQL, 0, 1)
+		Me.pnlCommands.Controls.Add(Me.FlowLayoutPanel1, 0, 2)
 		Me.pnlCommands.Location = New System.Drawing.Point(3, 3)
 		Me.pnlCommands.Name = "pnlCommands"
-		Me.pnlCommands.RowCount = 2
+		Me.pnlCommands.RowCount = 3
 		Me.pnlCommands.RowStyles.Add(New System.Windows.Forms.RowStyle())
 		Me.pnlCommands.RowStyles.Add(New System.Windows.Forms.RowStyle())
-		Me.pnlCommands.Size = New System.Drawing.Size(714, 134)
+		Me.pnlCommands.RowStyles.Add(New System.Windows.Forms.RowStyle())
+		Me.pnlCommands.Size = New System.Drawing.Size(714, 169)
 		Me.pnlCommands.TabIndex = 2
 		'
 		'pnlConnection
@@ -437,29 +442,6 @@ Partial Class FTestCommon
 		Me.pbTable.Text = "Display"
 		Me.pbTable.UseVisualStyleBackColor = True
 		'
-		'DataGridView1
-		'
-		Me.DataGridView1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-			Or System.Windows.Forms.AnchorStyles.Left) _
-			Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-		Me.DataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-		Me.DataGridView1.Location = New System.Drawing.Point(3, 143)
-		Me.DataGridView1.Name = "DataGridView1"
-		Me.DataGridView1.Size = New System.Drawing.Size(714, 174)
-		Me.DataGridView1.TabIndex = 0
-		'
-		'pbNbRows
-		'
-		Me.pbNbRows.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-		Me.pbNbRows.AutoSize = True
-		Me.pbNbRows.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-		Me.pbNbRows.Location = New System.Drawing.Point(3, 3)
-		Me.pbNbRows.Name = "pbNbRows"
-		Me.pbNbRows.Size = New System.Drawing.Size(39, 23)
-		Me.pbNbRows.TabIndex = 13
-		Me.pbNbRows.Text = "Nb"
-		Me.pbNbRows.UseVisualStyleBackColor = True
-		'
 		'TableLayoutPanel4
 		'
 		Me.TableLayoutPanel4.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
@@ -491,12 +473,55 @@ Partial Class FTestCommon
 		Me.lblTableNbRows.Text = "nb"
 		Me.lblTableNbRows.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
 		'
+		'pbNbRows
+		'
+		Me.pbNbRows.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+		Me.pbNbRows.AutoSize = True
+		Me.pbNbRows.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
+		Me.pbNbRows.Location = New System.Drawing.Point(3, 3)
+		Me.pbNbRows.Name = "pbNbRows"
+		Me.pbNbRows.Size = New System.Drawing.Size(39, 23)
+		Me.pbNbRows.TabIndex = 13
+		Me.pbNbRows.Text = "Nb"
+		Me.pbNbRows.UseVisualStyleBackColor = True
+		'
+		'DataGridView1
+		'
+		Me.DataGridView1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+			Or System.Windows.Forms.AnchorStyles.Left) _
+			Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+		Me.DataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+		Me.DataGridView1.Location = New System.Drawing.Point(3, 178)
+		Me.DataGridView1.Name = "DataGridView1"
+		Me.DataGridView1.Size = New System.Drawing.Size(714, 221)
+		Me.DataGridView1.TabIndex = 0
+		'
+		'FlowLayoutPanel1
+		'
+		Me.FlowLayoutPanel1.AutoSize = True
+		Me.FlowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
+		Me.FlowLayoutPanel1.Controls.Add(Me.Button2)
+		Me.FlowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
+		Me.FlowLayoutPanel1.Location = New System.Drawing.Point(3, 137)
+		Me.FlowLayoutPanel1.Name = "FlowLayoutPanel1"
+		Me.FlowLayoutPanel1.Size = New System.Drawing.Size(708, 29)
+		Me.FlowLayoutPanel1.TabIndex = 10
+		'
+		'Button2
+		'
+		Me.Button2.Location = New System.Drawing.Point(3, 3)
+		Me.Button2.Name = "Button2"
+		Me.Button2.Size = New System.Drawing.Size(75, 23)
+		Me.Button2.TabIndex = 0
+		Me.Button2.Text = "Button2"
+		Me.Button2.UseVisualStyleBackColor = True
+		'
 		'FTestCommon
 		'
 		Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
 		Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
 		Me.CancelButton = Me.pbClose
-		Me.ClientSize = New System.Drawing.Size(770, 417)
+		Me.ClientSize = New System.Drawing.Size(770, 505)
 		Me.Controls.Add(Me.pnlMain)
 		Me.Name = "FTestCommon"
 		Me.Text = "Test COMMON Services"
@@ -516,9 +541,10 @@ Partial Class FTestCommon
 		Me.pnlSQL.PerformLayout()
 		Me.TableLayoutPanel3.ResumeLayout(False)
 		Me.TableLayoutPanel3.PerformLayout()
-		CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).EndInit()
 		Me.TableLayoutPanel4.ResumeLayout(False)
 		Me.TableLayoutPanel4.PerformLayout()
+		CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).EndInit()
+		Me.FlowLayoutPanel1.ResumeLayout(False)
 		Me.ResumeLayout(False)
 		Me.PerformLayout()
 
@@ -556,4 +582,6 @@ Partial Class FTestCommon
 	Friend WithEvents pbNbRows As Button
 	Friend WithEvents TableLayoutPanel4 As TableLayoutPanel
 	Friend WithEvents lblTableNbRows As Label
+	Friend WithEvents FlowLayoutPanel1 As FlowLayoutPanel
+	Friend WithEvents Button2 As Button
 End Class

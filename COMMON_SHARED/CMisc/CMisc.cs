@@ -434,17 +434,20 @@ namespace COMMON
 		/// </summary>
 		/// <param name="type">the enum type to consider</param>
 		/// <param name="value">the string to search inside this enum</param>
-		/// <returns>the value inside the enum matching the string, 0xFFFFFFFF otherwise</returns>
-		public static object StringToEnumValue(Type type, string value)
+		/// <param name="defvalue">default value to use (if not null) it the string does not apply to the enum</param>
+		/// <returns>the value inside the enum matching the string, defvalue if not null and value not found, <see cref="CMisc.NotEnumValue"/> otherwise</returns>
+		public static object StringToEnumValue(Type type, string value, object defvalue = null)
 		{
-			if (string.IsNullOrEmpty(value))
-				return null;
-			Array array = Enum.GetValues(type);
-			foreach (object i in array)
-				if (value.ToLower() == EnumValueToString(type, i).ToLower())
-					return i;
-			return 0xFFFFFFFF;
+			if (!string.IsNullOrEmpty(value))
+			{
+				Array array = Enum.GetValues(type);
+				foreach (object i in array)
+					if (value.ToLower() == EnumValueToString(type, i).ToLower())
+						return i;
+			}
+			return (null != defvalue ? defvalue : NotEnumValue);
 		}
+		public static int NotEnumValue = int.MaxValue;
 		/// <summary>
 		/// Get the name of a value inside an enum
 		/// </summary>
@@ -456,7 +459,7 @@ namespace COMMON
 			try
 			{ return Enum.GetName(type, value); }
 			catch (Exception)
-			{ return string.Empty; }
+			{ return null; }
 		}
 		/// <summary>
 		/// Indicates whether a value is contained inside an enum type
@@ -466,14 +469,15 @@ namespace COMMON
 		/// <returns>true if the value is contained inside the enum type, false otherwise</returns>
 		public static bool IsEnumValue(Type type, object value)
 		{
-			try
-			{
-				Array array = Enum.GetValues(type);
-				foreach (object i in array)
-					if (value.Equals(i))
-						return true;
-			}
-			catch (Exception) { }
+			if (null != value)
+				try
+				{
+					Array array = Enum.GetValues(type);
+					foreach (object i in array)
+						if (value.Equals(i))
+							return true;
+				}
+				catch (Exception) { }
 			// arrived here the value isn't inside the enum
 			return false;
 		}

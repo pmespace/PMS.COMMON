@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>PMS.COMMON</id>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
     <title>PMS.COMMON</title>
     <authors>philippemp31</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -11,6 +11,9 @@
     <projectUrl>https://github.com/pmespace/PMS.COMMON/</projectUrl>
     <description>Shared tools for PMS.CHPN, PMS.NEXO and other projects</description>
     <releaseNotes>
+      4.0.1
+      - Fixed a bug in CMisc about enum functions
+      
       4.0.0
       - PMS.COMMON.CORE introduced (.NET 5.0)
       - CDatabase now relies on ODBC instead of OleDB

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>PMS.COMMON</id>
-    <version>4.0.2</version>
+    <version>4.0.3</version>
     <title>PMS.COMMON</title>
     <authors>philippemp31</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -11,6 +11,10 @@
     <projectUrl>https://github.com/pmespace/PMS.COMMON/</projectUrl>
     <description>Shared tools for PMS.CHPN, PMS.NEXO and other projects</description>
     <releaseNotes>
+      4.0.3
+      -----
+      - Moved to NewtonSoft 13.0.1
+      
       4.0.2
       -----
       - Tiny update in CJson to indicate why the FileName property failed to be set and changed the method to create a temporary file allowing that file to be persistent (using GetTempFileName instead of GetRandomFileName)
@@ -108,7 +112,7 @@
     <tags>CHPN NEXO</tags>
     <dependencies>
       <group targetFramework="net47">
-        <dependency id="Newtonsoft.Json" version="12.0.3" />
+        <dependency id="Newtonsoft.Json" version="13.0.1" />
       </group>
       <group targetFramework="net35">
       </group>

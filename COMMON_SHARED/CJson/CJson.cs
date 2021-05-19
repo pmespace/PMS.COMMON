@@ -56,9 +56,9 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
 					// use a default file for settings
 					_filename = Path.GetRandomFileName();
+					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, $"Value: {value} - Value that will be used is: {_filename}");
 				}
 			}
 		}

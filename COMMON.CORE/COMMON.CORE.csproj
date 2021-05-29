@@ -8,9 +8,9 @@
     <Product>PMS.COMMON.CORE</Product>
     <Description>Common library for .NET CORE</Description>
     <Copyright>PMS 2021</Copyright>
-    <AssemblyVersion>4.0.2</AssemblyVersion>
-    <Version>4.0.2</Version>
-    <FileVersion>4.0.2</FileVersion>
+    <AssemblyVersion>4.0.4</AssemblyVersion>
+    <Version>4.0.4</Version>
+    <FileVersion>4.0.4</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <AssemblyName>PMS.COMMON.CORE</AssemblyName>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

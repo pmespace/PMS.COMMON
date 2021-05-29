@@ -147,8 +147,9 @@ namespace COMMON
 					return string.Empty;
 				return data;
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
+				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
 				return string.Empty;
 			}
 #endif
@@ -166,8 +167,9 @@ namespace COMMON
 				{
 				return new JavaScriptSerializer().Deserialize<TSettings>(settings);
 				}
-			catch (Exception)
+			catch (Exception ex)
 				{
+				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
 				return default(TSettings);
 				}
 #else
@@ -175,8 +177,9 @@ namespace COMMON
 			{
 				return JsonConvert.DeserializeObject<TSettings>(settings, (JsonSerializerSettings)Prepare(addNull));
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
+				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
 				return default(TSettings);
 			}
 #endif

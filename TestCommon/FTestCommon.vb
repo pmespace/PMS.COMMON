@@ -24,7 +24,8 @@ Public Class FTestCommon
 	End Sub
 
 	Private Sub ReadSettings()
-		Dim settings = json.ReadSettings()
+		Dim except As Boolean
+		Dim settings = json.ReadSettings(except)
 
 		If Not IsNothing(settings) Then
 			efConnectionString.Text = settings.ConnectionString
@@ -41,7 +42,8 @@ Public Class FTestCommon
 		settings.SelectCommand = efSelect.Text
 		settings.TableName = efTableName.Text
 
-		json.WriteSettings(settings)
+		Dim except As Boolean
+		json.WriteSettings(settings, except)
 	End Sub
 
 	Private Sub SetButtons()

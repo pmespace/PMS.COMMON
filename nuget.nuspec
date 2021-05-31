@@ -11,12 +11,13 @@
     <projectUrl>https://github.com/pmespace/PMS.COMMON/</projectUrl>
     <description>Shared tools for PMS.CHPN, PMS.NEXO and other projects</description>
     <releaseNotes>
-      4.0.4
+      4.1.0
+      - Added an out  boolean parameter to CJson functions indicating whether a Json exception occured during processing
       - When some exceptions occurred they were not logged, this has been fixed
-      
+
       4.0.3
       - Moved to NewtonSoft.Json 13.0.1
-      
+
       4.0.2
       - Tiny update in CJson to indicate why the FileName property failed to be set and changed the method to create a temporary file allowing that file to be persistent (using GetTempFileName instead of GetRandomFileName)
 
@@ -124,7 +125,7 @@
     <file src=".\Release\PMS.COMMON.xml" target="lib\net47"></file>
     <file src=".\Release\PMS.COMMON.tlb" target="lib\net47"></file>
     <file src=".\Release\PMS.COMMON.pdb" target="lib\net47"></file>
-    
+
     <file src=".\Release\PMS.COMMON35.dll" target="lib\net35"></file>
     <file src=".\Release\PMS.COMMON35.xml" target="lib\net35"></file>
     <file src=".\Release\PMS.COMMON35.pdb" target="lib\net35"></file>

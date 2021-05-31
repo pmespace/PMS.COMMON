@@ -70,9 +70,11 @@ namespace COMMON
 		/// Read settings from a file
 		/// </summary>
 		/// <param name="addNull">Indicates whether null values must be kept or not inside </param>
+		/// <param name="jsonException">Indicate whether an exception occured while processing the json data, set to true if an exception occured during operation, false otherwise</param>
 		/// <returns>A structure of the specified settings if successful, null otherwise</returns>
-		public TSettings ReadSettings(bool addNull = false)
+		public TSettings ReadSettings(out bool jsonException, bool addNull = false)
 		{
+			jsonException = false;
 			try
 			{
 				// open file and deserialize it
@@ -81,7 +83,7 @@ namespace COMMON
 					using (StreamReader reader = new StreamReader(stream))
 					{
 						string data = reader.ReadToEnd();
-						return Deserialize(data, addNull);
+						return Deserialize(data, out jsonException, addNull);
 					}
 				}
 			}
@@ -95,10 +97,12 @@ namespace COMMON
 		/// Write settings of the specified type
 		/// </summary>
 		/// <param name="settings">The settings to write</param>
+		/// <param name="jsonException">Indicate whether an exception occured while processing the json data, set to true if an exception occured during operation, false otherwise</param>
 		/// <param name="addNull">Indicates whether null values must be kept or not when serializing</param>
 		/// <returns>TRUE if the settings have been written, FALSE otherwise</returns>
-		public bool WriteSettings(TSettings settings, bool addNull = false)
+		public bool WriteSettings(TSettings settings, out bool jsonException, bool addNull = false)
 		{
+			jsonException = false;
 			try
 			{
 				// open file and deserialize it
@@ -106,7 +110,7 @@ namespace COMMON
 				{
 					using (StreamWriter writer = new StreamWriter(stream))
 					{
-						string data = Serialize(settings, addNull);
+						string data = Serialize(settings, out jsonException, addNull);
 						writer.Write(data);
 						return true;
 					}
@@ -122,10 +126,12 @@ namespace COMMON
 		/// Serialize a TSettings object
 		/// </summary>
 		/// <param name="settings">The object to serialize</param>
+		/// <param name="jsonException">Indicate whether an exception occured while processing the json data, set to true if an exception occured during operation, false otherwise</param>
 		/// <param name="addNull">Indicates whether <see langword="null"/>values must be kept or not</param>
 		/// <returns></returns>
-		public static string Serialize(TSettings settings, bool addNull = false)
+		public static string Serialize(TSettings settings, out bool jsonException, bool addNull = false)
 		{
+			jsonException = false;
 #if NET35
 			JavaScriptSerializer JsonConvert = new JavaScriptSerializer();
 			try
@@ -135,8 +141,10 @@ namespace COMMON
 					return string.Empty;
 				return data;
 				}
-			catch (Exception)
+			catch (Exception ex)
 				{
+				jsonException = true;
+				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
 				return string.Empty;
 				}
 #else
@@ -149,6 +157,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
+				jsonException = true;
 				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
 				return string.Empty;
 			}
@@ -158,10 +167,12 @@ namespace COMMON
 		/// Deserialize an object to a string
 		/// </summary>
 		/// <param name="settings">The object to deserialize</param>
+		/// <param name="jsonException">Indicate whether an exception occured while processing the json data, set to true if an exception occured during operation, false otherwise</param>
 		/// <param name="addNull">Indicates whether <see langword="null"/>values must be kept or not</param>
 		/// <returns>The desirialized object or null if an error has occurred</returns>
-		public static TSettings Deserialize(string settings, bool addNull = false)
+		public static TSettings Deserialize(string settings, out bool jsonException, bool addNull = false)
 		{
+			jsonException = false;
 #if NET35
 			try
 				{
@@ -169,6 +180,7 @@ namespace COMMON
 				}
 			catch (Exception ex)
 				{
+				jsonException = true;
 				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
 				return default(TSettings);
 				}
@@ -179,6 +191,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
+				jsonException = true;
 				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
 				return default(TSettings);
 			}

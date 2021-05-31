@@ -97,12 +97,10 @@ namespace COMMON
 		/// Write settings of the specified type
 		/// </summary>
 		/// <param name="settings">The settings to write</param>
-		/// <param name="jsonException">Indicate whether an exception occured while processing the json data, set to true if an exception occured during operation, false otherwise</param>
 		/// <param name="addNull">Indicates whether null values must be kept or not when serializing</param>
 		/// <returns>TRUE if the settings have been written, FALSE otherwise</returns>
-		public bool WriteSettings(TSettings settings, out bool jsonException, bool addNull = false)
+		public bool WriteSettings(TSettings settings, bool addNull = false)
 		{
-			jsonException = false;
 			try
 			{
 				// open file and deserialize it
@@ -110,7 +108,7 @@ namespace COMMON
 				{
 					using (StreamWriter writer = new StreamWriter(stream))
 					{
-						string data = Serialize(settings, out jsonException, addNull);
+						string data = Serialize(settings, addNull);
 						writer.Write(data);
 						return true;
 					}
@@ -126,12 +124,10 @@ namespace COMMON
 		/// Serialize a TSettings object
 		/// </summary>
 		/// <param name="settings">The object to serialize</param>
-		/// <param name="jsonException">Indicate whether an exception occured while processing the json data, set to true if an exception occured during operation, false otherwise</param>
 		/// <param name="addNull">Indicates whether <see langword="null"/>values must be kept or not</param>
 		/// <returns></returns>
-		public static string Serialize(TSettings settings, out bool jsonException, bool addNull = false)
+		public static string Serialize(TSettings settings, bool addNull = false)
 		{
-			jsonException = false;
 #if NET35
 			JavaScriptSerializer JsonConvert = new JavaScriptSerializer();
 			try
@@ -143,7 +139,6 @@ namespace COMMON
 				}
 			catch (Exception ex)
 				{
-				jsonException = true;
 				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
 				return string.Empty;
 				}
@@ -157,7 +152,6 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				jsonException = true;
 				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
 				return string.Empty;
 			}

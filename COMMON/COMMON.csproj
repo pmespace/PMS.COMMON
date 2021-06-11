@@ -19,11 +19,11 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\Debug\</OutputPath>
+    <OutputPath>..\Bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\Debug\PMS.COMMON.xml</DocumentationFile>
+    <DocumentationFile>..\Bin\PMS.COMMON.xml</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
     <RegisterForComInterop>true</RegisterForComInterop>
     <NoWarn>
@@ -32,11 +32,11 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\Release\</OutputPath>
+    <OutputPath>..\Bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\Release\PMS.COMMON.xml</DocumentationFile>
+    <DocumentationFile>..\Bin\PMS.COMMON.xml</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
     <RegisterForComInterop>true</RegisterForComInterop>
   </PropertyGroup>

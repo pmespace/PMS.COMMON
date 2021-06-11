@@ -23,14 +23,15 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>..\Release\PMS.COMMON.CORE.xml</DocumentationFile>
+    <DocumentationFile>..\Bin\PMS.COMMON.CORE.xml</DocumentationFile>
     <DefineConstants>TRACE;NETCORE</DefineConstants>
-    <OutputPath>..\Release</OutputPath>
+    <OutputPath>..\Bin\</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;NETCORE</DefineConstants>
-    <OutputPath>..\Debug\</OutputPath>
+    <OutputPath>..\Bin\</OutputPath>
+    <DocumentationFile>..\Bin\PMS.COMMON.CORE.xml</DocumentationFile>
   </PropertyGroup>
 
   <Import Project="..\COMMON_SHARED\COMMON_SHARED.projitems" Label="Shared" />

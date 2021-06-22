@@ -29,14 +29,14 @@ namespace COMMON
 
 		[DispId(60)]
 		EventWaitHandle EventToSignal { get; set; }
-#endregion
+		#endregion
 	}
 	[Guid("A6DA1EAA-A706-4D89-A790-B34710EB2818")]
 	[ClassInterface(ClassInterfaceType.None)]
 	[ComVisible(true)]
 	public class CThreadData : IThreadData
 	{
-#region constructor
+		#region constructor
 		public CThreadData() { }
 		public CThreadData(CThreadData t)
 		{
@@ -52,9 +52,9 @@ namespace COMMON
 #endif
 
 		}
-#endregion
+		#endregion
 
-#region properties
+		#region properties
 		public bool IsValid { get => true; }
 
 #if !NETCORE
@@ -100,9 +100,9 @@ namespace COMMON
 			set => _eventtosignal = value;
 		}
 		private EventWaitHandle _eventtosignal = null;
-#endregion
+		#endregion
 
-#region methods
+		#region methods
 		/// <summary>
 		/// Returns the content of the class
 		/// </summary>
@@ -120,28 +120,6 @@ namespace COMMON
 #endif
 
 		}
-
-//#if !NETCORE
-//		/// <summary>
-//		/// Prepare a structure to use
-//		/// </summary>
-//		/// <param name="hwnd">window to warn</param>
-//		/// <param name="threadstopped">message sent to that window when the thread is stopping</param>
-//		/// <param name="information">message sent to that window when the thread needs to inform of an event</param>
-//		/// <param name="eventOnTerminate">event to signal when the thread terminates</param>
-//		/// <returns>A <see cref="CThreadData"/> object</returns>
-//		public static CThreadData Prepare(IntPtr hwnd, uint threadstopped = WM_THREAD_STOPPED, uint information = WM_THREAD_INFORMATION, EventWaitHandle eventOnTerminate = null)
-//		{
-//			return new CThreadData()
-//			{
-//				WindowToWarn = hwnd,
-//				StoppedMessage = threadstopped,
-//				InformationMessage = information,
-//				EventToSignal = eventOnTerminate,
-//			};
-//		}
-//#endif
-
-#endregion
+		#endregion
 	}
 }

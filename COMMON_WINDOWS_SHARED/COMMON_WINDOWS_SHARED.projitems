@@ -10,5 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)CWin32\Win32.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CWin32\Win32Activity.cs" />
   </ItemGroup>
 </Project>

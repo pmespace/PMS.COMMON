@@ -6,7 +6,7 @@ using System.Xml;
 using System.IO;
 using System;
 
-#if NET35
+#if OLD_NET35
 using System.Linq;
 using System.Web.Script.Serialization;
 using System.Runtime.Serialization.Json;
@@ -128,7 +128,7 @@ namespace COMMON
 		/// <returns></returns>
 		public static string Serialize(TSettings settings, bool addNull = false)
 		{
-#if NET35
+#if OLD_NET35
 			JavaScriptSerializer JsonConvert = new JavaScriptSerializer();
 			try
 				{
@@ -167,7 +167,7 @@ namespace COMMON
 		public static TSettings Deserialize(string settings, out bool jsonException, bool addNull = false)
 		{
 			jsonException = false;
-#if NET35
+#if OLD_NET35
 			try
 				{
 				return new JavaScriptSerializer().Deserialize<TSettings>(settings);
@@ -198,7 +198,7 @@ namespace COMMON
 		/// <returns></returns>
 		private static object Prepare(bool addNull)
 		{
-#if NET35
+#if OLD_NET35
 			return null;
 #else
 			JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings();

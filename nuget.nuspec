@@ -2,18 +2,38 @@
 <package >
   <metadata>
     <id>PMS.COMMON</id>
-    <version>4.1.1</version>
+    <version>5.0.0</version>
     <title>PMS.COMMON</title>
     <authors>philippemp31</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <repository type="git" url="https://github.com/pmespace/PMS.COMMON.git" branch="master" />
     <projectUrl>https://github.com/pmespace/PMS.COMMON/</projectUrl>
-    <description>Shared tools for PMS.CHPN, PMS.NEXO and other projects</description>
+    <description>
+      Shared tools for PMS.CHPN, PMS.NEXOxx and other projects.
+      The package contains:
+      - PMS.COMMON for .NET 4.7 and .NET 5.0
+      - PMS.COMMON35 for .NET 3.5
+      
+      Functions are:
+      - CLog: log file management
+      - CStream: network streams management
+      - CDatabase: ODBC database management
+      - CJson: a lightweight json files management (uses NewtoSoft.Json)
+      - CThread: tools to start threads and be warned when they stop
+      - CMisc: a set of various tools
+      - Win32 tools (except .NET 5.0 package)
+    </description>
     <releaseNotes>
+      5.0.0
+      - Update to CJonConverter to allow start converting XML to JSON from a specific node
+      - Added a function to call when a thread stops (CThread) allowing to warn a calling application
+      - Now use NewtonSoft.Json for .NET 3.5 and .NET 5.0 packages
+      - Added .NET 5.0 package (
+
       4.1.1
       - Small bug fixed in Json management
-      
+
       4.1.0
       - Added an out  boolean parameter to CJson functions indicating whether a Json exception occured during processing
       - When some exceptions occurred they were not logged, this has been fixed
@@ -116,21 +136,30 @@
     <developmentDependency>true</developmentDependency>
     <tags>CHPN NEXO</tags>
     <dependencies>
+      <group targetFramework="net5.0">
+        <dependency id="Newtonsoft.Json" version="13.0.1" exclude="Build,Analyzers" />
+        <dependency id="System.Data.Odbc" version="5.0.0" exclude="Build,Analyzers" />
+      </group>
       <group targetFramework="net47">
-        <dependency id="Newtonsoft.Json" version="13.0.1" />
+        <dependency id="Newtonsoft.Json" version="13.0.1" exclude="Build,Analyzers" />
       </group>
       <group targetFramework="net35">
+        <dependency id="Newtonsoft.Json" version="13.0.1" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>
   <files>
-    <file src=".\Bin\PMS.COMMON.dll" target="lib\net47"></file>
-    <file src=".\Bin\PMS.COMMON.xml" target="lib\net47"></file>
-    <file src=".\Bin\PMS.COMMON.tlb" target="lib\net47"></file>
-    <file src=".\Bin\PMS.COMMON.pdb" target="lib\net47"></file>
+    <file src=".\Bin\net47\PMS.COMMON.dll" target="lib\net47"></file>
+    <file src=".\Bin\net47\PMS.COMMON.xml" target="lib\net47"></file>
+    <file src=".\Bin\net47\PMS.COMMON.tlb" target="lib\net47"></file>
+    <file src=".\Bin\net47\PMS.COMMON.pdb" target="lib\net47"></file>
 
-    <file src=".\Bin\PMS.COMMON35.dll" target="lib\net35"></file>
-    <file src=".\Bin\PMS.COMMON35.xml" target="lib\net35"></file>
-    <file src=".\Bin\PMS.COMMON35.pdb" target="lib\net35"></file>
+    <file src=".\Bin\net35\PMS.COMMON35.dll" target="lib\net35"></file>
+    <file src=".\Bin\net35\PMS.COMMON35.xml" target="lib\net35"></file>
+    <file src=".\Bin\net35\PMS.COMMON35.pdb" target="lib\net35"></file>
+
+    <file src=".\Bin\net5.0\PMS.COMMON.dll" target="lib\net5.0"></file>
+    <file src=".\Bin\net5.0\PMS.COMMON.xml" target="lib\net5.0"></file>
+    <file src=".\Bin\net5.0\PMS.COMMON.pdb" target="lib\net5.0"></file>
   </files>
 </package>

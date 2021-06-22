@@ -1,5 +1,5 @@
-﻿using System.Runtime.InteropServices;
-using System;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace COMMON
 {
@@ -61,5 +61,6 @@ namespace COMMON
 			catch (Exception) { }
 			return IntPtr.Zero;
 		}
+
 	}
 }

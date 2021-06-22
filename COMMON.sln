@@ -50,7 +50,9 @@ Global
 		{3E5BAF1A-A375-47CB-94F4-E170E98B62F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3E5BAF1A-A375-47CB-94F4-E170E98B62F2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0F1AB1EC-DAF2-4F28-8FE2-AB1FDF6D18EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F1AB1EC-DAF2-4F28-8FE2-AB1FDF6D18EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F1AB1EC-DAF2-4F28-8FE2-AB1FDF6D18EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F1AB1EC-DAF2-4F28-8FE2-AB1FDF6D18EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

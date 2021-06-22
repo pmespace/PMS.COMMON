@@ -19,11 +19,11 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\Bin\</OutputPath>
+    <OutputPath>..\Bin\net47\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\Bin\PMS.COMMON.xml</DocumentationFile>
+    <DocumentationFile>..\Bin\net47\PMS.COMMON.xml</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
     <RegisterForComInterop>true</RegisterForComInterop>
     <NoWarn>
@@ -32,11 +32,11 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\Bin\</OutputPath>
+    <OutputPath>..\Bin\Net47\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\Bin\PMS.COMMON.xml</DocumentationFile>
+    <DocumentationFile>..\Bin\Net47\PMS.COMMON.xml</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
     <RegisterForComInterop>true</RegisterForComInterop>
   </PropertyGroup>
@@ -49,6 +49,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />

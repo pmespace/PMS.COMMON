@@ -1,6 +1,7 @@
 ﻿Imports System.Data.OleDb
 Imports System.IO
 Imports System.Text
+Imports System.Threading
 Imports System.Xml
 Imports System.Xml.Serialization
 Imports COMMON
@@ -13,6 +14,7 @@ Public Class FTestCommon
 	Private Const DISCONNECT As String = "Disconnect database"
 	Private DbM As New CDatabaseTableManager
 	Private DataTable As DataTable
+	Private myThread As CThread
 
 	Private Sub FTestCommon_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 		json.FileName = "testcommon.settings.json"
@@ -235,6 +237,28 @@ Public Class FTestCommon
 
 	Private Sub pbNbRows_Click(sender As Object, e As EventArgs) Handles pbNbRows.Click
 		lblTableNbRows.Text = database.NbRows(efTableName.Text)
+	End Sub
+
+	Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
+		myThread = New CThread
+		myThread.Start(AddressOf ThreadFunction, Nothing, Nothing, Nothing, True, AddressOf ThreadHasEnded)
+	End Sub
+
+	Private Sub UIProcessing(activity As CWin32Activity)
+		Select Case activity.Evt
+			Case ActivityEnum.message
+				lblMessage.Text = activity.Message
+		End Select
+	End Sub
+
+	Private Function ThreadFunction(data As CThreadData, o As Object)
+		Win32Activity.AddActivity(AddressOf UIProcessing, New CWin32Activity With {.Evt = ActivityEnum.message, .Message = "Hello world", .Ctrl = Button2})
+		Thread.Sleep(5000)
+		Return ThreadResult.OK
+	End Function
+
+	Private Sub ThreadHasEnded(id As Integer, name As String, uniqueId As Int16, result As Integer)
+		Win32Activity.AddActivity(AddressOf UIProcessing, New CWin32Activity With {.Evt = ActivityEnum.message, .Message = "This is the end", .Ctrl = Button2})
 	End Sub
 
 End Class

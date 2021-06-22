@@ -6,7 +6,7 @@ using System.Xml;
 using System.IO;
 using System;
 
-#if NET35
+#if OLD_NET35
 using System.Linq;
 using System.Web.Script.Serialization;
 using System.Runtime.Serialization.Json;
@@ -17,6 +17,9 @@ using Newtonsoft.Json;
 
 namespace COMMON
 {
+	/// <summary>
+	/// 
+	/// </summary>
 	[ComVisible(false)]
 	public static class CJsonConverter
 	{
@@ -25,8 +28,11 @@ namespace COMMON
 		/// Converts a JSON to an XML representation
 		/// </summary>
 		/// <param name="json">The JSON string to convert</param>
+		/// <param name="root">The starting node to use when converting from xml to json</param>
+		/// <param name="writeArrayAttribute">[NewtonSoft.Json] This attribute helps preserve arrays when converting the written XML back to JSON</param>
+		/// <param name="encodeSpecialCharacters">[NewtonSoft.Json] A value to indicate whether to encode special characters when converting JSON to XML</param>
 		/// <returns>The XML produced from the JSON string, or an empty string if an error has occurred. This is required for non .NET 3.5 builds</returns>
-		public static string JsonToXML(string json)
+		public static string JsonToXML(string json, string root = null, bool writeArrayAttribute = true, bool encodeSpecialCharacters = false)
 		{
 			if (!string.IsNullOrEmpty(json))
 			{
@@ -35,11 +41,11 @@ namespace COMMON
 				try
 				{
 
-#if NET35
+#if OLD_NET35
 					doc.Load(JsonReaderWriterFactory.CreateJsonReader(Encoding.UTF8.GetBytes(json), new XmlDictionaryReaderQuotas()));
 #else
 					// convert to XML
-					doc = JsonConvert.DeserializeXmlNode(json, string.Empty, true);
+					doc = JsonConvert.DeserializeXmlNode(json, root, writeArrayAttribute, encodeSpecialCharacters);
 #endif
 
 					// get the XML in a string
@@ -65,7 +71,7 @@ namespace COMMON
 					// try to load the XML into a XML document
 					doc.LoadXml(xml);
 
-#if NET35
+#if OLD_NET35
 					var json = new JavaScriptSerializer().Serialize(GetXmlData(XElement.Parse(xml)));
 #else
 					// arrived here the XML document has been created, serialize it to JSON
@@ -78,7 +84,7 @@ namespace COMMON
 			return string.Empty;
 		}
 
-#if NET35
+#if OLD_NET35
 		private static Dictionary<string, object> GetXmlData(XElement xml)
 			{
 			var attr = xml.Attributes().ToDictionary(d => d.Name.LocalName, d => (object)d.Value);

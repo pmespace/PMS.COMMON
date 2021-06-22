@@ -53,9 +53,10 @@ Partial Class FTestCommon
 		Me.TableLayoutPanel4 = New System.Windows.Forms.TableLayoutPanel()
 		Me.lblTableNbRows = New System.Windows.Forms.Label()
 		Me.pbNbRows = New System.Windows.Forms.Button()
-		Me.DataGridView1 = New System.Windows.Forms.DataGridView()
 		Me.FlowLayoutPanel1 = New System.Windows.Forms.FlowLayoutPanel()
 		Me.Button2 = New System.Windows.Forms.Button()
+		Me.DataGridView1 = New System.Windows.Forms.DataGridView()
+		Me.lblMessage = New System.Windows.Forms.Label()
 		Me.pnlMain.SuspendLayout()
 		Me.TableLayoutPanel1.SuspendLayout()
 		Me.TabControl1.SuspendLayout()
@@ -66,8 +67,8 @@ Partial Class FTestCommon
 		Me.pnlSQL.SuspendLayout()
 		Me.TableLayoutPanel3.SuspendLayout()
 		Me.TableLayoutPanel4.SuspendLayout()
-		CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).BeginInit()
 		Me.FlowLayoutPanel1.SuspendLayout()
+		CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).BeginInit()
 		Me.SuspendLayout()
 		'
 		'pnlMain
@@ -485,22 +486,12 @@ Partial Class FTestCommon
 		Me.pbNbRows.Text = "Nb"
 		Me.pbNbRows.UseVisualStyleBackColor = True
 		'
-		'DataGridView1
-		'
-		Me.DataGridView1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-			Or System.Windows.Forms.AnchorStyles.Left) _
-			Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-		Me.DataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-		Me.DataGridView1.Location = New System.Drawing.Point(3, 178)
-		Me.DataGridView1.Name = "DataGridView1"
-		Me.DataGridView1.Size = New System.Drawing.Size(714, 221)
-		Me.DataGridView1.TabIndex = 0
-		'
 		'FlowLayoutPanel1
 		'
 		Me.FlowLayoutPanel1.AutoSize = True
 		Me.FlowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
 		Me.FlowLayoutPanel1.Controls.Add(Me.Button2)
+		Me.FlowLayoutPanel1.Controls.Add(Me.lblMessage)
 		Me.FlowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
 		Me.FlowLayoutPanel1.Location = New System.Drawing.Point(3, 137)
 		Me.FlowLayoutPanel1.Name = "FlowLayoutPanel1"
@@ -513,8 +504,29 @@ Partial Class FTestCommon
 		Me.Button2.Name = "Button2"
 		Me.Button2.Size = New System.Drawing.Size(75, 23)
 		Me.Button2.TabIndex = 0
-		Me.Button2.Text = "Button2"
+		Me.Button2.Text = "Thread"
 		Me.Button2.UseVisualStyleBackColor = True
+		'
+		'DataGridView1
+		'
+		Me.DataGridView1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+			Or System.Windows.Forms.AnchorStyles.Left) _
+			Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+		Me.DataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+		Me.DataGridView1.Location = New System.Drawing.Point(3, 178)
+		Me.DataGridView1.Name = "DataGridView1"
+		Me.DataGridView1.Size = New System.Drawing.Size(714, 221)
+		Me.DataGridView1.TabIndex = 0
+		'
+		'lblMessage
+		'
+		Me.lblMessage.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+		Me.lblMessage.AutoSize = True
+		Me.lblMessage.Location = New System.Drawing.Point(84, 8)
+		Me.lblMessage.Name = "lblMessage"
+		Me.lblMessage.Size = New System.Drawing.Size(39, 13)
+		Me.lblMessage.TabIndex = 1
+		Me.lblMessage.Text = "Label5"
 		'
 		'FTestCommon
 		'
@@ -543,8 +555,9 @@ Partial Class FTestCommon
 		Me.TableLayoutPanel3.PerformLayout()
 		Me.TableLayoutPanel4.ResumeLayout(False)
 		Me.TableLayoutPanel4.PerformLayout()
-		CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).EndInit()
 		Me.FlowLayoutPanel1.ResumeLayout(False)
+		Me.FlowLayoutPanel1.PerformLayout()
+		CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).EndInit()
 		Me.ResumeLayout(False)
 		Me.PerformLayout()
 
@@ -584,4 +597,5 @@ Partial Class FTestCommon
 	Friend WithEvents lblTableNbRows As Label
 	Friend WithEvents FlowLayoutPanel1 As FlowLayoutPanel
 	Friend WithEvents Button2 As Button
+	Friend WithEvents lblMessage As Label
 End Class

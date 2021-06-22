@@ -8,13 +8,16 @@
     <Product>PMS.COMMON.CORE</Product>
     <Description>Common library for .NET CORE</Description>
     <Copyright>PMS 2021</Copyright>
-    <AssemblyVersion>4.1.1</AssemblyVersion>
-    <Version>4.1.1</Version>
-    <FileVersion>4.1.1</FileVersion>
+    <AssemblyVersion>5.0.0</AssemblyVersion>
+    <Version>5.0.0</Version>
+    <FileVersion>5.0.0</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyName>PMS.COMMON.CORE</AssemblyName>
+    <AssemblyName>PMS.COMMON</AssemblyName>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>4.0.0
+    <PackageReleaseNotes>4.2.0
+- Update to CJonConverter to allow start converting XML to JSON from a specific node
+
+4.0.0
 - First .NET CORE version</PackageReleaseNotes>
     <PackageIcon></PackageIcon>
     <SignAssembly>false</SignAssembly>
@@ -23,15 +26,15 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>..\Bin\PMS.COMMON.CORE.xml</DocumentationFile>
+    <DocumentationFile>..\Bin\net5.0\PMS.COMMON.xml</DocumentationFile>
     <DefineConstants>TRACE;NETCORE</DefineConstants>
-    <OutputPath>..\Bin\</OutputPath>
+    <OutputPath>..\Bin</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;NETCORE</DefineConstants>
-    <OutputPath>..\Bin\</OutputPath>
-    <DocumentationFile>..\Bin\PMS.COMMON.CORE.xml</DocumentationFile>
+    <OutputPath>..\Bin</OutputPath>
+    <DocumentationFile>..\Bin\net5.0\PMS.COMMON.xml</DocumentationFile>
   </PropertyGroup>
 
   <Import Project="..\COMMON_SHARED\COMMON_SHARED.projitems" Label="Shared" />

@@ -28,7 +28,7 @@ namespace COMMON
 		/// Converts a JSON to an XML representation
 		/// </summary>
 		/// <param name="json">The JSON string to convert</param>
-		/// <param name="root">The starting node to use when converting from xml to json</param>
+		/// <param name="root">The starting node name to use when converting from xml to json</param>
 		/// <param name="writeArrayAttribute">[NewtonSoft.Json] This attribute helps preserve arrays when converting the written XML back to JSON</param>
 		/// <param name="encodeSpecialCharacters">[NewtonSoft.Json] A value to indicate whether to encode special characters when converting JSON to XML</param>
 		/// <returns>The XML produced from the JSON string, or an empty string if an error has occurred. This is required for non .NET 3.5 builds</returns>

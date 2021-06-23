@@ -178,7 +178,41 @@ Public Class FTestCommon
 		Public Property connect As ConnectReplyData
 	End Class
 
+	Class C
+		Public Property A As Integer = 3
+		Public Property B As Integer = 3
+		Public Property C As Integer = 3
+	End Class
+
+	Class B
+		Public Property A As Integer = 2
+		Public Property B As Integer = 2
+		Public Property C As Integer = 2
+		Public Property CC As C = New C
+	End Class
+
+	Class A
+		Public Property A As Integer = 1
+		Public Property B As Integer = 1
+		Public Property C As Integer = 1
+		Public Property CB As B = New B
+	End Class
+
+	Class X
+		Public Property CA As A = New A
+	End Class
+
 	Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+		'Dim a As X = New X
+		'Dim xml As XmlDocument = JsonConvert.DeserializeXmlNode(JsonConvert.SerializeObject(a))
+		'Dim json As String = CJsonConverter.XMLToJson(xml.InnerXml)
+		'Dim xmlj As String = CJsonConverter.JsonToXML(json, "CA")
+		'xmlj = CJsonConverter.JsonToXML(json, "CB")
+		'xmlj = CJsonConverter.JsonToXML(json, "CC")
+
+		'*****
+		'this function is only for use within special conditions and dedicated telco
+		'*****
 		lblResult.Visible = False
 		lblResult.Text = "KO"
 		'create the XML request
@@ -188,6 +222,7 @@ Public Class FTestCommon
 		request.connect.password = "AThenes2004"
 		request.connect.port = 2018
 		Dim xml As XmlDocument = JsonConvert.DeserializeXmlNode(JsonConvert.SerializeObject(request))
+
 		Dim clientSettings As New CStreamClientSettings() With
 			{
 			.IP = "194.50.38.6",

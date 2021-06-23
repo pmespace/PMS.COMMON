@@ -26,10 +26,9 @@
     </description>
     <releaseNotes>
       5.0.0
-      - Update to CJonConverter to allow start converting XML to JSON from a specific node
-      - Added a function to call when a thread stops (CThread) allowing to warn a calling application
-      - Now use NewtonSoft.Json for .NET 3.5 and .NET 5.0 packages
-      - Added .NET 5.0 package (
+      - Added .NET 5.0 package
+      - Now use NewtonSoft.Json for all packages (including .NET 3.5)
+      - Added a function to call when a thread stops (CThread) allowing to warn a calling application (especially useful for .NET 5.0 with no UI interface
 
       4.1.1
       - Small bug fixed in Json management

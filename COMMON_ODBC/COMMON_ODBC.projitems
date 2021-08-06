@@ -3,13 +3,12 @@
   <PropertyGroup>
     <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
     <HasSharedItems>true</HasSharedItems>
-    <SharedGUID>17fcbe0e-34f3-4b4c-a0a1-882fd3e0a062</SharedGUID>
+    <SharedGUID>ff85ac31-5139-4dc2-b573-1ebee353a1d9</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>COMMON_WINDOWS_SHARED</Import_RootNamespace>
+    <Import_RootNamespace>COMMON_ODBC</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)CWin32\Win32.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)CWin32\Win32Activity.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CDatabase.cs" />
   </ItemGroup>
 </Project>

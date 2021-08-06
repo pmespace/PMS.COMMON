@@ -1,10 +1,12 @@
-﻿Imports System.Data.OleDb
+﻿Imports System.Data.Odbc
 Imports System.IO
 Imports System.Text
 Imports System.Threading
 Imports System.Xml
 Imports System.Xml.Serialization
 Imports COMMON
+Imports COMMON.ODBC
+Imports COMMON.WIN32
 Imports Newtonsoft.Json
 
 Public Class FTestCommon
@@ -15,6 +17,7 @@ Public Class FTestCommon
 	Private DbM As New CDatabaseTableManager
 	Private DataTable As DataTable
 	Private myThread As CThread
+	Private myEvent As AutoResetEvent = New AutoResetEvent(False)
 
 	Private Sub FTestCommon_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 		json.FileName = "testcommon.settings.json"
@@ -119,7 +122,7 @@ Public Class FTestCommon
 		'End If
 	End Sub
 
-	Private Function Feed(reader As Odbc.OdbcDataReader) As String
+	Private Function Feed(reader As OdbcDataReader) As String
 		Return CDatabase.ItemValue(Of String)(reader, "IP")
 	End Function
 
@@ -276,24 +279,24 @@ Public Class FTestCommon
 
 	Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
 		myThread = New CThread
-		myThread.Start(AddressOf ThreadFunction, Nothing, Nothing, Nothing, True, AddressOf ThreadHasEnded)
+		myThread.Start(AddressOf ThreadFunction, New CThreadData With {.EventToSignal = myEvent}, Nothing, Nothing, True, AddressOf ThreadHasEnded)
 	End Sub
 
-	Private Sub UIProcessing(activity As CWin32Activity)
+	Private Sub UIProcessing(activity As UIActivity)
 		Select Case activity.Evt
-			Case ActivityEnum.message
+			Case UIActivityEnum.message
 				lblMessage.Text = activity.Message
 		End Select
 	End Sub
 
 	Private Function ThreadFunction(data As CThreadData, o As Object)
-		Win32Activity.AddActivity(AddressOf UIProcessing, New CWin32Activity With {.Evt = ActivityEnum.message, .Message = "Hello world", .Ctrl = Button2})
+		Win32UIActivity.AddActivity(AddressOf UIProcessing, New UIActivity With {.Evt = UIActivityEnum.message, .Message = "Hello world", .Ctrl = Button2})
 		Thread.Sleep(5000)
 		Return ThreadResult.OK
 	End Function
 
 	Private Sub ThreadHasEnded(id As Integer, name As String, uniqueId As Int16, result As Integer)
-		Win32Activity.AddActivity(AddressOf UIProcessing, New CWin32Activity With {.Evt = ActivityEnum.message, .Message = "This is the end", .Ctrl = Button2})
+		Win32UIActivity.AddActivity(AddressOf UIProcessing, New UIActivity With {.Evt = UIActivityEnum.message, .Message = "This is the end", .Ctrl = Button2})
 	End Sub
 
 End Class

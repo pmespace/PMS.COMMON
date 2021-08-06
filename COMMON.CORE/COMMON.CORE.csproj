@@ -4,48 +4,53 @@
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>COMMON</RootNamespace>
     <PackageId>PMS.COMMON.CORE</PackageId>
-    <Authors>PMS</Authors>
-    <Product>PMS.COMMON.CORE</Product>
-    <Description>Common library for .NET CORE</Description>
-    <Copyright>PMS 2021</Copyright>
-    <AssemblyVersion>5.0.0</AssemblyVersion>
-    <Version>5.0.0</Version>
-    <FileVersion>5.0.0</FileVersion>
+    <Authors>philippemp31</Authors>
+    <Product>PMS.COMMON.CORE .NET 5.0</Product>
+    <Description>PMS.COMMON.CORE .NET 5.0</Description>
+    <Copyright>PMS - philippemp31@outlook.com - 2021</Copyright>
+    <AssemblyVersion>5.1.0</AssemblyVersion>
+    <Version>5.1.0</Version>
+    <FileVersion>5.1.0</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyName>PMS.COMMON</AssemblyName>
+    <AssemblyName>PMS.COMMON.CORE</AssemblyName>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>4.2.0
-- Update to CJonConverter to allow start converting XML to JSON from a specific node
-
-4.0.0
-- First .NET CORE version</PackageReleaseNotes>
+    <PackageReleaseNotes>Refer to PMS.COMMON</PackageReleaseNotes>
     <PackageIcon></PackageIcon>
     <SignAssembly>false</SignAssembly>
-    <Company>PMS</Company>
-    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+    <Company>philippemp31</Company>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/pmespace/PMS.COMMON</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/pmespace/PMS.COMMON</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>..\Bin\net5.0\PMS.COMMON.xml</DocumentationFile>
+    <DocumentationFile>..\bin\PMS.COMMON.CORE.xml</DocumentationFile>
     <DefineConstants>TRACE;NETCORE</DefineConstants>
-    <OutputPath>..\Bin</OutputPath>
+    <OutputPath>..\bin\</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;NETCORE</DefineConstants>
-    <OutputPath>..\Bin</OutputPath>
-    <DocumentationFile>..\Bin\net5.0\PMS.COMMON.xml</DocumentationFile>
+    <DefineConstants>DEBUG;TRACE;NETCORE</DefineConstants>
+    <OutputPath>..\bin\</OutputPath>
+    <DocumentationFile>..\bin\PMS.COMMON.CORE.xml</DocumentationFile>
   </PropertyGroup>
 
   <Import Project="..\COMMON_SHARED\COMMON_SHARED.projitems" Label="Shared" />
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="System.Data.Odbc" Version="5.0.0" />
   </ItemGroup>
 
+  <!--
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="rem copy $(TargetDir)..\*.nupkg $(SolutionDir)Nuget" />
+    <Exec Command="copy /y $(OutDir)..\$(TargetName)*.nupkg $(SolutionDir)..\nuget\test" />
+  </Target>
+-->
+
+  <Target Name="CopyPackage" AfterTargets="Pack">
+    <Copy SourceFiles="$(OutputPath)..\$(PackageId).$(PackageVersion).nupkg" DestinationFolder="$(SolutionDir)..\nuget\test" />
   </Target>
 
 </Project>

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>PMS.COMMON</id>
-    <version>5.0.0</version>
+    <version>5.1.0</version>
     <title>PMS.COMMON</title>
     <authors>philippemp31</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -12,19 +12,22 @@
     <description>
       Shared tools for PMS.CHPN, PMS.NEXOxx and other projects.
       The package contains:
-      - PMS.COMMON for .NET 4.7 and .NET 5.0
+      - PMS.COMMON for .NET 4.7
       - PMS.COMMON35 for .NET 3.5
-      
+
       Functions are:
       - CLog: log file management
       - CStream: network streams management
-      - CDatabase: ODBC database management
       - CJson: a lightweight json files management (uses NewtoSoft.Json)
       - CThread: tools to start threads and be warned when they stop
       - CMisc: a set of various tools
-      - Win32 tools (except .NET 5.0 package)
+      - CDatabase: ODBC database management wrapper
+      - Win32 tools
     </description>
     <releaseNotes>
+      5.1.0
+      - Update to architecture
+
       5.0.0
       - Added .NET 5.0 package
       - Now use NewtonSoft.Json for all packages (including .NET 3.5)
@@ -131,14 +134,10 @@
       1.0.0
       - Creation
     </releaseNotes>
-    <copyright>PMS - philippemp31 at outlook dot com</copyright>
+    <copyright>PMS - philippemp31@outlook.com - 2020</copyright>
     <developmentDependency>true</developmentDependency>
     <tags>CHPN NEXO</tags>
     <dependencies>
-      <group targetFramework="net5.0">
-        <dependency id="Newtonsoft.Json" version="13.0.1" exclude="Build,Analyzers" />
-        <dependency id="System.Data.Odbc" version="5.0.0" exclude="Build,Analyzers" />
-      </group>
       <group targetFramework="net47">
         <dependency id="Newtonsoft.Json" version="13.0.1" exclude="Build,Analyzers" />
       </group>
@@ -148,17 +147,13 @@
     </dependencies>
   </metadata>
   <files>
-    <file src=".\Bin\net47\PMS.COMMON.dll" target="lib\net47"></file>
-    <file src=".\Bin\net47\PMS.COMMON.xml" target="lib\net47"></file>
-    <file src=".\Bin\net47\PMS.COMMON.tlb" target="lib\net47"></file>
-    <file src=".\Bin\net47\PMS.COMMON.pdb" target="lib\net47"></file>
+    <file src=".\bin\net47\PMS.COMMON.dll" target="lib\net47"></file>
+    <file src=".\bin\net47\PMS.COMMON.xml" target="lib\net47"></file>
+    <file src=".\bin\net47\PMS.COMMON.tlb" target="lib\net47"></file>
+    <file src=".\bin\net47\PMS.COMMON.pdb" target="lib\net47"></file>
 
-    <file src=".\Bin\net35\PMS.COMMON35.dll" target="lib\net35"></file>
-    <file src=".\Bin\net35\PMS.COMMON35.xml" target="lib\net35"></file>
-    <file src=".\Bin\net35\PMS.COMMON35.pdb" target="lib\net35"></file>
-
-    <file src=".\Bin\net5.0\PMS.COMMON.dll" target="lib\net5.0"></file>
-    <file src=".\Bin\net5.0\PMS.COMMON.xml" target="lib\net5.0"></file>
-    <file src=".\Bin\net5.0\PMS.COMMON.pdb" target="lib\net5.0"></file>
+    <file src=".\bin\net35\PMS.COMMON35.dll" target="lib\net35"></file>
+    <file src=".\bin\net35\PMS.COMMON35.xml" target="lib\net35"></file>
+    <file src=".\bin\net35\PMS.COMMON35.pdb" target="lib\net35"></file>
   </files>
 </package>

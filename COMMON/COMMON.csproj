@@ -19,11 +19,11 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\Bin\net47\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <OutputPath>..\bin\net47\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NETFRAMEWORK</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\Bin\net47\PMS.COMMON.xml</DocumentationFile>
+    <DocumentationFile>..\bin\net47\PMS.COMMON.xml</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
     <RegisterForComInterop>true</RegisterForComInterop>
     <NoWarn>
@@ -32,11 +32,11 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\Bin\Net47\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <OutputPath>..\bin\net47\</OutputPath>
+    <DefineConstants>TRACE;NETFRAMEWORK</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\Bin\Net47\PMS.COMMON.xml</DocumentationFile>
+    <DocumentationFile>..\bin\net47\PMS.COMMON.xml</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
     <RegisterForComInterop>true</RegisterForComInterop>
   </PropertyGroup>
@@ -64,7 +64,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="..\COMMON_SHARED\COMMON_SHARED.projitems" Label="Shared" />
-  <Import Project="..\COMMON_WINDOWS_SHARED\COMMON_WINDOWS_SHARED.projitems" Label="Shared" />
+  <Import Project="..\COMMON_ODBC\COMMON_ODBC.projitems" Label="Shared" />
+  <Import Project="..\COMMON_WIN32\COMMON_WIN32.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

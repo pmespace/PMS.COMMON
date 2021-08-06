@@ -26,11 +26,11 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\Bin\net35\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET35</DefineConstants>
+    <OutputPath>..\bin\net35\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET35;NETFRAMEWORK</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\Bin\net35\PMS.COMMON35.xml</DocumentationFile>
+    <DocumentationFile>..\bin\net35\PMS.COMMON35.xml</DocumentationFile>
     <NoWarn>
     </NoWarn>
     <RegisterForComInterop>false</RegisterForComInterop>
@@ -38,11 +38,11 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\Bin\Net35\</OutputPath>
-    <DefineConstants>TRACE;NET35</DefineConstants>
+    <OutputPath>..\bin\net35\</OutputPath>
+    <DefineConstants>TRACE;NET35;NETFRAMEWORK</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\Bin\Net35\PMS.COMMON35.xml</DocumentationFile>
+    <DocumentationFile>..\bin\net35\PMS.COMMON35.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -66,6 +66,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="..\COMMON_SHARED\COMMON_SHARED.projitems" Label="Shared" />
-  <Import Project="..\COMMON_WINDOWS_SHARED\COMMON_WINDOWS_SHARED.projitems" Label="Shared" />
+  <Import Project="..\COMMON_WIN32\COMMON_WIN32.projitems" Label="Shared" />
+  <Import Project="..\COMMON_ODBC\COMMON_ODBC.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

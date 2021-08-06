@@ -4,9 +4,13 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Data.Odbc;
 using System.Data;
+using System.Text.RegularExpressions;
 
-namespace COMMON
+namespace COMMON.ODBC
 {
+	/// <summary>
+	/// ODBC database wrapper
+	/// </summary>
 	[ComVisible(false)]
 	public abstract class CDatabaseBase
 	{
@@ -22,7 +26,8 @@ namespace COMMON
 		public OdbcConnection Database { get => _dbconnection; private set => _dbconnection = value; }
 		private OdbcConnection _dbconnection = new OdbcConnection();
 		/// <summary>
-		/// ConnectionString string to connect to the database
+		/// ConnectionString string to connect to the ODBC database
+		/// This must be an ODBC string (DSN=...)
 		/// </summary>
 		public string ConnectionString
 		{
@@ -67,7 +72,7 @@ namespace COMMON
 		/// <summary>
 		/// Manage the connection state and behaviour
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>True is connected, false otherwise</returns>
 		private bool DoConnect()
 		{
 			try
@@ -94,7 +99,7 @@ namespace COMMON
 		/// <summary>
 		/// Disconnect from the database
 		/// </summary>
-		/// <returns><see langword="true"/>if disconnected, false otherwise</returns>
+		/// <returns>True if disconnected, false otherwise</returns>
 		private bool DoDisconnect()
 		{
 			if (IsOpen)
@@ -116,8 +121,8 @@ namespace COMMON
 		#region methods
 		/// <summary>
 		/// Return the value to use to test TRUE in SQL
-		/// (ACCESS has a different way to use these values)
-		/// That function MUST NOT be used to feed an <see cref="OdbcParameter"/>
+		/// - ACCESS has a different way to use these values, this method takes care of it
+		/// - That function MUST NOT be used to feed an <see cref="OdbcParameter"/> but only a SQL string
 		/// </summary>
 		/// <returns>The appropriate value if successfull, null otherwise</returns>
 		public string TRUE()
@@ -126,8 +131,8 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Return the value to use to test FALSE in SQL
-		/// - ACCESS has a different way to use these values
-		/// That function MUST NOT be used to feed an <see cref="OdbcParameter"/>
+		/// - ACCESS has a different way to use these values, this method takes care of it
+		/// - That function MUST NOT be used to feed an <see cref="OdbcParameter"/> but only a SQL string
 		/// </summary>
 		/// <returns>The appropriate value if successfull, null otherwise</returns>
 		public string FALSE()
@@ -136,8 +141,8 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Return the value to use to test TRUE in SQL
-		/// - ACCESS has a different way to use these values
-		/// That function MUST NOT be used to feed an <see cref="OdbcParameter"/>
+		/// - ACCESS has a different way to use these values, this method takes care of it
+		/// - That function MUST NOT be used to feed an <see cref="OdbcParameter"/> but only a SQL string
 		/// </summary>
 		/// <param name="db">The database to use</param>
 		/// <returns>The appropriate value if successfull, null otherwise</returns>
@@ -147,8 +152,8 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Return the value to use to test TRUE in SQL
-		/// (ACCESS has a different way to use these values)
-		/// That function MUST NOT be used to feed an <see cref="OdbcParameter"/>
+		/// - ACCESS has a different way to use these values, this method takes care of it
+		/// - That function MUST NOT be used to feed an <see cref="OdbcParameter"/> but only a SQL string
 		/// </summary>
 		/// <param name="db">The database to use</param>
 		/// <returns>The appropriate value if successfull, null otherwise</returns>
@@ -158,8 +163,8 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Return the value to use to test TRUE or FALSE
-		/// - ACCESS has a different way to use these values
-		/// That function MUST NOT be used to feed an <see cref="OdbcParameter"/>
+		/// - ACCESS has a different way to use these values, this method takes care of it
+		/// - That function MUST NOT be used to feed an <see cref="OdbcParameter"/> but only a SQL string
 		/// </summary>
 		/// <param name="db">The database to use</param>
 		/// <param name="value">The value to set</param>
@@ -180,7 +185,7 @@ namespace COMMON
 			return null;
 		}
 		/// <summary>
-		/// Make sure the "=true" and "=false"
+		/// Make sure the "=true" and "=false" is right inside a SQL string
 		/// </summary>
 		/// <param name="sql"></param>
 		/// <returns></returns>
@@ -188,12 +193,26 @@ namespace COMMON
 		{
 			return TryToFixTrueFalseTesting(Database, sql);
 		}
+		/// <summary>
+		/// This function will try to make sure the "= true" or "= false" tests are correctly formatted according to the database being used
+		/// </summary>
+		/// <param name="db">The database being used</param>
+		/// <param name="sql">The SQG string to amend</param>
+		/// <returns>A new SQL string to use</returns>
 		public static string TryToFixTrueFalseTesting(OdbcConnection db, string sql)
 		{
+			// replace all "=<any number of whites spaces>true (or) false" to build = true (or) = false"
+			string pattern = @"=\s{2,}true";
+			Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
+			sql = regex.Replace(sql, "=true");
+			pattern = pattern.Replace("true", "false");
+			regex = new Regex(pattern, RegexOptions.IgnoreCase);
+			sql = regex.Replace(sql, "=false");
+			// replace comparisons with a valid one according to the database
 			return sql.Replace("=true", $"={TRUE(db)}", StringComparison.OrdinalIgnoreCase).Replace("=false", $"={FALSE(db)}", StringComparison.OrdinalIgnoreCase).Replace("= false", $"={FALSE(db)}", StringComparison.OrdinalIgnoreCase).Replace("= true", $"={TRUE(db)}", StringComparison.OrdinalIgnoreCase);
 		}
 		/// <summary>
-		/// Identifies an ACCESS database
+		/// Identifies where the database is an ACCESS one or not
 		/// </summary>
 		/// <param name="db"></param>
 		/// <returns>True if ACCESS, false otherwise</returns>

@@ -3,6 +3,10 @@ using System.Reflection;
 using System.Threading;
 using System;
 
+#if NETFRAMEWORK
+using COMMON.WIN32;
+#endif
+
 namespace COMMON
 {
 	[ComVisible(true)]
@@ -30,8 +34,8 @@ namespace COMMON
 		int UniqueID { get; }
 		[DispId(5004)]
 		int NoThread { get; }
-		[DispId(5006)]
-		int FinalDelayWhenThreadTerminates { get; set; }
+		//[DispId(5006)]
+		//int FinalDelayWhenThreadTerminates { get; set; }
 		[DispId(5007)]
 		Thread Thread { get; }
 		[DispId(5008)]
@@ -47,7 +51,7 @@ namespace COMMON
 
 		[DispId(5100)]
 		bool Wait(int timer = Timeout.Infinite);
-#if !NETCORE
+#if NETFRAMEWORK
 		[DispId(5101)]
 		void SendNotification(int value, bool stopped);
 #endif
@@ -102,16 +106,18 @@ namespace COMMON
 		public int UniqueID { get => null != Thread ? Thread.ManagedThreadId : NO_THREAD; }
 		public const int NO_THREAD = 0;
 		public int NoThread { get => NO_THREAD; }
-		/// <summary>
-		/// Timer to hold thread waiting for 
-		/// </summary>
-		public int FinalDelayWhenThreadTerminates
-		{
-			get => _finaldelaywhenthreadterminates;
-			set => _finaldelaywhenthreadterminates = 0 == value ? DEFAULT_FINAL_DELAY_WHEN_THREAD_TERMINATES : value;
-		}
-		private int _finaldelaywhenthreadterminates = DEFAULT_FINAL_DELAY_WHEN_THREAD_TERMINATES;
-		private const int DEFAULT_FINAL_DELAY_WHEN_THREAD_TERMINATES = 5;
+		///// <summary>
+		///// Timer to wait for when the thread is about to terminate, expressed in milliseconds
+		///// The thread terminated event is sent after this timer has gone
+		///// </summary>
+		//public int FinalDelayWhenThreadTerminates
+		//{
+		//	get => _finaldelaywhenthreadterminates;
+		//	set => _finaldelaywhenthreadterminates = 0 == value ? DEFAULT_FINAL_DELAY_WHEN_THREAD_TERMINATES : value;
+		//}
+		//private int _finaldelaywhenthreadterminates = DEFAULT_FINAL_DELAY_WHEN_THREAD_TERMINATES;
+		//private const int DEFAULT_FINAL_DELAY_WHEN_THREAD_TERMINATES = 5;
+
 		/// <summary>
 		/// The thread object itself
 		/// </summary>
@@ -223,8 +229,8 @@ namespace COMMON
 		{
 			if (Events.WaitStopped())
 			{
-				// give time to the thread to actually terminate
-				Thread.Sleep(FinalDelayWhenThreadTerminates);
+				//// give time to the thread to actually terminate
+				//Thread.Sleep(FinalDelayWhenThreadTerminates);
 				return true;
 			}
 			return false;
@@ -259,7 +265,7 @@ namespace COMMON
 			if (null != ThreadData && null != ThreadData.EventToSignal)
 				ThreadData.EventToSignal.Set();
 
-#if !NETCORE
+#if NETFRAMEWORK
 			SendNotification(Result, true);
 #endif
 
@@ -277,7 +283,7 @@ namespace COMMON
 				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
 			}
 		}
-#if !NETCORE
+#if NETFRAMEWORK
 		/// <summary>
 		/// Send an event notification to the caller if a window handle has been provided
 		/// lParam will be set using the "value"

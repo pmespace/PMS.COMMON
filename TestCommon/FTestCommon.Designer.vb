@@ -22,6 +22,7 @@ Partial Class FTestCommon
 	'Do not modify it using the code editor.
 	<System.Diagnostics.DebuggerStepThrough()> _
 	Private Sub InitializeComponent()
+		Me.components = New System.ComponentModel.Container()
 		Me.pnlMain = New System.Windows.Forms.TableLayoutPanel()
 		Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
 		Me.pbSaveSettings = New System.Windows.Forms.Button()
@@ -55,8 +56,9 @@ Partial Class FTestCommon
 		Me.pbNbRows = New System.Windows.Forms.Button()
 		Me.FlowLayoutPanel1 = New System.Windows.Forms.FlowLayoutPanel()
 		Me.Button2 = New System.Windows.Forms.Button()
-		Me.DataGridView1 = New System.Windows.Forms.DataGridView()
 		Me.lblMessage = New System.Windows.Forms.Label()
+		Me.DataGridView1 = New System.Windows.Forms.DataGridView()
+		Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
 		Me.pnlMain.SuspendLayout()
 		Me.TableLayoutPanel1.SuspendLayout()
 		Me.TabControl1.SuspendLayout()
@@ -96,12 +98,11 @@ Partial Class FTestCommon
 			Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
 		Me.TableLayoutPanel1.AutoSize = True
 		Me.TableLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-		Me.TableLayoutPanel1.ColumnCount = 5
+		Me.TableLayoutPanel1.ColumnCount = 4
 		Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle())
 		Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
 		Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle())
 		Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle())
-		Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
 		Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20.0!))
 		Me.TableLayoutPanel1.Controls.Add(Me.pbSaveSettings, 2, 0)
 		Me.TableLayoutPanel1.Controls.Add(Me.pbClose, 3, 0)
@@ -119,7 +120,7 @@ Partial Class FTestCommon
 		Me.pbSaveSettings.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
 		Me.pbSaveSettings.AutoSize = True
 		Me.pbSaveSettings.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-		Me.pbSaveSettings.Location = New System.Drawing.Point(587, 3)
+		Me.pbSaveSettings.Location = New System.Drawing.Point(607, 3)
 		Me.pbSaveSettings.Name = "pbSaveSettings"
 		Me.pbSaveSettings.Size = New System.Drawing.Size(81, 23)
 		Me.pbSaveSettings.TabIndex = 0
@@ -132,7 +133,7 @@ Partial Class FTestCommon
 		Me.pbClose.AutoSize = True
 		Me.pbClose.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
 		Me.pbClose.DialogResult = System.Windows.Forms.DialogResult.Cancel
-		Me.pbClose.Location = New System.Drawing.Point(674, 3)
+		Me.pbClose.Location = New System.Drawing.Point(694, 3)
 		Me.pbClose.Name = "pbClose"
 		Me.pbClose.Size = New System.Drawing.Size(43, 23)
 		Me.pbClose.TabIndex = 1
@@ -156,7 +157,7 @@ Partial Class FTestCommon
 		Me.lblResult.AutoSize = True
 		Me.lblResult.Location = New System.Drawing.Point(115, 8)
 		Me.lblResult.Name = "lblResult"
-		Me.lblResult.Size = New System.Drawing.Size(466, 13)
+		Me.lblResult.Size = New System.Drawing.Size(486, 13)
 		Me.lblResult.TabIndex = 3
 		Me.lblResult.Text = "..."
 		'
@@ -260,6 +261,7 @@ Partial Class FTestCommon
 		Me.efConnectionString.Name = "efConnectionString"
 		Me.efConnectionString.Size = New System.Drawing.Size(523, 20)
 		Me.efConnectionString.TabIndex = 0
+		Me.ToolTip1.SetToolTip(Me.efConnectionString, "DSN=<odbc entry>")
 		'
 		'pbTestConnectionString
 		'
@@ -507,6 +509,16 @@ Partial Class FTestCommon
 		Me.Button2.Text = "Thread"
 		Me.Button2.UseVisualStyleBackColor = True
 		'
+		'lblMessage
+		'
+		Me.lblMessage.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+		Me.lblMessage.AutoSize = True
+		Me.lblMessage.Location = New System.Drawing.Point(84, 8)
+		Me.lblMessage.Name = "lblMessage"
+		Me.lblMessage.Size = New System.Drawing.Size(39, 13)
+		Me.lblMessage.TabIndex = 1
+		Me.lblMessage.Text = "Label5"
+		'
 		'DataGridView1
 		'
 		Me.DataGridView1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
@@ -517,16 +529,6 @@ Partial Class FTestCommon
 		Me.DataGridView1.Name = "DataGridView1"
 		Me.DataGridView1.Size = New System.Drawing.Size(714, 221)
 		Me.DataGridView1.TabIndex = 0
-		'
-		'lblMessage
-		'
-		Me.lblMessage.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-		Me.lblMessage.AutoSize = True
-		Me.lblMessage.Location = New System.Drawing.Point(84, 8)
-		Me.lblMessage.Name = "lblMessage"
-		Me.lblMessage.Size = New System.Drawing.Size(39, 13)
-		Me.lblMessage.TabIndex = 1
-		Me.lblMessage.Text = "Label5"
 		'
 		'FTestCommon
 		'
@@ -598,4 +600,5 @@ Partial Class FTestCommon
 	Friend WithEvents FlowLayoutPanel1 As FlowLayoutPanel
 	Friend WithEvents Button2 As Button
 	Friend WithEvents lblMessage As Label
+	Friend WithEvents ToolTip1 As ToolTip
 End Class

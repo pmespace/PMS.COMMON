@@ -3,6 +3,10 @@ using System;
 using System.Reflection;
 using System.Threading;
 
+#if NETFRAMEWORK
+using COMMON.WIN32;
+#endif
+
 namespace COMMON
 {
 	[ComVisible(true)]
@@ -12,7 +16,7 @@ namespace COMMON
 	{
 		#region IThreadData
 
-#if !NETCORE
+#if NETFRAMEWORK
 		[DispId(1)]
 		IntPtr WindowToWarn { get; set; }
 		[DispId(2)]
@@ -44,20 +48,18 @@ namespace COMMON
 		}
 		private void Assign(CThreadData t)
 		{
-
-#if !NETCORE
+#if NETFRAMEWORK
 			WindowToWarn = t.WindowToWarn;
 			StoppedMessage = t.StoppedMessage;
 			InformationMessage = t.InformationMessage;
 #endif
-
 		}
 		#endregion
 
 		#region properties
 		public bool IsValid { get => true; }
 
-#if !NETCORE
+#if NETFRAMEWORK
 		/// <summary>
 		/// Message sent (by PostMessage) to the caller when the thread has stopped.
 		/// </summary>
@@ -109,16 +111,14 @@ namespace COMMON
 		/// <returns></returns>
 		public override string ToString()
 		{
-
-#if NETCORE
-			return base.ToString();
-#else
+#if NETFRAMEWORK
 			string SEP = " - ";
 			return "Window to warn: " + (null != WindowToWarn).ToString() + SEP
 				+ (null != WindowToWarn ? "Stopped message: " + StoppedMessage + SEP : null)
 				+ (null != WindowToWarn ? "Information message: " + InformationMessage + SEP : null);
+#else
+			return base.ToString();
 #endif
-
 		}
 		#endregion
 	}

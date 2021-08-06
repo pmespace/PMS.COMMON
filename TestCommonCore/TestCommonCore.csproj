@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Version>5.1.0</Version>
+    <FileVersion>5.1.0</FileVersion>
+    <AssemblyVersion>5.1.0</AssemblyVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\COMMON.CORE.ODBC\COMMON.CORE.ODBC.csproj" />
+    <ProjectReference Include="..\COMMON.CORE\COMMON.CORE.csproj" />
+  </ItemGroup>
+
+</Project>

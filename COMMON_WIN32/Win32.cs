@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace COMMON
+namespace COMMON.WIN32
 {
 	[ComVisible(false)]
 	public static class Win32
@@ -22,15 +22,25 @@ namespace COMMON
 		[DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto, EntryPoint = "SetWindowLong")]
 		public static extern int SetWindowLong32(IntPtr hWnd, SWL nIndex, IntPtr newLong);
 
-
 		/// <summary>
-		/// WM_USER, starting point of user defined messages
+		/// Set a window property (refer to Platform SDK)
 		/// </summary>
-		public const uint WM_USER = 0x0400;
-		public static uint WMUser { get => WM_USER; }
-		public const uint WM_USER_MAX = 0x7FFF;
-		public static uint WMUserMax { get => WM_USER_MAX; }
-		public static bool IsValidWM(uint value) { return Win32.WM_USER <= value && Win32.WM_USER_MAX >= value; }
+		/// <param name="hWnd">Window to set the pointer</param>
+		/// <param name="nIndex">Type of data to set</param>
+		/// <param name="newLong">Value to set</param>
+		/// <returns></returns>
+		public static IntPtr SetWindowLongPtr(IntPtr hWnd, SWL nIndex, IntPtr newLong)
+		{
+			try
+			{
+				if (IntPtr.Size == 8)
+					return SetWindowLongPtr64(hWnd, nIndex, newLong);
+				else
+					return new IntPtr(SetWindowLong32(hWnd, nIndex, newLong));
+			}
+			catch (Exception) { }
+			return IntPtr.Zero;
+		}
 
 		public enum SWL
 		{
@@ -47,20 +57,12 @@ namespace COMMON
 		}
 
 		/// <summary>
-		/// 
+		/// WM_USER, starting point of user defined messages
 		/// </summary>
-		public static IntPtr SetWindowLongPtr(IntPtr hWnd, SWL nIndex, IntPtr newLong)
-		{
-			try
-			{
-				if (IntPtr.Size == 8)
-					return SetWindowLongPtr64(hWnd, nIndex, newLong);
-				else
-					return new IntPtr(SetWindowLong32(hWnd, nIndex, newLong));
-			}
-			catch (Exception) { }
-			return IntPtr.Zero;
-		}
-
+		public const uint WM_USER = 0x0400;
+		public static uint WMUser { get => WM_USER; }
+		public const uint WM_USER_MAX = 0x7FFF;
+		public static uint WMUserMax { get => WM_USER_MAX; }
+		public static bool IsValidWM(uint value) { return Win32.WM_USER <= value && Win32.WM_USER_MAX >= value; }
 	}
 }

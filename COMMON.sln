@@ -34,7 +34,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "COMMON.CORE.ODBC", "COMMON.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{23B06AB6-0DF4-415D-BC24-8D22245FA715}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestCommonCore", "TestCommonCore\TestCommonCore.csproj", "{99A6A6D2-FB5B-475B-A6BD-7BBB0542899F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestCommonCore", "TestCommonCore\TestCommonCore.csproj", "{99A6A6D2-FB5B-475B-A6BD-7BBB0542899F}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution

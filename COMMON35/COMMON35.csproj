@@ -65,8 +65,8 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <Import Project="..\COMMON_SHARED\COMMON_SHARED.projitems" Label="Shared" />
   <Import Project="..\COMMON_WIN32\COMMON_WIN32.projitems" Label="Shared" />
   <Import Project="..\COMMON_ODBC\COMMON_ODBC.projitems" Label="Shared" />
+  <Import Project="..\COMMON_SHARED\COMMON_SHARED.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

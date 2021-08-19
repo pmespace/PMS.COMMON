@@ -446,8 +446,9 @@ namespace COMMON
 		/// </summary>
 		/// <param name="v">Value to convert</param>
 		/// <param name="minlen">The minimum number of characters inside the string (completed with 0 on the left if necessary), 0 means no minimum length</param>
+		/// <param name="oddLengthAllowed">True if an odd number of characters can represent the hexadecimal string, false otherwise (default)</param>
 		/// <returns>A string with the hexadecimal representation of the passed value or an exception if an error occurs</returns>
-		public static string ValueToHex(decimal v, int minlen = 0)
+		public static string ValueToHex(decimal v, int minlen = 0, bool oddLengthAllowed = false)
 		{
 			string s = null;
 			while (0 != v)
@@ -456,8 +457,8 @@ namespace COMMON
 				s = f.ToString("X") + s;
 				v = (v - f) / 16;
 			}
-			if (minlen < s.Length)
-				s = new string('0', minlen - s.Length) + s;
+			if (0 != minlen && minlen > s.Length) s = new string('0', minlen - s.Length) + s;
+			if (!oddLengthAllowed && 0 != s.Length % 2) s = "0" + s;
 			return s;
 		}
 		/// <summary>

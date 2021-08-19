@@ -26,6 +26,11 @@ Public Class FTestCommon
 		lblSQLNbRows.Text = String.Empty
 		lblSQLRes.Text = String.Empty
 		SetButtons()
+#If DEBUG Then
+		pbHex.Visible = True
+#Else
+		pbHex.Visible = False
+#End If
 	End Sub
 
 	Private Sub ReadSettings()
@@ -329,21 +334,24 @@ Public Class FTestCommon
 		End Try
 	End Sub
 
-	'Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
-	'	XXX("000S")
-	'	XXX("0000")
-	'	XXX("05")
-	'	XXX("9F36")
-	'	XXX("9H36")
-	'	XXX("FFFFFFFF")
-	'	XXX("FFFFFFFFFFFFFFFF")
-	'	XXX("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
+	Private Sub Button3_Click(sender As Object, e As EventArgs) Handles pbHex.Click
+		XXX("000S")
+		XXX("0000")
+		XXX("05")
+		XXX("9F36")
+		XXX("9H36")
+		XXX("FFFFFFFF")
+		XXX("FFFFFFFFFFFFFFFF")
+		XXX("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
 
-	'	Dim d As String
-	'	d = CMisc.ValueToHex(40758)
-	'	d = CMisc.ValueToHex(5434684354)
-	'	Dim i1 As Long = &HFFFFFFFF
-	'	Dim i2 As Decimal = 5434684354738999999
-	'	d = CMisc.ValueToHex(i2 * i1)
-	'End Sub
+		Dim d As String
+		d = CMisc.ValueToHex(40758)
+		d = CMisc.ValueToHex(5434684354, 13)
+		d = CMisc.ValueToHex(5434684354, 13, True)
+		d = CMisc.ValueToHex(5434684354, 0)
+		d = CMisc.ValueToHex(5434684354, 0, True)
+		Dim i1 As Long = &HFFFFFFFF
+		Dim i2 As Decimal = 5434684354738999999
+		d = CMisc.ValueToHex(i2 * i1)
+	End Sub
 End Class

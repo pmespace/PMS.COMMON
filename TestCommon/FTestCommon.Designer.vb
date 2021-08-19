@@ -57,7 +57,7 @@ Partial Class FTestCommon
 		Me.FlowLayoutPanel1 = New System.Windows.Forms.FlowLayoutPanel()
 		Me.Button2 = New System.Windows.Forms.Button()
 		Me.lblMessage = New System.Windows.Forms.Label()
-		Me.Button3 = New System.Windows.Forms.Button()
+		Me.pbHex = New System.Windows.Forms.Button()
 		Me.DataGridView1 = New System.Windows.Forms.DataGridView()
 		Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
 		Me.pnlMain.SuspendLayout()
@@ -495,7 +495,7 @@ Partial Class FTestCommon
 		Me.FlowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
 		Me.FlowLayoutPanel1.Controls.Add(Me.Button2)
 		Me.FlowLayoutPanel1.Controls.Add(Me.lblMessage)
-		Me.FlowLayoutPanel1.Controls.Add(Me.Button3)
+		Me.FlowLayoutPanel1.Controls.Add(Me.pbHex)
 		Me.FlowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
 		Me.FlowLayoutPanel1.Location = New System.Drawing.Point(3, 137)
 		Me.FlowLayoutPanel1.Name = "FlowLayoutPanel1"
@@ -521,15 +521,16 @@ Partial Class FTestCommon
 		Me.lblMessage.TabIndex = 1
 		Me.lblMessage.Text = "Label5"
 		'
-		'Button3
+		'pbHex
 		'
-		Me.Button3.Location = New System.Drawing.Point(129, 3)
-		Me.Button3.Name = "Button3"
-		Me.Button3.Size = New System.Drawing.Size(75, 23)
-		Me.Button3.TabIndex = 2
-		Me.Button3.Text = "Test HEX<>Value"
-		Me.Button3.UseVisualStyleBackColor = True
-		Me.Button3.Visible = False
+		Me.pbHex.AutoSize = True
+		Me.pbHex.Location = New System.Drawing.Point(129, 3)
+		Me.pbHex.Name = "pbHex"
+		Me.pbHex.Size = New System.Drawing.Size(102, 23)
+		Me.pbHex.TabIndex = 2
+		Me.pbHex.Text = "Test HEX<>Value"
+		Me.pbHex.UseVisualStyleBackColor = True
+		Me.pbHex.Visible = False
 		'
 		'DataGridView1
 		'
@@ -613,5 +614,5 @@ Partial Class FTestCommon
 	Friend WithEvents Button2 As Button
 	Friend WithEvents lblMessage As Label
 	Friend WithEvents ToolTip1 As ToolTip
-	Friend WithEvents Button3 As Button
+	Friend WithEvents pbHex As Button
 End Class

@@ -9,12 +9,14 @@
     <Import_RootNamespace>COMMON</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)CExceptions\CDisconnected.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CExceptions\EDisconnected.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CExceptions\EInvalidFormat.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CExceptions\EOutOfRange.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CJson\CJson.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CJson\CJsonConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CLog\CLog.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CMisc\CMisc.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)CExceptions\CNotImplemented.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CExceptions\ENotImplemented.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CStream\CStream.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CStream\CStreamBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CStream\CStreamIO.cs" />

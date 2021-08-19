@@ -299,4 +299,51 @@ Public Class FTestCommon
 		Win32UIActivity.AddActivity(AddressOf UIProcessing, New UIActivity With {.Evt = UIActivityEnum.message, .Message = "This is the end", .Ctrl = Button2})
 	End Sub
 
+	Private Sub ONE(s As String)
+		Dim b As Byte
+		For i As Integer = 0 To s.Length - 1
+			b = CMisc.OneHexToBin(s(i))
+		Next
+	End Sub
+
+	Private Sub TWO(s As String)
+		Dim b As Byte
+		For i As Integer = 0 To s.Length - 1 Step 2
+			b = CMisc.TwoHexToBin(s.Substring(i, 2))
+		Next
+	End Sub
+	Private Sub XXX(s As String)
+		Dim d As Decimal
+		Dim l As Long
+		Dim b As Double
+		Dim i As Integer
+		Dim h As Short
+		Try
+			d = CMisc.HexToDecimal(s)
+			b = CMisc.HexToDouble(s)
+			l = CMisc.HexToLong(s)
+			i = CMisc.HexToInt(s)
+			h = CMisc.HexToShort(s)
+		Catch ex As Exception
+			s = ex.Message
+		End Try
+	End Sub
+
+	'Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
+	'	XXX("000S")
+	'	XXX("0000")
+	'	XXX("05")
+	'	XXX("9F36")
+	'	XXX("9H36")
+	'	XXX("FFFFFFFF")
+	'	XXX("FFFFFFFFFFFFFFFF")
+	'	XXX("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
+
+	'	Dim d As String
+	'	d = CMisc.ValueToHex(40758)
+	'	d = CMisc.ValueToHex(5434684354)
+	'	Dim i1 As Long = &HFFFFFFFF
+	'	Dim i2 As Decimal = 5434684354738999999
+	'	d = CMisc.ValueToHex(i2 * i1)
+	'End Sub
 End Class

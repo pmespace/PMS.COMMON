@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>PMS.COMMON</id>
-    <version>5.1.0</version>
+    <version>5.2.0</version>
     <title>PMS.COMMON</title>
     <authors>philippemp31</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -25,6 +25,12 @@
       - Win32 tools
     </description>
     <releaseNotes>
+      5.2.0
+      - Fixed bugs in CMisc.OneHexToBin and CMisc.TwoHexToBin
+      - Added functions in CMisc to created hexadecimal strings from a value
+      - Added functions in CMisc to directly get the value represented by an hexadecimal string
+      - Added 2 new exceptions (EInvalidFormat and EOutOfRange) and renamed all exceptions from C... to E...
+
       5.1.0
       - Update to architecture
 

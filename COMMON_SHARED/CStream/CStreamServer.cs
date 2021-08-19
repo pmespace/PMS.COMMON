@@ -442,7 +442,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					if (ex is IOException || ex is CDisconnected)
+					if (ex is IOException || ex is EDisconnected)
 					{
 						// the connection has been closed, normal stop
 						CLog.Add(threadName + "Client " + (null != clientEndPoint ? clientEndPoint.ToString() : "[address not available]") + " is disconnecting");

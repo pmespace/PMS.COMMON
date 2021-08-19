@@ -402,33 +402,123 @@ namespace COMMON
 		/// If the character is not hexadecimal compliant (0123456789ABCDEF) a value 0 is returned
 		/// </summary>
 		/// <param name="c">The char to convert</param>
-		/// <returns>The binary value, 0 if the char is not hexadecimal compatible</returns>
+		/// <returns>The binary value, an exception if the char is not hexadecimal compatible</returns>
 		public static byte OneHexToBin(char c)
 		{
 			int i = HEXCHARS.IndexOf(c.ToString().ToUpper());
 			if (-1 != i)
-				return (byte)(i - 1);
+				return (byte)i;
 			else
-				return 0;
+				throw new EInvalidFormat($"{c} is not an compatible hexadecimal value");
 		}
 		/// <summary>
 		/// Converts a 2 characters string holding an hexadecimal value to its binary value.
 		/// Only the first 2 characters are considered.
-		/// If the string is less than 2 characters an Exception is raised
+		/// A <see cref="EInvalidFormat"/> Exception is raised if:
+		///  - The string is less than 2 characters
+		///  - The string contains invalid characters
 		/// </summary>
 		/// <param name="s">The string to convert</param>
 		/// <returns>The binary value of valid chars composing the 2 chars string, 0 if the string char is not hexadecimal compatible</returns>
 		public static byte TwoHexToBin(string s)
 		{
+			if (2 > s.Length)
+				throw new EInvalidFormat($"Invalid length");
 			// convert hex value (on 2 positions) to byte
-			s = s.ToUpper();
-			byte p = OneHexToBin(s[0]);
-			byte b = (byte)((p - 1) * 16);
-			p = OneHexToBin(s[1]);
-			b += (byte)(p - 1);
-			return b;
+			try
+			{
+				s = s.ToUpper();
+				byte p = OneHexToBin(s[0]);
+				byte b = (byte)(p * 16);
+				p = OneHexToBin(s[1]);
+				b += p;
+				return b;
+			}
+			catch (EInvalidFormat)
+			{
+				throw new EInvalidFormat($"{s} is not an compatible hexadecimal value");
+			}
 		}
 		private const string HEXCHARS = "0123456789ABCDEF";
+		/// <summary>
+		/// Converts a numric value to it hexadecimal representation
+		/// This function may throw an exception
+		/// </summary>
+		/// <param name="v">Value to convert</param>
+		/// <param name="minlen">The minimum number of characters inside the string (completed with 0 on the left if necessary), 0 means no minimum length</param>
+		/// <returns>A string with the hexadecimal representation of the passed value or an exception if an error occurs</returns>
+		public static string ValueToHex(decimal v, int minlen = 0)
+		{
+			string s = null;
+			while (0 != v)
+			{
+				int f = (int)(v % 16);
+				s = f.ToString("X") + s;
+				v = (v - f) / 16;
+			}
+			if (minlen < s.Length)
+				s = new string('0', minlen - s.Length) + s;
+			return s;
+		}
+		/// <summary>
+		/// Converts an hexadecimal representation to its decimal value
+		/// </summary>
+		/// <param name="s">hexadecimal string</param>
+		/// <returns>Expected value or an exception if out of range or not a valid hexadecimal string</returns>
+		public static decimal HexToDecimal(string s)
+		{
+			decimal d = 0M;
+			try
+			{
+				foreach (char c in s)
+					d = d * 16 + OneHexToBin(c);
+				return d;
+			}
+			catch (EInvalidFormat)
+			{
+				throw new EInvalidFormat($"{s} is not an compatible hexadecimal value");
+			}
+		}
+		/// <summary>
+		/// Converts an hexadecimal representation to its double value
+		/// </summary>
+		/// <param name="s">hexadecimal string</param>
+		/// <returns>Expected value or <see cref="EOutOfRange"/> exception or <see cref="EInvalidFormat"/> exception if not a valid hexadecimal string</returns>
+		public static double HexToDouble(string s)
+		{
+			if (sizeof(double) < s.Length) throw new EOutOfRange(s);
+			return (double)HexToDecimal(s);
+		}
+		/// <summary>
+		/// Converts an hexadecimal representation to its long value
+		/// </summary>
+		/// <param name="s">hexadecimal string</param>
+		/// <returns>Expected value or <see cref="EOutOfRange"/> exception or <see cref="EInvalidFormat"/> exception if not a valid hexadecimal string</returns>
+		public static long HexToLong(string s)
+		{
+			if (sizeof(double) < s.Length) throw new EOutOfRange(s);
+			return (long)HexToDecimal(s);
+		}
+		/// <summary>
+		/// Converts an hexadecimal representation to its int value
+		/// </summary>
+		/// <param name="s">hexadecimal string</param>
+		/// <returns>Expected value or <see cref="EOutOfRange"/> exception or <see cref="EInvalidFormat"/> exception if not a valid hexadecimal string</returns>
+		public static int HexToInt(string s)
+		{
+			if (sizeof(int) < s.Length) throw new EOutOfRange(s);
+			return (int)HexToDecimal(s);
+		}
+		/// <summary>
+		/// Converts an hexadecimal representation to its short value
+		/// </summary>
+		/// <param name="s">hexadecimal string</param>
+		/// <returns>Expected value or <see cref="EOutOfRange"/> exception or <see cref="EInvalidFormat"/> exception if not a valid hexadecimal string</returns>
+		public static short HexToShort(string s)
+		{
+			if (sizeof(short) < s.Length) throw new EOutOfRange(s);
+			return (short)HexToDecimal(s);
+		}
 		/// <summary>
 		/// Check a string value against an enum type values
 		/// </summary>

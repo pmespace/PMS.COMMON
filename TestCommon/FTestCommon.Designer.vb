@@ -60,6 +60,7 @@ Partial Class FTestCommon
 		Me.pbHex = New System.Windows.Forms.Button()
 		Me.DataGridView1 = New System.Windows.Forms.DataGridView()
 		Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
+		Me.pbOther = New System.Windows.Forms.Button()
 		Me.pnlMain.SuspendLayout()
 		Me.TableLayoutPanel1.SuspendLayout()
 		Me.TabControl1.SuspendLayout()
@@ -496,6 +497,7 @@ Partial Class FTestCommon
 		Me.FlowLayoutPanel1.Controls.Add(Me.Button2)
 		Me.FlowLayoutPanel1.Controls.Add(Me.lblMessage)
 		Me.FlowLayoutPanel1.Controls.Add(Me.pbHex)
+		Me.FlowLayoutPanel1.Controls.Add(Me.pbOther)
 		Me.FlowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
 		Me.FlowLayoutPanel1.Location = New System.Drawing.Point(3, 137)
 		Me.FlowLayoutPanel1.Name = "FlowLayoutPanel1"
@@ -542,6 +544,15 @@ Partial Class FTestCommon
 		Me.DataGridView1.Name = "DataGridView1"
 		Me.DataGridView1.Size = New System.Drawing.Size(714, 221)
 		Me.DataGridView1.TabIndex = 0
+		'
+		'pbOther
+		'
+		Me.pbOther.Location = New System.Drawing.Point(237, 3)
+		Me.pbOther.Name = "pbOther"
+		Me.pbOther.Size = New System.Drawing.Size(75, 23)
+		Me.pbOther.TabIndex = 3
+		Me.pbOther.Text = "Other tests"
+		Me.pbOther.UseVisualStyleBackColor = True
 		'
 		'FTestCommon
 		'
@@ -615,4 +626,5 @@ Partial Class FTestCommon
 	Friend WithEvents lblMessage As Label
 	Friend WithEvents ToolTip1 As ToolTip
 	Friend WithEvents pbHex As Button
+	Friend WithEvents pbOther As Button
 End Class

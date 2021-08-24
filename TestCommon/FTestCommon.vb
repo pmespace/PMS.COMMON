@@ -26,11 +26,12 @@ Public Class FTestCommon
 		lblSQLNbRows.Text = String.Empty
 		lblSQLRes.Text = String.Empty
 		SetButtons()
+		Dim visible As Boolean = False
 #If DEBUG Then
-		pbHex.Visible = True
-#Else
-		pbHex.Visible = False
+		visible = True
 #End If
+		pbHex.Visible = visible
+		pbOther.Visible = visible
 	End Sub
 
 	Private Sub ReadSettings()
@@ -353,5 +354,39 @@ Public Class FTestCommon
 		Dim i1 As Long = &HFFFFFFFF
 		Dim i2 As Decimal = 5434684354738999999
 		d = CMisc.ValueToHex(i2 * i1)
+	End Sub
+
+	Private Sub pbOther_Click(sender As Object, e As EventArgs) Handles pbOther.Click
+		Dim min, max As Integer
+		min = 0
+		max = 66
+		CMisc.AdjustMinMax(min, max, 1, 255)
+		CMisc.AdjustMinMax(min, max, 1, 10)
+		min = 100
+		max = 6
+		CMisc.AdjustMinMax(min, max, 1, 10)
+		min = 100
+		max = 6
+		CMisc.AdjustMinMax(min, max, 1, 5875)
+		min = 1 - 4
+		max = &HFF
+		CMisc.AdjustMinMax(min, max, 1, 255)
+		min = 100
+		max = 0
+		CMisc.AdjustMinMax(min, max, 1, 5875)
+
+		min = 100
+		max = -6
+		CMisc.AdjustMinMax(min, max, 1, 10)
+		min = 100
+		max = -6
+		CMisc.AdjustMinMax0N(min, max, 10)
+		min = 100
+		max = -6
+		CMisc.AdjustMinMax1N(min, max, 10)
+
+
+		min = 100
+		Dim ok As Boolean = True
 	End Sub
 End Class

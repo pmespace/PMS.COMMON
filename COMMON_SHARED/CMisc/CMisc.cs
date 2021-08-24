@@ -287,41 +287,60 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Adjust min and max value (inverting them if necessary).
-		/// It also changes boundaries if minimum is less than 1, setting it to 1, and if maxlen is higher then 65535, setting it to 65535
+		/// It also changes boundaries if minimum is less than 1, setting it to 1, or maximum is higher than <paramref name="maxv"/> (defaulting to 2147483647)
 		/// </summary>
-		/// <param name="minlen">Minimum length to use</param>
-		/// <param name="maxlen">Maximum length to use</param>
-		public static void AdjustMinMax1N(ref int minlen, ref int maxlen) { AdjustMinMax(1, ref minlen, ref maxlen); }
-		/// <summary>
-		/// Adjust min and max value (inverting them if necessary).
-		/// It also changes boundaries if minimum is less than 1, setting it to 1, and if maxlen is higher then 65535, setting it to 65535
-		/// </summary>
-		/// <param name="minlen">Minimum length to use</param>
-		/// <param name="maxlen">Maximum length to use</param>
-		public static void AdjustMinMax0N(ref int minlen, ref int maxlen) { AdjustMinMax(0, ref minlen, ref maxlen); }
-		/// <summary>
-		/// Adjust min and max value (inverting them if necessary).
-		/// It also changes boundaries if minimum is less than 1, setting it to 1, and if maxlen is higher then 65535, setting it to 65535
-		/// </summary>
-		/// <param name="min">The minimum to not go over</param>
-		/// <param name="minlen">Minimum length to use</param>
-		/// <param name="maxlen">Maximum length to use</param>
-		private static void AdjustMinMax(int min, ref int minlen, ref int maxlen)
+		/// <param name="min">Minimum length to use</param>
+		/// <param name="max">Maximum length to use</param>
+		/// <param name="maxv">The maximum to not go over (default is 2147483647)</param>
+		public static void AdjustMinMax1N(ref int min, ref int max, int maxv = int.MaxValue)
 		{
-			minlen = 0 > minlen ? -minlen : minlen;
-			maxlen = 0 > maxlen ? -maxlen : maxlen;
-			if (maxlen < minlen)
-			{
-				int i = maxlen;
-				maxlen = minlen;
-				minlen = i;
-			}
-			if (min > minlen)
-				minlen = min;
-			if (0xFFFF < maxlen)
-				maxlen = 0xFFFF;
+			if (0 == maxv) maxv = 1;
+			else if (1 > maxv) maxv = -maxv;
+			AdjustMinMax(ref min, ref max, 1, maxv);
 		}
-
+		/// <summary>
+		/// Adjust min and max value (inverting them if necessary).
+		/// It also changes boundaries if minimum is less than 0, setting it to 0, or maximum is higher than <paramref name="maxv"/> (defaulting to 2147483647)
+		/// </summary>
+		/// <param name="min">Minimum length to use</param>
+		/// <param name="max">Maximum length to use</param>
+		/// <param name="maxv">The maximum to not go over (default is 2147483647)</param>
+		public static void AdjustMinMax0N(ref int min, ref int max, int maxv = int.MaxValue)
+		{
+			if (0 > maxv) maxv = -maxv;
+			AdjustMinMax(ref min, ref max, 0, maxv);
+		}
+		/// <summary>
+		/// Adjust min and max value (inverting them if necessary).
+		/// It also changes boundaries if minimum is less than <paramref name="minv"/> (defaulting to 0) or maximum is higher than <paramref name="maxv"/> (defaulting to 2147483647)
+		/// </summary>
+		/// <param name="min">Minimum value</param>
+		/// <param name="max">Maximum value</param>
+		/// <param name="minv">The minimum to not go under (default is 0)</param>
+		/// <param name="maxv">The maximum to not go over (default is 2147483647)</param>
+		public static void AdjustMinMax(ref int min, ref int max, int minv = 0, int maxv = int.MaxValue)
+		{
+			int i;
+			// test minimum and maximum, interverting them if necessary
+			if (maxv < minv)
+			{
+				i = maxv;
+				maxv = minv;
+				minv = i;
+			}
+			// check min and max, interverting them if necessary
+			if (max < min)
+			{
+				i = max;
+				max = min;
+				min = i;
+			}
+			// check boundaries
+			if (minv > min)
+				min = minv;
+			if (maxv < max)
+				max = maxv;
+		}
 		/// <summary>
 		/// Adjust min and max value (inverting them if necessary).
 		/// Throws an Exception if the array of bytes length does not comply with the min and max bounds
@@ -442,7 +461,7 @@ namespace COMMON
 		private const string HEXCHARS = "0123456789ABCDEF";
 		/// <summary>
 		/// Converts a numric value to it hexadecimal representation
-		/// This function may throw an exception
+		/// THIS FUNCTION MAY THROW AN EXCEPTION
 		/// </summary>
 		/// <param name="v">Value to convert</param>
 		/// <param name="minlen">The minimum number of characters inside the string (completed with 0 on the left if necessary), 0 means no minimum length</param>
@@ -463,6 +482,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Converts an hexadecimal representation to its decimal value
+		/// THIS FUNCTION MAY THROW AN EXCEPTION <see cref="EInvalidFormat"/>
 		/// </summary>
 		/// <param name="s">hexadecimal string</param>
 		/// <returns>Expected value or an exception if out of range or not a valid hexadecimal string</returns>
@@ -482,6 +502,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Converts an hexadecimal representation to its double value
+		/// THIS FUNCTION MAY THROW AN EXCEPTION <see cref="EOutOfRange"/> or <see cref="EInvalidFormat"/>
 		/// </summary>
 		/// <param name="s">hexadecimal string</param>
 		/// <returns>Expected value or <see cref="EOutOfRange"/> exception or <see cref="EInvalidFormat"/> exception if not a valid hexadecimal string</returns>
@@ -492,6 +513,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Converts an hexadecimal representation to its long value
+		/// THIS FUNCTION MAY THROW AN EXCEPTION <see cref="EOutOfRange"/> or <see cref="EInvalidFormat"/>
 		/// </summary>
 		/// <param name="s">hexadecimal string</param>
 		/// <returns>Expected value or <see cref="EOutOfRange"/> exception or <see cref="EInvalidFormat"/> exception if not a valid hexadecimal string</returns>
@@ -502,6 +524,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Converts an hexadecimal representation to its int value
+		/// THIS FUNCTION MAY THROW AN EXCEPTION <see cref="EOutOfRange"/> or <see cref="EInvalidFormat"/>
 		/// </summary>
 		/// <param name="s">hexadecimal string</param>
 		/// <returns>Expected value or <see cref="EOutOfRange"/> exception or <see cref="EInvalidFormat"/> exception if not a valid hexadecimal string</returns>
@@ -512,6 +535,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Converts an hexadecimal representation to its short value
+		/// THIS FUNCTION MAY THROW AN EXCEPTION <see cref="EOutOfRange"/> or <see cref="EInvalidFormat"/>
 		/// </summary>
 		/// <param name="s">hexadecimal string</param>
 		/// <returns>Expected value or <see cref="EOutOfRange"/> exception or <see cref="EInvalidFormat"/> exception if not a valid hexadecimal string</returns>

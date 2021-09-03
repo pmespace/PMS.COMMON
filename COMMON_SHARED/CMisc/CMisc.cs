@@ -135,6 +135,7 @@ namespace COMMON
 		/// <returns>The converted array into a string if successful, an empty string if any error occured</returns>
 		public static string BytesToHexStr(byte[] buffer)
 		{
+			if (null == buffer || 0 == buffer.Length) return string.Empty;
 			string res = string.Empty;
 			try
 			{
@@ -151,6 +152,7 @@ namespace COMMON
 		/// <returns>The converted array into a UTF-8 string if successful, an empty string if any error occured</returns>
 		public static string BytesToStr(byte[] buffer)
 		{
+			if (null == buffer || 0 == buffer.Length) return string.Empty;
 			string res = string.Empty;
 			try
 			{
@@ -168,6 +170,7 @@ namespace COMMON
 		public static long StrToLong(string s, bool alwayspositive = false)
 		{
 			long i = 0;
+			if (string.IsNullOrEmpty(s)) return 0;
 			try
 			{
 				i = long.Parse(s);
@@ -266,22 +269,20 @@ namespace COMMON
 		/// This function is useful to retrieve an integral value from a set of bytes
 		/// </summary>
 		/// <param name="buffer">The array of bytes to analyse</param>
-		/// <param name="start">The starting position, inside the array of bytes, to get the value</param>
+		/// <param name="start">The 0 based starting position, inside the array of bytes, to get the value</param>
 		/// <param name="maxlen">The number of bytes to use to build the integral value</param>
 		/// <returns>A long describing the value stored inside the array of bytes, 0 otherwise</returns>
 		public static long GetIntegralTypeValueFromBytes(byte[] buffer, int start, int maxlen = CMisc.FOURBYTES)
 		{
+			if (null == buffer || 0 == buffer.Length || buffer.Length <= start) return 0;
 			long l = 0;
-			if (null != buffer)
+			maxlen = Math.Min(buffer.Length - start, maxlen);
+			byte[] ab = new byte[maxlen];
+			Buffer.BlockCopy(buffer, start, ab, 0, maxlen);
+			foreach (byte b in ab)
 			{
-				maxlen = Math.Min(buffer.Length - start, maxlen);
-				byte[] ab = new byte[maxlen];
-				Buffer.BlockCopy(buffer, start, ab, 0, maxlen);
-				foreach (byte b in ab)
-				{
-					l += (long)b << 8 * (maxlen - 1);
-					maxlen--;
-				}
+				l += (long)b << 8 * (maxlen - 1);
+				maxlen--;
 			}
 			return l;
 		}
@@ -378,6 +379,7 @@ namespace COMMON
 		public static int LenToUse(byte[] buffer, ref int minlen, ref int maxlen)
 		{
 			AdjustMinMax1N(ref minlen, ref maxlen);
+			if (null == buffer || 0 == buffer.Length) return 0;
 			int len = buffer.Length;
 			if (len >= minlen && len <= maxlen)
 				return len;
@@ -393,8 +395,7 @@ namespace COMMON
 		/// <returns>TRUE if the value complies with the regular expression (or is empty if allowed), FALSE otherwise</returns>
 		public static bool IsValidFormat(string value, string format, bool validIfEmpty = false)
 		{
-			if (string.IsNullOrEmpty(value) && validIfEmpty)
-				return true;
+			if (string.IsNullOrEmpty(value) && validIfEmpty) return true;
 			Regex regex = new Regex(AsString(format));
 			return regex.IsMatch(AsString(value));
 		}
@@ -409,11 +410,11 @@ namespace COMMON
 		/// <returns>TRUE if the value complies with the regular expression (or is empty if allowed), FALSE otherwise</returns>
 		public static bool IsValidFormat(string value, string characterSet, int minlen, int maxlen, bool validIfEmpty = false)
 		{
-			if (string.IsNullOrEmpty(value) && validIfEmpty)
-				return true;
+			if (string.IsNullOrEmpty(value) && validIfEmpty) return true;
+			if (string.IsNullOrEmpty(characterSet)) return false;
 			// build regular expression to check against
 			string count = "{" + (minlen == maxlen ? minlen.ToString() + "}" : minlen.ToString() + "," + maxlen.ToString() + "}");
-			Regex regex = new Regex(characterSet + count.ToString());
+			Regex regex = new Regex($"^{characterSet}{count}$");
 			return regex.IsMatch(value);
 		}
 		/// <summary>
@@ -441,6 +442,7 @@ namespace COMMON
 		/// <returns>The binary value of valid chars composing the 2 chars string, 0 if the string char is not hexadecimal compatible</returns>
 		public static byte TwoHexToBin(string s)
 		{
+			if (string.IsNullOrEmpty(s)) return 0;
 			if (2 > s.Length)
 				throw new EInvalidFormat($"Invalid length");
 			// convert hex value (on 2 positions) to byte
@@ -469,7 +471,7 @@ namespace COMMON
 		/// <returns>A string with the hexadecimal representation of the passed value or an exception if an error occurs</returns>
 		public static string ValueToHex(decimal v, int minlen = 0, bool oddLengthAllowed = false)
 		{
-			string s = null;
+			string s = string.Empty;
 			while (0 != v)
 			{
 				int f = (int)(v % 16);
@@ -488,6 +490,7 @@ namespace COMMON
 		/// <returns>Expected value or an exception if out of range or not a valid hexadecimal string</returns>
 		public static decimal HexToDecimal(string s)
 		{
+			if (string.IsNullOrEmpty(s)) return 0M;
 			decimal d = 0M;
 			try
 			{
@@ -508,7 +511,6 @@ namespace COMMON
 		/// <returns>Expected value or <see cref="EOutOfRange"/> exception or <see cref="EInvalidFormat"/> exception if not a valid hexadecimal string</returns>
 		public static double HexToDouble(string s)
 		{
-			if (sizeof(double) < s.Length) throw new EOutOfRange(s);
 			return (double)HexToDecimal(s);
 		}
 		/// <summary>
@@ -519,7 +521,6 @@ namespace COMMON
 		/// <returns>Expected value or <see cref="EOutOfRange"/> exception or <see cref="EInvalidFormat"/> exception if not a valid hexadecimal string</returns>
 		public static long HexToLong(string s)
 		{
-			if (sizeof(double) < s.Length) throw new EOutOfRange(s);
 			return (long)HexToDecimal(s);
 		}
 		/// <summary>
@@ -530,7 +531,6 @@ namespace COMMON
 		/// <returns>Expected value or <see cref="EOutOfRange"/> exception or <see cref="EInvalidFormat"/> exception if not a valid hexadecimal string</returns>
 		public static int HexToInt(string s)
 		{
-			if (sizeof(int) < s.Length) throw new EOutOfRange(s);
 			return (int)HexToDecimal(s);
 		}
 		/// <summary>
@@ -541,7 +541,6 @@ namespace COMMON
 		/// <returns>Expected value or <see cref="EOutOfRange"/> exception or <see cref="EInvalidFormat"/> exception if not a valid hexadecimal string</returns>
 		public static short HexToShort(string s)
 		{
-			if (sizeof(short) < s.Length) throw new EOutOfRange(s);
 			return (short)HexToDecimal(s);
 		}
 		/// <summary>

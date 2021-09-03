@@ -70,6 +70,10 @@ namespace COMMON
 		#endregion
 
 		#region methods
+		public override string ToString()
+		{
+			return $"TCP: {Tcp}";
+		}
 		/// <summary>
 		/// Write to the adequate stream
 		/// </summary>

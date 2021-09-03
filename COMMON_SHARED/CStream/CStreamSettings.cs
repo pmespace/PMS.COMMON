@@ -125,6 +125,13 @@ namespace COMMON
 		/// </summary>
 		public uint DefaultServerPort { get => DEFAULT_PORT; }
 		#endregion
+
+		#region methods
+		public override string ToString()
+		{
+			return $"ReceiveTimeout: {ReceiveTimeout}, SendTimeout: {SendTimeout}, ReceiveBufferSize: {ReceiveBufferSize}, SendBufferSize: {SendBufferSize}, UseSsl: {UseSsl}, " + base.ToString();
+		}
+		#endregion
 	}
 
 	[ComVisible(true)]
@@ -252,16 +259,13 @@ namespace COMMON
 		#endregion
 
 		#region methods
-		/// <summary>
-		/// Returns the full TCP/IP address or an empty string
-		/// </summary>
-		/// <returns></returns>
 		public override string ToString()
 		{
-			if (null != EndPoint)
-				return EndPoint.ToString();
-			else
-				return string.Empty;
+			//if (null != EndPoint)
+			//	return EndPoint.ToString();
+			//else
+			//	return string.Empty;
+			return $"Endpoint: {EndPoint}, Servername: {ServerName}, AllowedSslErrors: {AllowedSslErrors}, " + base.ToString();
 		}
 		/// <summary>
 		/// Set the TCP/IP address to use

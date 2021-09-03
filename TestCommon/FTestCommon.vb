@@ -356,7 +356,18 @@ Public Class FTestCommon
 		d = CMisc.ValueToHex(i2 * i1)
 	End Sub
 
+	Public Enum AAA
+		A
+		B
+		C
+		D
+	End Enum
+
 	Private Sub pbOther_Click(sender As Object, e As EventArgs) Handles pbOther.Click
+		Dim f As Boolean = CMisc.IsEnumValue(GetType(AAA), AAA.C)
+		Dim aqw As AAA = CMisc.GetEnumValue(GetType(AAA), AAA.C.ToString)
+		Dim aqws As String = CMisc.GetEnumName(GetType(AAA), AAA.C)
+
 		Dim min, max As Integer
 		min = 0
 		max = 66

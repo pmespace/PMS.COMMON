@@ -27,6 +27,13 @@ namespace COMMON
 			}
 		}
 		private int _lengthbuffersize = CMisc.FOURBYTES;
-		#endregion properties
+		#endregion
+
+		#region methods
+		public override string ToString()
+		{
+			return $"LengthBufferSize: {LengthBufferSize}";
+		}
+		#endregion
 	}
 }

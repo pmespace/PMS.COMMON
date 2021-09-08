@@ -135,14 +135,14 @@ namespace COMMON
 		/// <returns>The converted array into a string if successful, an empty string if any error occured</returns>
 		public static string BytesToHexStr(byte[] buffer)
 		{
-			if (null == buffer || 0 == buffer.Length) return string.Empty;
+			if (null == buffer || 0 == buffer.Length) return null;
 			string res = string.Empty;
 			try
 			{
 				foreach (byte b in buffer)
 					res += b.ToString("X2");
 			}
-			catch (Exception) { res = string.Empty; }
+			catch (Exception) { res = null; }
 			return res;
 		}
 		/// <summary>
@@ -152,13 +152,13 @@ namespace COMMON
 		/// <returns>The converted array into a UTF-8 string if successful, an empty string if any error occured</returns>
 		public static string BytesToStr(byte[] buffer)
 		{
-			if (null == buffer || 0 == buffer.Length) return string.Empty;
+			if (null == buffer || 0 == buffer.Length) return null;
 			string res = string.Empty;
 			try
 			{
-				Encoding.UTF8.GetString(buffer);
+				res = Encoding.UTF8.GetString(buffer);
 			}
-			catch (Exception) { res = string.Empty; }
+			catch (Exception) { res = null; }
 			return res;
 		}
 		/// <summary>

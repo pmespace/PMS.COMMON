@@ -80,5 +80,19 @@ namespace COMMON
 		/// <returns>True if processing was OK, False otherwise</returns>
 		public delegate bool ClientOnReplyDelegate(byte[] reply, bool error, CThreadData threadData, object o);
 		#endregion
+
+		#region miscellaneous
+		/// <summary>
+		/// Delegate function that will be called when a message either to be sent or having been received, is about to be logged
+		/// Implementing this function allows to prevent logging a message or to alter its content to avoid logging confidential data
+		/// The function is called whenever any intends to log the content of a message, requesting the message to indeed log, giving way for confidential data to be removed or hidden
+		/// This allows PCI-DSS compliance
+		/// </summary>
+		/// <param name="bytes">The message about to be logged in an array of bytes</param>
+		/// <param name="current">The message about to be logged as a string</param>
+		/// <param name="isRequest">True if the message is received by the caller, false if the message is about to be sent by the caller</param>
+		/// <returns>The message to log, it can be the current one or any other message or null</returns>
+		public delegate string ClientServerOnMessageToLog(byte[] bytes, string current, bool isRequest);
+		#endregion
 	}
 }

@@ -28,6 +28,8 @@ namespace COMMON
 		string Localhost { get; }
 		[DispId(1008)]
 		uint DefaultServerPort { get; }
+		[DispId(1009)]
+		CStreamDelegates.ClientServerOnMessageToLog OnMessageToLog { get; set; }
 		#endregion
 	}
 	[ComVisible(false)]
@@ -124,6 +126,11 @@ namespace COMMON
 		/// Default server port to use
 		/// </summary>
 		public uint DefaultServerPort { get => DEFAULT_PORT; }
+		/// <summary>
+		/// A delegate allowing to, when a message either received or about to be sent, review the content of this message before it is logged, thus allowing either to hide or alter the content TO LOG (not the content of the message), thus allowing PCI-DSS compliance
+		/// </summary>
+		public CStreamDelegates.ClientServerOnMessageToLog OnMessageToLog { get => _onmessagetolog; set => _onmessagetolog = value; }
+		private CStreamDelegates.ClientServerOnMessageToLog _onmessagetolog = null;
 		#endregion
 
 		#region methods
@@ -178,6 +185,8 @@ namespace COMMON
 		string Localhost { get; }
 		[DispId(1008)]
 		uint DefaultServerPort { get; }
+		[DispId(1009)]
+		CStreamDelegates.ClientServerOnMessageToLog OnMessageToLog { get; set; }
 		#endregion
 	}
 	[Guid("990A2D0C-1A1C-4E34-9C9D-75905AC95915")]
@@ -349,6 +358,8 @@ namespace COMMON
 		string Localhost { get; }
 		[DispId(1008)]
 		uint DefaultServerPort { get; }
+		[DispId(1009)]
+		CStreamDelegates.ClientServerOnMessageToLog OnMessageToLog { get; set; }
 		#endregion
 	}
 	[Guid("EF1D0636-72B9-4F21-98A2-6F0EE3B048B5")]

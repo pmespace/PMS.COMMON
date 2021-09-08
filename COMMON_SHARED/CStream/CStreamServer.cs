@@ -144,7 +144,7 @@ namespace COMMON
 						try
 						{
 							// start the thread and sleep to allow him to actually run
-							if (Start(StreamServerListenerMethod, streamServerStartSettings.ThreadData, settings.Parameters, listenerEvents.Started))
+							if (Start(StreamServerListenerMethod, streamServerStartSettings.ThreadData, settings, listenerEvents.Started))
 							{
 								return true;
 							}
@@ -524,25 +524,32 @@ namespace COMMON
 						// if a message has been fetched, process it
 						try
 						{
-							if (null != request)
+							if (null != request && 0 != request.Length)
 							{
+								// check whether the messge must be hidden or not
+								string req = MessageToLog(client, request, false);
 								// forward request for processing
 								byte[] reply = streamServerStartSettings.OnMessage(client.Tcp, request, out bool addBufferSize, streamServerStartSettings.ThreadData, streamServerStartSettings.Parameters);
-								if (null != reply)
+								if (null != reply && 0 != reply.Length)
 								{
+									string rep = MessageToLog(client, reply, true);
 									if (client.StreamIO.Send(reply, addBufferSize))
 									{
-										CLog.Add(threadName + "Exchange complete - Message [" + reply.Length + " bytes]: " + CMisc.BytesToHexStr(request) + " - Reply (" + reply.Length + "): " + CMisc.BytesToHexStr(reply));
+										CLog.Add(threadName + $"Exchange complete - Request [{reply.Length} bytes] {req} - Reply [{reply.Length} bytes)] {rep}");
 									}
 									else
 									{
-										CLog.Add(threadName + "Error sending message back to the client - Request [" + request.Length + " bytes]: " + CMisc.BytesToHexStr(request));
+										CLog.Add(threadName + $"Error sending reply back to the client - Request [{reply.Length} bytes] {req}", TLog.ERROR);
 									}
 								}
 								else
 								{
-									CLog.Add(threadName + "No reply to send - Request [" + request.Length + " bytes]: " + CMisc.BytesToHexStr(request));
+									CLog.Add(threadName + $"No reply to send - Request [{reply.Length} bytes] {req}", TLog.WARNG);
 								}
+							}
+							else
+							{
+								CLog.Add(threadName + $"No request has been received", TLog.WARNG);
 							}
 						}
 						catch (Exception ex)
@@ -566,6 +573,19 @@ namespace COMMON
 			client.ProcessorEvents.SetStopped();
 			client.Stop();
 			return res;
+		}
+		private string MessageToLog(Client client, byte[] buffer, bool aboutToBeSent)
+		{
+			// check whether the messge must be hidden or not
+			if (null != client.Settings.OnMessageToLog)
+			{
+				string s = null;// client.Settings.OnMessageToLog(buffer, CMisc.BytesToHexStr(buffer), true);
+				return (string.IsNullOrEmpty(s) ? "<MESSAGE HIDDEN>" : s);
+			}
+			else
+			{
+				return CMisc.BytesToHexStr(buffer);
+			}
 		}
 		/// <summary>
 		/// Test 2 array of bytes are equal.

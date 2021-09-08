@@ -364,6 +364,7 @@ Public Class FTestCommon
 	End Enum
 
 	Private Sub pbOther_Click(sender As Object, e As EventArgs) Handles pbOther.Click
+		Dim z As New CStreamServerSettings
 		Dim f As Boolean = CMisc.IsEnumValue(GetType(AAA), AAA.C)
 		Dim aqw As AAA = CMisc.GetEnumValue(GetType(AAA), AAA.C.ToString)
 		Dim aqws As String = CMisc.GetEnumName(GetType(AAA), AAA.C)

@@ -28,6 +28,7 @@
       5.2.2
       - Fixed a bug in CMisc.IsValidFormat(string value, string characterSet, int minlen, int maxlen, bool validIfEmpty = false), forcing the mask to be exactly as built (with ^ at the beginning and $ at the end of the mask)
       - Fixed a regression in CMisc.ValueToHex
+      - CStreamServerSettings now has got a new call back to allow not logging the full messages (received and sent) so as to allow a PCI-DSS compliance 
 
       5.2.1
       - Updated erroneous function description for CMiscAdjustMinMax1N and CMisc.AdjustMinMax0N, changed max to int.MaxValue instead of 65535 and published CMisc.AdjustMinMax

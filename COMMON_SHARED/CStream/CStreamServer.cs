@@ -20,11 +20,7 @@ namespace COMMON
 		/// <summary>
 		/// Indicates whether the object is valid or not
 		/// </summary>
-		public bool IsValid { get => (null != StreamServerSettings && StreamServerSettings.IsValid) && (null != ThreadData && ThreadData.IsValid) && null != OnMessage; }
-		/// <summary>
-		/// Synchrounous server (1 thread) or not (1 main thread + 1 thread per client)
-		/// </summary>
-		public bool Synchronous { get; set; } = true;
+		public bool IsValid { get => (null != StreamServerSettings && StreamServerSettings.IsValid) && (null == ThreadData || ThreadData.IsValid) && null != OnMessage; }
 		/// <summary>
 		/// Thread data to use to identify the thread
 		/// </summary>
@@ -33,6 +29,14 @@ namespace COMMON
 		/// Server 
 		/// </summary>
 		public CStreamServerSettings StreamServerSettings { get; set; } = null;
+		/// <summary>
+		/// Private parameters passed to the thread
+		/// </summary>
+		public object Parameters { get; set; }
+		/// <summary>
+		/// Synchrounous server (1 thread) or not (1 main thread + 1 thread per client)
+		/// </summary>
+		public bool Synchronous { get; set; } = true;
 		/// <summary>
 		/// Called before starting processing requests from a client.
 		/// This function allows to initialise the server context.
@@ -57,10 +61,6 @@ namespace COMMON
 		/// This function allows to clear the server context.
 		/// </summary>
 		public CStreamDelegates.ServerOnStopDelegate OnStop { get; set; } = null;
-		/// <summary>
-		/// Private parameters passed to the thread
-		/// </summary>
-		public object Parameters { get; set; }
 		#endregion
 	}
 
@@ -88,6 +88,21 @@ namespace COMMON
 		private Clients connectedClients = new Clients();
 		private Mutex isCleaningUpMutex = new Mutex(false);
 		private bool isCleaningUp = false;
+		#endregion
+
+		#region properties
+		/// <summary>
+		/// The port used by the server
+		/// </summary>
+		public uint Port { get => (null != listener ? (uint)((IPEndPoint)listener.LocalEndpoint).Port : 0); }
+		/// <summary>
+		/// The IP address of the server
+		/// </summary>
+		public string Address { get => (null != listener ? ((IPEndPoint)listener.LocalEndpoint).Address.ToString() : null); }
+		/// <summary>
+		/// The full IP address + port of the server
+		/// </summary>
+		public string FullAddress { get => (null != listener ? Address + (0 != Port ? $":{Port}" : null) : null); }
 		#endregion
 
 		#region constants

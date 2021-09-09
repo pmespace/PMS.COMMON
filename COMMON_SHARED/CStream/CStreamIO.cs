@@ -16,7 +16,7 @@ namespace COMMON
 	public abstract class CStreamIO : CStreamBase
 	{
 		#region constructors
-		public CStreamIO(int maxlen, TcpClient tcp) : base(maxlen)
+		public CStreamIO(TcpClient tcp, int maxlen = CMisc.FOURBYTES) : base(maxlen)
 		{
 			Tcp = tcp;
 		}
@@ -367,7 +367,7 @@ namespace COMMON
 		/// </summary>
 		/// <param name="client">TCP client to use to open the stream</param>
 		/// <param name="settings">Settings to use when manipulating the stream</param>
-		public CStreamClientIO(TcpClient client, CStreamClientSettings settings) : base(settings.LengthBufferSize, client)
+		public CStreamClientIO(TcpClient client, CStreamClientSettings settings) : base(client, settings.LengthBufferSize)
 		{
 			if (settings.IsValid)
 			{
@@ -453,7 +453,7 @@ namespace COMMON
 		/// </summary>
 		/// <param name="client">TCP client to use to open the stream</param>
 		/// <param name="settings">Settings to use when manipulating the stream</param>
-		public CStreamServerIO(TcpClient client, CStreamServerSettings settings) : base(settings.LengthBufferSize, client)
+		public CStreamServerIO(TcpClient client, CStreamServerSettings settings) : base(client, settings.LengthBufferSize)
 		{
 			Port = settings.Port;
 			if (settings.UseSsl)

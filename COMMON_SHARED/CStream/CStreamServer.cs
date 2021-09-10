@@ -68,7 +68,7 @@ namespace COMMON
 	/// Server processing implementation
 	/// </summary>
 	[ComVisible(false)]
-	public class CStreamServer : CThread
+	public class CStreamServer// : CThread
 	{
 		#region constructor
 		public CStreamServer() { }
@@ -88,6 +88,7 @@ namespace COMMON
 		private Clients connectedClients = new Clients();
 		private Mutex isCleaningUpMutex = new Mutex(false);
 		private bool isCleaningUp = false;
+		private CThread mainThread = new CThread();
 		#endregion
 
 		#region properties
@@ -125,7 +126,7 @@ namespace COMMON
 		public bool StartServer(CStreamServerStartSettings settings)
 		{
 			const string SERVER_NOT_RUNNING = ", server is not running";
-			if (!CanStart)
+			if (!mainThread.CanStart)
 				return false;
 			if (null == settings || !settings.IsValid)
 				return false;
@@ -153,19 +154,19 @@ namespace COMMON
 					listener = new TcpListener(IPAddress.Any, (int)streamServerStartSettings.StreamServerSettings.Port);
 					try
 					{
-						CLog.Add(Description + "Server listener created reading port " + streamServerStartSettings.StreamServerSettings.Port);
+						CLog.Add(mainThread.Description + "Server listener created reading port " + streamServerStartSettings.StreamServerSettings.Port);
 						//listenerEvents.Reset();
 						listener.Start();
 						try
 						{
 							// start the thread and sleep to allow him to actually run
-							if (Start(StreamServerListenerMethod, streamServerStartSettings.ThreadData, settings, listenerEvents.Started))
+							if (mainThread.Start(StreamServerListenerMethod, streamServerStartSettings.ThreadData, settings, listenerEvents.Started))
 							{
 								return true;
 							}
 							else
 							{
-								CLog.Add(Description + "Server thread could not be created" + SERVER_NOT_RUNNING);
+								CLog.Add(mainThread.Description + "Server thread could not be created" + SERVER_NOT_RUNNING);
 							}
 						}
 						catch (Exception ex)
@@ -184,7 +185,7 @@ namespace COMMON
 				}
 				else
 				{
-					CLog.Add(Description + "The server was not allowed to start", TLog.WARNG);
+					CLog.Add(mainThread.Description + "The server was not allowed to start", TLog.WARNG);
 				}
 			}
 			catch (Exception ex)
@@ -200,11 +201,11 @@ namespace COMMON
 		/// <returns>TRUE if the server has been stopped or did not exist, FALSE otherwise</returns>
 		public void StopServer()
 		{
-			if (IsRunning)
+			if (mainThread.IsRunning)
 			{
 				// clean up and synchronize thread termination
 				Cleanup();
-				Wait();
+				mainThread.Wait();
 			}
 		}
 		/// <summary>
@@ -285,7 +286,7 @@ namespace COMMON
 		/// <returns></returns>
 		private int StreamServerListenerMethod(CThreadData threadData, object o)
 		{
-			string threadName = Description + "LISTENER - ";
+			string threadName = mainThread.Description + "LISTENER - ";
 			int res = (int)ThreadResult.UNKNOWN;
 			bool keepOnRunning = true;
 			// indicate listener is on
@@ -398,7 +399,7 @@ namespace COMMON
 		{
 			// indicate the thread is on
 			Client client = (Client)o;
-			string threadName = Description + "RECEIVER - ";
+			string threadName = mainThread.Description + "RECEIVER - ";
 			int res = (int)ThreadResult.UNKNOWN;
 			bool keepOnRunning = true;
 			bool clientShutdown = false;

@@ -551,16 +551,16 @@ namespace COMMON
 									string rep = MessageToLog(client, reply, true);
 									if (client.StreamIO.Send(reply, addBufferSize))
 									{
-										CLog.Add(threadName + $"Exchange complete - Request [{reply.Length} bytes] {req} - Reply [{reply.Length} bytes)] {rep}");
+										CLog.Add(threadName + $"Exchange complete - Request [{request.Length} bytes] {req} - Reply [{reply.Length} bytes)] {rep}");
 									}
 									else
 									{
-										CLog.Add(threadName + $"Error sending reply back to the client - Request [{reply.Length} bytes] {req}", TLog.ERROR);
+										CLog.Add(threadName + $"Error sending reply back to the client - Request [{request.Length} bytes] {req}", TLog.ERROR);
 									}
 								}
 								else
 								{
-									CLog.Add(threadName + $"No reply to send - Request [{reply.Length} bytes] {req}", TLog.WARNG);
+									CLog.Add(threadName + $"No reply to send - Request [{request.Length} bytes] {req}", TLog.WARNG);
 								}
 							}
 							else

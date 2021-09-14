@@ -488,15 +488,15 @@ namespace COMMON
 		private static int SendAsyncThreadMethod(CThreadData threadData, object o)
 		{
 			SendAsyncEnum res = SendAsyncEnum.KO;
-			ClientThreadType clientThread = (ClientThreadType)o;
-			CLog.Add("SendAsync - Connecting to: " + clientThread.SendAsync.Settings.FullIP);
-			if (null != clientThread.SendAsync.OnReply)
+			ClientThreadType threadParams = (ClientThreadType)o;
+			CLog.Add("SendAsync - Connecting to: " + threadParams.SendAsync.Settings.FullIP);
+			if (null != threadParams.SendAsync.OnReply)
 			{
 
 				// send & receive 
-				if (clientThread.LineExchanges)
+				if (threadParams.LineExchanges)
 				{
-					string reply = ConnectSendReceiveLine(clientThread.SendAsync.Settings, Encoding.UTF8.GetString(clientThread.Request), out bool error, clientThread.EOT);
+					string reply = ConnectSendReceiveLine(threadParams.SendAsync.Settings, Encoding.UTF8.GetString(threadParams.Request), out bool error, threadParams.EOT);
 					if (string.IsNullOrEmpty(reply))
 					{
 						res = SendAsyncEnum.NoData;
@@ -504,7 +504,7 @@ namespace COMMON
 					else
 					{
 						// forward reply to the caller
-						if (clientThread.SendAsync.OnReply(Encoding.UTF8.GetBytes(reply), error, threadData, o))
+						if (threadParams.SendAsync.OnReply(Encoding.UTF8.GetBytes(reply), error, threadData, threadParams.SendAsync.Parameters))
 							res = SendAsyncEnum.OK;
 						else
 							res = SendAsyncEnum.ReceiveError;
@@ -512,7 +512,7 @@ namespace COMMON
 				}
 				else
 				{
-					byte[] reply = ConnectSendReceive(clientThread.SendAsync.Settings, clientThread.Request, clientThread.AddSizeHeader, out int announcedSize, out bool error);
+					byte[] reply = ConnectSendReceive(threadParams.SendAsync.Settings, threadParams.Request, threadParams.AddSizeHeader, out int announcedSize, out bool error);
 					if (null == reply || 0 == reply.Length)
 					{
 						res = SendAsyncEnum.NoData;
@@ -524,7 +524,7 @@ namespace COMMON
 					else
 					{
 						// forward reply to the caller
-						if (clientThread.SendAsync.OnReply(reply, error, threadData, o))
+						if (threadParams.SendAsync.OnReply(reply, error, threadData, threadParams.SendAsync.Parameters))
 							res = SendAsyncEnum.OK;
 						else
 							res = SendAsyncEnum.ReceiveError;
@@ -534,16 +534,16 @@ namespace COMMON
 			else
 			{
 				// send only
-				if (clientThread.LineExchanges)
+				if (threadParams.LineExchanges)
 				{
-					if (ConnectSendLine(clientThread.SendAsync.Settings, Encoding.UTF8.GetString(clientThread.Request), clientThread.EOT))
+					if (ConnectSendLine(threadParams.SendAsync.Settings, Encoding.UTF8.GetString(threadParams.Request), threadParams.EOT))
 						res = SendAsyncEnum.OK;
 					else
 						res = SendAsyncEnum.SendError;
 				}
 				else
 				{
-					if (ConnectSend(clientThread.SendAsync.Settings, clientThread.Request, clientThread.AddSizeHeader))
+					if (ConnectSend(threadParams.SendAsync.Settings, threadParams.Request, threadParams.AddSizeHeader))
 						res = SendAsyncEnum.OK;
 					else
 						res = SendAsyncEnum.SendError;

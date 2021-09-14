@@ -186,12 +186,12 @@ namespace COMMON
 		/// </summary>
 		/// <param name="method">the method to run inside the thread</param>
 		/// <param name="threadData">data used inside the thread to communicate with the caller's environment</param>
-		/// <param name="o">Parameters to pass to the thread</param>
+		/// <param name="threadParams">Parameters to pass to the thread</param>
 		/// <param name="evt">An <see cref="ManualResetEvent"/> object created by the calling application to wait for when starting the thread. This event can be used by the calling application to indicate it has finished its own initialisation process and must therefore be set within the calling applictaioin's thread function to unlock processing. Set to null means no event to wait for.</param>
 		/// <param name="isBackground">Indicates whether the created thread is a background one or not</param>
 		/// <param name="threadHasEndedMethod">Function that will be called when the thread has ended its processing. This is the very last call inside the thread before it terminates. BEWARE, it is then called from inside the thread environment</param>
 		/// <returns>True if started, false otherwise</returns>
-		public bool Start(CThreadFunction method, CThreadData threadData = null, object o = null, ManualResetEvent evt = null, bool isBackground = true, CThreadHasEnded threadHasEndedMethod = null)
+		public bool Start(CThreadFunction method, CThreadData threadData = null, object threadParams = null, ManualResetEvent evt = null, bool isBackground = true, CThreadHasEnded threadHasEndedMethod = null)
 		{
 			if (!CanStart)
 				return false;
@@ -203,7 +203,7 @@ namespace COMMON
 				ThreadData = threadData;
 				ThreadMethod = method;
 				ThreadHasEndedMethod = threadHasEndedMethod;
-				ThreadParams = o;
+				ThreadParams = threadParams;
 				Events.Reset();
 				// start the thread
 				Thread.Start();

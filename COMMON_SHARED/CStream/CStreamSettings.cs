@@ -5,6 +5,7 @@ using System.Net;
 using System;
 using System.Threading;
 using System.Net.Security;
+using Newtonsoft.Json;
 
 namespace COMMON
 {
@@ -48,6 +49,7 @@ namespace COMMON
 		#endregion
 
 		#region properties
+		[JsonIgnore]
 		public abstract bool IsValid { get; }
 		public int NoTimeout { get => NO_TIMEOUT; }
 		/// <summary>
@@ -117,18 +119,22 @@ namespace COMMON
 		/// <summary>
 		/// Use SSL layer or not
 		/// </summary>
+		[JsonIgnore]
 		public bool UseSsl { get; protected set; } = false;
 		/// <summary>
 		/// The local host IP address
 		/// </summary>
+		[JsonIgnore]
 		public string Localhost { get => CStream.Localhost(); }
 		/// <summary>
 		/// Default server port to use
 		/// </summary>
+		[JsonIgnore]
 		public uint DefaultServerPort { get => DEFAULT_PORT; }
 		/// <summary>
 		/// A delegate allowing to, when a message either received or about to be sent, review the content of this message before it is logged, thus allowing either to hide or alter the content TO LOG (not the content of the message), thus allowing PCI-DSS compliance
 		/// </summary>
+		[JsonIgnore]
 		public CStreamDelegates.ClientServerOnMessageToLog OnMessageToLog { get => _onmessagetolog; set => _onmessagetolog = value; }
 		private CStreamDelegates.ClientServerOnMessageToLog _onmessagetolog = null;
 		#endregion
@@ -222,6 +228,7 @@ namespace COMMON
 		/// <summary>
 		/// The IP port to use or 0 if invalid
 		/// </summary>
+		[JsonIgnore]
 		public bool FoundOnDNS { get; private set; } = false;
 		/// <summary>
 		/// The name of the server to authenticate against. It must be empty if no authentication is required
@@ -240,10 +247,12 @@ namespace COMMON
 		/// Use certificate security or not
 		/// </summary>
 		[Obsolete("This property is no longer used, check AllowedSslErrors instead")]
+		[JsonIgnore]
 		public bool CheckCertificate { get; set; } = true;
 		/// <summary>
 		/// The full IP address
 		/// </summary>
+		[JsonIgnore]
 		public string FullIP { get => (IsValid ? IP + (0 != Port ? ":" + Port : string.Empty) : string.Empty); }
 		/// <summary>
 		/// Allowed SSL errors while trying to connect
@@ -375,6 +384,7 @@ namespace COMMON
 		#endregion
 
 		#region properties
+		[JsonIgnore]
 		public override bool IsValid { get => true; }
 		/// <summary>
 		/// The IP port to use or 0 if invalid

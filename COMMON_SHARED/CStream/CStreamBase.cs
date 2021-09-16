@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using Newtonsoft.Json;
 
 namespace COMMON
 {
@@ -14,6 +15,7 @@ namespace COMMON
 		/// <summary>
 		/// Size of buffer containg the size of a message
 		/// </summary>
+		[JsonIgnore]
 		public int LengthBufferSize
 		{
 			get => _lengthbuffersize;

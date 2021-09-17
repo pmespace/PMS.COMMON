@@ -51,6 +51,7 @@ namespace COMMON
 		#region properties
 		[JsonIgnore]
 		public abstract bool IsValid { get; }
+		[JsonIgnore]
 		public int NoTimeout { get => NO_TIMEOUT; }
 		/// <summary>
 		/// Reception timer specified in SECONDS

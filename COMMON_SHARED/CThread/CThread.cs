@@ -191,7 +191,7 @@ namespace COMMON
 		/// <param name="isBackground">Indicates whether the created thread is a background one or not</param>
 		/// <param name="threadHasEndedMethod">Function that will be called when the thread has ended its processing. This is the very last call inside the thread before it terminates. BEWARE, it is then called from inside the thread environment</param>
 		/// <returns>True if started, false otherwise</returns>
-		public bool Start(CThreadFunction method, CThreadData threadData = null, object threadParams = null, ManualResetEvent evt = null, bool isBackground = true, CThreadHasEnded threadHasEndedMethod = null)
+		public bool Start(CThreadFunction method, CThreadData threadData = null, object threadParams = null, ManualResetEvent evt = null, CThreadHasEnded threadHasEndedMethod = null, bool isBackground = true)
 		{
 			if (!CanStart)
 				return false;

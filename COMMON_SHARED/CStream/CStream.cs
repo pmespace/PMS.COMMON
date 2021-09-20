@@ -12,12 +12,13 @@ namespace COMMON
 	[ComVisible(true)]
 	public enum SendAsyncEnum
 	{
+		NoData = -5,
+		Timeout = -4,
+		SendError = -3,
+		ReceiveError = -2,
+		KO = -1,
 		OK = 0,
-		KO,
-		NoData,
-		Timeout,
-		SendError,
-		ReceiveError,
+		UserDefined,
 	}
 
 	/// <summary>
@@ -459,7 +460,7 @@ namespace COMMON
 				};
 				// prepare the thread object
 				CThread thread = new CThread();
-				if (thread.Start(SendAsyncThreadMethod, sendAsync.ThreadData, threadParams))
+				if (thread.Start(SendAsyncThreadMethod, sendAsync.ThreadData, threadParams, null, sendAsync.OnTerminate, true))
 					return thread;
 				else
 					thread = null;
@@ -509,6 +510,10 @@ namespace COMMON
 			/// Function that will be called when the reply has been received.
 			/// </summary>
 			public CStreamDelegates.ClientOnReplyDelegate OnReply { get; set; } = null;
+			/// <summary>
+			/// Function that will be called when the thread is terminated.
+			/// </summary>
+			public CThread.CThreadHasEnded OnTerminate { get; set; } = null;
 			/// <summary>
 			/// Parameters to pass to the <see cref="OnReply"/> function
 			/// </summary>

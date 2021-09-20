@@ -61,6 +61,10 @@ namespace COMMON
 		/// This function allows to clear the server context.
 		/// </summary>
 		public CStreamDelegates.ServerOnStopDelegate OnStop { get; set; } = null;
+		/// <summary>
+		/// Called when the thread terminates
+		/// </summary>
+		public CThread.CThreadHasEnded OnTerminate { get; set; } = null;
 		#endregion
 	}
 
@@ -160,7 +164,7 @@ namespace COMMON
 						try
 						{
 							// start the thread and sleep to allow him to actually run
-							if (mainThread.Start(StreamServerListenerMethod, streamServerStartSettings.ThreadData, settings, listenerEvents.Started))
+							if (mainThread.Start(StreamServerListenerMethod, streamServerStartSettings.ThreadData, settings, listenerEvents.Started, streamServerStartSettings.OnTerminate, true))
 							{
 								return true;
 							}

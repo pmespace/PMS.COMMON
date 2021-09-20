@@ -285,7 +285,7 @@ Public Class FTestCommon
 
 	Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
 		myThread = New CThread
-		myThread.Start(AddressOf ThreadFunction, New CThreadData With {.EventToSignal = myEvent}, Nothing, Nothing, True, AddressOf ThreadHasEnded)
+		myThread.Start(AddressOf ThreadFunction, New CThreadData With {.EventToSignal = myEvent}, Nothing, Nothing, AddressOf ThreadHasEnded, True)
 	End Sub
 
 	Private Sub UIProcessing(activity As UIActivity)

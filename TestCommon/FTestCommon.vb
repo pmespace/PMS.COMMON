@@ -369,6 +369,9 @@ Public Class FTestCommon
 		Dim aqw As AAA = CMisc.GetEnumValue(GetType(AAA), AAA.C.ToString)
 		Dim aqws As String = CMisc.GetEnumName(GetType(AAA), AAA.C)
 
+		Dim ip As String = CStream.Localhost(True)
+		ip = CStream.Localhost(False)
+
 		Dim min, max As Integer
 		min = 0
 		max = 66

@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Threading;
 using System.Text;
+using System.Linq;
 using System.Net;
 using System;
 
@@ -29,13 +30,14 @@ namespace COMMON
 		/// <summary>
 		/// Returns the local IP address (the first, main one)
 		/// </summary>
+		/// <param name="v4">True if a v4 address is expected, false if a v6 one is expected, v4 is the default</param>
 		/// <returns>A string containing the local IP address</returns>
-		public static string Localhost()
+		public static string Localhost(bool v4 = true)
 		{
 			try
 			{
 				//return IPAddress.Loopback.ToString();
-				IPAddress[] addresses = Dns.GetHostAddresses(Dns.GetHostName());
+				IPAddress[] addresses = Dns.GetHostAddresses(Dns.GetHostName()).Where(a => a.AddressFamily == (v4 ? AddressFamily.InterNetwork : AddressFamily.InterNetworkV6)).ToArray();
 				if (null != addresses && 0 != addresses.Length)
 					return addresses[0].ToString();
 			}
@@ -50,6 +52,7 @@ namespace COMMON
 		{
 			try
 			{
+				IPAddress[] addresses = Dns.GetHostAddresses(Dns.GetHostName());
 				return Dns.GetHostAddresses(Dns.GetHostName());
 			}
 			catch (Exception) { }

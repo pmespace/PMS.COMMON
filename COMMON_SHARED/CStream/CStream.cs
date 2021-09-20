@@ -32,17 +32,30 @@ namespace COMMON
 		/// Returns the local IP address (the first, main one)
 		/// </summary>
 		/// <param name="v4">True if a v4 address is expected, false if a v6 one is expected, v4 is the default</param>
+		/// <param name="loopback">True if the address must be loopback, false if an internet address, not loopback is the default</param>
 		/// <returns>A string containing the local IP address</returns>
-		public static string Localhost(bool v4 = true)
+		public static string Localhost(bool v4 = true, bool loopback = false)
 		{
 			try
 			{
 				//return IPAddress.Loopback.ToString();
 				IPAddress[] addresses = Dns.GetHostAddresses(Dns.GetHostName()).Where(a => a.AddressFamily == (v4 ? AddressFamily.InterNetwork : AddressFamily.InterNetworkV6)).ToArray();
 				if (null != addresses && 0 != addresses.Length)
+				{
+					foreach (IPAddress addr in addresses)
+					{
+						// try seartching for a real internet address, not a loopback
+						if (!IPAddress.IsLoopback(addr))
+						{
+							return addr.ToString();
+						}
+					}
+					// no internat address, let's use the loopback
 					return addresses[0].ToString();
+				}
 			}
 			catch (Exception) { }
+			// arrived here no IP address at all
 			return null;
 		}
 		/// <summary>

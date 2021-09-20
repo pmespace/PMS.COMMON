@@ -221,6 +221,13 @@ namespace COMMON
 				true, out int replySize, out bool timeout);
 			return (!timeout && null != reply && replySize == reply.Length && ACK == reply[0]);
 		}
+		/// <summary>
+		/// Stop the server from inside
+		/// </summary>
+		public void SelfStopServer()
+		{
+			Cleanup();
+		}
 		#endregion
 
 		#region private methods

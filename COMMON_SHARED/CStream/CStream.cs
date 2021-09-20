@@ -27,12 +27,46 @@ namespace COMMON
 	{
 		#region methods
 		/// <summary>
-		/// Returns the local IP address
+		/// Returns the local IP address (the first, main one)
 		/// </summary>
 		/// <returns>A string containing the local IP address</returns>
 		public static string Localhost()
 		{
-			return IPAddress.Loopback.ToString();
+			try
+			{
+				//return IPAddress.Loopback.ToString();
+				IPAddress[] addresses = Dns.GetHostAddresses(Dns.GetHostName());
+				if (null != addresses && 0 != addresses.Length)
+					return addresses[0].ToString();
+			}
+			catch (Exception) { }
+			return null;
+		}
+		/// <summary>
+		/// Returns the local IP addresses (all of them)
+		/// </summary>
+		/// <returns>An array of <see cref="IPAddress"/> or null if an error has occurred</returns>
+		public static IPAddress[] Localhosts()
+		{
+			try
+			{
+				return Dns.GetHostAddresses(Dns.GetHostName());
+			}
+			catch (Exception) { }
+			return null;
+		}
+		/// <summary>
+		/// Returns the name of the computer
+		/// </summary>
+		/// <returns>Name of the computer or null if an error has occurred</returns>
+		public static string Name()
+		{
+			try
+			{
+				return Dns.GetHostName();
+			}
+			catch (Exception) { }
+			return null;
 		}
 		/// <summary>
 		/// Connect a stream according to the settings provided.

@@ -103,8 +103,14 @@ namespace COMMON
 			{
 				lock (mylock)
 				{
-					if (!string.IsNullOrEmpty(value) && '\\' != value[value.Length - 1])
-						value += @"\";
+//#if NETCORE
+//					if (!string.IsNullOrEmpty(value) && Path.DirectorySeparatorChar != value[value.Length - 1])
+//						if (!Path.EndsInDirectorySeparator(value))
+//						value += Path.DirectorySeparatorChar;
+//#else
+					if (!string.IsNullOrEmpty(value) && Path.DirectorySeparatorChar != value[value.Length - 1])
+						value += Path.DirectorySeparatorChar;
+//#endif
 					_logfilepath = value;
 				}
 			}

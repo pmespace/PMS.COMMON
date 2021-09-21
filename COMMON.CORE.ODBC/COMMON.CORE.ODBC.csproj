@@ -22,6 +22,8 @@
     <DefineConstants>TRACE;DEBUG;NETCORE</DefineConstants>
     <OutputPath>..\bin\</OutputPath>
     <DocumentationFile>..\bin\PMS.COMMON.CORE.ODBC.xml</DocumentationFile>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

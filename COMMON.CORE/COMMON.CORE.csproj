@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -35,6 +35,9 @@
     <DefineConstants>DEBUG;TRACE;NETCORE</DefineConstants>
     <OutputPath>..\bin\</OutputPath>
     <DocumentationFile>..\bin\PMS.COMMON.CORE.xml</DocumentationFile>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
   </PropertyGroup>
 
   <Import Project="..\COMMON_SHARED\COMMON_SHARED.projitems" Label="Shared" />
@@ -46,5 +49,9 @@
   <Target Name="CopyPackage" AfterTargets="Pack">
     <Copy SourceFiles="$(OutputPath)..\$(PackageId).$(PackageVersion).nupkg" DestinationFolder="$(SolutionDir)..\nuget\test" />
   </Target>
+
+
+
+
 
 </Project>

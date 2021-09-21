@@ -45,14 +45,14 @@ namespace COMMON
 					foreach (IPAddress addr in addresses)
 					{
 						// try seartching for a real internet address, not a loopback
-						if (!IPAddress.IsLoopback(addr))
+						if ((!loopback && !IPAddress.IsLoopback(addr)) || (loopback && IPAddress.IsLoopback(addr)))
 						{
 							return addr.ToString();
 						}
 					}
-					// no internat address, let's use the loopback
-					return addresses[0].ToString();
 				}
+				// no internat address, let's use the loopback
+				return addresses[0].ToString();
 			}
 			catch (Exception) { }
 			// arrived here no IP address at all

@@ -604,10 +604,10 @@ namespace COMMON
 		}
 		private static string MessageToLog(StreamServerClient client, byte[] buffer, bool aboutToBeSent)
 		{
-			// check whether the messge must be hidden or not
+			// check whether the message must be hidden or not
 			if (null != client.StreamServerSettings.OnMessageToLog)
 			{
-				string s = null;// client.Settings.OnMessageToLog(buffer, CMisc.BytesToHexStr(buffer), true);
+				string s = client.StreamServerSettings.OnMessageToLog(buffer, CMisc.BytesToHexStr(buffer), true);
 				return (string.IsNullOrEmpty(s) ? "<MESSAGE HIDDEN>" : s);
 			}
 			else

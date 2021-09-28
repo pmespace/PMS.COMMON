@@ -388,6 +388,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Test whether a string is composed according to a specified regular expression
+		/// This function does not pre-process the mask with start and end line
 		/// </summary>
 		/// <param name="value">The value to test</param>
 		/// <param name="format">The regular expression to match. The regular expression must be complete and well formatted</param>
@@ -401,6 +402,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Test whether a string is composed according to a specified character set and length complies with specified bounds
+		/// This function processes the regular expression as a whole word adding "start line" (^) and "end line" ($)
 		/// </summary>
 		/// <param name="value">The value to check</param>
 		/// <param name="characterSet">The character set the value must comply with</param>

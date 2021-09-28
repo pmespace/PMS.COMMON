@@ -103,14 +103,14 @@ namespace COMMON
 			{
 				lock (mylock)
 				{
-//#if NETCORE
-//					if (!string.IsNullOrEmpty(value) && Path.DirectorySeparatorChar != value[value.Length - 1])
-//						if (!Path.EndsInDirectorySeparator(value))
-//						value += Path.DirectorySeparatorChar;
-//#else
+					//#if NETCORE
+					//					if (!string.IsNullOrEmpty(value) && Path.DirectorySeparatorChar != value[value.Length - 1])
+					//						if (!Path.EndsInDirectorySeparator(value))
+					//						value += Path.DirectorySeparatorChar;
+					//#else
 					if (!string.IsNullOrEmpty(value) && Path.DirectorySeparatorChar != value[value.Length - 1])
 						value += Path.DirectorySeparatorChar;
-//#endif
+					//#endif
 					_logfilepath = value;
 				}
 			}
@@ -156,7 +156,7 @@ namespace COMMON
 		/// <returns>The string as it has been written, null if an error has occurred</returns>
 		public static string AddException(string method, Exception ex, string msg = null)//, string header = null, string trailer = null)
 		{
-			string s = Add("*** [" + method + "] - EXCEPTION: " + ex.GetType().Name + " - " + ex.Message + (!string.IsNullOrEmpty(msg) ? " - " + msg : string.Empty), TLog.EXCPT);
+			string s = Add($"*** [{method}] - EXCEPTION: {ex.GetType().Name} - {ex.Message}{(!string.IsNullOrEmpty(msg) ? $" - {msg}" : string.Empty)}", TLog.EXCPT);
 			if (null != ex.InnerException)
 				AddException(method, ex.InnerException);
 			return s;
@@ -216,9 +216,9 @@ namespace COMMON
 		/// <returns></returns>
 		private static string RemoveCRLF(string s)
 		{
-			s = s.Replace(Chars.CR, " ");
-			s = s.Replace(Chars.LF, " ");
-			s = s.Replace(Chars.TAB, " ");
+			//s = s.Replace(Chars.CR, " ");
+			//s = s.Replace(Chars.LF, " ");
+			//s = s.Replace(Chars.TAB, " ");
 			return s;
 		}
 		/// <summary>
@@ -229,9 +229,10 @@ namespace COMMON
 		/// <returns>The string as it has been written, null if an error has occurred</returns>
 		private static string AddToLog(string s, TLog severity)
 		{
-			string v = BuildDate(dateFormats.YYYYMMDDhhmmssWithSeparators) + " - " + severity.ToString() + " - " + Thread.CurrentThread.ManagedThreadId.ToString("X8") + " - " + RemoveCRLF(s.Trim());
+			if (string.IsNullOrEmpty(s)) return string.Empty;
 			try
 			{
+				string v = BuildDate(dateFormats.YYYYMMDDhhmmssWithSeparators) + " - " + severity.ToString() + " - " + Thread.CurrentThread.ManagedThreadId.ToString("X8") + " - " + RemoveCRLF(s.Trim());
 				if (!string.IsNullOrEmpty(LogFileName))
 				{
 					using (StreamWriter file = new StreamWriter(LogFileName, true, Encoding.UTF8))

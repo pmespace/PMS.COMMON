@@ -82,14 +82,14 @@ namespace COMMON
 		/// <summary>
 		/// Copy of start server settings
 		/// </summary>
-		private CStreamServerStartSettings streamServerStartSettings { get; set; }
+		private CStreamServerStartSettings StartSettings { get; set; }
 		/// <summary>
 		/// All clients connected to the server
 		/// </summary>
 		private object myLock = new object();
 		private TcpListener listener = null;
 		private CThreadEvents listenerEvents = new CThreadEvents();
-		private Clients connectedClients = new Clients();
+		private StreamServerClients connectedClients = new StreamServerClients();
 		private Mutex isCleaningUpMutex = new Mutex(false);
 		private bool isCleaningUp = false;
 		private CThread mainThread = new CThread();
@@ -135,16 +135,16 @@ namespace COMMON
 			if (null == settings || !settings.IsValid)
 				return false;
 
-			streamServerStartSettings = settings;
+			StartSettings = settings;
 			connectedClients.Clear();
 			try
 			{
 				bool fOK = true;
 				// verify wether starting the server is accepted or not
-				if (null != streamServerStartSettings.OnStart)
+				if (null != settings.OnStart)
 					try
 					{
-						fOK = streamServerStartSettings.OnStart(streamServerStartSettings.ThreadData, streamServerStartSettings.Parameters);
+						fOK = settings.OnStart(settings.ThreadData, settings.Parameters);
 					}
 					catch (Exception ex)
 					{
@@ -155,16 +155,16 @@ namespace COMMON
 				if (fOK)
 				{
 					// create a TCP/IP socket and start listenning for incoming connections
-					listener = new TcpListener(IPAddress.Any, (int)streamServerStartSettings.StreamServerSettings.Port);
+					listener = new TcpListener(IPAddress.Any, (int)settings.StreamServerSettings.Port);
 					try
 					{
-						CLog.Add(mainThread.Description + "Server listener created reading port " + streamServerStartSettings.StreamServerSettings.Port);
+						CLog.Add(mainThread.Description + "Server listener created reading port " + settings.StreamServerSettings.Port);
 						//listenerEvents.Reset();
 						listener.Start();
 						try
 						{
 							// start the thread and sleep to allow him to actually run
-							if (mainThread.Start(StreamServerListenerMethod, streamServerStartSettings.ThreadData, settings, listenerEvents.Started, streamServerStartSettings.OnTerminate, true))
+							if (mainThread.Start(StreamServerListenerMethod, settings.ThreadData, null, listenerEvents.Started, settings.OnTerminate, true))
 							{
 								return true;
 							}
@@ -196,7 +196,6 @@ namespace COMMON
 			{
 				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Server.OnStart generated an exception. " + SERVER_NOT_RUNNING);
 			}
-			streamServerStartSettings = null;
 			return false;
 		}
 		/// <summary>
@@ -260,7 +259,7 @@ namespace COMMON
 					{
 						if (0 != connectedClients.Count)
 						{
-							foreach (KeyValuePair<string, Client> c in connectedClients)
+							foreach (KeyValuePair<string, StreamServerClient> c in connectedClients)
 								try
 								{
 									c.Value.Stop();
@@ -277,7 +276,7 @@ namespace COMMON
 				// warn the server is stopping
 				try
 				{
-					streamServerStartSettings.OnStop?.Invoke(streamServerStartSettings.ThreadData, streamServerStartSettings.Parameters);
+					StartSettings.OnStop?.Invoke(StartSettings.ThreadData, StartSettings.Parameters);
 				}
 				catch (Exception ex)
 				{
@@ -310,26 +309,26 @@ namespace COMMON
 				{
 					// accept client connection
 					tcp = listener.AcceptTcpClient();
-					Client client = null;
+					StreamServerClient client = null;
 					try
 					{
 						EndPoint clientEndPoint = tcp.Client.RemoteEndPoint;
-						client = new Client(tcp, streamServerStartSettings.StreamServerSettings);
+						client = new StreamServerClient(tcp, StartSettings.StreamServerSettings);
 						string clientKey = client.Key;
 						try
 						{
-							tcp.SendTimeout = streamServerStartSettings.StreamServerSettings.SendTimeout * CStreamSettings.ONESECOND;
-							tcp.ReceiveTimeout = streamServerStartSettings.StreamServerSettings.ReceiveTimeout * CStreamSettings.ONESECOND;
+							tcp.SendTimeout = StartSettings.StreamServerSettings.SendTimeout * CStreamSettings.ONESECOND;
+							tcp.ReceiveTimeout = StartSettings.StreamServerSettings.ReceiveTimeout * CStreamSettings.ONESECOND;
 							// start the processing and receiving threads to process messages from this client
-							if (client.ReceivingThread.Start(StreamServerReceiverMethod, streamServerStartSettings.ThreadData, client, client.ReceiverEvents.Started))
+							if (client.ReceivingThread.Start(StreamServerReceiverMethod, StartSettings.ThreadData, client, client.ReceiverEvents.Started))
 							{
-								if (client.ProcessingThread.Start(StreamServerProcessorMethod, streamServerStartSettings.ThreadData, client, client.ProcessorEvents.Started))
+								if (client.ProcessingThread.Start(StreamServerProcessorMethod, StartSettings.ThreadData, client, client.ProcessorEvents.Started))
 								{
 									// arrived here everything's in place, let's verify whether the client is accepted or not from that ip address
 									try
 									{
-										if (null != streamServerStartSettings.OnConnect)
-											client.Connected = streamServerStartSettings.OnConnect(tcp, streamServerStartSettings.ThreadData, streamServerStartSettings.Parameters);
+										if (null != StartSettings.OnConnect)
+											client.Connected = StartSettings.OnConnect(tcp, StartSettings.ThreadData, StartSettings.Parameters);
 									}
 									catch (Exception ex)
 									{
@@ -409,7 +408,7 @@ namespace COMMON
 		private int StreamServerReceiverMethod(CThreadData threadData, object o)
 		{
 			// indicate the thread is on
-			Client client = (Client)o;
+			StreamServerClient client = (StreamServerClient)o;
 			string threadName = mainThread.Description + "RECEIVER - ";
 			int res = (int)ThreadResult.UNKNOWN;
 			bool keepOnRunning = true;
@@ -492,7 +491,7 @@ namespace COMMON
 				 * will block the main thread preventing the application to close.
 				 */
 				if (client.Connected && !isCleaningUp)
-					streamServerStartSettings.OnDisconnect?.Invoke(null != clientEndPoint ? clientEndPoint.ToString() : "[address not available]", streamServerStartSettings.ThreadData, streamServerStartSettings.Parameters);
+					StartSettings.OnDisconnect?.Invoke(null != clientEndPoint ? clientEndPoint.ToString() : "[address not available]", StartSettings.ThreadData, StartSettings.Parameters);
 			}
 			catch (Exception ex)
 			{
@@ -513,13 +512,15 @@ namespace COMMON
 		/// <returns></returns>
 		private int StreamServerProcessorMethod(CThreadData threadData, object o)
 		{
-			string threadName = "PROCESSOR - ";
+			StreamServerClient client = (StreamServerClient)o;
+			string threadName = mainThread.Description + "PROCESSOR - ";
 			int res = (int)ThreadResult.UNKNOWN;
 			bool keepOnRunning = true;
+
 			// indicate the thread is on
-			Client client = (Client)o;
 			WaitHandle[] handles = { client.StopProcessingThreadEvent, client.MessageReceivedEvent };
 			client.ProcessorEvents.SetStarted();
+
 			// wait for a message to be ready to process
 			do
 			{
@@ -556,11 +557,11 @@ namespace COMMON
 								// check whether the messge must be hidden or not
 								string req = MessageToLog(client, request, false);
 								// forward request for processing
-								byte[] reply = streamServerStartSettings.OnMessage(client.Tcp, request, out bool addBufferSize, streamServerStartSettings.ThreadData, streamServerStartSettings.Parameters);
+								byte[] reply = StartSettings.OnMessage(client.Tcp, request, out bool addBufferSize, threadData, StartSettings.Parameters);
 								if (null != reply && 0 != reply.Length)
 								{
 									string rep = MessageToLog(client, reply, true);
-									if (client.StreamIO.Send(reply, addBufferSize))
+									if (null != client.StreamIO && client.StreamIO.Send(reply, addBufferSize))
 									{
 										CLog.Add(threadName + $"Exchange complete - Request [{request.Length} bytes] {req} - Reply [{reply.Length} bytes)] {rep}");
 									}
@@ -601,10 +602,10 @@ namespace COMMON
 			client.Stop();
 			return res;
 		}
-		private string MessageToLog(Client client, byte[] buffer, bool aboutToBeSent)
+		private static string MessageToLog(StreamServerClient client, byte[] buffer, bool aboutToBeSent)
 		{
 			// check whether the messge must be hidden or not
-			if (null != client.Settings.OnMessageToLog)
+			if (null != client.StreamServerSettings.OnMessageToLog)
 			{
 				string s = null;// client.Settings.OnMessageToLog(buffer, CMisc.BytesToHexStr(buffer), true);
 				return (string.IsNullOrEmpty(s) ? "<MESSAGE HIDDEN>" : s);
@@ -642,13 +643,13 @@ namespace COMMON
 		/// <summary>
 		/// Connected client
 		/// </summary>
-		class Client
+		class StreamServerClient
 		{
 			#region constructor
-			public Client(TcpClient tcp, CStreamServerSettings settings)
+			public StreamServerClient(TcpClient tcp, CStreamServerSettings settings)
 			{
 				Tcp = tcp;
-				Settings = settings;
+				StreamServerSettings = settings;
 				ID = Guid.NewGuid();
 				ReceivingThread = new CThread();
 				ReceiverEvents = new CThreadEvents();
@@ -657,11 +658,11 @@ namespace COMMON
 				MessageReceivedEvent = new AutoResetEvent(false);
 				StopProcessingThreadEvent = new AutoResetEvent(false);
 				Messages = new QueueOfMessages();
-				StreamIO = new CStreamServerIO(Tcp, Settings);
+				StreamIO = new CStreamServerIO(Tcp, StreamServerSettings);
 				WaitBeforeAbort = 5;
 				Connected = false;
 			}
-			~Client()
+			~StreamServerClient()
 			{
 				Stop();
 			}
@@ -670,19 +671,19 @@ namespace COMMON
 			#region properties
 			public bool Connected { get; set; }
 			public string Key { get => ToString(); }
-			public Guid ID { get; private set; }
+			public Guid ID { get; }
 			public object myLock = new object();
-			public TcpClient Tcp { get; private set; }
-			public CStreamServerSettings Settings { get; private set; }
+			public TcpClient Tcp { get; }
+			public CStreamServerSettings StreamServerSettings { get; }
 			public CStreamServerIO StreamIO { get; private set; } = null;
-			public CThread ReceivingThread { get; private set; }
-			public CThread ProcessingThread { get; private set; }
-			public QueueOfMessages Messages { get; private set; }
-			public CThreadEvents ReceiverEvents { get; private set; }
-			public CThreadEvents ProcessorEvents { get; private set; }
-			public AutoResetEvent MessageReceivedEvent { get; private set; }
-			public AutoResetEvent StopProcessingThreadEvent { get; private set; }
-			public int WaitBeforeAbort { get; set; }
+			public CThread ReceivingThread { get; }
+			public CThread ProcessingThread { get; }
+			public QueueOfMessages Messages { get; }
+			public CThreadEvents ReceiverEvents { get; }
+			public CThreadEvents ProcessorEvents { get; }
+			public AutoResetEvent MessageReceivedEvent { get; }
+			public AutoResetEvent StopProcessingThreadEvent { get; }
+			public int WaitBeforeAbort { get; }
 			private Mutex isStoppingMutex = new Mutex(false);
 			internal string Server = null;
 			#endregion
@@ -735,7 +736,7 @@ namespace COMMON
 			}
 			#endregion
 		}
-		class Clients : Dictionary<string, Client> { }
+		class StreamServerClients : Dictionary<string, StreamServerClient> { }
 		#endregion
 	}
 }

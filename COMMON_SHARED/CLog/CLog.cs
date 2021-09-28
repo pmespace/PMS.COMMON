@@ -124,6 +124,10 @@ namespace COMMON
 		/// Indicates the number of files to keep if <see cref="AutoPurgeLogFiles"/> is set to true
 		/// </summary>
 		public static int NumberOfFilesToKeep { get; set; } = KEEP_ALL_FILES;
+		/// <summary>
+		/// Indicates whether CR, LF and other special characters are kept when logging into file
+		/// </summary>
+		public static bool KeepCRLF { get; set; } = false;
 		#endregion
 
 		#region methods
@@ -216,9 +220,12 @@ namespace COMMON
 		/// <returns></returns>
 		private static string RemoveCRLF(string s)
 		{
-			//s = s.Replace(Chars.CR, " ");
-			//s = s.Replace(Chars.LF, " ");
-			//s = s.Replace(Chars.TAB, " ");
+			if (!KeepCRLF)
+			{
+				s = s.Replace(Chars.CR, " ");
+				s = s.Replace(Chars.LF, " ");
+				s = s.Replace(Chars.TAB, " ");
+			}
 			return s;
 		}
 		/// <summary>

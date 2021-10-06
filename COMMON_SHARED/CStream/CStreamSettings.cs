@@ -138,6 +138,15 @@ namespace COMMON
 		[JsonIgnore]
 		public CStreamDelegates.ClientServerOnMessageToLog OnMessageToLog { get => _onmessagetolog; set => _onmessagetolog = value; }
 		private CStreamDelegates.ClientServerOnMessageToLog _onmessagetolog = null;
+		/// <summary>
+		/// Allowed SSL errors while trying to connect
+		/// </summary>
+		public SslPolicyErrors AllowedSslErrors
+		{
+			get => _allowedsslerrors;
+			set { _allowedsslerrors = value & (SslPolicyErrors.RemoteCertificateChainErrors | SslPolicyErrors.RemoteCertificateNameMismatch | SslPolicyErrors.RemoteCertificateNotAvailable); }
+		}
+		private SslPolicyErrors _allowedsslerrors = SslPolicyErrors.None;
 		#endregion
 
 		#region methods
@@ -255,15 +264,15 @@ namespace COMMON
 		/// </summary>
 		[JsonIgnore]
 		public string FullIP { get => (IsValid ? IP + (0 != Port ? ":" + Port : string.Empty) : string.Empty); }
-		/// <summary>
-		/// Allowed SSL errors while trying to connect
-		/// </summary>
-		public SslPolicyErrors AllowedSslErrors
-		{
-			get => _allowedsslerrors;
-			set { _allowedsslerrors = value & (SslPolicyErrors.RemoteCertificateChainErrors | SslPolicyErrors.RemoteCertificateNameMismatch | SslPolicyErrors.RemoteCertificateNotAvailable); }
-		}
-		private SslPolicyErrors _allowedsslerrors = SslPolicyErrors.None;
+		///// <summary>
+		///// Allowed SSL errors while trying to connect
+		///// </summary>
+		//public SslPolicyErrors AllowedSslErrors
+		//{
+		//	get => _allowedsslerrors;
+		//	set { _allowedsslerrors = value & (SslPolicyErrors.RemoteCertificateChainErrors | SslPolicyErrors.RemoteCertificateNameMismatch | SslPolicyErrors.RemoteCertificateNotAvailable); }
+		//}
+		//private SslPolicyErrors _allowedsslerrors = SslPolicyErrors.None;
 		#endregion
 
 		#region private properties
@@ -342,10 +351,10 @@ namespace COMMON
 		bool IsValid { get; }
 		[DispId(2)]
 		uint Port { get; set; }
-		[DispId(3)]
-		string Certificate { get; set; }
 		[DispId(4)]
 		X509Certificate ServerCertificate { get; set; }
+		[DispId(8)]
+		SslPolicyErrors AllowedSslErrors { get; set; }
 
 		[DispId(100)]
 		string ToString();
@@ -402,33 +411,6 @@ namespace COMMON
 			}
 		}
 		private uint _port = DEFAULT_PORT;
-		/// <summary>
-		/// Certificate file to use to secure the connection
-		/// </summary>
-		public string Certificate
-		{
-			get => _certificate;
-			set
-			{
-				_certificate = value;
-				if (!string.IsNullOrEmpty(Certificate))
-				{
-					try
-					{
-						ServerCertificate = X509Certificate.CreateFromCertFile(Certificate);
-					}
-					catch (Exception ex)
-					{
-						CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
-						_certificate = string.Empty;
-						ServerCertificate = null;
-					}
-				}
-				else
-					ServerCertificate = null;
-			}
-		}
-		private string _certificate = string.Empty;
 		/// <summary>
 		/// The SSL certificate to use to authenticate the server
 		/// </summary>

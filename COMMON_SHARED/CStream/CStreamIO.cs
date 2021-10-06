@@ -1,4 +1,5 @@
 ﻿using System.Security.Cryptography.X509Certificates;
+using System.Security.Authentication;
 using System.Runtime.InteropServices;
 using System.Net.Security;
 using System.Net.Sockets;
@@ -6,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System;
 using Microsoft.Win32;
+using System.Threading;
 
 namespace COMMON
 {
@@ -376,6 +378,8 @@ namespace COMMON
 				if (Settings.UseSsl)
 				{
 					sslStream = new SslStream(client.GetStream(), false, new RemoteCertificateValidationCallback(ValidateServerCertificate), null);
+					int tmo = client.ReceiveTimeout * 1000;
+					client.ReceiveTimeout = 5000;
 					try
 					{
 						// authenticate aginst the server
@@ -404,6 +408,10 @@ namespace COMMON
 						sslStream = null;
 						throw;
 					}
+					finally
+					{
+						client.ReceiveTimeout = tmo;
+					}
 				}
 				else
 					networkStream = client.GetStream();
@@ -427,7 +435,7 @@ namespace COMMON
 		/// <param name="chain"></param>
 		/// <param name="sslPolicyErrors"></param>
 		/// <returns></returns>
-		public bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+		private bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
 		{
 			//return true;
 			if (Settings.AllowedSslErrors == (sslPolicyErrors | Settings.AllowedSslErrors))
@@ -456,14 +464,16 @@ namespace COMMON
 		public CStreamServerIO(TcpClient client, CStreamServerSettings settings) : base(client, settings.LengthBufferSize)
 		{
 			Port = settings.Port;
+			Settings = settings;
 			if (settings.UseSsl)
 			{
 				// SSL stream
-				sslStream = new SslStream(client.GetStream(), false);
+				sslStream = new SslStream(client.GetStream(), false, new RemoteCertificateValidationCallback(ValidateServerCertificate), null);
+				int tmo = client.ReceiveTimeout * 1000;
+				client.ReceiveTimeout = 5000;
 				try
 				{
 					// authenticate the server but don't require the client to authenticate.
-					//sslStream.AuthenticateAsServer(settings.ServerCertificate, clientCertificateRequired: false, checkCertificateRevocation: true);
 					sslStream.AuthenticateAsServer(settings.ServerCertificate);
 				}
 				catch (Exception ex)
@@ -471,6 +481,10 @@ namespace COMMON
 					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
 					sslStream = null;
 					throw;
+				}
+				finally
+				{
+					client.ReceiveTimeout = tmo;
 				}
 			}
 			else
@@ -483,6 +497,31 @@ namespace COMMON
 
 		#region properties
 		public uint Port { get; private set; }
+		private CStreamServerSettings Settings = null;
+		#endregion
+
+
+		#region methods
+		/// <summary>
+		/// The following method is invoked by the RemoteCertificateValidationDelegate
+		/// Refer to .NET specs for a full description
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="certificate"></param>
+		/// <param name="chain"></param>
+		/// <param name="sslPolicyErrors"></param>
+		/// <returns></returns>
+		private bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+		{
+			//return true;
+			if (Settings.AllowedSslErrors == (sslPolicyErrors | Settings.AllowedSslErrors))
+				return true;
+
+			// arrived here a certificate error occured
+			// Do not allow this client to communicate with unauthenticated servers.
+			CLog.Add("Certificate error - " + sslPolicyErrors.ToString(), TLog.ERROR);
+			return false;
+		}
 		#endregion
 	}
 }

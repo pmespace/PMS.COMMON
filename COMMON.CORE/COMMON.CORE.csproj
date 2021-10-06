@@ -50,8 +50,4 @@
     <Copy SourceFiles="$(OutputPath)..\$(PackageId).$(PackageVersion).nupkg" DestinationFolder="$(SolutionDir)..\nuget\test" />
   </Target>
 
-
-
-
-
 </Project>

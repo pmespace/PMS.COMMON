@@ -1,4 +1,9 @@
 ﻿using System;
+using System.Text;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Sockets;
+using System.Net.Security;
+using System.Collections.Generic;
 using COMMON;
 
 namespace TestCore
@@ -7,10 +12,8 @@ namespace TestCore
 	{
 		static void Main(string[] args)
 		{
-			Console.ReadKey(true);
-			Console.WriteLine("Hello World!");
-			CLog.LogFileName = "test.core.log";
-			CLog.Add("test");
+			TestCore t = new TestCore();
+			t.Start(args);
 		}
 	}
 }

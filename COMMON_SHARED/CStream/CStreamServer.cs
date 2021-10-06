@@ -139,20 +139,19 @@ namespace COMMON
 			connectedClients.Clear();
 			try
 			{
-				bool fOK = true;
+				bool ok = true;
 				// verify wether starting the server is accepted or not
-				if (null != settings.OnStart)
-					try
-					{
-						fOK = settings.OnStart(settings.ThreadData, settings.Parameters);
-					}
-					catch (Exception ex)
-					{
-						CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "OnStart generated an exception");
-						// by default let's start the server
-						fOK = true;
-					}
-				if (fOK)
+				try
+				{
+					ok = (null == settings.OnStart ? true : settings.OnStart(settings.ThreadData, settings.Parameters));
+				}
+				catch (Exception ex)
+				{
+					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "OnStart generated an exception");
+					// by default let's start the server
+					ok = true;
+				}
+				if (ok)
 				{
 					// create a TCP/IP socket and start listenning for incoming connections
 					listener = new TcpListener(IPAddress.Any, (int)settings.StreamServerSettings.Port);
@@ -303,7 +302,7 @@ namespace COMMON
 			listenerEvents.SetStarted();
 			while (keepOnRunning)
 			{
-				bool fOK = false;
+				bool ok = false;
 				TcpClient tcp = null;
 				try
 				{
@@ -327,8 +326,7 @@ namespace COMMON
 									// arrived here everything's in place, let's verify whether the client is accepted or not from that ip address
 									try
 									{
-										if (null != StartSettings.OnConnect)
-											client.Connected = StartSettings.OnConnect(tcp, StartSettings.ThreadData, StartSettings.Parameters);
+										client.Connected = (null == StartSettings.OnConnect ? true : StartSettings.OnConnect(tcp, StartSettings.ThreadData, StartSettings.Parameters));
 									}
 									catch (Exception ex)
 									{
@@ -340,7 +338,7 @@ namespace COMMON
 										lock (myLock)
 										{
 											connectedClients.Add(client.Key, client);
-											fOK = true;
+											ok = true;
 										}
 									}
 									else
@@ -361,7 +359,7 @@ namespace COMMON
 						catch (Exception ex)
 						{
 							CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "failed to start server");
-							if (!fOK)
+							if (!ok)
 								try
 								{
 									if (connectedClients.ContainsKey(clientKey))
@@ -377,12 +375,12 @@ namespace COMMON
 					finally
 					{
 						// cleanup if necesary
-						if (null != client && !fOK)
+						if (null != client && !ok)
 						{
 							client.Stop();
 						}
 					}
-					if (!fOK && null != tcp)
+					if (!ok && null != tcp)
 						tcp.Close();
 				}
 				catch (Exception ex)
@@ -555,24 +553,20 @@ namespace COMMON
 							if (null != request && 0 != request.Length)
 							{
 								// check whether the messge must be hidden or not
-								string req = MessageToLog(client, request, false);
+								CLog.Add(threadName + $"Request [{request.Length} bytes] {MessageToLog(client, request, true)}");
 								// forward request for processing
 								byte[] reply = StartSettings.OnMessage(client.Tcp, request, out bool addBufferSize, threadData, StartSettings.Parameters);
 								if (null != reply && 0 != reply.Length)
 								{
-									string rep = MessageToLog(client, reply, true);
-									if (null != client.StreamIO && client.StreamIO.Send(reply, addBufferSize))
+									CLog.Add(threadName + $"Reply [{reply.Length} bytes] {MessageToLog(client, reply, false)}");
+									if (null == client.StreamIO || !client.StreamIO.Send(reply, addBufferSize))
 									{
-										CLog.Add(threadName + $"Exchange complete - Request [{request.Length} bytes] {req} - Reply [{reply.Length} bytes)] {rep}");
-									}
-									else
-									{
-										CLog.Add(threadName + $"Error sending reply back to the client - Request [{request.Length} bytes] {req}", TLog.ERROR);
+										CLog.Add(threadName + $"The reply was not sent to the client", TLog.ERROR);
 									}
 								}
 								else
 								{
-									CLog.Add(threadName + $"No reply to send - Request [{request.Length} bytes] {req}", TLog.WARNG);
+									CLog.Add(threadName + $"No reply to send", TLog.WARNG);
 								}
 							}
 							else
@@ -602,12 +596,12 @@ namespace COMMON
 			client.Stop();
 			return res;
 		}
-		private static string MessageToLog(StreamServerClient client, byte[] buffer, bool aboutToBeSent)
+		private static string MessageToLog(StreamServerClient client, byte[] buffer, bool isRequest)
 		{
 			// check whether the message must be hidden or not
 			if (null != client.StreamServerSettings.OnMessageToLog)
 			{
-				string s = client.StreamServerSettings.OnMessageToLog(buffer, CMisc.BytesToHexStr(buffer), true);
+				string s = client.StreamServerSettings.OnMessageToLog(buffer, CMisc.BytesToHexStr(buffer), isRequest);
 				return (string.IsNullOrEmpty(s) ? "<MESSAGE HIDDEN>" : s);
 			}
 			else

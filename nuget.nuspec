@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>PMS.COMMON</id>
-    <version>5.2.2</version>
+    <version>5.2.3</version>
     <title>PMS.COMMON</title>
     <authors>philippemp31</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -25,9 +25,12 @@
       - Win32 tools
     </description>
     <releaseNotes>
+      5.2.3
+      - Reestablished some CThread properties inside CStreamServer
+
       5.2.2
       - Lots of bug fixes or evolutions in CMisc
-      - CStreamServerSettings now has got a new call back to allow not logging the full messages (received and sent) so as to allow a PCI-DSS compliance 
+      - CStreamServerSettings now has got a new call back to allow not logging the full messages (received and sent) so as to allow a PCI-DSS compliance
       - New property in CLog
 
       5.2.1

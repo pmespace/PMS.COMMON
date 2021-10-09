@@ -473,7 +473,8 @@ namespace COMMON
 				};
 				// prepare the thread object
 				CThread thread = new CThread();
-				if (thread.Start(SendAsyncThreadMethod, sendAsync.ThreadData, threadParams, null, sendAsync.OnTerminate, true))
+				//if (thread.Start(SendAsyncThreadMethod, sendAsync.ThreadData, threadParams, null, sendAsync.OnTerminate, true))
+				if (thread.Start(SendAsyncThreadMethod, sendAsync.ThreadData, threadParams, null, true))
 					return thread;
 				else
 					thread = null;
@@ -523,17 +524,17 @@ namespace COMMON
 			/// Function that will be called when the reply has been received.
 			/// </summary>
 			public CStreamDelegates.ClientOnReplyDelegate OnReply { get; set; } = null;
-			/// <summary>
-			/// Function that will be called when the thread is terminated.
-			/// </summary>
-			public CThread.CThreadHasEnded OnTerminate { get; set; } = null;
+			///// <summary>
+			///// Function that will be called when the thread is terminated.
+			///// </summary>
+			//public CThread.CThreadHasEnded OnTerminate { get; set; } = null;
 			/// <summary>
 			/// Parameters to pass to the <see cref="OnReply"/> function
 			/// </summary>
 			public object Parameters { get; set; } = null;
 		}
 		/// <summary>
-		/// <see cref="CThread.CThreadFunction"/>.
+		/// <see cref="CThread.ThreadFunction"/>.
 		/// That function supports <see cref="SendAsync(SendAsyncType, byte[], bool, bool, string)"/> processing/
 		/// </summary>
 		/// <param name="threadData"></param>

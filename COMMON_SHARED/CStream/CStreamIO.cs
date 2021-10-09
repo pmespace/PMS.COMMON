@@ -11,9 +11,6 @@ using System.Threading;
 
 namespace COMMON
 {
-	/// <summary>
-	/// Basic ClientServer class
-	/// </summary>
 	[ComVisible(false)]
 	public abstract class CStreamIO : CStreamBase
 	{
@@ -357,11 +354,30 @@ namespace COMMON
 		#endregion
 	}
 
-	/// <summary>
-	/// Client class
-	/// </summary>
-	[ComVisible(false)]
-	public class CStreamClientIO : CStreamIO
+	[ComVisible(true)]
+	[Guid("8032AC79-8819-4FD3-A4E2-A97D24D318FC")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	public interface IStreamClientIO
+	{
+		#region CStreamBase
+		[DispId(1001)]
+		int LengthBufferSize { get; }
+		[DispId(1002)]
+		string ToString();
+		#endregion
+
+		#region CStreamIO
+		[DispId(2001)]
+		TcpClient Tcp { get; }
+		#endregion
+
+		#region CStreamClientIO
+		#endregion
+	}
+	[Guid("26BB1F7D-211E-4CCA-A8B1-A99A091C3176")]
+	[ClassInterface(ClassInterfaceType.None)]
+	[ComVisible(true)]
+	public class CStreamClientIO : CStreamIO, IStreamClientIO
 	{
 		#region constructors
 		/// <summary>
@@ -449,11 +465,32 @@ namespace COMMON
 		#endregion
 	}
 
-	/// <summary>
-	/// Server class
-	/// </summary>
-	[ComVisible(false)]
-	public class CStreamServerIO : CStreamIO
+	[ComVisible(true)]
+	[Guid("DBB95FAB-171A-4DFA-BF32-6E0AC64DC506")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	public interface IStreamServerIO
+	{
+		#region CStreamBase
+		[DispId(1001)]
+		int LengthBufferSize { get; }
+		[DispId(1002)]
+		string ToString();
+		#endregion
+
+		#region CStreamIO
+		[DispId(2001)]
+		TcpClient Tcp { get; }
+		#endregion
+
+		#region CStreamClientIO
+		[DispId(1)]
+		uint Port { get; }
+		#endregion
+	}
+	[Guid("9D87E461-0320-41E7-B88A-6F9E7D5A95A0")]
+	[ClassInterface(ClassInterfaceType.None)]
+	[ComVisible(true)]
+	public class CStreamServerIO : CStreamIO, IStreamServerIO
 	{
 		#region constructors
 		/// <summary>
@@ -499,7 +536,6 @@ namespace COMMON
 		public uint Port { get; private set; }
 		private CStreamServerSettings Settings = null;
 		#endregion
-
 
 		#region methods
 		/// <summary>

@@ -10,11 +10,41 @@ using System.Collections.ObjectModel;
 
 namespace COMMON
 {
+	[ComVisible(true)]
+	[Guid("8E3BBBB0-F498-47BF-AB18-5C84B80EE4B4")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	public interface IStreamServerStartSettings
+	{
+		[DispId(1)]
+		bool IsValid { get; }
+		[DispId(2)]
+		CThreadData ThreadData { get; set; }
+		[DispId(3)]
+		CStreamServerSettings StreamServerSettings { get; set; }
+		[DispId(4)]
+		object Parameters { get; set; }
+		[DispId(5)]
+		bool Synchronous { get; set; }
+		[DispId(100)]
+		CStreamDelegates.ServerOnStartDelegate OnStart { get; set; }
+		[DispId(101)]
+		CStreamDelegates.ServerOnConnectDelegate OnConnect { get; set; }
+		[DispId(102)]
+		CStreamDelegates.ServerOnMessageDelegate OnMessage { get; set; }
+		[DispId(103)]
+		CStreamDelegates.ServerOnDisconnectDelegate OnDisconnect { get; set; }
+		[DispId(104)]
+		CStreamDelegates.ServerOnStopDelegate OnStop { get; set; }
+		//[DispId(105)]
+		//CThread.CThreadHasEnded OnTerminate { get; set; }
+	}
 	/// <summary>
 	/// Structure to use to start a <see cref="CStreamServer"/>
 	/// </summary>
-	[ComVisible(false)]
-	public class CStreamServerStartSettings
+	[Guid("7D25C068-E0B0-4C2E-ADC1-DE726C6E7EE5")]
+	[ClassInterface(ClassInterfaceType.None)]
+	[ComVisible(true)]
+	public class CStreamServerStartSettings : IStreamServerStartSettings
 	{
 		#region properties
 		/// <summary>
@@ -24,11 +54,11 @@ namespace COMMON
 		/// <summary>
 		/// Thread data to use to identify the thread
 		/// </summary>
-		public CThreadData ThreadData { get; set; } = null;
+		public CThreadData ThreadData { get; set; } // = null;
 		/// <summary>
 		/// Server 
 		/// </summary>
-		public CStreamServerSettings StreamServerSettings { get; set; } = null;
+		public CStreamServerSettings StreamServerSettings { get; set; } // = null;
 		/// <summary>
 		/// Private parameters passed to the thread
 		/// </summary>
@@ -36,43 +66,72 @@ namespace COMMON
 		/// <summary>
 		/// Synchrounous server (1 thread) or not (1 main thread + 1 thread per client)
 		/// </summary>
-		public bool Synchronous { get; set; } = true;
+		public bool Synchronous { get; set; } // = true;
 		/// <summary>
 		/// Called before starting processing requests from a client.
 		/// This function allows to initialise the server context.
 		/// </summary>
-		public CStreamDelegates.ServerOnStartDelegate OnStart { get; set; } = null;
+		public CStreamDelegates.ServerOnStartDelegate OnStart { get; set; } // = null;
 		/// <summary>
 		/// Called when a client connected to the server.
 		/// This function allows to initialise the client context inside the server.
 		/// </summary>
-		public CStreamDelegates.ServerOnConnectDelegate OnConnect { get; set; } = null;
+		public CStreamDelegates.ServerOnConnectDelegate OnConnect { get; set; } // = null;
 		/// <summary>
 		/// Called when a request has been received to process it and prepare the reply
 		/// </summary>
-		public CStreamDelegates.ServerOnMessageDelegate OnMessage { get; set; } = null;
+		public CStreamDelegates.ServerOnMessageDelegate OnMessage { get; set; } // = null;
 		/// <summary>
 		/// Called when a client connected to the server.
 		/// This function allows to initialise the client context inside the server.
 		/// </summary>
-		public CStreamDelegates.ServerOnDisconnectDelegate OnDisconnect { get; set; } = null;
+		public CStreamDelegates.ServerOnDisconnectDelegate OnDisconnect { get; set; } // = null;
 		/// <summary>
 		/// Called after the server has received a stop order.
 		/// This function allows to clear the server context.
 		/// </summary>
-		public CStreamDelegates.ServerOnStopDelegate OnStop { get; set; } = null;
-		/// <summary>
-		/// Called when the thread terminates
-		/// </summary>
-		public CThread.CThreadHasEnded OnTerminate { get; set; } = null;
+		public CStreamDelegates.ServerOnStopDelegate OnStop { get; set; } // = null;
+																								///// <summary>
+																								///// Called when the thread terminates
+																								///// </summary>
+																								//public CThread.CThreadHasEnded OnTerminate { get; set; } // = null;
 		#endregion
 	}
 
+	[ComVisible(true)]
+	[Guid("7E3C2011-C388-4813-B9C5-B24D6A14892F")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	public interface IStreamServer
+	{
+		[DispId(1)]
+		uint Port { get; }
+		[DispId(2)]
+		string Address { get; }
+		[DispId(3)]
+		string FullAddress { get; }
+		[DispId(4)]
+		int ID { get; set; }
+		[DispId(5)]
+		int UniqueID { get; }
+		[DispId(6)]
+		string Name { get; set; }
+		[DispId(7)]
+		bool IsRunning { get; }
+		[DispId(8)]
+		string Description { get; }
+		[DispId(9)]
+		int Result { get; }
+
+		[DispId(100)]
+		bool StartServer(CStreamServerStartSettings settings);
+		[DispId(101)]
+		void StopServer();
+	}
 	/// <summary>
 	/// Server processing implementation
 	/// </summary>
 	[ComVisible(false)]
-	public class CStreamServer// : CThread
+	public class CStreamServer : IStreamServer
 	{
 		#region constructor
 		public CStreamServer() { }
@@ -108,6 +167,30 @@ namespace COMMON
 		/// The full IP address + port of the server
 		/// </summary>
 		public string FullAddress { get => (null != listener ? Address + (0 != Port ? $":{Port}" : null) : null); }
+		/// <summary>
+		/// <see cref="CThread.ID"/>
+		/// </summary>
+		public int ID { get => mainThread.ID; set => mainThread.ID = value; }
+		/// <summary>
+		/// <see cref="CThread.UniqueID"/>
+		/// </summary>
+		public int UniqueID { get => mainThread.UniqueID; }
+		/// <summary>
+		/// <see cref="CThread.Name"/>
+		/// </summary>
+		public string Name { get => mainThread.Name; set => mainThread.Name = value; }
+		/// <summary>
+		/// <see cref="CThread.IsRunning"/>
+		/// </summary>
+		public bool IsRunning { get => mainThread.IsRunning; }
+		/// <summary>
+		/// <see cref="CThread.Description"/>
+		/// </summary>
+		public string Description { get => mainThread.Description; }
+		/// <summary>
+		/// <see cref="CThread.Result"/>
+		/// </summary>
+		public int Result { get => mainThread.Result; }
 		#endregion
 
 		#region constants
@@ -163,7 +246,7 @@ namespace COMMON
 						try
 						{
 							// start the thread and sleep to allow him to actually run
-							if (mainThread.Start(StreamServerListenerMethod, settings.ThreadData, null, listenerEvents.Started, settings.OnTerminate, true))
+							if (mainThread.Start(StreamServerListenerMethod, settings.ThreadData, null, listenerEvents.Started, true))
 							{
 								return true;
 							}
@@ -223,13 +306,6 @@ namespace COMMON
 				true, out int replySize, out bool timeout);
 			return (!timeout && null != reply && replySize == reply.Length && ACK == reply[0]);
 		}
-		/// <summary>
-		/// Stop the server from inside
-		/// </summary>
-		public void SelfStopServer()
-		{
-			Cleanup();
-		}
 		#endregion
 
 		#region private methods
@@ -285,7 +361,7 @@ namespace COMMON
 			}
 		}
 		/// <summary>
-		/// <see cref="CThread.CThreadFunction"/>
+		/// <see cref="CThread.ThreadFunction"/>
 		/// Server thread processing all incoming connections.
 		/// When a connection is approved a set of threads is created to (first thread) receive messages (second thread) process these messages
 		/// in an asynchronous way (without preventing connections or message reception)
@@ -296,7 +372,7 @@ namespace COMMON
 		private int StreamServerListenerMethod(CThreadData threadData, object o)
 		{
 			string threadName = mainThread.Description + "LISTENER - ";
-			int res = (int)ThreadResult.UNKNOWN;
+			int res = (int)ThreadResult.OK;
 			bool keepOnRunning = true;
 			// indicate listener is on
 			listenerEvents.SetStarted();
@@ -366,11 +442,13 @@ namespace COMMON
 										connectedClients.Remove(clientKey);
 								}
 								catch (Exception) { }
+							res = (int)ThreadResult.Exception;
 						}
 					}
 					catch (Exception ex)
 					{
 						CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "failed to prepare server to start");
+						res = (int)ThreadResult.Exception;
 					}
 					finally
 					{
@@ -500,7 +578,7 @@ namespace COMMON
 			return res;
 		}
 		/// <summary>
-		/// <see cref="CThread.CThreadFunction"/>
+		/// <see cref="CThread.ThreadFunction"/>
 		/// Server thread processing all incoming messages.
 		/// When a message is received it is transfered to the server for processing, then looping on receiving next message.
 		/// Exiting the server loop is instructed by the server by a returning FALSE after having processed a message.

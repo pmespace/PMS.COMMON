@@ -18,6 +18,7 @@ namespace COMMON
 		KO,
 		Exception,
 		_end,
+		_userdefined,
 	}
 
 	[ComVisible(true)]
@@ -34,8 +35,8 @@ namespace COMMON
 		int UniqueID { get; }
 		[DispId(5004)]
 		int NoThread { get; }
-		//[DispId(5006)]
-		//int FinalDelayWhenThreadTerminates { get; set; }
+		[DispId(5006)]
+		int FinalDelayWhenThreadTerminates { get; set; }
 		[DispId(5007)]
 		Thread Thread { get; }
 		[DispId(5008)]
@@ -80,15 +81,7 @@ namespace COMMON
 		/// <param name="data"><see cref="CThreadData"/> structure passed by the caller</param>
 		/// <param name="o">Parameters passed to the thread</param>
 		/// <returns>The result of the function, any muneric value pertaining to the caller. That value will be set inside <see cref="Result"/></returns>
-		public delegate int CThreadFunction(CThreadData data = null, object o = null);
-		/// <summary>
-		/// Function called from inside the thread when the thread ends.
-		/// </summary>
-		/// <param name="id">This is the <see cref="ID"/> value given to the thread by the calling application</param>
-		/// <param name="name">This is the <see cref="Name"/> value given to the thread by the  calling application</param>
-		/// <param name="uniqueId">This is the <see cref="UniqueID"/> value given to the thread by the system itself</param>
-		/// <param name="result">This is the <see cref="Result"/> of the thread</param>
-		public delegate void CThreadHasEnded(int id, string name, int uniqueId, int result);
+		public delegate int ThreadFunction(CThreadData data = null, object o = null);
 		#endregion
 
 		#region public properties
@@ -106,17 +99,18 @@ namespace COMMON
 		public int UniqueID { get => null != Thread ? Thread.ManagedThreadId : NO_THREAD; }
 		public const int NO_THREAD = 0;
 		public int NoThread { get => NO_THREAD; }
-		///// <summary>
-		///// Timer to wait for when the thread is about to terminate, expressed in milliseconds
-		///// The thread terminated event is sent after this timer has gone
-		///// </summary>
-		//public int FinalDelayWhenThreadTerminates
-		//{
-		//	get => _finaldelaywhenthreadterminates;
-		//	set => _finaldelaywhenthreadterminates = 0 == value ? DEFAULT_FINAL_DELAY_WHEN_THREAD_TERMINATES : value;
-		//}
-		//private int _finaldelaywhenthreadterminates = DEFAULT_FINAL_DELAY_WHEN_THREAD_TERMINATES;
-		//private const int DEFAULT_FINAL_DELAY_WHEN_THREAD_TERMINATES = 5;
+
+		/// <summary>
+		/// Timer to wait for when the thread is about to terminate, expressed in milliseconds
+		/// The thread terminated event is sent after this timer has gone
+		/// </summary>
+		public int FinalDelayWhenThreadTerminates
+		{
+			get => _finaldelaywhenthreadterminates;
+			set => _finaldelaywhenthreadterminates = 0 == value ? DEFAULT_FINAL_DELAY_WHEN_THREAD_TERMINATES : value;
+		}
+		private int _finaldelaywhenthreadterminates = DEFAULT_FINAL_DELAY_WHEN_THREAD_TERMINATES;
+		private const int DEFAULT_FINAL_DELAY_WHEN_THREAD_TERMINATES = 5;
 
 		/// <summary>
 		/// The thread object itself
@@ -175,8 +169,8 @@ namespace COMMON
 		/// <summary>
 		/// The function to call inside the caller's environement to create the thread
 		/// </summary>
-		private CThreadFunction ThreadMethod { get; set; }
-		private CThreadHasEnded ThreadHasEndedMethod { get; set; } = null;
+		private ThreadFunction ThreadMethod { get; set; }
+		//private CThreadHasEnded ThreadHasEndedMethod { get; set; } = null;
 		private object ThreadParams { get; set; }
 		#endregion
 
@@ -189,9 +183,8 @@ namespace COMMON
 		/// <param name="threadParams">Parameters to pass to the thread</param>
 		/// <param name="evt">An <see cref="ManualResetEvent"/> object created by the calling application to wait for when starting the thread. This event can be used by the calling application to indicate it has finished its own initialisation process and must therefore be set within the calling applictaioin's thread function to unlock processing. Set to null means no event to wait for.</param>
 		/// <param name="isBackground">Indicates whether the created thread is a background one or not</param>
-		/// <param name="threadHasEndedMethod">Function that will be called when the thread has ended its processing. This is the very last call inside the thread before it terminates. BEWARE, it is then called from inside the thread environment</param>
 		/// <returns>True if started, false otherwise</returns>
-		public bool Start(CThreadFunction method, CThreadData threadData = null, object threadParams = null, ManualResetEvent evt = null, CThreadHasEnded threadHasEndedMethod = null, bool isBackground = true)
+		public bool Start(ThreadFunction method, CThreadData threadData = null, object threadParams = null, ManualResetEvent evt = null, bool isBackground = true)
 		{
 			if (!CanStart)
 				return false;
@@ -202,7 +195,6 @@ namespace COMMON
 				HasBeenStarted = true;
 				ThreadData = threadData;
 				ThreadMethod = method;
-				ThreadHasEndedMethod = threadHasEndedMethod;
 				ThreadParams = threadParams;
 				Events.Reset();
 				// start the thread
@@ -230,7 +222,7 @@ namespace COMMON
 			if (Events.WaitStopped())
 			{
 				//// give time to the thread to actually terminate
-				//Thread.Sleep(FinalDelayWhenThreadTerminates);
+				Thread.Sleep(FinalDelayWhenThreadTerminates);
 				return true;
 			}
 			return false;
@@ -272,11 +264,11 @@ namespace COMMON
 			// this MUST be the final statements
 			// indicate the thread is finished
 			IsRunning = false;
+			HasBeenStarted = false;
 			Events.SetStopped();
 			try
 			{
-				if (null != ThreadHasEndedMethod)
-					ThreadHasEndedMethod(ID, Name, UniqueID, Result);
+				ThreadData.OnTerminates?.Invoke(ID, Name, UniqueID, Result);
 			}
 			catch (Exception ex)
 			{
@@ -314,11 +306,38 @@ namespace COMMON
 		#endregion
 	}
 
+	[ComVisible(true)]
+	[Guid("3FB79C95-70A3-41DA-AEA7-02DFBFD23BB7")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	public interface IThreadEvents
+	{
+		[DispId(1)]
+		ManualResetEvent Started { get; }
+		[DispId(2)]
+		ManualResetEvent Stopped { get; }
+
+		[DispId(100)]
+		bool SetStarted();
+		[DispId(101)]
+		bool SetStopped();
+		[DispId(102)]
+		bool WaitStarted(int timer = Timeout.Infinite);
+		[DispId(103)]
+		bool WaitStopped(int timer = Timeout.Infinite);
+		[DispId(104)]
+		bool ResetStarted();
+		[DispId(105)]
+		bool ResetStopped();
+		[DispId(106)]
+		bool Reset();
+	}
 	/// <summary>
 	/// Class used to manage started and stopped flags of a thread
 	/// If an application needs to know whether a thread is still on it can use these methods
 	/// </summary>
-	[ComVisible(false)]
+	[Guid("47F2047F-D71B-4B28-BF56-3B586BF89D68")]
+	[ClassInterface(ClassInterfaceType.None)]
+	[ComVisible(true)]
 	public class CThreadEvents
 	{
 		public CThreadEvents()

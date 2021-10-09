@@ -56,6 +56,17 @@ namespace COMMON
 		}
 		#endregion
 
+		#region delegates
+		/// <summary>
+		/// Function called from inside the thread when the thread ends.
+		/// </summary>
+		/// <param name="id">This is the <see cref="CThread.ID"/> value given to the thread by the calling application</param>
+		/// <param name="name">This is the <see cref="CThread.Name"/> value given to the thread by the  calling application</param>
+		/// <param name="uniqueId">This is the <see cref="CThread.UniqueID"/> value given to the thread by the system itself</param>
+		/// <param name="result">This is the <see cref="CThread.Result"/> of the thread</param>
+		public delegate void ThreadTerminates(int id, string name, int uniqueId, int result);
+		#endregion
+
 		#region properties
 		public bool IsValid { get => true; }
 
@@ -102,6 +113,11 @@ namespace COMMON
 			set => _eventtosignal = value;
 		}
 		private EventWaitHandle _eventtosignal = null;
+		/// <summary>
+		/// Function that will be called from inside the thread when it terminates
+		/// This is the last action inside the thread
+		/// </summary>
+		public ThreadTerminates OnTerminates { get; set; }
 		#endregion
 
 		#region methods

@@ -253,9 +253,8 @@ namespace COMMON
 				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
 				Result = (int)ThreadResult.Exception;
 			}
-			// indicates the thread is off
-			if (null != ThreadData && null != ThreadData.EventToSignal)
-				ThreadData.EventToSignal.Set();
+			// indicate the thread is off
+			ThreadData?.EventToSignal?.Set();
 
 #if NETFRAMEWORK
 			SendNotification(Result, true);
@@ -268,7 +267,7 @@ namespace COMMON
 			Events.SetStopped();
 			try
 			{
-				ThreadData.OnTerminates?.Invoke(ID, Name, UniqueID, Result);
+				ThreadData?.OnTerminates?.Invoke(ID, Name, UniqueID, Result);
 			}
 			catch (Exception ex)
 			{

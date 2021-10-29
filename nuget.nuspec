@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>PMS.COMMON</id>
-    <version>5.2.4</version>
+    <version>5.3.0</version>
     <title>PMS.COMMON</title>
     <authors>philippemp31</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -25,6 +25,9 @@
       - Win32 tools
     </description>
     <releaseNotes>
+      5.3.0
+      - Fixed a bug in CStreamServer when some delegates are not specified
+
       5.2.4
       - Fixed an stupid bug introduced in 5.2.3
 

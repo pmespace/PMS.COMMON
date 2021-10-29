@@ -3,6 +3,12 @@ using System.Net.Sockets;
 
 namespace COMMON
 {
+	public class CStreamParameters
+	{
+		public object Global { get; set; }
+		public object Local { get; set; }
+	}
+
 	[ComVisible(false)]
 	public class CStreamDelegates
 	{

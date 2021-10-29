@@ -10,6 +10,15 @@ using System.Collections.ObjectModel;
 
 namespace COMMON
 {
+	public class CStreamServerParameters
+	{
+		public CThread Thread { get; internal set; }
+		public TcpClient Tcp { get; internal set; }
+		public CThreadData ThreadData { get; internal set; }
+		public object GlobalParameters { get; internal set; }
+		public object O;
+	}
+
 	[ComVisible(true)]
 	[Guid("8E3BBBB0-F498-47BF-AB18-5C84B80EE4B4")]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
@@ -91,10 +100,6 @@ namespace COMMON
 		/// This function allows to clear the server context.
 		/// </summary>
 		public CStreamDelegates.ServerOnStopDelegate OnStop { get; set; } // = null;
-																								///// <summary>
-																								///// Called when the thread terminates
-																								///// </summary>
-																								//public CThread.CThreadHasEnded OnTerminate { get; set; } // = null;
 		#endregion
 	}
 
@@ -758,6 +763,7 @@ namespace COMMON
 			public int WaitBeforeAbort { get; }
 			private Mutex isStoppingMutex = new Mutex(false);
 			internal string Server = null;
+			public object Parameters { get; set; } = null;
 			#endregion
 
 			#region methods

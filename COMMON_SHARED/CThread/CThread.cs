@@ -170,7 +170,9 @@ namespace COMMON
 		/// The function to call inside the caller's environement to create the thread
 		/// </summary>
 		private ThreadFunction ThreadMethod { get; set; }
-		//private CThreadHasEnded ThreadHasEndedMethod { get; set; } = null;
+		/// <summary>
+		/// Parameters passed to the thread
+		/// </summary>
 		private object ThreadParams { get; set; }
 		#endregion
 
@@ -242,7 +244,7 @@ namespace COMMON
 			{
 				if (null != ThreadMethod)
 				{
-					Result = ThreadMethod(ThreadData, ThreadParams);
+					Result = ThreadMethod(ThreadData/*, ThreadParams*/);
 					CLog.Add(Description + "Result: " + Result);
 				}
 				else

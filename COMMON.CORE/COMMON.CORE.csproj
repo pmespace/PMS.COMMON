@@ -8,9 +8,9 @@
     <Product>PMS.COMMON.CORE .NET 5.0</Product>
     <Description>PMS.COMMON.CORE .NET 5.0</Description>
     <Copyright>PMS - philippemp31@outlook.com - 2021</Copyright>
-    <AssemblyVersion>5.2.4</AssemblyVersion>
-    <Version>5.2.4</Version>
-    <FileVersion>5.2.4</FileVersion>
+    <AssemblyVersion>5.3.0</AssemblyVersion>
+    <Version>5.3.0</Version>
+    <FileVersion>5.3.0</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <AssemblyName>PMS.COMMON.CORE</AssemblyName>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

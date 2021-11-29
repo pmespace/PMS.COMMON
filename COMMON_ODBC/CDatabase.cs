@@ -47,7 +47,7 @@ namespace COMMON.ODBC
 					}
 					catch (Exception ex)
 					{
-						CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Connection string: " + ConnectionString);
+						CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "Connection string: " + ConnectionString);
 					}
 				}
 			}
@@ -86,13 +86,13 @@ namespace COMMON.ODBC
 					}
 					catch (Exception ex)
 					{
-						CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Connection string: " + ConnectionString);
+						CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "Connection string: " + ConnectionString);
 					}
 				}
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 			}
 			return false;
 		}
@@ -111,7 +111,7 @@ namespace COMMON.ODBC
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, Database.Database + " still open");
+					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, Database.Database + " still open");
 				}
 			}
 			return !IsOpen;
@@ -263,7 +263,7 @@ namespace COMMON.ODBC
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "SQL: " + command.CommandText);
+					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "SQL: " + command.CommandText);
 				}
 				finally
 				{
@@ -309,7 +309,7 @@ namespace COMMON.ODBC
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 				}
 				finally
 				{
@@ -397,7 +397,7 @@ namespace COMMON.ODBC
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 				}
 				finally
 				{
@@ -446,7 +446,7 @@ namespace COMMON.ODBC
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 				}
 				finally
 				{
@@ -491,7 +491,7 @@ namespace COMMON.ODBC
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Column name: " + columnName);
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "Column name: " + columnName);
 			}
 			return false;
 		}
@@ -514,7 +514,7 @@ namespace COMMON.ODBC
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Column name: " + columnName);
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "Column name: " + columnName);
 				throw;
 			}
 		}
@@ -565,7 +565,7 @@ namespace COMMON.ODBC
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Connection string: " + ConnectionString);
+					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "Connection string: " + ConnectionString);
 				}
 			}
 			return null;

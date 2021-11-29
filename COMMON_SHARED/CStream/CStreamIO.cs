@@ -347,7 +347,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 			}
 			Tcp = null;
 		}
@@ -420,7 +420,7 @@ namespace COMMON
 					}
 					catch (Exception ex)
 					{
-						CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+						CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 						sslStream = null;
 						throw;
 					}
@@ -515,7 +515,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 					sslStream = null;
 					throw;
 				}

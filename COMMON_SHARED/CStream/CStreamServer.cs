@@ -235,7 +235,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "OnStart generated an exception");
+					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "OnStart generated an exception");
 					// by default let's start the server
 					ok = true;
 				}
@@ -262,14 +262,14 @@ namespace COMMON
 						}
 						catch (Exception ex)
 						{
-							CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Starting the server thread generated an exception" + SERVER_NOT_RUNNING);
+							CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "Starting the server thread generated an exception" + SERVER_NOT_RUNNING);
 						}
 						// arrived here we can stop the listener
 						listener.Stop();
 					}
 					catch (Exception ex)
 					{
-						CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Network listener counld not be started on " + listener.LocalEndpoint.ToString() + SERVER_NOT_RUNNING);
+						CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "Network listener counld not be started on " + listener.LocalEndpoint.ToString() + SERVER_NOT_RUNNING);
 					}
 					// arrived here we can dismiss the listener
 					listener = null;
@@ -281,7 +281,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Server.OnStart generated an exception. " + SERVER_NOT_RUNNING);
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "Server.OnStart generated an exception. " + SERVER_NOT_RUNNING);
 			}
 			return false;
 		}
@@ -310,6 +310,40 @@ namespace COMMON
 				STOP_SERVER_CLIENT_THREAD_REQUEST_MESSAGE,
 				true, out int replySize, out bool timeout);
 			return (!timeout && null != reply && replySize == reply.Length && ACK == reply[0]);
+		}
+		/// <summary>
+		/// Allows a server to asynchronously send a message to the caller while processing a request and before sending a reply.
+		/// The <see cref="CStreamServerStartSettings.OnMessage"/> is called when a request is received from a client, the reply sent back being the returned message from that function.
+		/// That behaviour doesn't allow the server to send an unsollicited message back to the caller with no additional processing.
+		/// An asynchronous message is therefore a message which requires no answer and does not participate in the current exchange; it is merely a notification.
+		/// - If the server needs to send a message to the client before sending a response (therefore not a reply and requiring no response), it is an asynchrounous message and it can be done using this function;
+		/// - It is up to the system designer to make sure an asychronous message is recognised as one and no response is sent back after it as it would fall into calling <see cref="CStreamServerStartSettings.OnMessage"/> eventually ending in a deadlock.
+		/// - This function does not exit the <see cref="CStreamServerStartSettings.OnMessage"/> processing leaving the server able to reply normally.
+		/// An asynchronous message IS NOT a server initiated message, which is an original message (request) sent from the server and requiring a response.
+		/// - If the server needs a server initiated message (requiring an answer, then not an async message) and it should be sent back to the caller using the standard <see cref="CStreamServerStartSettings.OnMessage"/> processing,
+		/// - The reply to that server initiated message will be next message (request) received.
+		/// - In that case that message (actually the response of the server iniated message) will trigger <see cref="CStreamServerStartSettings.OnMessage"/> again and the response will then be the normal response which should have been sent back if no servber initated message had been sent.
+		/// </summary>
+		/// <param name="o">The handle to the network structure to use to send the message; this is the "object o" passed to the <see cref="CStreamServerStartSettings.OnMessage"/> function</param>
+		/// <param name="msg">The asynchrounous message to return</param>
+		/// <param name="addBufferSize">True if the system must add the buffer size header, false if it is already contained inside the message</param>
+		/// <param name="process">Name of the process as it will be logged inside the log file if required</param>
+		/// <returns>True if the message has been sent, false otherwise</returns>
+		public bool Send1WayNotification(byte[] msg, bool addBufferSize, string process, object o)
+		{
+			try
+			{
+				StreamServerClient client = (StreamServerClient)o;
+				CLog.Add(process + $"Sending asynchrounous message [{msg.Length} bytes] {MessageToLog(client, msg, false)}");
+				if (null != client && null != client.StreamIO && client.StreamIO.Send(msg, addBufferSize))
+					return true;
+			}
+			catch (Exception ex)
+			{
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
+			}
+			CLog.Add(process + $"The Asynchrounous message was not sent to the client", TLog.ERROR);
+			return false;
 		}
 		#endregion
 
@@ -349,7 +383,7 @@ namespace COMMON
 					}
 					catch (Exception ex)
 					{
-						CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Cleaning up the server generated an exception");
+						CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "Cleaning up the server generated an exception");
 					}
 				}
 				connectedClients.Clear();
@@ -360,7 +394,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "OnStop generated an exception");
+					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "OnStop generated an exception");
 				}
 				//CThread.SendNotification(ThreadData, ID, 0, true);
 			}
@@ -411,11 +445,11 @@ namespace COMMON
 									}
 									catch (Exception ex)
 									{
-										CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "OnConnect generated an exception");
+										CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "OnConnect generated an exception");
 									}
 									if (client.Connected)
 									{
-										CLog.Add(threadName + "Client: " + clientEndPoint.ToString() + " is connected to the server");
+										CLog.Add(threadName + $"Client: {clientEndPoint} is connected to the server");
 										lock (myLock)
 										{
 											connectedClients.Add(client.Key, client);
@@ -424,22 +458,22 @@ namespace COMMON
 									}
 									else
 									{
-										CLog.Add(threadName + "Connection from " + clientEndPoint.ToString() + " has been refused", TLog.WARNG);
+										CLog.Add(threadName + $"Connection from {clientEndPoint} has been refused", TLog.WARNG);
 									}
 								}
 								else
 								{
-									CLog.Add(threadName + "Failed to start processor thread for client " + clientEndPoint.ToString(), TLog.ERROR);
+									CLog.Add(threadName + $"FAILED TO START PROCESSOR THREAD FOR CLIENT {clientEndPoint}", TLog.ERROR);
 								}
 							}
 							else
 							{
-								CLog.Add(threadName + "Failed to start receiver thread for client " + clientEndPoint.ToString(), TLog.ERROR);
+								CLog.Add(threadName + $"FAILED TO START RECEIVER THREAD FOR CLIENT {clientEndPoint}", TLog.ERROR);
 							}
 						}
 						catch (Exception ex)
 						{
-							CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "failed to start server");
+							CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "failed to start server");
 							if (!ok)
 								try
 								{
@@ -452,7 +486,7 @@ namespace COMMON
 					}
 					catch (Exception ex)
 					{
-						CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "failed to prepare server to start");
+						CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "failed to prepare server to start");
 						res = (int)ThreadResult.Exception;
 					}
 					finally
@@ -468,8 +502,10 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "Server is stopping");
+					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "Server is stopping");
 					keepOnRunning = false;
+					if (null != tcp)
+						tcp.Close();
 				}
 			}
 			// server cleanup
@@ -557,7 +593,7 @@ namespace COMMON
 					}
 					else
 					{
-						CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+						CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 						res = (int)ThreadResult.Exception;
 					}
 					keepOnRunning = false;
@@ -576,7 +612,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, "OnDisconnect generated an exception");
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "OnDisconnect generated an exception");
 			}
 			client.ReceiverEvents.SetStopped();
 			client.Stop();
@@ -626,7 +662,7 @@ namespace COMMON
 							}
 							catch (Exception ex)
 							{
-								CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, threadName + "Fetching message generated an exception");
+								CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, threadName + "Fetching message generated an exception");
 								request = null;
 							}
 						}
@@ -638,13 +674,13 @@ namespace COMMON
 								// check whether the messge must be hidden or not
 								CLog.Add(threadName + $"Request [{request.Length} bytes] {MessageToLog(client, request, true)}");
 								// forward request for processing
-								byte[] reply = StartSettings.OnMessage(client.Tcp, request, out bool addBufferSize, threadData, StartSettings.Parameters);
+								byte[] reply = StartSettings.OnMessage(client.Tcp, request, out bool addBufferSize, threadData, StartSettings.Parameters, client);
 								if (null != reply && 0 != reply.Length)
 								{
 									CLog.Add(threadName + $"Reply [{reply.Length} bytes] {MessageToLog(client, reply, false)}");
 									if (null == client.StreamIO || !client.StreamIO.Send(reply, addBufferSize))
 									{
-										CLog.Add(threadName + $"The reply was not sent to the client", TLog.ERROR);
+										CLog.Add(threadName + $"THE REPLY WAS NOT SENT TO THE CLIENT", TLog.ERROR);
 									}
 								}
 								else
@@ -659,7 +695,7 @@ namespace COMMON
 						}
 						catch (Exception ex)
 						{
-							CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, threadName + "OnRequest method generated an exception");
+							CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, threadName + "OnRequest method generated an exception");
 						}
 					}
 					else
@@ -669,7 +705,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 					res = (int)ThreadResult.Exception;
 					keepOnRunning = false;
 				}

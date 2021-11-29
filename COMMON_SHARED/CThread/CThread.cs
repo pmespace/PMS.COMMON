@@ -210,7 +210,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 			}
 			return false;
 		}
@@ -244,7 +244,7 @@ namespace COMMON
 			{
 				if (null != ThreadMethod)
 				{
-					Result = ThreadMethod(ThreadData/*, ThreadParams*/);
+					Result = ThreadMethod(ThreadData, ThreadParams);
 					CLog.Add(Description + "Result: " + Result);
 				}
 				else
@@ -252,7 +252,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 				Result = (int)ThreadResult.Exception;
 			}
 			// indicate the thread is off
@@ -273,7 +273,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 			}
 		}
 #if NETFRAMEWORK

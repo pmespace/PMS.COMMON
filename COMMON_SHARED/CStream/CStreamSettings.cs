@@ -331,7 +331,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Name, new Exception("Invalid IP address: " + ip + (0 < port ? ":" + port : string.Empty), ex));
+					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", new Exception("Invalid IP address: " + ip + (0 < port ? ":" + port : string.Empty), ex));
 					Address = null;
 					EndPoint = null;
 				}

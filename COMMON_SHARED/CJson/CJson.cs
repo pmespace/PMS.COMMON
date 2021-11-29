@@ -58,7 +58,7 @@ namespace COMMON
 				{
 					// use a default file for settings
 					_filename = Path.GetRandomFileName();
-					CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, $"Value: {value} - Value that will be used is: {_filename}");
+					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"Value: {value} - Value that will be used is: {_filename}");
 				}
 			}
 		}
@@ -89,7 +89,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 				return default(TSettings);
 			}
 		}
@@ -116,7 +116,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 				return false;
 			}
 		}
@@ -139,7 +139,7 @@ namespace COMMON
 				}
 			catch (Exception ex)
 				{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 				return string.Empty;
 				}
 #else
@@ -152,7 +152,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 				return string.Empty;
 			}
 #endif
@@ -175,7 +175,7 @@ namespace COMMON
 			catch (Exception ex)
 				{
 				jsonException = true;
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 				return default(TSettings);
 				}
 #else
@@ -186,7 +186,7 @@ namespace COMMON
 			catch (Exception ex)
 			{
 				jsonException = true;
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 				return default(TSettings);
 			}
 #endif

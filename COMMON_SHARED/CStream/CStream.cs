@@ -106,7 +106,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 				tcpclient.Close();
 			}
 			return stream;
@@ -136,15 +136,15 @@ namespace COMMON
 			try
 			{
 				// Send message to the server
-				CLog.Add("Sending message (message size: " + (addSizeHeader ? request.Length : request.Length - (int)stream.LengthBufferSize) + ")");
+				//CLog.Add("Sending message (message size: " + (addSizeHeader ? request.Length : request.Length - (int)stream.LengthBufferSize) + ")");
 				if (stream.Send(request, addSizeHeader))
 					return true;
 				// arrived here the message hasn't been sent
-				CLog.Add("NO MESSAGE HAS BEEN SENT");
+				CLog.Add($"NO MESSAGE HAS BEEN SENT");
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 			}
 			return false;
 		}
@@ -177,7 +177,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 			}
 			return false;
 		}
@@ -202,11 +202,11 @@ namespace COMMON
 			try
 			{
 				// Read message from the server
-				CLog.Add("Waiting to receive a message (buffer size: " + stream.Tcp.ReceiveBufferSize + ")");
+				//CLog.Add("Waiting to receive a message (buffer size: " + stream.Tcp.ReceiveBufferSize + ")");
 				byte[] tmp = stream.Receive(out announcedSize);
 				if (null != tmp)
 				{
-					CLog.Add("Received message (size: " + (sizeHeaderAdded ? tmp.Length : tmp.Length - (int)stream.LengthBufferSize) + ")");
+					//CLog.Add("Received message (size: " + (sizeHeaderAdded ? tmp.Length : tmp.Length - (int)stream.LengthBufferSize) + ")");
 					// rebuild the buffer is required
 					if (!sizeHeaderAdded)
 					{
@@ -221,13 +221,13 @@ namespace COMMON
 				}
 				else
 				{
-					CLog.Add("No data received or an error has occurred while receiving data (invalid length,...)");
+					CLog.Add("NO DATA HAS BEEN RECEIVED OR AN ERROR HAS OCCURRED WHILE RECEIVING DATA (INVALID LENGTH,...)");
 					error = true;
 				}
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 			}
 			return reply;
 		}
@@ -264,7 +264,7 @@ namespace COMMON
 			catch (Exception ex)
 			{
 				error = true;
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 			}
 			return null;
 		}
@@ -481,7 +481,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex);
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 			}
 			return null;
 		}

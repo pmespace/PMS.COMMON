@@ -110,12 +110,12 @@ namespace COMMON.WIN32
 				}
 				else
 				{
-					CLog.Add($"{activity} could not be added", TLog.ERROR);
+					CLog.Add($"{activity} COULD NOT BE ADDED", TLog.ERROR);
 				}
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException(MethodBase.GetCurrentMethod().Name, ex, $"Exception while processing {activity}");
+				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"Exception while processing {activity}");
 			}
 		}
 		#endregion

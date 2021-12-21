@@ -127,47 +127,30 @@ namespace COMMON
 		public const int FOURBYTES = 4;
 		public const int EIGHTBYTES = 8;
 		public const int UNKNOWN = -int.MaxValue;
-		/// <summary>
-		/// Converts an array of bytes to an hexadecimal string
-		/// Each byte gives a 2 chars hexadecimal value
-		/// </summary>
-		/// <param name="buffer">The array of bytes to convert</param>
-		/// <returns>The converted array into a string if successful, an empty string if any error occured</returns>
-		public static string BytesToHexStr(byte[] buffer)
-		{
-			if (null == buffer || 0 == buffer.Length) return null;
-			string res = string.Empty;
-			try
-			{
-				foreach (byte b in buffer)
-					res += b.ToString("X2");
-			}
-			catch (Exception) { res = null; }
-			return res;
-		}
-		/// <summary>
-		/// Converts an array of bytes to a UTF-8 string (if possible)
-		/// </summary>
-		/// <param name="buffer">The array of bytes to convert</param>
-		/// <returns>The converted array into a UTF-8 string if successful, an empty string if any error occured</returns>
-		public static string BytesToStr(byte[] buffer)
-		{
-			if (null == buffer || 0 == buffer.Length) return null;
-			string res = string.Empty;
-			try
-			{
-				res = Encoding.UTF8.GetString(buffer);
-			}
-			catch (Exception) { res = null; }
-			return res;
-		}
+		///// <summary>
+		///// Converts an array of bytes to a UTF-8 string (if possible)
+		///// </summary>
+		///// <param name="buffer">The array of bytes to convert</param>
+		///// <returns>The converted array into a UTF-8 string if successful, an empty string if any error occured</returns>
+		//public static string BytesToStr(byte[] buffer)
+		//{
+		//	if (null == buffer || 0 == buffer.Length) return null;
+		//	string res = string.Empty;
+		//	try
+		//	{
+		//		res = Encoding.UTF8.GetString(buffer);
+		//	}
+		//	catch (Exception) { res = null; }
+		//	return res;
+		//}
 		/// <summary>
 		/// Safe string to int function
 		/// </summary>
 		/// <param name="s">The string to convert to int</param>
+		/// <param name="defv">Default value if the string can't convert to a long</param>
 		/// <param name="alwayspositive">Indicates whether the value must always be positive or not</param>
 		/// <returns>The value of the string, 0 if an error occured</returns>
-		public static long StrToLong(string s, bool alwayspositive = false)
+		public static long StrToLong(string s, long defv = 0, bool alwayspositive = false)
 		{
 			long i = 0;
 			if (string.IsNullOrEmpty(s)) return 0;
@@ -177,7 +160,7 @@ namespace COMMON
 				if (alwayspositive && 0 > i)
 					i = -i;
 			}
-			catch (Exception) { i = 0; }
+			catch (Exception) { i = defv; }
 			return i;
 		}
 		/// <summary>
@@ -349,7 +332,7 @@ namespace COMMON
 		/// <param name="value">The array of bytes to check</param>
 		/// <param name="minlen">The minimum length</param>
 		/// <param name="maxlen">The maximum length</param>
-		public static void AdjustMinMax1N(byte[] value, ref int minlen, ref int maxlen)
+		public static void CheckBufferMinMax1N(byte[] value, ref int minlen, ref int maxlen)
 		{
 			AdjustMinMax1N(ref minlen, ref maxlen);
 			if (value.Length < minlen || value.Length > maxlen)
@@ -362,7 +345,7 @@ namespace COMMON
 		/// <param name="value">The string to check</param>
 		/// <param name="minlen">The minimum length</param>
 		/// <param name="maxlen">The maximum length</param>
-		public static void AdjustMinMax1N(string value, ref int minlen, ref int maxlen)
+		public static void CheckBufferMinMax1N(string value, ref int minlen, ref int maxlen)
 		{
 			AdjustMinMax1N(ref minlen, ref maxlen);
 			if (value.Length < minlen || value.Length > maxlen)
@@ -370,6 +353,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Help deciding the length to use when manipulating an array of bytes, according to the min and max considered.
+		/// If the buffer is empty or is out of bounds of minlen and maxlen the length to consider is 0, otherwise it is the buffer length.
 		/// Beware, the function will invert minlen and maxlen if they are not accurate
 		/// </summary>
 		/// <param name="buffer">Buffer to evaluate</param>
@@ -391,14 +375,16 @@ namespace COMMON
 		/// This function does not pre-process the mask with start and end line
 		/// </summary>
 		/// <param name="value">The value to test</param>
-		/// <param name="format">The regular expression to match. The regular expression must be complete and well formatted</param>
+		/// <param name="pattern">The regular expression to match. The regular expression must be complete and well formatted</param>
 		/// <param name="validIfEmpty">TRUE if an empty string bypasses the verification (en empty string is always valid), FALSE otherwise</param>
 		/// <returns>TRUE if the value complies with the regular expression (or is empty if allowed), FALSE otherwise</returns>
-		public static bool IsValidFormat(string value, string format, bool validIfEmpty = false)
+		public static bool IsValidFormat(string value, string pattern, bool validIfEmpty = false)
 		{
 			if (string.IsNullOrEmpty(value) && validIfEmpty) return true;
-			Regex regex = new Regex(AsString(format));
-			return regex.IsMatch(AsString(value));
+			pattern = AsString(pattern);
+			CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"Input data: {value} - Pattern: {pattern}");
+			Match match = Regex.Match(value, pattern);
+			return match.Success;
 		}
 		/// <summary>
 		/// Test whether a string is composed according to a specified character set and length complies with specified bounds
@@ -416,12 +402,15 @@ namespace COMMON
 			if (string.IsNullOrEmpty(characterSet)) return false;
 			// build regular expression to check against
 			string count = "{" + (minlen == maxlen ? minlen.ToString() + "}" : minlen.ToString() + "," + maxlen.ToString() + "}");
-			Regex regex = new Regex($"^{characterSet}{count}$");
-			return regex.IsMatch(value);
+			string pattern = $"^{characterSet}{count}$";
+			CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"Input data: {value} - Pattern: {pattern}");
+			Match match = Regex.Match(value, pattern);
+			return match.Success;
 		}
 		/// <summary>
 		/// Converts a char holding an hexadecimal value to its binary value (A=10,...).
-		/// If the character is not hexadecimal compliant (0123456789ABCDEF) a value 0 is returned
+		/// A <see cref="EInvalidFormat"/> Exception is raised if:
+		///  - The character is not a valid hexadecimal one
 		/// </summary>
 		/// <param name="c">The char to convert</param>
 		/// <returns>The binary value, an exception if the char is not hexadecimal compatible</returns>
@@ -463,6 +452,49 @@ namespace COMMON
 			}
 		}
 		private const string HEXCHARS = "0123456789ABCDEF";
+		/// <summary>
+		/// Converts a string representing an hexadecimal value to an array of bytes
+		/// If the string length is odd ot is padded with a 0 at the beginning or the end of the string, according to <paramref name="padRight"/>
+		/// </summary>
+		/// <param name="s">Hexadecimal string to convert</param>
+		/// <param name="padded">[OUT] true if a padding was made (according to <paramref name="padRight"/>), false otherwise</param>
+		/// <param name="padRight">True is padding should be made on the right of the passed string (<paramref name="s"/>), false if it must be made on the left</param>
+		/// <returns></returns>
+		public static byte[] HexToBin(string s, out bool padded, bool padRight = true)
+		{
+			padded = false;
+			if (string.IsNullOrEmpty(s)) return new byte[0];
+			if (0 != s.Length % 2)
+			{
+				padded = true;
+				s = (padRight ? s + "0" : "0" + s);
+			}
+			byte[] ab = new byte[(s.Length / 2)];
+			for (int i = 0; i < ab.Length; i++)
+			{
+				// key has arrived under the form of a 64 chars hexadecimal string, we convert it to 32 bytes binary chars
+				ab[i] = TwoHexToBin(s.Substring(i * 2, 2).ToUpper());
+			}
+			return ab;
+		}
+		/// <summary>
+		/// Converts an array of bytes to an hexadecimal string
+		/// Each byte gives a 2 chars hexadecimal value
+		/// </summary>
+		/// <param name="buffer">The array of bytes to convert</param>
+		/// <returns>The converted array into a string if successful, an empty string if any error occured</returns>
+		public static string BinToHex(byte[] buffer)
+		{
+			if (null == buffer || 0 == buffer.Length) return null;
+			string res = string.Empty;
+			try
+			{
+				foreach (byte b in buffer)
+					res += b.ToString("X2");
+			}
+			catch (Exception) { res = null; }
+			return res;
+		}
 		/// <summary>
 		/// Converts a numric value to it hexadecimal representation
 		/// THIS FUNCTION MAY THROW AN EXCEPTION
@@ -545,57 +577,89 @@ namespace COMMON
 		{
 			return (short)HexToDecimal(s);
 		}
-		/// <summary>
-		/// Check a string value against an enum type values
-		/// </summary>
-		/// <param name="type">the enum type to consider</param>
-		/// <param name="value">the string to search inside this enum</param>
-		/// <param name="defvalue">default value to use (if not null) it the string does not apply to the enum</param>
-		/// <returns>the value inside the enum matching the string, defvalue if not null and value not found, <see cref="CMisc.NotEnumValue"/> otherwise</returns>
-		public static object StringToEnumValue(Type type, string value, object defvalue = null)
-		{
-			if (!string.IsNullOrEmpty(value))
-			{
-				Array array = Enum.GetValues(type);
-				foreach (object i in array)
-					if (value.ToLower() == EnumValueToString(type, i).ToLower())
-						return i;
-			}
-			return (null != defvalue ? defvalue : NotEnumValue);
-		}
-		public static int NotEnumValue = int.MaxValue;
-		/// <summary>
-		/// Get the name of a value inside an enum
-		/// </summary>
-		/// <param name="type">the enum type to consider</param>
-		/// <param name="value">the value to search for</param>
-		/// <returns>The name of the value inside the enum if available, an empty string otherwise</returns>
-		public static string EnumValueToString(Type type, object value)
-		{
-			try
-			{ return Enum.GetName(type, value); }
-			catch (Exception)
-			{ return null; }
-		}
+		///// <summary>
+		///// Check a string value against an enum type values
+		///// </summary>
+		///// <param name="type">the enum type to consider</param>
+		///// <param name="value">the string to search inside this enum</param>
+		///// <param name="defv">default value to use (if not null) it the string does not apply to the enum</param>
+		///// <returns>the value inside the enum matching the string, defvalue if not null and value not found, <see cref="CMisc.UNKNOWN"/> otherwise</returns>
+		//public static object StringToEnumValue(Type type, string value, object defv = null)
+		//{
+		//	if (!string.IsNullOrEmpty(value))
+		//	{
+		//		Array array = Enum.GetValues(type);
+		//		foreach (object i in array)
+		//			if (value.ToLower() == GetEnumName(type, i, defv).ToLower())
+		//				return i;
+		//	}
+		//	return (null == defv ? UNKNOWN : defv);
+		//}
+		///// <summary>
+		///// Get the name of a value inside an enum
+		///// </summary>
+		///// <param name="type">the enum type to consider</param>
+		///// <param name="value">the value to search for</param>
+		///// <returns>The name of the value inside the enum if available, an empty string otherwise</returns>
+		//public static string EnumValueToString(Type type, object value)
+		//{
+		//	try
+		//	{ return Enum.GetName(type, value); }
+		//	catch (Exception)
+		//	{ return null; }
+		//}
 		/// <summary>
 		/// Indicates whether a value is contained inside an enum type
 		/// </summary>
-		/// <param name="type">enum type to consider</param>
+		/// <param name="T">enum type to consider</param>
 		/// <param name="value">value to search inside the enum</param>
 		/// <returns>true if the value is contained inside the enum type, false otherwise</returns>
-		public static bool IsEnumValue(Type type, object value)
+		public static bool IsEnumValue(Type T, object value)
 		{
 			if (null != value)
 				try
 				{
-					Array array = Enum.GetValues(type);
-					foreach (object i in array)
-						if (value.Equals(i))
-							return true;
+					return Enum.IsDefined(T, value);
 				}
 				catch (Exception) { }
 			// arrived here the value isn't inside the enum
 			return false;
+		}
+		/// <summary>
+		/// Get the litteral name of an enum value
+		/// </summary>
+		/// <param name="T">The enum type to check against</param>
+		/// <param name="value">The value to find</param>
+		/// <returns>The litteral string describing the value inside the enum, null if it does not exist</returns>
+		public static string GetEnumName(Type T, object value)
+		{
+			if (null != value)
+				try
+				{
+					return Enum.GetName(T, value);
+				}
+				catch (Exception) { }
+			return null;
+		}
+		/// <summary>
+		/// Verify whether a value is valid inside an enumeration
+		/// </summary>
+		/// <param name="T">The enum type to check against</param>
+		/// <param name="value">The value to verify</param>
+		/// <param name="defv">Default value to use if <paramref name="value"/> to search is not found; if null then <see cref="CMisc.UNKNOWN"/> will be used as the default value</param>
+		/// <returns><paramref name="value"/> if it is inside the enumeration, <paramref name="defv"/> is not inside the enumeration</returns>
+		public static object GetEnumValue(Type T, string value, object defv = null)
+		{
+			try
+			{
+				//Array array = Enum.GetValues(T);
+				//foreach (object i in array)
+				//	if (0 == string.Compare(value, i.ToString(), true))
+				//		return i;
+				return Enum.Parse(T, value, true);
+			}
+			catch (Exception) { }
+			return (null == defv ? UNKNOWN : defv);
 		}
 		/// <summary>
 		/// Returns the simples form of a string
@@ -667,56 +731,26 @@ namespace COMMON
 			assemblyFile,
 			assemblyInfo,
 		}
-		/// <summary>
-		/// Get the value associated to an enum entry from its name
-		/// </summary>
-		/// <param name="T">The enum type to check against</param>
-		/// <param name="s">The name of the value</param>
-		/// <param name="def">Default value to use, if null <see cref="CMisc.UNKNOWN"/> will be used</param>
-		/// <returns>The value represented by the string inside the enum, UNKNOWN if the string does not exist inside the enum</returns>
-		public static object GetEnumValue(Type T, string s, object def = null)
-		{
-			if (null == def)
-				def = (object)UNKNOWN;
-			if (!string.IsNullOrEmpty(s))
-				try
-				{
-					if (Enum.IsDefined(T, s))
-						return Enum.Parse(T, s);
-				}
-				catch (Exception) { }
-			return def;
-		}
-		/// <summary>
-		/// Get the litteral name of an enum value
-		/// </summary>
-		/// <param name="T">The enum type to check against</param>
-		/// <param name="value">The value to find</param>
-		/// <param name="def">Default value to use, if null <see cref="CMisc.UNKNOWN"/> will be used</param>
-		/// <returns>The litteral string describing the value inside the enum, null if it does not exist</returns>
-		public static string GetEnumName(Type T, object value, object def = null)
-		{
-			if (null == def)
-				def = (object)UNKNOWN;
-			if (null != value && def != value)
-				try
-				{ return Enum.GetName(T, value); }
-				catch (Exception) { }
-			return null;
-		}
-		/// <summary>
-		/// Verify a value is valid inside an enumeration
-		/// </summary>
-		/// <param name="T">The enum type to check against</param>
-		/// <param name="value">The value to verify</param>
-		/// <param name="def">Default value to use, if null <see cref="CMisc.UNKNOWN"/> will be used</param>
-		/// <returns>"value" if it is inside the enumeration, "def" is not inside the enumeration</returns>
-		public static object GetEnumValue(Type T, object value, object def = null)
-		{
-			if (Enum.IsDefined(T, value))
-				return value;
-			return def;
-		}
+		///// <summary>
+		///// Get the value associated to an enum entry from its name
+		///// </summary>
+		///// <param name="T">The enum type to check against</param>
+		///// <param name="s">The name of the value</param>
+		///// <param name="def">Default value to use, if null <see cref="CMisc.UNKNOWN"/> will be used</param>
+		///// <returns>The value represented by the string inside the enum, UNKNOWN if the string does not exist inside the enum</returns>
+		//public static object GetEnumValue(Type T, string s, object def = null)
+		//{
+		//	if (null == def)
+		//		def = (object)UNKNOWN;
+		//	if (!string.IsNullOrEmpty(s))
+		//		try
+		//		{
+		//			if (Enum.IsDefined(T, s))
+		//				return Enum.Parse(T, s);
+		//		}
+		//		catch (Exception) { }
+		//	return def;
+		//}
 		/// <summary>
 		/// Allows verifying a folder exists, eventually with write privileges if required
 		/// </summary>
@@ -756,6 +790,62 @@ namespace COMMON
 				return null;
 			}
 			return null;
+		}
+		/// <summary>
+		/// [CONSOLE ONLY] Request a YES/NO answer
+		/// </summary>
+		/// <param name="msg">The message to display requesting a YES/NO answer</param>
+		/// <param name="useDefault">Indicate whether a default (Y or N) must be proposed</param>
+		/// <param name="theDefault">Only if <paramref name="useDefault"/> is true, the default to propose</param>
+		/// <param name="useESC">True if ESC can be considered an answer (in that case it will be NO)</param>
+		/// <returns>True if YES, false if NO</returns>
+		public static bool YesNo(string msg, bool useDefault = false, bool theDefault = true, bool useESC = false)
+		{
+			string yes = "Y", no = "N";
+			string defaultA = theDefault ? yes : no;
+			string confirm = yes + no;
+			string answer = defaultA;
+			Console.WriteLine();
+			Console.Write(msg + $" ({yes}/{no})" + (useDefault ? $"[{defaultA}]" : null) + " ? ");
+			do
+			{
+				ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+				if (useDefault && ConsoleKey.Enter == keyInfo.Key)
+				{
+					answer = defaultA;
+				}
+				else if (useESC && ConsoleKey.Escape == keyInfo.Key)
+				{
+					answer = no;
+				}
+				else
+				{
+					answer = keyInfo.KeyChar.ToString().ToUpper();
+				}
+			} while (!confirm.Contains(answer));
+			return 0 == string.Compare(yes, answer, true);
+		}
+		/// <summary>
+		/// [CONSOLE ONLY] Request an entry with the possibility of a default value
+		/// </summary>
+		/// <param name="msg">Message to display to request the entry</param>
+		/// <param name="defv">Default value (in cas of direct ENTER)</param>
+		/// <param name="isdef">True if the default value has been chosen</param>
+		/// <param name="invite">Text to display before the entry (if something has been entered)</param>
+		/// <returns></returns>
+		public static string Input(string msg, string defv, out bool isdef, string invite = null)
+		{
+			Console.WriteLine();
+			Console.Write(msg + (null != defv ? $" [{defv}]" : null) + ": ");
+			string s = Console.ReadLine();
+			if (isdef = (null != defv && string.IsNullOrEmpty(s)))
+			{
+				s = defv;
+				Console.WriteLine(invite + s);
+			}
+			else if (string.IsNullOrEmpty(s))
+				s = null;
+			return s;
 		}
 	}
 }

@@ -58,7 +58,7 @@ namespace COMMON
 				{
 					// use a default file for settings
 					_filename = Path.GetRandomFileName();
-					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"Value: {value} - Value that will be used is: {_filename}");
+					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"File {value} can't be found, using temporary file {_filename} instead");
 				}
 			}
 		}

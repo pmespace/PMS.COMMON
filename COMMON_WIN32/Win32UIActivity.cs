@@ -110,7 +110,7 @@ namespace COMMON.WIN32
 				}
 				else
 				{
-					CLog.Add($"{activity} COULD NOT BE ADDED", TLog.ERROR);
+					CLog.Add($"{activity} could not be added", TLog.ERROR);
 				}
 			}
 			catch (Exception ex)

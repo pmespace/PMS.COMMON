@@ -245,10 +245,10 @@ namespace COMMON
 				if (null != ThreadMethod)
 				{
 					Result = ThreadMethod(ThreadData, ThreadParams);
-					CLog.Add(Description + "Result: " + Result);
+					CLog.Add($"{Description} - Thread result: {Result}", TLog.TRACE);
 				}
 				else
-					CLog.Add(Description + "No method to call for the thread", TLog.WARNG);
+					CLog.Add($"{Description} - No method to call for the thread", TLog.ERROR);
 			}
 			catch (Exception ex)
 			{

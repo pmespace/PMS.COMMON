@@ -96,6 +96,7 @@ namespace COMMON
 			CStreamClientIO stream = null;
 			try
 			{
+				CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"About to connect to {settings.FullIP}");
 				tcpclient.Connect(settings.Address, (int)settings.Port);
 				tcpclient.SendBufferSize = (tcpclient.SendBufferSize >= settings.SendBufferSize ? tcpclient.SendBufferSize : settings.SendBufferSize + 1);
 				tcpclient.ReceiveBufferSize = (tcpclient.ReceiveBufferSize >= settings.ReceiveBufferSize ? tcpclient.SendBufferSize : settings.ReceiveBufferSize);
@@ -136,11 +137,11 @@ namespace COMMON
 			try
 			{
 				// Send message to the server
-				//CLog.Add("Sending message (message size: " + (addSizeHeader ? request.Length : request.Length - (int)stream.LengthBufferSize) + ")");
+				CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"About to send message of {(addSizeHeader ? request.Length : request.Length - (int)stream.LengthBufferSize)} bytes");
 				if (stream.Send(request, addSizeHeader))
 					return true;
 				// arrived here the message hasn't been sent
-				CLog.Add($"NO MESSAGE HAS BEEN SENT");
+				CLog.Add($"An error has occurred while sending the message", TLog.ERROR);
 			}
 			catch (Exception ex)
 			{
@@ -173,7 +174,10 @@ namespace COMMON
 				return false;
 			try
 			{
-				return stream.SendLine(request, EOT);
+				CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"About to send string message of {request.Length} characters");
+				if (stream.SendLine(request, EOT))
+					return true;
+				CLog.Add($"An error has occurred while sending the string message", TLog.ERROR);
 			}
 			catch (Exception ex)
 			{
@@ -202,11 +206,10 @@ namespace COMMON
 			try
 			{
 				// Read message from the server
-				//CLog.Add("Waiting to receive a message (buffer size: " + stream.Tcp.ReceiveBufferSize + ")");
 				byte[] tmp = stream.Receive(out announcedSize);
+				CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"Received message of {(sizeHeaderAdded ? tmp.Length : tmp.Length - (int)stream.LengthBufferSize)} actual bytes (announcing {announcedSize} bytes)");
 				if (null != tmp)
 				{
-					//CLog.Add("Received message (size: " + (sizeHeaderAdded ? tmp.Length : tmp.Length - (int)stream.LengthBufferSize) + ")");
 					// rebuild the buffer is required
 					if (!sizeHeaderAdded)
 					{
@@ -221,7 +224,7 @@ namespace COMMON
 				}
 				else
 				{
-					CLog.Add("NO DATA HAS BEEN RECEIVED OR AN ERROR HAS OCCURRED WHILE RECEIVING DATA (INVALID LENGTH,...)");
+					CLog.Add("No data has been received or an error has occurred (invalid announced length,...)", TLog.ERROR);
 					error = true;
 				}
 			}
@@ -259,7 +262,9 @@ namespace COMMON
 				return null;
 			try
 			{
-				return stream.ReceiveLine(EOT);
+				string s = stream.ReceiveLine(EOT);
+				CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"Received string message of {(string.IsNullOrEmpty(s) ? 0 : s.Length)} characters");
+				return s;
 			}
 			catch (Exception ex)
 			{
@@ -545,7 +550,6 @@ namespace COMMON
 		{
 			SendAsyncEnum res = SendAsyncEnum.KO;
 			ClientThreadType threadParams = (ClientThreadType)o;
-			CLog.Add("SendAsync - Connecting to: " + threadParams.SendAsync.Settings.FullIP);
 			if (null != threadParams.SendAsync.OnReply)
 			{
 
@@ -605,7 +609,6 @@ namespace COMMON
 						res = SendAsyncEnum.SendError;
 				}
 			}
-			CLog.Add("SendAsync - Result: " + res.ToString(), SendAsyncEnum.OK == res ? TLog.INFOR : TLog.ERROR);
 			return (int)res;
 		}
 		class ClientThreadType

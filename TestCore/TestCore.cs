@@ -41,6 +41,8 @@ namespace TestCore
 			Menu.Add('2', new CMenu() { Text = "Stop server", Fnc = StopServer });
 			Menu.Add('3', new CMenu() { Text = "Send data", Fnc = SendData });
 			Menu.Add('4', new CMenu() { Text = "Use SSL", Fnc = SetUseSSL });
+			Menu.Add('5', new CMenu() { Text = "Create log", Fnc = CreateLog });
+			Menu.Add('6', new CMenu() { Text = "Stop log", Fnc = StopLog });
 			Menu.Add('X', new CMenu() { Text = "Exit", Fnc = Exit });
 
 			bool ok = true;
@@ -100,6 +102,26 @@ namespace TestCore
 		/// 
 		/// </summary>
 		/// <returns></returns>
+		bool CreateLog(char c)
+		{
+			CLog.LogFileName = $"test.core.txt";
+			CLog.Add($"Starting log with {CLog.LogFileName}");
+			return true;
+		}
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		bool StopLog(char c)
+		{
+			CLog.LogFileName = null;
+			CLog.Add($"Stopping log");
+			return true;
+		}
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		bool SendData(char c)
 		{
 			CStreamClientSettings settings = new CStreamClientSettings()
@@ -123,7 +145,7 @@ namespace TestCore
 		/// <returns></returns>
 		bool Exit(char c)
 		{
-			return false;
+			return !CMisc.YesNo("Exit", true, false, true);
 		}
 		/// <summary>
 		/// 

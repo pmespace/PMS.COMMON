@@ -27,6 +27,8 @@ Public Class FTestCommon
 		lblSQLRes.Text = String.Empty
 		SetButtons()
 		Dim visible As Boolean = False
+		CLog.LogFileName = "test.log"
+		CLog.Add("Starting testcommon")
 #If DEBUG Then
 		visible = True
 #End If

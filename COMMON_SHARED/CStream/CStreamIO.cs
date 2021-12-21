@@ -324,9 +324,9 @@ namespace COMMON
 			// receive the buffer
 			byte[] buffer = ReceiveNonSizedBuffer(EOT);
 			string s = (null != buffer ? Encoding.UTF8.GetString(buffer) : null);
-			// remove EOL if necessary
+			// remove EOT if necessary
 			if (!string.IsNullOrEmpty(s))
-				s = s.Replace("\r\n", "");
+				s = s.Replace(EOT, "");
 			return s;
 		}
 		/// <summary>
@@ -409,7 +409,7 @@ namespace COMMON
 							useTLS = (null != value && 1 <= (int)value);
 						}
 						catch (Exception ex) { }
-						CLog.Add($".NET 3.5 {(useTLS ? "using TLS 1.2" : "not using TLS")}");
+						CLog.Add($".NET 3.5 {(useTLS ? "using TLS 1.2" : "not using TLS")}", TLog.INFOR);
 						if (useTLS)
 							sslStream.AuthenticateAsClient(Settings.ServerName, null, (System.Security.Authentication.SslProtocols)3072, false);
 						else
@@ -459,7 +459,7 @@ namespace COMMON
 
 			// arrived here a certificate error occured
 			// Do not allow this client to communicate with unauthenticated servers.
-			CLog.Add("Certificate error - " + sslPolicyErrors.ToString(), TLog.ERROR);
+			CLog.Add($"Certificate error [{sslPolicyErrors}]", TLog.ERROR);
 			return false;
 		}
 		#endregion
@@ -555,7 +555,7 @@ namespace COMMON
 
 			// arrived here a certificate error occured
 			// Do not allow this client to communicate with unauthenticated servers.
-			CLog.Add("Certificate error - " + sslPolicyErrors.ToString(), TLog.ERROR);
+			CLog.Add($"Certificate error [{sslPolicyErrors}]", TLog.ERROR);
 			return false;
 		}
 		#endregion

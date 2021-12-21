@@ -76,11 +76,11 @@ namespace TestCore
 		/// <param name="client"></param>
 		/// <param name="request"></param>
 		/// <param name="addBufferSize"></param>
-		/// <param name="threadData"></param>
+		/// <param name="thread"></param>
 		/// <param name="parameters"></param>
 		/// <param name="o"></param>
 		/// <returns></returns>
-		byte[] ServerOnMessage(TcpClient client, byte[] request, out bool addBufferSize, CThreadData threadData, object parameters, object o)
+		byte[] ServerOnMessage(TcpClient client, byte[] request, out bool addBufferSize, CThread thread, object parameters, object o)
 		{
 			addBufferSize = true;
 			Console.WriteLine($"SERVER RECEIVED: {Encoding.UTF8.GetString(request)}");

@@ -377,12 +377,16 @@ namespace COMMON
 		/// <param name="value">The value to test</param>
 		/// <param name="pattern">The regular expression to match. The regular expression must be complete and well formatted</param>
 		/// <param name="validIfEmpty">TRUE if an empty string bypasses the verification (en empty string is always valid), FALSE otherwise</param>
+		/// <param name="confidential">Indicates whether the passed value is confidential or not, thuis displayable in the log file</param>
 		/// <returns>TRUE if the value complies with the regular expression (or is empty if allowed), FALSE otherwise</returns>
-		public static bool IsValidFormat(string value, string pattern, bool validIfEmpty = false)
+		public static bool IsValidFormat(string value, string pattern, bool validIfEmpty = false, bool confidential = false)
 		{
-			if (string.IsNullOrEmpty(value) && validIfEmpty) return true;
+			if (string.IsNullOrEmpty(value) && validIfEmpty)
+				return true;
+			else if (string.IsNullOrEmpty(value))
+				return false;
 			pattern = AsString(pattern);
-			CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"Input data: {value} - Pattern: {pattern}");
+			CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"{(confidential ? "<VALUE HIDDEN>" : $"Input data: {value}")} - Pattern: {pattern}");
 			Match match = Regex.Match(value, pattern);
 			return match.Success;
 		}
@@ -395,15 +399,19 @@ namespace COMMON
 		/// <param name="minlen">The minimum length the value must comply with</param>
 		/// <param name="maxlen">The maximum length the value must comply with</param>
 		/// <param name="validIfEmpty">TRUE if an empty string bypasses the verification (en empty string is always valid), FALSE otherwise</param>
+		/// <param name="confidential">Indicates whether the passed value is confidential or not, thuis displayable in the log file</param>
 		/// <returns>TRUE if the value complies with the regular expression (or is empty if allowed), FALSE otherwise</returns>
-		public static bool IsValidFormat(string value, string characterSet, int minlen, int maxlen, bool validIfEmpty = false)
+		public static bool IsValidFormat(string value, string characterSet, int minlen, int maxlen, bool validIfEmpty = false, bool confidential = false)
 		{
-			if (string.IsNullOrEmpty(value) && validIfEmpty) return true;
+			if (string.IsNullOrEmpty(value) && validIfEmpty)
+				return true;
+			else if (string.IsNullOrEmpty(value))
+				return false;
 			if (string.IsNullOrEmpty(characterSet)) return false;
 			// build regular expression to check against
 			string count = "{" + (minlen == maxlen ? minlen.ToString() + "}" : minlen.ToString() + "," + maxlen.ToString() + "}");
 			string pattern = $"^{characterSet}{count}$";
-			CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"Input data: {value} - Pattern: {pattern}");
+			CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"{(confidential ? "<VALUE HIDDEN>" : $"Input data: {value}")} - Pattern: {pattern}");
 			Match match = Regex.Match(value, pattern);
 			return match.Success;
 		}
@@ -806,7 +814,7 @@ namespace COMMON
 			string confirm = yes + no;
 			string answer = defaultA;
 			Console.WriteLine();
-			Console.Write(msg + $" ({yes}/{no})" + (useDefault ? $"[{defaultA}]" : null) + " ? ");
+			Console.Write(msg + $" ({yes}/{no})" + (useDefault ? $" [{defaultA}]" : null) + " ? ");
 			do
 			{
 				ConsoleKeyInfo keyInfo = Console.ReadKey(true);

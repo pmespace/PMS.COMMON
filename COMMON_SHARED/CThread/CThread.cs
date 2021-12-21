@@ -78,10 +78,10 @@ namespace COMMON
 		/// <summary>
 		/// Function called from inside the thread and inside the caller's environement
 		/// </summary>
-		/// <param name="data"><see cref="CThreadData"/> structure passed by the caller</param>
+		/// <param name="thread"><see cref="CThread"/></param>
 		/// <param name="o">Parameters passed to the thread</param>
 		/// <returns>The result of the function, any muneric value pertaining to the caller. That value will be set inside <see cref="Result"/></returns>
-		public delegate int ThreadFunction(CThreadData data = null, object o = null);
+		public delegate int ThreadFunction(CThread thread, object o = null);
 		#endregion
 
 		#region public properties
@@ -119,7 +119,7 @@ namespace COMMON
 		/// <summary>
 		/// Parameters used to call the thread
 		/// </summary>
-		protected CThreadData ThreadData { get; set; }
+		public CThreadData ThreadData { get; set; }
 		/// <summary>
 		/// The ID which can be used to identify the thread when it ends.
 		/// The ID will be returned to the warned window (through a PostMessage), when the thread ends, inside the wParam
@@ -150,7 +150,7 @@ namespace COMMON
 		/// <summary>
 		/// Description of the thread
 		/// </summary>
-		public string Description { get => "Thread: " + Name + (0 != ID ? " - ID: " + ID : null) + " - "; }
+		public string Description { get => $"Thread: {Name}{(0 != ID ? $" (ID: {ID})" : null)}"; }
 		/// <summary>
 		/// Indicate whether the thread has already been started
 		/// </summary>
@@ -244,7 +244,7 @@ namespace COMMON
 			{
 				if (null != ThreadMethod)
 				{
-					Result = ThreadMethod(ThreadData, ThreadParams);
+					Result = ThreadMethod(this, ThreadParams);
 					CLog.Add($"{Description} - Thread result: {Result}", TLog.TRACE);
 				}
 				else

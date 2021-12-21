@@ -305,7 +305,7 @@ namespace COMMON
 		{
 			bool url = false;
 			// test IP address or URL, either that works
-			if (CMisc.IsValidFormat(ip, RegexIP.REGEX_IPV4_WITHOUT_PORT) || (url = CMisc.IsValidFormat(ip, RegexIP.REGEX_URL_WITHOUT_PORT)))
+			if (!string.IsNullOrEmpty(ip) && (CMisc.IsValidFormat(ip, RegexIP.REGEX_IPV4_WITHOUT_PORT) || (url = CMisc.IsValidFormat(ip, RegexIP.REGEX_URL_WITHOUT_PORT))))
 			{
 				try
 				{

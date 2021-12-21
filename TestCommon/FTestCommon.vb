@@ -297,7 +297,7 @@ Public Class FTestCommon
 		End Select
 	End Sub
 
-	Private Function ThreadFunction(data As CThreadData, o As Object)
+	Private Function ThreadFunction(data As CThread, o As Object)
 		Win32UIActivity.AddActivity(AddressOf UIProcessing, New UIActivity With {.Evt = UIActivityEnum.message, .Message = "Hello world", .Ctrl = Button2})
 		Thread.Sleep(5000)
 		Return ThreadResult.OK

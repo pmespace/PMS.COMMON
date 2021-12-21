@@ -542,11 +542,11 @@ namespace COMMON
 		/// <see cref="CThread.ThreadFunction"/>.
 		/// That function supports <see cref="SendAsync(SendAsyncType, byte[], bool, bool, string)"/> processing/
 		/// </summary>
-		/// <param name="threadData"></param>
+		/// <param name="thread"></param>
 		/// <param name="o"></param>
 		/// <returns></returns>
 		[ComVisible(false)]
-		private static int SendAsyncThreadMethod(CThreadData threadData, object o)
+		private static int SendAsyncThreadMethod(CThread thread, object o)
 		{
 			SendAsyncEnum res = SendAsyncEnum.KO;
 			ClientThreadType threadParams = (ClientThreadType)o;
@@ -564,7 +564,7 @@ namespace COMMON
 					else
 					{
 						// forward reply to the caller
-						if (threadParams.SendAsync.OnReply(Encoding.UTF8.GetBytes(reply), error, threadData, threadParams.SendAsync.Parameters))
+						if (threadParams.SendAsync.OnReply(Encoding.UTF8.GetBytes(reply), error, thread, threadParams.SendAsync.Parameters))
 							res = SendAsyncEnum.OK;
 						else
 							res = SendAsyncEnum.ReceiveError;
@@ -584,7 +584,7 @@ namespace COMMON
 					else
 					{
 						// forward reply to the caller
-						if (threadParams.SendAsync.OnReply(reply, error, threadData, threadParams.SendAsync.Parameters))
+						if (threadParams.SendAsync.OnReply(reply, error, thread, threadParams.SendAsync.Parameters))
 							res = SendAsyncEnum.OK;
 						else
 							res = SendAsyncEnum.ReceiveError;

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>PMS.COMMON</id>
-    <version>5.5.0</version>
+    <version>5.5.5</version>
     <title>PMS.COMMON</title>
     <authors>philippemp31</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -25,16 +25,22 @@
       - Win32 tools
     </description>
     <releaseNotes>
+      5.5.5
+      - Fixed a bug introduced in the previous version, in CStream
+      - Added a function to easily search an option in the args list of an application
+      - Added an extension (IsNullOrEmpty) for byte[]
+      - Added an extension (IsNullOrEmpty) for string
+
       5.5.0
       - Changed the log system (remained compatible though) for speed optimisation
       - Added some functions to CMisc, updated some others, removed some
       - Made some adjustment to CStreamServer
       - Changed a parameter to thread functions called by CThread (passing an object to the thread allowing to keep track of it)
-      
+
       5.4.0
       - Added a new parameter to th eOnmessage function called by a CStreamServer object
       - Added the possibility to send asynchronous messages from a the server
-      
+
       5.3.0
       - Fixed a bug in CStreamServer when some delegates are not specified
 

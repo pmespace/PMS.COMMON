@@ -137,7 +137,9 @@ namespace TestCore
 			string reply = null;
 			if (null != (reply = CStream.ConnectSendReceive(settings, string.IsNullOrEmpty(request) ? DateTime.Now.ToString() : request, out int size, out bool error)))
 				Console.WriteLine("CLIENT RECEIVED: " + reply);
-			return !string.IsNullOrEmpty(reply);
+			else
+				Console.WriteLine("ERROR RECEIVING DATA");
+			return true;
 		}
 		/// <summary>
 		/// 
@@ -153,9 +155,12 @@ namespace TestCore
 		/// <returns></returns>
 		bool StartServer(char c)
 		{
-			Console.Write("Password: ");
-			string pwd = Console.ReadLine();
-			if (string.IsNullOrEmpty(pwd)) return false;
+			string pwd = null;
+			if (UseSSL)
+			{
+				pwd = CMisc.Input("Password", null, out bool isdef, "Key password =");
+				if (string.IsNullOrEmpty(pwd)) return true;
+			}
 
 			string s = "[" + (UseSSL ? "using SSL" : "not using SSL") + "]";
 			if (null != server)
@@ -166,6 +171,8 @@ namespace TestCore
 			CStreamServerSettings serverSettings = new CStreamServerSettings()
 			{
 				Port = Port,
+				// important in this case to allow a certificate mismatch as MY CERTIFICATE MISMATCHES
+				AllowedSslErrors = SslPolicyErrors.RemoteCertificateNotAvailable,// | SslPolicyErrors.RemoteCertificateNameMismatch | SslPolicyErrors.RemoteCertificateChainErrors,
 				ServerCertificate = UseSSL ? new X509Certificate2(@"C:\Users\philippe\Documents\Dev\Certificates\PMS.COMMON.SSL.pfx", pwd) : null,
 			};
 			CStreamServerStartSettings startSettings = new CStreamServerStartSettings()

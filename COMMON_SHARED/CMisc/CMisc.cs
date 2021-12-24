@@ -114,6 +114,24 @@ namespace COMMON
 
 			return resultStringBuilder.ToString();
 		}
+		/// <summary>
+		/// Indicates whether a byte[] is null or empty
+		/// </summary>
+		/// <param name="ab">The byte[] data to verify</param>
+		/// <returns>True if null or Length=0, false otherwise</returns>
+		public static bool IsNullOrEmpty(this byte[] ab)
+		{
+			return (null == ab || 0 == ab.Length);
+		}
+		/// <summary>
+		/// Indicates whether a string is null or empty
+		/// </summary>
+		/// <param name="s">The string to verify</param>
+		/// <returns>True if null or Length=0, false otherwise</returns>
+		public static bool IsNullOrEmpty(this string s)
+		{
+			return string.IsNullOrEmpty(s);
+		}
 	}
 
 	/// <summary>
@@ -839,14 +857,14 @@ namespace COMMON
 		/// <param name="msg">Message to display to request the entry</param>
 		/// <param name="defv">Default value (in cas of direct ENTER)</param>
 		/// <param name="isdef">True if the default value has been chosen</param>
-		/// <param name="invite">Text to display before the entry (if something has been entered)</param>
+		/// <param name="invite">If something has been entered, the function displays it precedeed by this invite</param>
 		/// <returns></returns>
 		public static string Input(string msg, string defv, out bool isdef, string invite = null)
 		{
 			Console.WriteLine();
-			Console.Write(msg + (null != defv ? $" [{defv}]" : null) + ": ");
+			Console.Write(msg + (!defv.IsNullOrEmpty() ? $" [{defv}]" : null) + ": ");
 			string s = Console.ReadLine();
-			if (isdef = (null != defv && string.IsNullOrEmpty(s)))
+			if (isdef = (!defv.IsNullOrEmpty() && s.IsNullOrEmpty()))
 			{
 				s = defv;
 				Console.WriteLine(invite + s);
@@ -854,6 +872,40 @@ namespace COMMON
 			else if (string.IsNullOrEmpty(s))
 				s = null;
 			return s;
+		}
+		/// <summary>
+		/// Look for a string option (format can be either "-option" or "/option" in a list of arguments passed to an application
+		/// </summary>
+		/// <param name="args">List of arguments passed to an application</param>
+		/// <param name="option">The option to look for</param>
+		/// <param name="index">Index of the option inside the list of arguments, -1 if not found</param>
+		/// <param name="occurrence">Occurrence (1 based) of the option in the list of arguments, if the option can be present more than once</param>
+		/// <returns>The value of the option if present with the indicated occurrence (it could be an empty string <see cref="string.Empty"/>), null if not present</returns>
+		public static string SearchInArgs(string[] args, string option, out int index, int occurrence = 1)
+		{
+			index = -1;
+			int k = 0;
+			for (int i = 0; i < args.Length; i++)
+			{
+				try
+				{
+					string fulloption;
+					if (args[i].StartsWith(fulloption = $"-{option}", true, null) || args[i].StartsWith(fulloption = $"/{option}", true, null))
+					{
+						// the option has been found, update the occurrence
+						k++;
+						// is it the occurrence we are looking for ?
+						if (occurrence == k)
+						{
+							// that is th eoption we're looking for
+							index = i;
+							return args[i].Substring(fulloption.Length);
+						}
+					}
+				}
+				catch (Exception) { }
+			}
+			return null;
 		}
 	}
 }

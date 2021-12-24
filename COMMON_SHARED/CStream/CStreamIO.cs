@@ -8,6 +8,7 @@ using System.Text;
 using System;
 using Microsoft.Win32;
 using System.Threading;
+using COMMON;
 
 namespace COMMON
 {
@@ -71,7 +72,9 @@ namespace COMMON
 		#region methods
 		public override string ToString()
 		{
-			return $"TCP: {Tcp}";
+			if (null != Tcp)
+				return $"StreamIO - Connected: {Tcp.Connected}; Remote end point: {Tcp.Client.RemoteEndPoint}; Receive buffer size: {Tcp.ReceiveBufferSize}; Receive timeout: {Tcp.ReceiveTimeout}";
+			return null;
 		}
 		/// <summary>
 		/// Write to the adequate stream
@@ -80,17 +83,30 @@ namespace COMMON
 		/// <returns>TRUE if write operation has been made, FALSE otherwise</returns>
 		private bool Write(byte[] data)
 		{
-			if (null == data || 0 == data.Length)
-				return false;
+			if (data.IsNullOrEmpty()) return false;
 			if (null != sslStream)
 			{
-				sslStream.Write(data);
-				return true;
+				try
+				{
+					sslStream.Write(data);
+					return true;
+				}
+				catch (Exception ex)
+				{
+					CLog.AddException(MethodBase.GetCurrentMethod().Module.Name + "." + MethodBase.GetCurrentMethod().DeclaringType.Name + "." + MethodBase.GetCurrentMethod().Name, ex, "sslStream");
+				}
 			}
 			else if (null != networkStream)
 			{
-				networkStream.Write(data, 0, data.Length);
-				return true;
+				try
+				{
+					networkStream.Write(data, 0, data.Length);
+					return true;
+				}
+				catch (Exception ex)
+				{
+					CLog.AddException(MethodBase.GetCurrentMethod().Module.Name + "." + MethodBase.GetCurrentMethod().DeclaringType.Name + "." + MethodBase.GetCurrentMethod().Name, ex, "networkStream");
+				}
 			}
 			return false;
 		}
@@ -100,29 +116,62 @@ namespace COMMON
 		private void Flush()
 		{
 			if (null != sslStream)
-				sslStream.Flush();
+			{
+				try
+				{
+					sslStream.Flush();
+				}
+				catch (Exception ex)
+				{
+					CLog.AddException(MethodBase.GetCurrentMethod().Module.Name + "." + MethodBase.GetCurrentMethod().DeclaringType.Name + "." + MethodBase.GetCurrentMethod().Name, ex, "sslStream");
+				}
+			}
 			else if (null != networkStream)
-				networkStream.Flush();
+			{
+				try
+				{
+					networkStream.Flush();
+				}
+				catch (Exception ex)
+				{
+					CLog.AddException(MethodBase.GetCurrentMethod().Module.Name + "." + MethodBase.GetCurrentMethod().DeclaringType.Name + "." + MethodBase.GetCurrentMethod().Name, ex, "networkStream");
+				}
+			}
 		}
 		/// <summary>
 		/// Read the adequate stream
 		/// </summary>
-		/// <param name="data">buffer where read data will be put</param>
-		/// <param name="offset">offset at which to put data inside the buffer</param>
-		/// <param name="count">maximum size of data the buffer can contain</param>
+		/// <param name="data">Buffer where read data will be put</param>
+		/// <param name="offset">Offset at which to put data inside the buffer</param>
 		/// <returns>The number of bytes read</returns>
-		private int Read(byte[] data, int offset, int count)
+		private int Read(byte[] data, int offset)//, int count)
 		{
 			int read = 0;
-			if (null == data || 0 == data.Length)
+			if (data.IsNullOrEmpty() || data.Length <= offset)// || data.Length < offset + count)
 				return 0;
 			if (null != sslStream)
 			{
-				read = sslStream.Read(data, offset, count);
+				try
+				{
+					//read = sslStream.Read(data, offset, count);
+					read = sslStream.Read(data, offset, data.Length - offset);
+				}
+				catch (Exception ex)
+				{
+					CLog.AddException(MethodBase.GetCurrentMethod().Module.Name + "." + MethodBase.GetCurrentMethod().DeclaringType.Name + "." + MethodBase.GetCurrentMethod().Name, ex, "sslStream");
+				}
 			}
 			else if (null != networkStream)
 			{
-				read = networkStream.Read(data, offset, count); //0, data.Length);
+				try
+				{
+					//read = networkStream.Read(data, offset, count);
+					read = networkStream.Read(data, offset, data.Length - offset);
+				}
+				catch (Exception ex)
+				{
+					CLog.AddException(MethodBase.GetCurrentMethod().Module.Name + "." + MethodBase.GetCurrentMethod().DeclaringType.Name + "." + MethodBase.GetCurrentMethod().Name, ex, "networkStream");
+				}
 			}
 			return read;
 		}
@@ -134,8 +183,7 @@ namespace COMMON
 		/// <returns>TRUE if the message has been sent, HALSE otherwise</returns>
 		public bool Send(byte[] data, bool addSizeHeader)
 		{
-			if (null == data || 0 == data.Length)
-				return false;
+			if (data.IsNullOrEmpty()) return false;
 			// if requested, add the size header to the message to send
 			int lengthSize = (addSizeHeader ? LengthBufferSize : 0);
 			int size = data.Length + lengthSize;
@@ -199,15 +247,14 @@ namespace COMMON
 		private byte[] ReceiveSizedBuffer(int bufferSize)
 		{
 			// allocate buffer to receive
-			if (0 == bufferSize)
-				return null;
+			if (0 == bufferSize) return null;
 			byte[] buffer = new byte[bufferSize];
 			int bytesRead = 0;
 			bool doContinue;
 			do
 			{
 				// read stream for the specified buffer
-				int nbBytes = Read(buffer, bytesRead, buffer.Length - bytesRead);
+				int nbBytes = Read(buffer, bytesRead);//, buffer.Length - bytesRead);
 				if (doContinue = (0 != nbBytes))
 				{
 					bytesRead += nbBytes;
@@ -230,26 +277,27 @@ namespace COMMON
 		/// 
 		/// </summary>
 		/// <param name="EOT">A string which if found marks the end of transmission</param>
+		/// <param name="bufferToAllocate">Size of buffer to allocate to read the incoming data (default is 1 Kb)</param>
 		/// <returns>The received buffer, with a 0 length if no data has been received</returns>
-		private byte[] ReceiveNonSizedBuffer(string EOT)
+		private byte[] ReceiveNonSizedBuffer(string EOT, int bufferToAllocate = CStreamSettings.ONEKB)
 		{
 			if (string.IsNullOrEmpty(EOT))
 				EOT = CRLF;
 			// allocate buffer to receive
-			byte[] buffer = new byte[CStreamSettings.ONEKB];
+			byte[] buffer = new byte[bufferToAllocate];
 			int bytesRead = 0;
 			bool doContinue;
 			do
 			{
 				// read stream for the specified buffer
-				int nbBytes = Read(buffer, bytesRead, buffer.Length - bytesRead);
+				int nbBytes = Read(buffer, bytesRead);//, buffer.Length - bytesRead);
 				if (doContinue = (0 != nbBytes))
 				{
 					bytesRead += nbBytes;
 					// allocate more memory if the buffer is full
 					if (bytesRead == buffer.Length)
 					{
-						byte[] newbuffer = new byte[bytesRead + CStreamSettings.ONEKB];
+						byte[] newbuffer = new byte[bytesRead + bufferToAllocate];
 						Buffer.BlockCopy(buffer, 0, newbuffer, 0, bytesRead);
 						buffer = newbuffer;
 					}
@@ -279,15 +327,17 @@ namespace COMMON
 		public byte[] Receive(out int announcedSize)
 		{
 			announcedSize = 0;
-			// get the size of the buffer to receive
+			// get the size of the buffer to receive (LengthBufferSize is inherited and can never be 0)
 			byte[] bufferSize = ReceiveSizedBuffer(LengthBufferSize);
-			if (LengthBufferSize == bufferSize.Length)
+			if (!bufferSize.IsNullOrEmpty() && LengthBufferSize == bufferSize.Length)
 			{
 				// get the size of the buffer to read and start reading it
-				announcedSize = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, LengthBufferSize);
-				byte[] buffer = ReceiveSizedBuffer(announcedSize);
-				if (announcedSize == buffer.Length)
-					return buffer;
+				if (0 != (announcedSize = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, LengthBufferSize)))
+				{
+					byte[] buffer = ReceiveSizedBuffer(announcedSize);
+					if (!buffer.IsNullOrEmpty() && announcedSize == buffer.Length)
+						return buffer;
+				}
 			}
 			return null;
 		}
@@ -305,7 +355,7 @@ namespace COMMON
 		{
 			// receive the buffer
 			byte[] buffer = Receive(out int size);
-			return (size == buffer.Length ? Encoding.UTF8.GetString(buffer) : null);
+			return (!buffer.IsNullOrEmpty() && size == buffer.Length ? Encoding.UTF8.GetString(buffer) : null);
 		}
 		/// <summary>
 		/// Receive a string of an unknown size from the server.
@@ -334,20 +384,27 @@ namespace COMMON
 		/// </summary>
 		public void Close()
 		{
-			try
+			if (null != sslStream)
 			{
-				if (null != sslStream)
+				try
 				{
 					sslStream.Close();
 				}
-				else if (null != networkStream)
+				catch (Exception ex)
+				{
+					CLog.AddException(MethodBase.GetCurrentMethod().Module.Name + "." + MethodBase.GetCurrentMethod().DeclaringType.Name + "." + MethodBase.GetCurrentMethod().Name, ex, "sslStream");
+				}
+			}
+			else if (null != networkStream)
+			{
+				try
 				{
 					networkStream.Close();
 				}
-			}
-			catch (Exception ex)
-			{
-				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
+				catch (Exception ex)
+				{
+					CLog.AddException(MethodBase.GetCurrentMethod().Module.Name + "." + MethodBase.GetCurrentMethod().DeclaringType.Name + "." + MethodBase.GetCurrentMethod().Name, ex, "networkStream");
+				}
 			}
 			Tcp = null;
 		}

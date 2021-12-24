@@ -132,7 +132,7 @@ namespace COMMON
 		/// <returns>An arry of bytes received in response or if an error occured. In case of a client only request, the function returns the request, as no reply can be returned, if everything went right</returns>
 		public static bool Send(CStreamIO stream, byte[] request, bool addSizeHeader)
 		{
-			if (null == stream)
+			if (null == stream || request.IsNullOrEmpty())
 				return false;
 			try
 			{
@@ -170,7 +170,7 @@ namespace COMMON
 		/// <returns></returns>
 		public static bool SendLine(CStreamIO stream, string request, string EOT = CStreamIO.CRLF)
 		{
-			if (null == stream)
+			if (null == stream || string.IsNullOrEmpty(request))
 				return false;
 			try
 			{
@@ -207,9 +207,9 @@ namespace COMMON
 			{
 				// Read message from the server
 				byte[] tmp = stream.Receive(out announcedSize);
-				CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"Received message of {(sizeHeaderAdded ? tmp.Length : tmp.Length - (int)stream.LengthBufferSize)} actual bytes (announcing {announcedSize} bytes)");
 				if (null != tmp)
 				{
+					CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"Received message of {(sizeHeaderAdded ? tmp.Length : tmp.Length - (int)stream.LengthBufferSize)} actual bytes (announcing {announcedSize} bytes)");
 					// rebuild the buffer is required
 					if (!sizeHeaderAdded)
 					{
@@ -222,10 +222,14 @@ namespace COMMON
 					else
 						reply = tmp;
 				}
+				else if (0 != announcedSize)
+				{
+					CLog.Add("No data has been received though expecting some (invalid announced length,...)", TLog.ERROR);
+					error = true;
+				}
 				else
 				{
-					CLog.Add("No data has been received or an error has occurred (invalid announced length,...)", TLog.ERROR);
-					error = true;
+					CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"No data has been received");
 				}
 			}
 			catch (Exception ex)

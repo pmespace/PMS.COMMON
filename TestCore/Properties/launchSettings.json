@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TestCore": {
+      "commandName": "Project",
+      "commandLineArgs": "-?help /? /?ho"
+    }
+  }
+}

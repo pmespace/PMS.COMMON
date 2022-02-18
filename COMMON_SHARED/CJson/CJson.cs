@@ -5,15 +5,7 @@ using System.Text;
 using System.Xml;
 using System.IO;
 using System;
-
-#if OLD_NET35
-using System.Linq;
-using System.Web.Script.Serialization;
-using System.Runtime.Serialization.Json;
-using System.Collections.Generic;
-#else
 using Newtonsoft.Json;
-#endif
 
 namespace COMMON
 {
@@ -128,21 +120,6 @@ namespace COMMON
 		/// <returns></returns>
 		public static string Serialize(TSettings settings, bool addNull = false)
 		{
-#if OLD_NET35
-			JavaScriptSerializer JsonConvert = new JavaScriptSerializer();
-			try
-				{
-				string data = JsonConvert.Serialize(settings);
-				if (null == data)
-					return string.Empty;
-				return data;
-				}
-			catch (Exception ex)
-				{
-				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
-				return string.Empty;
-				}
-#else
 			try
 			{
 				string data = JsonConvert.SerializeObject(settings, Newtonsoft.Json.Formatting.Indented, (JsonSerializerSettings)Prepare(addNull));
@@ -155,7 +132,6 @@ namespace COMMON
 				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 				return string.Empty;
 			}
-#endif
 		}
 		/// <summary>
 		/// Deserialize an object to a string
@@ -167,18 +143,6 @@ namespace COMMON
 		public static TSettings Deserialize(string settings, out bool jsonException, bool addNull = false)
 		{
 			jsonException = false;
-#if OLD_NET35
-			try
-				{
-				return new JavaScriptSerializer().Deserialize<TSettings>(settings);
-				}
-			catch (Exception ex)
-				{
-				jsonException = true;
-				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
-				return default(TSettings);
-				}
-#else
 			try
 			{
 				return JsonConvert.DeserializeObject<TSettings>(settings, (JsonSerializerSettings)Prepare(addNull));
@@ -189,7 +153,6 @@ namespace COMMON
 				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 				return default(TSettings);
 			}
-#endif
 		}
 		/// <summary>
 		/// Prepare json settings to use
@@ -198,15 +161,11 @@ namespace COMMON
 		/// <returns></returns>
 		private static object Prepare(bool addNull)
 		{
-#if OLD_NET35
-			return null;
-#else
 			JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings();
 			jsonSerializerSettings.NullValueHandling = addNull ? NullValueHandling.Include : NullValueHandling.Ignore;
 			jsonSerializerSettings.DefaultValueHandling = DefaultValueHandling.Include;
 			jsonSerializerSettings.MissingMemberHandling = MissingMemberHandling.Ignore;
 			return jsonSerializerSettings;
-#endif
 		}
 		#endregion
 	}

@@ -264,15 +264,6 @@ namespace COMMON
 		/// </summary>
 		[JsonIgnore]
 		public string FullIP { get => (IsValid ? IP + (0 != Port ? ":" + Port : string.Empty) : string.Empty); }
-		///// <summary>
-		///// Allowed SSL errors while trying to connect
-		///// </summary>
-		//public SslPolicyErrors AllowedSslErrors
-		//{
-		//	get => _allowedsslerrors;
-		//	set { _allowedsslerrors = value & (SslPolicyErrors.RemoteCertificateChainErrors | SslPolicyErrors.RemoteCertificateNameMismatch | SslPolicyErrors.RemoteCertificateNotAvailable); }
-		//}
-		//private SslPolicyErrors _allowedsslerrors = SslPolicyErrors.None;
 		#endregion
 
 		#region private properties

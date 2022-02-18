@@ -43,6 +43,7 @@ namespace TestCore
 			Menu.Add('4', new CMenu() { Text = "Use SSL", Fnc = SetUseSSL });
 			Menu.Add('5', new CMenu() { Text = "Create log", Fnc = CreateLog });
 			Menu.Add('6', new CMenu() { Text = "Stop log", Fnc = StopLog });
+			Menu.Add('7', new CMenu() { Text = "Stop log", Fnc = TestConnect });
 			Menu.Add('X', new CMenu() { Text = "Exit", Fnc = Exit });
 
 			bool ok = true;
@@ -116,6 +117,36 @@ namespace TestCore
 		{
 			CLog.LogFileName = null;
 			CLog.Add($"Stopping log");
+			return true;
+		}
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		bool TestConnect(char c)
+		{
+			StartServer(c);
+
+			CStreamClientSettings settings = new CStreamClientSettings()
+			{
+				AllowedSslErrors = SslPolicyErrors.RemoteCertificateNotAvailable | SslPolicyErrors.RemoteCertificateNameMismatch | SslPolicyErrors.RemoteCertificateChainErrors,
+				//IP = CStream.Localhost(),
+				IP = "127.0.0.1",
+				Port = Port,
+				ServerName = UseSSL ? "hello world" : null,
+			};
+			CStreamClientIO clientIO = CStream.Connect(settings);
+			if (null != clientIO)
+			{
+				clientIO.Send("hello");
+				Console.ReadKey();
+				Console.WriteLine($"Client connected: {clientIO.Connected}");
+				Console.ReadKey();
+				StopServer(c);
+				Console.ReadKey();
+				Console.WriteLine($"Client connected: {clientIO.Connected}");
+				clientIO.Close();
+			}
 			return true;
 		}
 		/// <summary>

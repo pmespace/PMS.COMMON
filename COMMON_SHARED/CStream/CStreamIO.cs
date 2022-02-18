@@ -9,6 +9,9 @@ using System;
 using Microsoft.Win32;
 using System.Threading;
 using COMMON;
+using System.Net.NetworkInformation;
+using System.Linq;
+using System.Net;
 
 namespace COMMON
 {
@@ -31,7 +34,12 @@ namespace COMMON
 		#endregion
 
 		#region properties
-		public TcpClient Tcp { get; private set; }
+		public TcpClient Tcp
+		{
+			get => _tcp;
+			private set => _tcp = value;
+		}
+		private TcpClient _tcp = null;
 		/// <summary>
 		/// SSL stream if SSL security is required
 		/// </summary>
@@ -60,6 +68,26 @@ namespace COMMON
 			}
 		}
 		private NetworkStream _networkstream = null;
+		/// <summary>
+		/// Indicates whether a StreamIO is connected or not
+		/// </summary>
+		public bool Connected
+		{
+			get
+			{
+				if (null != Tcp)
+				{
+					IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();
+					TcpConnectionInformation[] tcpConnections = ipProperties.GetActiveTcpConnections().Where(x => x.LocalEndPoint.Equals(Tcp.Client.RemoteEndPoint) && x.RemoteEndPoint.Equals(Tcp.Client.LocalEndPoint)).ToArray();
+					if (tcpConnections != null && tcpConnections.Length > 0)
+					{
+						TcpState stateOfConnection = tcpConnections.First().State;
+						return (stateOfConnection == TcpState.Established);
+					}
+				}
+				return false;
+			}
+		}
 		#endregion
 
 		#region constants
@@ -426,6 +454,23 @@ namespace COMMON
 		#region CStreamIO
 		[DispId(2001)]
 		TcpClient Tcp { get; }
+		[DispId(2002)]
+		bool Connected { get; }
+
+		[DispId(2101)]
+		bool Send(byte[] data, bool addSizeHeader);
+		[DispId(2102)]
+		bool Send(string data);
+		[DispId(2103)]
+		bool SendLine(string data, string EOT = CStreamIO.CRLF);
+		[DispId(2104)]
+		byte[] Receive(out int announcedSize);
+		[DispId(2105)]
+		string Receive();
+		[DispId(2106)]
+		string ReceiveLine(string EOT = CStreamIO.CRLF);
+		[DispId(2107)]
+		void Close();
 		#endregion
 
 		#region CStreamClientIO
@@ -456,6 +501,7 @@ namespace COMMON
 					try
 					{
 						// authenticate aginst the server
+
 #if NET35
 						// check if TLS is supported
 						bool useTLS = false;
@@ -474,6 +520,7 @@ namespace COMMON
 #else
 						sslStream.AuthenticateAsClient(Settings.ServerName);
 #endif
+
 					}
 					catch (Exception ex)
 					{
@@ -537,6 +584,23 @@ namespace COMMON
 		#region CStreamIO
 		[DispId(2001)]
 		TcpClient Tcp { get; }
+		[DispId(2002)]
+		bool Connected { get; }
+
+		[DispId(2101)]
+		bool Send(byte[] data, bool addSizeHeader);
+		[DispId(2102)]
+		bool Send(string data);
+		[DispId(2103)]
+		bool SendLine(string data, string EOT = CStreamIO.CRLF);
+		[DispId(2104)]
+		byte[] Receive(out int announcedSize);
+		[DispId(2105)]
+		string Receive();
+		[DispId(2106)]
+		string ReceiveLine(string EOT = CStreamIO.CRLF);
+		[DispId(2107)]
+		void Close();
 		#endregion
 
 		#region CStreamClientIO

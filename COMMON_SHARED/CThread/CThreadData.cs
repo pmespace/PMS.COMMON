@@ -48,11 +48,13 @@ namespace COMMON
 		}
 		private void Assign(CThreadData t)
 		{
+
 #if NETFRAMEWORK
 			WindowToWarn = t.WindowToWarn;
 			StoppedMessage = t.StoppedMessage;
 			InformationMessage = t.InformationMessage;
 #endif
+
 		}
 		#endregion
 
@@ -131,6 +133,7 @@ namespace COMMON
 		/// <returns></returns>
 		public override string ToString()
 		{
+
 #if NETFRAMEWORK
 			string SEP = " - ";
 			return "Window to warn: " + (null != WindowToWarn).ToString() + SEP
@@ -139,6 +142,7 @@ namespace COMMON
 #else
 			return base.ToString();
 #endif
+
 		}
 		#endregion
 	}

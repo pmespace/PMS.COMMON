@@ -126,9 +126,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\COMMON35\COMMON35.csproj">
-      <Project>{2a6367ee-7d3c-4756-8fd2-2c386ad9f464}</Project>
-      <Name>COMMON35</Name>
+    <ProjectReference Include="..\COMMON\COMMON.csproj">
+      <Project>{7aff3ff8-b99e-4690-ac1a-730fd76f3b90}</Project>
+      <Name>COMMON</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />

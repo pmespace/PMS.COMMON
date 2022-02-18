@@ -10,14 +10,14 @@ using System.Collections.ObjectModel;
 
 namespace COMMON
 {
-	public class CStreamServerParameters
-	{
-		public CThread Thread { get; internal set; }
-		public TcpClient Tcp { get; internal set; }
-		public CThreadData ThreadData { get; internal set; }
-		public object GlobalParameters { get; internal set; }
-		public object O;
-	}
+	//public class CStreamServerParameters
+	//{
+	//	public CThread Thread { get; internal set; }
+	//	public TcpClient Tcp { get; internal set; }
+	//	public CThreadData ThreadData { get; internal set; }
+	//	public object GlobalParameters { get; internal set; }
+	//	public object O;
+	//}
 
 	[ComVisible(true)]
 	[Guid("8E3BBBB0-F498-47BF-AB18-5C84B80EE4B4")]

@@ -5,15 +5,7 @@ using System.Text;
 using System.Xml;
 using System.IO;
 using System;
-
-#if OLD_NET35
-using System.Linq;
-using System.Web.Script.Serialization;
-using System.Runtime.Serialization.Json;
-using System.Collections.Generic;
-#else
 using Newtonsoft.Json;
-#endif
 
 namespace COMMON
 {
@@ -40,14 +32,8 @@ namespace COMMON
 				XmlDocument doc = new XmlDocument();
 				try
 				{
-
-#if OLD_NET35
-					doc.Load(JsonReaderWriterFactory.CreateJsonReader(Encoding.UTF8.GetBytes(json), new XmlDictionaryReaderQuotas()));
-#else
 					// convert to XML
 					doc = JsonConvert.DeserializeXmlNode(json, root, writeArrayAttribute, encodeSpecialCharacters);
-#endif
-
 					// get the XML in a string
 					return doc.InnerXml;
 				}
@@ -70,32 +56,13 @@ namespace COMMON
 				{
 					// try to load the XML into a XML document
 					doc.LoadXml(xml);
-
-#if OLD_NET35
-					var json = new JavaScriptSerializer().Serialize(GetXmlData(XElement.Parse(xml)));
-#else
 					// arrived here the XML document has been created, serialize it to JSON
 					return JsonConvert.SerializeXmlNode(doc);
-#endif
-
 				}
 				catch (Exception) { }
 			}
 			return string.Empty;
 		}
-
-#if OLD_NET35
-		private static Dictionary<string, object> GetXmlData(XElement xml)
-			{
-			var attr = xml.Attributes().ToDictionary(d => d.Name.LocalName, d => (object)d.Value);
-			if (xml.HasElements)
-				attr.Add("_value", xml.Elements().Select(e => GetXmlData(e)));
-			else if (!xml.IsEmpty)
-				attr.Add("_value", xml.Value);
-			return new Dictionary<string, object> { { xml.Name.LocalName, attr } };
-			}
-#endif
-
 		#endregion
 	}
 }

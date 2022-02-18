@@ -92,23 +92,33 @@ namespace COMMON
 		/// <returns>A <see cref="CStreamClientIO"/> object is evrything went fine, null otherwise</returns>
 		public static CStreamClientIO Connect(CStreamClientSettings settings)
 		{
-			TcpClient tcpclient = new TcpClient();
 			CStreamClientIO stream = null;
 			try
 			{
-				CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"About to connect to {settings.FullIP}");
-				tcpclient.Connect(settings.Address, (int)settings.Port);
-				tcpclient.SendBufferSize = (tcpclient.SendBufferSize >= settings.SendBufferSize ? tcpclient.SendBufferSize : settings.SendBufferSize + 1);
-				tcpclient.ReceiveBufferSize = (tcpclient.ReceiveBufferSize >= settings.ReceiveBufferSize ? tcpclient.SendBufferSize : settings.ReceiveBufferSize);
-				tcpclient.SendTimeout = settings.SendTimeout * CStreamSettings.ONESECOND;
-				tcpclient.ReceiveTimeout = settings.ReceiveTimeout * CStreamSettings.ONESECOND;
-				// Create an SSL stream that will close the client's stream.
-				stream = new CStreamClientIO(tcpclient, settings);
+				// determine whether v4 or v6 IP addresse
+				IPAddress ip = IPAddress.Parse(settings.IP);
+				bool v6 = AddressFamily.InterNetworkV6 == ip.AddressFamily;
+				TcpClient tcpclient = new TcpClient(v6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork);
+				try
+				{
+					CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"About to connect to {settings.FullIP}");
+					tcpclient.Connect(settings.Address, (int)settings.Port);
+					tcpclient.SendBufferSize = (tcpclient.SendBufferSize >= settings.SendBufferSize ? tcpclient.SendBufferSize : settings.SendBufferSize + 1);
+					tcpclient.ReceiveBufferSize = (tcpclient.ReceiveBufferSize >= settings.ReceiveBufferSize ? tcpclient.SendBufferSize : settings.ReceiveBufferSize);
+					tcpclient.SendTimeout = settings.SendTimeout * CStreamSettings.ONESECOND;
+					tcpclient.ReceiveTimeout = settings.ReceiveTimeout * CStreamSettings.ONESECOND;
+					// Create an SSL stream that will close the client's stream.
+					stream = new CStreamClientIO(tcpclient, settings);
+				}
+				catch (Exception ex)
+				{
+					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
+					tcpclient.Close();
+				}
 			}
 			catch (Exception ex)
 			{
 				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
-				tcpclient.Close();
 			}
 			return stream;
 		}

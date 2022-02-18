@@ -1,0 +1,8 @@
+Shared tools by PMS
+Functions are:
+- CLog: log file management
+- CStream,...: network streams management
+- CJson: a lightweight json files management (uses NewtoSoft.Json)
+- CThread: tools to start threads and be warned when they stop
+- CMisc: a set of various tools
+- CDatabase: ODBC database management wrapper

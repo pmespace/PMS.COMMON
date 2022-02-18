@@ -276,6 +276,7 @@ namespace COMMON
 				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
 			}
 		}
+
 #if NETFRAMEWORK
 		/// <summary>
 		/// Send an event notification to the caller if a window handle has been provided
@@ -304,6 +305,7 @@ namespace COMMON
 				Win32.PostMessage(threadData.WindowToWarn, stopped ? threadData.StoppedMessage : threadData.InformationMessage, id, value);
 		}
 #endif
+
 		#endregion
 	}
 

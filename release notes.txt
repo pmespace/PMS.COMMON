@@ -1,7 +1,7 @@
 6.0.0
 - ODBC support is now included directly inside every package
 - Moved to .NET Standard 2.0
-- Aligned all library names to PMS.COMMON (.NET 3.5, .NET 4.5, .NET 4.7 and .NET Standard)
+- Aligned all library names to PMS.COMMON (.NET 3.5, .NET 4.5, .NET 4.7, .NET Standard and .NET 5)
 - Added a new "Connected" property to any CStreamIO object indicating whether it is yet connected or still connected
 
 5.5.5

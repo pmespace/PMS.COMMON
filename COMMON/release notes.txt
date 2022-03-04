@@ -1,0 +1,153 @@
+6.0.0
+- ODBC support is now included directly inside every package
+- Moved to .NET Standard 2.0
+- Aligned all library names to PMS.COMMON (.NET 3.5, .NET 4.5, .NET 4.7, .NET Standard and .NET 5)
+- Added a new "Connected" property to any CStreamIO object indicating whether it is yet connected or still connected
+
+5.5.5
+- Fixed a bug introduced in the previous version, in CStream
+- Added a function to easily search an option in the args list of an application
+- Added an extension (IsNullOrEmpty) for byte[]
+- Added an extension (IsNullOrEmpty) for string
+
+5.5.0
+- Changed the log system (remained compatible though) for speed optimisation
+- Added some functions to CMisc, updated some others, removed some
+- Made some adjustment to CStreamServer
+- Changed a parameter to thread functions called by CThread (passing an object to the thread allowing to keep track of it)
+
+5.4.0
+- Added a new parameter to th eOnmessage function called by a CStreamServer object
+- Added the possibility to send asynchronous messages from a the server
+
+5.3.0
+- Fixed a bug in CStreamServer when some delegates are not specified
+
+5.2.4
+- Fixed an stupid bug introduced in 5.2.3
+
+5.2.3
+- Reestablished some CThread properties inside CStreamServer
+
+5.2.2
+- Lots of bug fixes or evolutions in CMisc
+- CStreamServerSettings now has got a new call back to allow not logging the full messages (received and sent) so as to allow a PCI-DSS compliance
+- New property in CLog
+
+5.2.1
+- Updated erroneous function description for CMiscAdjustMinMax1N and CMisc.AdjustMinMax0N, changed max to int.MaxValue instead of 65535 and published CMisc.AdjustMinMax
+
+5.2.0
+- Fixed bugs in CMisc.OneHexToBin and CMisc.TwoHexToBin
+- Added functions in CMisc to created hexadecimal strings from a value
+- Added functions in CMisc to directly get the value represented by an hexadecimal string
+- Added 2 new exceptions (EInvalidFormat and EOutOfRange) and renamed all exceptions from C... to E...
+
+5.1.0
+- Update to architecture
+
+5.0.0
+- Added .NET 5.0 package
+- Now use NewtonSoft.Json for all packages (including .NET 3.5)
+- Added a function to call when a thread stops (CThread) allowing to warn a calling application (especially useful for .NET 5.0 with no UI interface
+
+4.1.1
+- Small bug fixed in Json management
+
+4.1.0
+- Added an out  boolean parameter to CJson functions indicating whether a Json exception occured during processing
+- When some exceptions occurred they were not logged, this has been fixed
+
+4.0.3
+- Moved to NewtonSoft.Json 13.0.1
+
+4.0.2
+- Tiny update in CJson to indicate why the FileName property failed to be set and changed the method to create a temporary file allowing that file to be persistent (using GetTempFileName instead of GetRandomFileName)
+
+4.0.1
+- Fixed a bug in CMisc about enum functions
+
+4.0.0
+- PMS.COMMON.CORE introduced (.NET 5.0)
+- CDatabase now relies on ODBC instead of OleDB
+- CStreamIO now uses TLS 1.2 inside PMS.COMMON35 (requires .NET 3.5 SP1 installed). To check whether installed refer to HKLM\SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5\SP = 1
+
+3.0.10
+- CheckCertificate inside CStreamClientSettings is now obsolete
+- New AllowedSsslErrors added inside CStreamClientSettings, allowing to decide what SSL errors are acceptable when exchanging with a SSL server
+
+3.0.9
+- Added functions to the CDatabase object
+
+3.0.8
+- Added the possibility to specify the end of line in CStreamIO.ReceiveLine
+
+3.0.7
+- Fixed a regression inside CStreamIO, introduced in 3.0.6
+
+3.0.6
+- Automatically managed CR+LF when using SendLine and ReceiveLine in CStreamIO
+
+3.0.5
+- Added the possibility to exchanges messages over socket without buffer size header
+
+3.0.4
+- Added some functions to CDatabase to use OleDbComand objects directly
+- Added tools and automatic management of =TRUE and =FALSE in SQL
+
+3.0.3
+- Fixed a bug when the connection string a a CDatabase object was incomplete
+
+3.0.2
+- Fixed a bug in CDatabaseTableManager and made all CDatabaseXXX clases visible inside the IDE (can't explain why it was not)
+- Updated the TestCommon software to add CDatabaseTableManager example
+
+3.0.1
+- Added CDatabaseManager to easily manage OleDB database tables from any application
+
+3.0.0
+- Update CThreadData.Prepare to allow specify a terminate event
+- Added a new CDatabase object to easily reach OLEDB databases
+
+2.0.5
+- Cosmetic update
+
+2.0.4
+- Added a new way for CThread to warn a thread is finished using an EventWaitHandle (inside CThreadData)
+
+2.0.3
+- CThread no longer requires an ID to be set to send a notificatioin to the window
+
+2.0.2
+- Fixed access to readonly json files in CJson: files could not be read if shared only as file access was set to read/write
+
+2.0.1
+- Once again adjusted version number
+
+2.0.0
+- Removed WMI from the package
+
+1.1.0
+- Adjusted version number
+
+1.0.6
+- Exceptions inside CMisc are nolonger. IMPACTLESS
+- The OnDisconnect function is not called if the server is shutting down because this may cause the main threda to hang
+
+1.0.5
+- Changed the return value for OnDisconnect in CStreamServerStartSettings
+- Made sure no exception can plague calling OnConnect and OnDisconnect
+
+1.0.4
+- Fixed an issue: connecting and disconnecting immediately stopped the CStreamServer
+- Added a OnDisconnect property to the CStreamServerStartSettings to warn a client has been disconnected
+
+1.0.3
+- Updates to project properties
+
+1.0.2
+- Added a function to CMisc allowing to test a folder for existence and written rights
+- Made some objects available to COM
+
+1.0.0
+- Creation

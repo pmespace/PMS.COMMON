@@ -20,7 +20,7 @@ Public Class FTestCommon
 	Private myEvent As AutoResetEvent = New AutoResetEvent(False)
 
 	Private Sub FTestCommon_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-		json.FileName = "testcommon.settings.json"
+		json.FileName = "..\testcommon.settings.json"
 		ReadSettings()
 		lblSelectRes.Text = String.Empty
 		lblSQLNbRows.Text = String.Empty

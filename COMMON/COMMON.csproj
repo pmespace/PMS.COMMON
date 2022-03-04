@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net50;netstandard2.0;net45;net47;net35</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net50;net35;net40;net45;net47</TargetFrameworks>
     <AssemblyName>PMS.COMMON</AssemblyName>
     <Version>6.0.0</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -10,7 +10,7 @@
     <Authors>philippemp31</Authors>
     <Company>PMS</Company>
     <Description></Description>
-    <Copyright>PMS - philippemp31@outlook.com - 2022</Copyright>
+    <Copyright>PMS - philippemp31 at outlook dot com - 2022</Copyright>
     <PackageProjectUrl>https://github.com/pmespace/PMS.COMMON</PackageProjectUrl>
     <RepositoryUrl>https://github.com/pmespace/PMS.COMMON</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -22,20 +22,28 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE</DefineConstants>
-    <OutputPath>..\bin</OutputPath>
-    <DocumentationFile>..\bin\PMS.COMMON.xml</DocumentationFile>
+    <OutputPath>.\bin</OutputPath>
+    <DocumentationFile>.\bin\PMS.COMMON.xml</DocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\bin</OutputPath>
-    <DocumentationFile>..\bin\PMS.COMMON.xml</DocumentationFile>
+    <OutputPath>.\bin</OutputPath>
+    <DocumentationFile>.\bin\PMS.COMMON.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net35|AnyCPU'">
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net35|AnyCPU'">
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
   </PropertyGroup>
 
   <Import Project="..\COMMON_ODBC\COMMON_ODBC.projitems" Label="Shared" />
 
   <Import Project="..\COMMON_SHARED\COMMON_SHARED.projitems" Label="Shared" />
 
-  <Import Project="..\COMMON_WIN32\COMMON_WIN32.projitems" Label="Shared" Condition="'$(TargetFramework)'=='net35' Or '$(TargetFramework)'=='net45' Or '$(TargetFramework)'=='net47'" />
+  <Import Project="..\COMMON_WIN32\COMMON_WIN32.projitems" Label="Shared" Condition="'$(TargetFramework)'=='net35' Or '$(TargetFramework)'=='net40' Or '$(TargetFramework)'=='net45' Or '$(TargetFramework)'=='net47'" />
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
@@ -43,8 +51,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="System.Windows.Forms" Condition="'$(TargetFramework)'=='net35' Or '$(TargetFramework)'=='net45'">
+    <Reference Include="System.Windows.Forms" Condition="'$(TargetFramework)'=='net35'">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\v3.5\System.Windows.Forms.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms" Condition="'$(TargetFramework)'=='net40'">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Windows.Forms.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Forms" Condition="'$(TargetFramework)'=='net45'">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Windows.Forms.dll</HintPath>
@@ -54,10 +65,21 @@
     </Reference>
   </ItemGroup>
 
-  <Target Name="PreparePackageReleaseNotesFromFile" BeforeTargets="GenerateNuspec">
+  <Target Name="PreparePackageReleaseNotesFromFile" BeforeTargets="PutReleaseNotesInsideNuspec">
     <PropertyGroup>
-      <PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(MSBuildProjectDirectory)/../release notes.txt"))</PackageReleaseNotes>
+      <PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(MSBuildProjectDirectory)/release notes.txt"))</PackageReleaseNotes>
+      <PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(MSBuildProjectDirectory)/release notes.txt"))</PackageReleaseNotes>
     </PropertyGroup>
+  </Target>
+
+  <Target Name="CopyPackage" AfterTargets="Pack">
+    <Message Text="--&gt; Copying $(OutputPath)$(PackageId).$(PackageVersion).nupkg" />
+    <Copy SourceFiles="$(OutputPath)$(PackageId).$(PackageVersion).nupkg" DestinationFolder="$(SolutionDir)..\nuget\test" />
+  </Target>
+
+  <Target Name="ResetPackages" AfterTargets="CopyPackage">
+    <Message Text="--&gt; Resetting packages repository in $(RestorePackagesPath)$(PackageId).$(PackageVersion).nupkg" />
+    <Delete Files="$(RestorePackagesPath)$(PackageId)\$(PackageVersion)\*.*" />
   </Target>
 
 </Project>

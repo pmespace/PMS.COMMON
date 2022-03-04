@@ -732,12 +732,12 @@ namespace COMMON
 			// check whether the message must be hidden or not
 			if (null != client.StreamServerSettings.OnMessageToLog)
 			{
-				string s = client.StreamServerSettings.OnMessageToLog(buffer, CMisc.BinToHex(buffer), isRequest);
+				string s = client.StreamServerSettings.OnMessageToLog(buffer, CMisc.AsString(buffer), isRequest);
 				return (string.IsNullOrEmpty(s) ? "<MESSAGE HIDDEN>" : s);
 			}
 			else
 			{
-				return CMisc.BinToHex(buffer);
+				return CMisc.AsString(buffer);
 			}
 		}
 		/// <summary>

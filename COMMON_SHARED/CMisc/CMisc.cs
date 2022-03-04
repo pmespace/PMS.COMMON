@@ -503,24 +503,24 @@ namespace COMMON
 			}
 			return ab;
 		}
-		/// <summary>
-		/// Converts an array of bytes to an hexadecimal string
-		/// Each byte gives a 2 chars hexadecimal value
-		/// </summary>
-		/// <param name="buffer">The array of bytes to convert</param>
-		/// <returns>The converted array into a string if successful, an empty string if any error occured</returns>
-		public static string BinToHex(byte[] buffer)
-		{
-			if (null == buffer || 0 == buffer.Length) return null;
-			string res = string.Empty;
-			try
-			{
-				foreach (byte b in buffer)
-					res += b.ToString("X2");
-			}
-			catch (Exception) { res = null; }
-			return res;
-		}
+		///// <summary>
+		///// Converts an array of bytes to an hexadecimal string
+		///// Each byte gives a 2 chars hexadecimal value
+		///// </summary>
+		///// <param name="buffer">The array of bytes to convert</param>
+		///// <returns>The converted array into a string if successful, an empty string if any error occured</returns>
+		//public static string BinToHex(byte[] buffer)
+		//{
+		//	if (null == buffer || 0 == buffer.Length) return null;
+		//	string res = string.Empty;
+		//	try
+		//	{
+		//		foreach (byte b in buffer)
+		//			res += b.ToString("X2");
+		//	}
+		//	catch (Exception) { res = null; }
+		//	return res;
+		//}
 		/// <summary>
 		/// Converts a numric value to it hexadecimal representation
 		/// THIS FUNCTION MAY THROW AN EXCEPTION
@@ -714,24 +714,46 @@ namespace COMMON
 			return s.ToLower();
 		}
 		/// <summary>
-		/// Makes sure a string is always returned
+		/// Makes sure a string is always returned and safe
 		/// </summary>
 		/// <param name="s">The string to test</param>
-		/// <returns></returns>
+		/// <returns>The string  or an empty string</returns>
 		public static string AsString(string s)
 		{
 			return string.IsNullOrEmpty(s) ? string.Empty : s;
 		}
 		/// <summary>
-		/// Safely return a string content, even if the original string is null
+		/// Returns the string inside an array of bytes
 		/// </summary>
-		/// <param name="s">The string to test</param>
-		/// <returns>The string or an empty string if that string doesn't exist (is null)</returns>
-		public static string IsString(string s)
+		/// <param name="ab">Arry of bytes to llok a string for</param>
+		/// <returns>The string contained inside the array of bytes or an empty string</returns>
+		public static string AsString(byte[] ab)
 		{
-			if (string.IsNullOrEmpty(s))
-				return null;
+			string s = string.Empty;
+			try
+			{
+				s = Encoding.UTF8.GetString(ab);
+			}
+			catch (Exception) { }
 			return s;
+		}
+		/// <summary>
+		/// Converts an array of bytes to an hexadecimal string
+		/// Each byte gives a 2 chars hexadecimal value
+		/// </summary>
+		/// <param name="buffer">The array of bytes to convert</param>
+		/// <returns>The converted array into a string if successful, an empty string if any error occured</returns>
+		public static string AsHexString(byte[] buffer)
+		{
+			if (null == buffer || 0 == buffer.Length) return null;
+			string res = string.Empty;
+			try
+			{
+				foreach (byte b in buffer)
+					res += b.ToString("X2");
+			}
+			catch (Exception) { res = string.Empty; }
+			return res;
 		}
 		/// <summary>
 		/// Get the different versions included inside the module

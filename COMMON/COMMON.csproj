@@ -1,12 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net50;net35;net40;net45;net47</TargetFrameworks>
     <AssemblyName>PMS.COMMON</AssemblyName>
-    <Version>6.0.0</Version>
+    <Version>6.0.1</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <FileVersion>6.0.0</FileVersion>
-    <AssemblyVersion>6.0.0</AssemblyVersion>
+    <FileVersion>6.0.1</FileVersion>
+    <AssemblyVersion>6.0.1</AssemblyVersion>
     <Authors>philippemp31</Authors>
     <Company>PMS</Company>
     <Description></Description>

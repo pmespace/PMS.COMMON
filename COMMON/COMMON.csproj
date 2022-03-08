@@ -66,7 +66,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <TestNugetPath>..\..\nuget\test</TestNugetPath>
+    <TestNugetPath>$(SolutionDir)..\nuget\test</TestNugetPath>
   </PropertyGroup>
 
   <Target Name="ResetPackages" BeforeTargets="DispatchToInnerBuilds">
@@ -84,7 +84,7 @@
 
   <Target Name="CopyPackage" AfterTargets="Pack">
     <MakeDir Directories="$(TestNugetPath)" Condition="!Exists('$(TestNugetPath)')" />
-    <Copy SourceFiles="$(OutputPath)$(PackageId).$(PackageVersion).nupkg" DestinationFolder="$(SolutionDir)$(TestNugetPath)" />
+    <Copy SourceFiles="$(OutputPath)$(PackageId).$(PackageVersion).nupkg" DestinationFolder="$(TestNugetPath)" />
   </Target>
 
 </Project>

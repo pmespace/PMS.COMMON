@@ -726,13 +726,14 @@ namespace COMMON
 		/// Returns the string inside an array of bytes
 		/// </summary>
 		/// <param name="ab">Arry of bytes to llok a string for</param>
+		/// <param name="asUtf8">True to generate a UTF8 string (default), false to generate an ASCII string</param>
 		/// <returns>The string contained inside the array of bytes or an empty string</returns>
-		public static string AsString(byte[] ab)
+		public static string AsString(byte[] ab, bool asUtf8 = true)
 		{
 			string s = string.Empty;
 			try
 			{
-				s = Encoding.UTF8.GetString(ab);
+				s = asUtf8 ? Encoding.UTF8.GetString(ab) : Encoding.ASCII.GetString(ab);
 			}
 			catch (Exception) { }
 			return s;

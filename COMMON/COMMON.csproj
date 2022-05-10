@@ -86,8 +86,10 @@
   </Target>
 
   <Target Name="CopyPackage" AfterTargets="Pack">
+    <!--
     <MakeDir Directories="$(TestNugetPath)" Condition="!Exists('$(TestNugetPath)')" />
-    <Copy SourceFiles="$(OutputPath)$(PackageId).$(PackageVersion).nupkg" DestinationFolder="$(SolutionDir)$(TestNugetPath)" />
+    -->
+    <Copy SourceFiles="$(OutputPath)$(PackageId).$(PackageVersion).nupkg" DestinationFolder="$(SolutionDir)$(TestNugetPath)"  Condition="Exists('$(TestNugetPath)')" />
   </Target>
 
   <!--

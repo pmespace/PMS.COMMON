@@ -1,3 +1,6 @@
+6.0.2
+- Created CMisc.AsHexString(byte[], bool = true)
+
 6.0.1
 - Changed CMisc.BinToStr(byte[]) function to CMisc.AsString(byte[])
 - Created CMisc.AsHexString(byte[])

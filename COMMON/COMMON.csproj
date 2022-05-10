@@ -79,7 +79,7 @@
     <Delete Files="@(NuSpecFiles)" />
   </Target>
 
-  <Target Name="PreparePackageReleaseNotesFromFile" BeforeTargets="GenerateNuspec">
+  <Target Name="PreparePackageReleaseNotesFromFile" BeforeTargets="PutReleaseNotesInsideNuspec">
     <PropertyGroup>
       <PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(MSBuildProjectDirectory)/release notes.txt"))</PackageReleaseNotes>
     </PropertyGroup>

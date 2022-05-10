@@ -37,6 +37,17 @@ namespace TestCore
 		#region main method
 		public int Start(string[] args)
 		{
+			//string[] yes1 = { "OUI", "O" };
+			//string[] yes2 = { "123", "3" };
+			//string[] no1 = { "123", "3" };
+			//string[] no2 = { "Non", "N" };
+			//Console.WriteLine(CMisc.YesNo("useDeult/YES/no ESC", true, true, false, yes1, no1, true) ? "YES" : "NO");
+			//Console.WriteLine(CMisc.YesNo("not useDeult/YES/ESC", true, true, true, yes2, no2, true) ? "YES" : "NO");
+			//Console.WriteLine(CMisc.YesNo("not useDeult/YES/ESC", true, true, true, yes2, null, true) ? "YES" : "NO");
+			//Console.WriteLine(CMisc.YesNo("useDeult/YES/no ESC", true, true, false, null, no2, true) ? "YES" : "NO");
+			//Console.WriteLine(CMisc.YesNo("not useDeult/YES/ESC", true, true, false, yes2, null) ? "YES" : "NO");
+			//Console.WriteLine(CMisc.YesNo("useDeult/YES/no ESC", true, true, false, null, no2) ? "YES" : "NO");
+
 			Menu.Add('1', new CMenu() { Text = "Start server", Fnc = StartServer });
 			Menu.Add('2', new CMenu() { Text = "Stop server", Fnc = StopServer });
 			Menu.Add('3', new CMenu() { Text = "Send data", Fnc = SendData });

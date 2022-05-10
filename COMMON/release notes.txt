@@ -1,3 +1,6 @@
+6.0.3
+- Extended CMisc.YesNo to allow localization
+
 6.0.2
 - Created CMisc.AsHexString(byte[], bool = true)
 

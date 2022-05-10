@@ -841,21 +841,45 @@ namespace COMMON
 			return null;
 		}
 		/// <summary>
-		/// [CONSOLE ONLY] Request a YES/NO answer
+		/// [CONSOLE ONLY] Request a YES/NO answer.
+		/// Once requested the naswer entered by the user is a 1 character long string.
+		/// This function can also being used to request a digit among 2 (1 or 2 for instance).
 		/// </summary>
-		/// <param name="msg">The message to display requesting a YES/NO answer</param>
+		/// <param name="msg">The message to display requesting a YES/NO answer without ? at the end.</param>
 		/// <param name="useDefault">Indicate whether a default (Y or N) must be proposed</param>
-		/// <param name="theDefault">Only if <paramref name="useDefault"/> is true, the default to propose</param>
+		/// <param name="theDefault">Only if <paramref name="useDefault"/> is true, the default to propose. Beware this value must be consistent with <paramref name="yesvalues"/> and <paramref name="novalues"/> otherwise no default will apply</param>
 		/// <param name="useESC">True if ESC can be considered an answer (in that case it will be NO)</param>
+		/// <param name="yesvalues">A set of 2 strings indicating the string to display for "YES" and the character meaning YES (i.e. {"Yes", "Y"}, {"Oui", "O"},... If not or partially set the function will use{"YES", "Y"}</param>
+		/// <param name="novalues">A set of 2 strings indicating the string to display for "NO" and the character meaning NO (i.e. {"No", "N"}, {"Non", "N"},... If not or partially set the function will use {"NO", "N"}</param>
+		/// <param name="displayYesNo">If true the function will display "question (YES=Y/NO=N)", if false it will display  "question (Y/N)", according to <paramref name="yesvalues"/> and <paramref name="novalues"/> values</param>
 		/// <returns>True if YES, false if NO</returns>
-		public static bool YesNo(string msg, bool useDefault = false, bool theDefault = true, bool useESC = false)
+		public static bool YesNo(string msg, bool useDefault = false, bool theDefault = true, bool useESC = false, string[] yesvalues = null, string[] novalues = null, bool displayYesNo = false)
 		{
-			string yes = "Y", no = "N";
-			string defaultA = theDefault ? yes : no;
-			string confirm = yes + no;
+			const string YES = "YES";
+			const string NO = "NO";
+			const string Y = "Y";
+			const string N = "N";
+			string lyes = null == yesvalues || 0 == yesvalues.Length || 0 == yesvalues[0].Length ? YES : yesvalues[0];
+			string syes = null == yesvalues || 1 > yesvalues.Length || 0 == yesvalues[1].Length ? Y : yesvalues[1].Substring(0, 1);
+			string lno = null == novalues || 0 == novalues.Length || 0 == novalues[0].Length ? NO : novalues[0];
+			string sno = null == novalues || 1 > novalues.Length || 0 == novalues[1].Length ? N : novalues[1].Substring(0, 1);
+			if (0 == string.Compare(lyes, lno, true))
+			{
+				lyes = YES;
+				lno = NO;
+				displayYesNo = true;
+			}
+			if (0 == string.Compare(syes, sno, true))
+			{
+				syes = Y;
+				sno = N;
+				displayYesNo = true;
+			}
+			string defaultA = theDefault ? syes : sno;
+			string confirm = syes + sno;
 			string answer = defaultA;
 			Console.WriteLine();
-			Console.Write(msg + $" ({yes}/{no})" + (useDefault ? $" [{defaultA}]" : null) + " ? ");
+			Console.Write(msg + $" ({(displayYesNo ? lyes + "=" : null)}{syes}/{(displayYesNo ? lno + "=" : null)}{sno})" + (useDefault ? $" [{defaultA}]" : null) + " ? ");
 			do
 			{
 				ConsoleKeyInfo keyInfo = Console.ReadKey(true);
@@ -865,20 +889,20 @@ namespace COMMON
 				}
 				else if (useESC && ConsoleKey.Escape == keyInfo.Key)
 				{
-					answer = no;
+					answer = sno;
 				}
 				else
 				{
 					answer = keyInfo.KeyChar.ToString().ToUpper();
 				}
 			} while (!confirm.Contains(answer));
-			return 0 == string.Compare(yes, answer, true);
+			return 0 == string.Compare(syes, answer, true);
 		}
 		/// <summary>
 		/// [CONSOLE ONLY] Request an entry with the possibility of a default value
 		/// </summary>
 		/// <param name="msg">Message to display to request the entry</param>
-		/// <param name="defv">Default value (in cas of direct ENTER)</param>
+		/// <param name="defv">Default value (in case of direct ENTER)</param>
 		/// <param name="isdef">True if the default value has been chosen</param>
 		/// <param name="invite">If something has been entered, the function displays it precedeed by this invite</param>
 		/// <returns></returns>

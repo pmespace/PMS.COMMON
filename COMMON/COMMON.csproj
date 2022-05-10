@@ -1,12 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net50;net35;net40;net45;net47</TargetFrameworks>
     <AssemblyName>PMS.COMMON</AssemblyName>
-    <Version>6.0.2</Version>
+    <Version>6.0.3</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <FileVersion>6.0.2</FileVersion>
-    <AssemblyVersion>6.0.2</AssemblyVersion>
+    <FileVersion>6.0.3</FileVersion>
+    <AssemblyVersion>6.0.3</AssemblyVersion>
     <Authors>philippemp31</Authors>
     <Company>PMS</Company>
     <Description></Description>
@@ -89,7 +89,7 @@
     <!--
     <MakeDir Directories="$(TestNugetPath)" Condition="!Exists('$(TestNugetPath)')" />
     -->
-    <Copy SourceFiles="$(OutputPath)$(PackageId).$(PackageVersion).nupkg" DestinationFolder="$(SolutionDir)$(TestNugetPath)"  Condition="Exists('$(TestNugetPath)')" />
+    <Copy SourceFiles="$(OutputPath)$(PackageId).$(PackageVersion).nupkg" DestinationFolder="$(SolutionDir)$(TestNugetPath)" Condition="Exists('$(TestNugetPath)')" />
   </Target>
 
   <!--

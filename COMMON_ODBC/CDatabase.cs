@@ -47,7 +47,7 @@ namespace COMMON.ODBC
 					}
 					catch (Exception ex)
 					{
-						CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"Connection string: {ConnectionString}");
+						CLog.EXCEPT(ex, $"Connection string: {ConnectionString}");
 					}
 				}
 			}
@@ -86,13 +86,13 @@ namespace COMMON.ODBC
 					}
 					catch (Exception ex)
 					{
-						CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"Connection string: {ConnectionString}");
+						CLog.EXCEPT(ex, $"Connection string: {ConnectionString}");
 					}
 				}
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
+				CLog.EXCEPT(ex);
 			}
 			return false;
 		}
@@ -111,7 +111,7 @@ namespace COMMON.ODBC
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"{Database.Database} is still open");
+					CLog.EXCEPT(ex, $"{Database.Database} is still open");
 				}
 			}
 			return !IsOpen;
@@ -263,7 +263,7 @@ namespace COMMON.ODBC
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"SQL: {command.CommandText}");
+					CLog.EXCEPT(ex, $"SQL: {command.CommandText}");
 				}
 				finally
 				{
@@ -284,7 +284,7 @@ namespace COMMON.ODBC
 			if (IsOpen && !string.IsNullOrEmpty(sql))
 			{
 				sql = TryToFixTrueFalseTesting(sql);
-				CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"SQL: {sql}");
+				CLog.DEBUG($"SQL: {sql}");
 				return NonSelectRequest(new OdbcCommand(sql), ref nbRows);
 			}
 			return false;
@@ -309,7 +309,7 @@ namespace COMMON.ODBC
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
+					CLog.EXCEPT(ex);
 				}
 				finally
 				{
@@ -330,7 +330,7 @@ namespace COMMON.ODBC
 			if (IsOpen && !string.IsNullOrEmpty(sql))
 			{
 				sql = TryToFixTrueFalseTesting(sql);
-				CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"SQL: {sql}");
+				CLog.DEBUG($"SQL: {sql}");
 				return SelectRequest(new OdbcCommand(sql), ref reader);
 			}
 			return false;
@@ -368,7 +368,7 @@ namespace COMMON.ODBC
 			if (!string.IsNullOrEmpty(sql))
 			{
 				sql = TryToFixTrueFalseTesting(sql);
-				CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"SQL: {sql}");
+				CLog.DEBUG($"SQL: {sql}");
 				return SelectRequest<TnX>(new OdbcCommand(sql), feedRecordFunction);
 			}
 			return null;
@@ -397,7 +397,7 @@ namespace COMMON.ODBC
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
+					CLog.EXCEPT(ex);
 				}
 				finally
 				{
@@ -418,7 +418,7 @@ namespace COMMON.ODBC
 			if (IsOpen && !string.IsNullOrEmpty(sql))
 			{
 				sql = TryToFixTrueFalseTesting(sql);
-				CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"SQL: {sql}");
+				CLog.DEBUG($"SQL: {sql}");
 				return SelectRequest(new OdbcCommand(sql), ref dataSet);
 			}
 			return false;
@@ -434,7 +434,7 @@ namespace COMMON.ODBC
 			if (IsOpen && !string.IsNullOrEmpty(sql))
 			{
 				sql = TryToFixTrueFalseTesting(sql);
-				CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"SQL: {sql}");
+				CLog.DEBUG($"SQL: {sql}");
 
 				OdbcDataAdapter da = new OdbcDataAdapter();
 				da.SelectCommand = new OdbcCommand();
@@ -446,7 +446,7 @@ namespace COMMON.ODBC
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
+					CLog.EXCEPT(ex);
 				}
 				finally
 				{
@@ -491,7 +491,7 @@ namespace COMMON.ODBC
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"Column name: {columnName}");
+				CLog.EXCEPT(ex, $"Column name: {columnName}");
 			}
 			return false;
 		}
@@ -514,7 +514,7 @@ namespace COMMON.ODBC
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"Column name: {columnName}");
+				CLog.EXCEPT(ex, $"Column name: {columnName}");
 				throw;
 			}
 		}
@@ -565,7 +565,7 @@ namespace COMMON.ODBC
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"Connection string: {ConnectionString}");
+					CLog.EXCEPT(ex, $"Connection string: {ConnectionString}");
 				}
 			}
 			return null;

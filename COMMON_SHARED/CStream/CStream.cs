@@ -1,7 +1,5 @@
 ﻿using System.Runtime.InteropServices;
 using System.Net.Sockets;
-using System.Reflection;
-using System.Threading;
 using System.Text;
 using System.Linq;
 using System.Net;
@@ -101,24 +99,31 @@ namespace COMMON
 				TcpClient tcpclient = new TcpClient(v6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork);
 				try
 				{
-					CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"About to connect to {settings.FullIP}");
-					tcpclient.Connect(settings.Address, (int)settings.Port);
-					tcpclient.SendBufferSize = (tcpclient.SendBufferSize >= settings.SendBufferSize ? tcpclient.SendBufferSize : settings.SendBufferSize + 1);
-					tcpclient.ReceiveBufferSize = (tcpclient.ReceiveBufferSize >= settings.ReceiveBufferSize ? tcpclient.SendBufferSize : settings.ReceiveBufferSize);
-					tcpclient.SendTimeout = settings.SendTimeout * CStreamSettings.ONESECOND;
-					tcpclient.ReceiveTimeout = settings.ReceiveTimeout * CStreamSettings.ONESECOND;
-					// Create an SSL stream that will close the client's stream.
-					stream = new CStreamClientIO(tcpclient, settings);
+					CLog.DEBUG($"About to connect to {settings.FullIP}");
+					//tcpclient.Connect(settings.Address, (int)settings.Port);
+					var result = tcpclient.BeginConnect(settings.Address, (int)settings.Port, null, null);
+					var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(settings.ConnectTimeout));
+					if (success)
+					{
+						// stream is connected
+						tcpclient.EndConnect(result);
+						tcpclient.SendBufferSize = (tcpclient.SendBufferSize >= settings.SendBufferSize ? tcpclient.SendBufferSize : settings.SendBufferSize + 1);
+						tcpclient.ReceiveBufferSize = (tcpclient.ReceiveBufferSize >= settings.ReceiveBufferSize ? tcpclient.SendBufferSize : settings.ReceiveBufferSize);
+						tcpclient.SendTimeout = settings.SendTimeout * CStreamSettings.ONESECOND;
+						tcpclient.ReceiveTimeout = settings.ReceiveTimeout * CStreamSettings.ONESECOND;
+						// Create an SSL stream that will close the client's stream.
+						stream = new CStreamClientIO(tcpclient, settings);
+					}
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
+					CLog.EXCEPT(ex);
 					tcpclient.Close();
 				}
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
+				CLog.EXCEPT(ex);
 			}
 			return stream;
 		}
@@ -147,7 +152,7 @@ namespace COMMON
 			try
 			{
 				// Send message to the server
-				CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"About to send message of {(addSizeHeader ? request.Length : request.Length - (int)stream.LengthBufferSize)} bytes");
+				CLog.DEBUG($"About to send message of {(addSizeHeader ? request.Length : request.Length - (int)stream.LengthBufferSize)} bytes");
 				if (stream.Send(request, addSizeHeader))
 					return true;
 				// arrived here the message hasn't been sent
@@ -155,7 +160,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
+				CLog.EXCEPT(ex);
 			}
 			return false;
 		}
@@ -184,14 +189,14 @@ namespace COMMON
 				return false;
 			try
 			{
-				CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"About to send string message of {request.Length} characters");
+				CLog.DEBUG($"About to send string message of {request.Length} characters");
 				if (stream.SendLine(request, EOT))
 					return true;
 				CLog.Add($"An error has occurred while sending the string message", TLog.ERROR);
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
+				CLog.EXCEPT(ex);
 			}
 			return false;
 		}
@@ -219,7 +224,7 @@ namespace COMMON
 				byte[] tmp = stream.Receive(out announcedSize);
 				if (null != tmp)
 				{
-					CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"Received message of {(sizeHeaderAdded ? tmp.Length : tmp.Length - (int)stream.LengthBufferSize)} actual bytes (announcing {announcedSize} bytes)");
+					CLog.DEBUG($"Received message of {(sizeHeaderAdded ? tmp.Length : tmp.Length - (int)stream.LengthBufferSize)} actual bytes (announcing {announcedSize} bytes)");
 					// rebuild the buffer is required
 					if (!sizeHeaderAdded)
 					{
@@ -239,12 +244,12 @@ namespace COMMON
 				}
 				else
 				{
-					CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"No data has been received");
+					CLog.DEBUG($"No data has been received");
 				}
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
+				CLog.EXCEPT(ex);
 			}
 			return reply;
 		}
@@ -277,13 +282,13 @@ namespace COMMON
 			try
 			{
 				string s = stream.ReceiveLine(EOT);
-				CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"Received string message of {(string.IsNullOrEmpty(s) ? 0 : s.Length)} characters");
+				CLog.DEBUG($"Received string message of {(string.IsNullOrEmpty(s) ? 0 : s.Length)} characters");
 				return s;
 			}
 			catch (Exception ex)
 			{
 				error = true;
-				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
+				CLog.EXCEPT(ex);
 			}
 			return null;
 		}
@@ -500,7 +505,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
+				CLog.EXCEPT(ex);
 			}
 			return null;
 		}

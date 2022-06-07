@@ -1,3 +1,11 @@
+6.1.0
+- New property inside CStreamClientSettings to set the connect timer applying when trying to connect to a host
+- Changed the way Exception are being reported in CLog, CLog.AddException (still usable) is replaced by CLog.EXCEPT
+- Any entry inside a log message can now be on several lines, for that reason a new GUGID has been added to the header to help isolate every entry inside the log
+
+6.0.4
+- Fixed a small bug in CJson.ReadSettings where it was possible to have an unsignaled exception
+
 6.0.3
 - Extended CMisc.YesNo to allow localization
 

@@ -404,7 +404,7 @@ namespace COMMON
 			else if (string.IsNullOrEmpty(value))
 				return false;
 			pattern = AsString(pattern);
-			CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"{(confidential ? "<VALUE HIDDEN>" : $"Input data: {value}")} - Pattern: {pattern}");
+			CLog.DEBUG($"{(confidential ? "<VALUE HIDDEN>" : $"Input data: {value}")} - Pattern: {pattern}");
 			Match match = Regex.Match(value, pattern);
 			return match.Success;
 		}
@@ -429,7 +429,7 @@ namespace COMMON
 			// build regular expression to check against
 			string count = "{" + (minlen == maxlen ? minlen.ToString() + "}" : minlen.ToString() + "," + maxlen.ToString() + "}");
 			string pattern = $"^{characterSet}{count}$";
-			CLog.DEBUG($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", $"{(confidential ? "<VALUE HIDDEN>" : $"Input data: {value}")} - Pattern: {pattern}");
+			CLog.DEBUG($"{(confidential ? "<VALUE HIDDEN>" : $"Input data: {value}")} - Pattern: {pattern}");
 			Match match = Regex.Match(value, pattern);
 			return match.Success;
 		}
@@ -953,6 +953,65 @@ namespace COMMON
 				catch (Exception) { }
 			}
 			return null;
+		}
+		/// <summary>
+		/// Build a date to a specied format
+		/// </summary>
+		/// <param name="fmt">format to use to build the date</param>
+		/// <param name="dt">date to use to build the date</param>
+		/// <returns>A string representing the date in the desired format</returns>
+		public static string BuildDate(DateFormat fmt, DateTime dt = default(DateTime))
+		{
+			// if no date was specified, use the current date
+			if (default(DateTime) == dt)
+				dt = DateTime.Now;
+			dt = DateFormat.GMT == fmt ? dt.ToUniversalTime() : dt;
+			// build the date with requested format
+			switch (fmt)
+			{
+				case DateFormat.GMT:
+					return dt.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
+				case DateFormat.Local:
+					return dt.ToString("yyyy-MM-ddTHH:mm:ss.fffzzz");
+				case DateFormat.YYYYMMDD:
+					return dt.ToString("yyyyMMdd");
+				case DateFormat.YYYYMMDDEx:
+					return dt.ToString("yyyy-MM-dd");
+				case DateFormat.YYYYMMDDhhmmss:
+					return dt.ToString("yyyyMMddHHmmssfff");
+				case DateFormat.YYYYMMDDhhmmssEx:
+					return dt.ToString("yyyy-MM-dd HH:mm:ss");
+				case DateFormat.YYYYMMDDhhmmssfff:
+					return dt.ToString("yyyyMMddHHmmssfff");
+				case DateFormat.YYYYMMDDhhmmssfffEx:
+					return dt.ToString("yyyy-MM-dd HH:mm:ss.fff");
+				case DateFormat.hhmmss:
+					return dt.ToString("HHmmss");
+				case DateFormat.hhmmssEx:
+					return dt.ToString("HH:mm:ss");
+				case DateFormat.hhmmssmmm:
+					return dt.ToString("HHmmssfff");
+				case DateFormat.hhmmssmmmEx:
+					return dt.ToString("HH:mm:ss.fff");
+				default:
+					return string.Empty;
+			}
+		}
+		[ComVisible(true)]
+		public enum DateFormat
+		{
+			GMT,
+			Local,
+			YYYYMMDD,
+			YYYYMMDDEx,
+			YYYYMMDDhhmmss,
+			YYYYMMDDhhmmssEx,
+			YYYYMMDDhhmmssfff,
+			YYYYMMDDhhmmssfffEx,
+			hhmmss,
+			hhmmssEx,
+			hhmmssmmm,
+			hhmmssmmmEx,
 		}
 	}
 }

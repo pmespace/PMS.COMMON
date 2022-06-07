@@ -115,7 +115,7 @@ namespace COMMON.WIN32
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"Exception while processing {activity}");
+				CLog.EXCEPT(ex, $"Exception while processing {activity}");
 			}
 		}
 		#endregion

@@ -179,6 +179,8 @@ namespace COMMON
 		string FullIP { get; }
 		[DispId(8)]
 		SslPolicyErrors AllowedSslErrors { get; set; }
+		[DispId(9)]
+		int ConnectTimeout { get; set; }
 
 		[DispId(100)]
 		string ToString();
@@ -264,6 +266,22 @@ namespace COMMON
 		/// </summary>
 		[JsonIgnore]
 		public string FullIP { get => (IsValid ? IP + (0 != Port ? ":" + Port : string.Empty) : string.Empty); }
+		/// <summary>
+		/// Connection timer specified in SECONDS
+		/// </summary>
+		public int ConnectTimeout
+		{
+			get => _connecttimeout;
+			set
+			{
+				if (NO_TIMEOUT >= value)
+					_connecttimeout = NO_TIMEOUT;
+				else
+					_connecttimeout = value;
+			}
+		}
+		private int _connecttimeout = DEFAULT_CONNECT_TIMEOUT;
+		public const int DEFAULT_CONNECT_TIMEOUT = 1; // 1 second
 		#endregion
 
 		#region private properties
@@ -322,7 +340,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", new Exception("Invalid IP address: " + ip + (0 < port ? ":" + port : string.Empty), ex));
+					CLog.EXCEPT(new Exception("Invalid IP address: " + ip + (0 < port ? ":" + port : string.Empty), ex));
 					Address = null;
 					EndPoint = null;
 				}

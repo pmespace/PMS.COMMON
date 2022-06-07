@@ -121,7 +121,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Module.Name + "." + MethodBase.GetCurrentMethod().DeclaringType.Name + "." + MethodBase.GetCurrentMethod().Name, ex, "sslStream");
+					CLog.EXCEPT(ex, "sslStream");
 				}
 			}
 			else if (null != networkStream)
@@ -133,7 +133,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Module.Name + "." + MethodBase.GetCurrentMethod().DeclaringType.Name + "." + MethodBase.GetCurrentMethod().Name, ex, "networkStream");
+					CLog.EXCEPT(ex, "networkStream");
 				}
 			}
 			return false;
@@ -151,7 +151,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Module.Name + "." + MethodBase.GetCurrentMethod().DeclaringType.Name + "." + MethodBase.GetCurrentMethod().Name, ex, "sslStream");
+					CLog.EXCEPT(ex, "sslStream");
 				}
 			}
 			else if (null != networkStream)
@@ -162,7 +162,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Module.Name + "." + MethodBase.GetCurrentMethod().DeclaringType.Name + "." + MethodBase.GetCurrentMethod().Name, ex, "networkStream");
+					CLog.EXCEPT(ex, "networkStream");
 				}
 			}
 		}
@@ -186,7 +186,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Module.Name + "." + MethodBase.GetCurrentMethod().DeclaringType.Name + "." + MethodBase.GetCurrentMethod().Name, ex, "sslStream");
+					CLog.EXCEPT(ex, "sslStream");
 				}
 			}
 			else if (null != networkStream)
@@ -198,7 +198,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Module.Name + "." + MethodBase.GetCurrentMethod().DeclaringType.Name + "." + MethodBase.GetCurrentMethod().Name, ex, "networkStream");
+					CLog.EXCEPT(ex, "networkStream");
 				}
 			}
 			return read;
@@ -420,7 +420,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Module.Name + "." + MethodBase.GetCurrentMethod().DeclaringType.Name + "." + MethodBase.GetCurrentMethod().Name, ex, "sslStream");
+					CLog.EXCEPT(ex, "sslStream");
 				}
 			}
 			else if (null != networkStream)
@@ -431,7 +431,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException(MethodBase.GetCurrentMethod().Module.Name + "." + MethodBase.GetCurrentMethod().DeclaringType.Name + "." + MethodBase.GetCurrentMethod().Name, ex, "networkStream");
+					CLog.EXCEPT(ex, "networkStream");
 				}
 			}
 			Tcp = null;
@@ -524,7 +524,7 @@ namespace COMMON
 					}
 					catch (Exception ex)
 					{
-						CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
+						CLog.EXCEPT(ex);
 						sslStream = null;
 						throw;
 					}
@@ -636,7 +636,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
+					CLog.EXCEPT(ex);
 					sslStream = null;
 					throw;
 				}

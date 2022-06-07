@@ -1,10 +1,12 @@
 ﻿using System.Runtime.InteropServices;
+using System.Diagnostics;
 using System.IO;
 using System;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace COMMON
 {
@@ -15,9 +17,13 @@ namespace COMMON
 	public static class Chars
 	{
 		public const string CR = "\r";
+		public const string CRCR = "\r\r";
 		public const string LF = "\n";
+		public const string LFLF = "\n\n";
 		public const string TAB = "\t";
+		public const string TABTAB = "\t\t";
 		public const string CRLF = "\r\n";
+		public const string LFCR = "\n\r";
 		public const string DATE = "yyyy-MM-dd";
 		public const string TIME = "HH:mm:ss";
 		public const string TIMEEX = "HH:mm:ss.fff";
@@ -28,8 +34,8 @@ namespace COMMON
 	[ComVisible(true)]
 	public enum TLog
 	{
-		_begin = DEBUG - 1,
-		DEBUG = -1,
+		_begin = -1,
+		DEBUG,
 		INFOR,
 		TRACE,
 		WARNG,
@@ -61,29 +67,9 @@ namespace COMMON
 
 		#region properties
 		/// <summary>
-		/// Log file handle
-		/// </summary>
-		private static StreamWriter streamWriter = null;
-		/// <summary>
-		/// Lock object
-		/// </summary>
-		private static Object mylock = new Object();
-		/// <summary>
 		/// The date the file was created
 		/// </summary>
 		public static DateTime CreatedOn { get; private set; } = default;
-		/// <summary>
-		/// Original fname used to create the log file
-		/// </summary>
-		private static string originalFName { get; set; } = null;
-		/// <summary>
-		/// Original name (given by the log file creator) of the log file, without its extension
-		/// </summary>
-		private static string originalFNameWithoutExtension { get; set; } = null;
-		/// <summary>
-		/// Original extension (given by the log file creator) of the log file
-		/// </summary>
-		private static string originalFNameExtension { get; set; } = null;
 		/// <summary>
 		/// Full name of log file
 		/// </summary>
@@ -92,23 +78,6 @@ namespace COMMON
 			get => _logfilename;
 			set
 			{
-				//lock (mylock)
-				//{
-				//	// if a log file is still in use close it
-				//	if (!string.IsNullOrEmpty(_logfilename) && (originalFName != value || string.IsNullOrEmpty(value)))
-				//	{
-				//		CloseLogFile();
-				//	}
-				//	// if a file is to be created, do it
-				//	if (originalFName != value)
-				//	{
-				//		// save new file name root
-				//		originalFName = value;
-				//		if (!string.IsNullOrEmpty(value))
-				//			OpenLogFile();
-				//	}
-				//}
-
 				if (_logfilename != value)
 				{
 					if (string.IsNullOrEmpty(value))
@@ -160,92 +129,184 @@ namespace COMMON
 		/// Indicate whether error log must be set to upper or not
 		/// </summary>
 		public static bool ErrorToUpper { get; set; } = true;
+		/// <summary>
+		/// Separator to use between multiple lines in a resulting 1 line string
+		/// </summary>
+		public static string LinesSeparator { get; set; } = Chars.TAB;
+		/// <summary>
+		/// Allows indicating whether to always (true) or not (false, thus depending on <see cref="SeverityToLog"/>) DEBUG messages
+		/// </summary>
+		public static bool AlwaysLogDebug { get; set; } = false;
+		/// <summary>
+		/// Allows using GMT time inside the log file instead of local time
+		/// </summary>
+		public static bool UseGMT
+		{
+			get => _usegmt;
+			set
+			{
+				if (canChangeAllSettings)
+					_usegmt = value;
+				if (_usegmt)
+					_dateFormat = CMisc.DateFormat.GMT;
+				else
+					_dateFormat = UseLocal ? CMisc.DateFormat.Local : CMisc.DateFormat.YYYYMMDDhhmmssfffEx;
+			}
+		}
+		private static bool _usegmt = false;
+		/// <summary>
+		/// Allows using GMT time inside the log file instead of local time
+		/// </summary>
+		public static bool UseLocal
+		{
+			get => _uselocal;
+			set
+			{
+				if (canChangeAllSettings)
+				{
+					_uselocal = value;
+					UseGMT = UseGMT;
+				}
+			}
+		}
+		private static bool _uselocal = false;
+		private static CMisc.DateFormat _dateFormat = CMisc.DateFormat.YYYYMMDDhhmmssfffEx;
+		#endregion
+
+		#region privates
+		/// <summary>
+		/// Original fname used to create the log file
+		/// </summary>
+		private static string originalFName = null;
+		/// <summary>
+		/// Original name (given by the log file creator) of the log file, without its extension
+		/// </summary>
+		private static string originalFNameWithoutExtension = null;
+		/// <summary>
+		/// Original extension (given by the log file creator) of the log file
+		/// </summary>
+		private static string originalFNameExtension = null;
+		/// <summary>
+		/// Indicates whether some settings may be changed or not
+		/// </summary>
+		private static bool canChangeAllSettings = true;
+		/// <summary>
+		/// Log file handle
+		/// </summary>
+		private static StreamWriter streamWriter = null;
+		/// <summary>
+		/// Lock object
+		/// </summary>
+		private static Object mylock = new Object();
 		#endregion
 
 		#region methods
-		private static bool IsTLog(TLog value) { return (TLog._begin < value && TLog._end > value ? true : false); }
+		public static string DEBUG(string s = null) { return Add(s, TLog.DEBUG); }
+		public static string INFORMATION(string s = null) { return Add(s, TLog.INFOR); }
+		public static string TRACE(string s = null) { return Add(s, TLog.TRACE); }
+		public static string WARNING(string s = null) { return Add(s, TLog.WARNG); }
+		public static string ERROR(string s = null) { return Add(s, TLog.ERROR); }
+		public static string EXCEPT(Exception ex, string s = null) { return AddException(ex, s); }
+		/// <summary>
+		/// Test if a severity is within bounds
+		/// </summary>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		private static bool IsTLog(TLog value) { return (TLog._begin < value && value < TLog._end ? true : false); }
 		/// <summary>
 		/// Log a message to the log file
 		/// </summary>
-		/// <param name="s">message to log</param>
+		/// <param name="ls">A list of message to log</param>
+		/// <param name="severity">severity level</param>
+		/// <returns>The string as it has been written, null if an error has occurred</returns>
+		public static string Add(List<string> ls, TLog severity = TLog.TRACE)
+		{
+			// arrived here the file is ready for write, write what was meant to be written
+			return AddEx(ls, severity);
+		}
+		/// <summary>
+		/// Log a message to the log file
+		/// </summary>
+		/// <param name="s">Message to log</param>
 		/// <param name="severity">severity level</param>
 		/// <returns>The string as it has been written, null if an error has occurred</returns>
 		public static string Add(string s, TLog severity = TLog.TRACE)
 		{
-			//if (TLog.INFOR > severity || TLog.EXCPT < severity)
-			//	severity = TLog.INFOR;
-			//lock (mylock)
-			//{
-			//	// check whether need to open a new file or not
-			//	if (DateTime.Now.Date != CreatedOn.Date)
-			//		// open a new file
-			//		OpenLogFile();
-			//	// arrived here the file is ready for write, write what was meant to be written
-			//	return AddToLog(s, severity);
-			//}
-
-			// check severity
-			if (!IsTLog(severity)) severity = TLog.INFOR;
-			if (SeverityToLog > severity) return s;
-
-			// check whether in need to open a new file or not
-			if (DateTime.Now.Date != CreatedOn.Date)
-				// re-open a new file with the same name but different timestamp
-				OpenLogFile(originalFName);
-
 			// arrived here the file is ready for write, write what was meant to be written
-			return AddToLog(s, severity);
+			return AddEx(new List<string>() { s }, severity);
 		}
-		public static string DEBUG(string method, string s = null) { return Add($"[{method}]{(string.IsNullOrEmpty(s) ? null : $" - {s}")}", TLog.DEBUG); }
 		/// <summary>
 		/// Log an exception to the log file (the whole exception tree is written)
 		/// </summary>
-		/// <param name="method">calling method</param>
 		/// <param name="ex">exception to log</param>
 		/// <param name="msg">message to complete the log entry</param>
 		/// <returns>The string as it has been written, null if an error has occurred</returns>
-		public static string AddException(string method, Exception ex, string msg = null)//, string header = null, string trailer = null)
+		private static string AddException(Exception ex, string msg)
 		{
-			string s = Add($"*** [{method}] - EXCEPTION: {ex.GetType().Name} - {ex.Message}{(!string.IsNullOrEmpty(msg) ? $" - {msg}" : string.Empty)}", TLog.EXCPT);
-			if (null != ex.InnerException)
-				AddException(method, ex.InnerException);
-			return s;
+			string r = null;
+			if (null == ex) return r;
+			try
+			{
+				StackTrace st = new StackTrace(ex, true);
+				List<string> ls = new List<string>();
+				ls.Add($"[EXCEPTION] {ex.GetType()}{(string.IsNullOrEmpty(ex.Message) ? null : $" - {ex.Message}")}{(string.IsNullOrEmpty(msg) ? null : $" - {msg}")}");
+				for (int i = 0; i < st.FrameCount; i++)
+				{
+					StackFrame sf = st.GetFrame(i);
+					//ls.Add((i != 0 ? "   " : null) + $"{CMisc.Trimmed(st.ToString())} - File: {sf.GetFileName()} - Method: {sf.GetMethod()} - Line Number: {sf.GetFileLineNumber()}");
+					ls.Add($"{Chars.TAB}File: {sf.GetFileName()} - Method: {sf.GetMethod()} - Line Number: {sf.GetFileLineNumber()}");
+				}
+				r = AddEx(ls, TLog.EXCPT);
+			}
+			catch (Exception) { }
+			return r;
+		}
+		public static string AddException(string dummy, Exception ex, string msg = null)
+		{
+			return AddException(ex, msg);
 		}
 		/// <summary>
-		/// Build a date to a specied format
+		/// Add the string(s) tothe log file
 		/// </summary>
-		/// <param name="fmt">format to use to build the date</param>
-		/// <param name="dt">date to use to build the date</param>
-		/// <returns>A string representing the date in the desired format</returns>
-		private static string BuildDate(dateFormats fmt, DateTime dt = default(DateTime))
+		/// <param name="ls"></param>
+		/// <param name="severity"></param>
+		/// <returns></returns>
+		private static string AddEx(List<string> ls, TLog severity)
 		{
-			// if no date was specified, use the current date
-			if (default(DateTime) == dt)
-				dt = DateTime.Now;
-			// build the date with requested format
-			switch (fmt)
+			if (null == ls || 0 == ls.Count) return null;
+
+			// create the string to log
+			string r = null;
+			try
 			{
-				case dateFormats.YYYYMMDD:
-					return dt.Year.ToString("0000") + dt.Month.ToString("00") + dt.Day.ToString("00");
-				case dateFormats.YYYYMMDDWithSeparators:
-					return dt.Year.ToString("0000") + "/" + dt.Month.ToString("00") + "/" + dt.Day.ToString("00");
-				case dateFormats.YYYYMMDDhhmmss:
-					return dt.Year.ToString("0000") + dt.Month.ToString("00") + dt.Day.ToString("00") + dt.Hour.ToString("00") + dt.Minute.ToString("00") + dt.Second.ToString("00");
-				case dateFormats.YYYYMMDDhhmmssWithSeparators:
-					return dt.Year.ToString("0000") + dt.Month.ToString("00") + dt.Day.ToString("00") + " " + dt.Hour.ToString("00") + ":" + dt.Minute.ToString("00") + ":" + dt.Second.ToString("00");
-				case dateFormats.YYYYMMDDhhmmssmmmWithSeparators:
-					return dt.Year.ToString("0000") + dt.Month.ToString("00") + dt.Day.ToString("00") + " " + dt.Hour.ToString("00") + ":" + dt.Minute.ToString("00") + ":" + dt.Second.ToString("00") + dt.Millisecond.ToString("000");
-				default:
-					return string.Empty;
+				List<string> lls = StringsToLog(ls, severity, out r);
+
+				// check severity
+				if (!IsTLog(severity)) severity = TLog.INFOR;
+
+				// severity to low to be logged, do not do it but return the message to log
+
+#if DEBUG || _DEBUG
+				AlwaysLogDebug = true;
+#endif
+
+				if (SeverityToLog > severity
+					&& (TLog.DEBUG == severity && !AlwaysLogDebug)
+					&& (TLog.EXCPT != severity))
+				{
+					return r;
+				}
+
+				// check whether in need to open a new file or not
+				if (DateTime.Now.Date != CreatedOn.Date)
+					// re-open a new file with the same name but different timestamp
+					OpenLogFile(originalFName);
+
+				// arrived here the file is ready for write, write what was meant to be written
+				AddToLog(lls, severity);
 			}
-		}
-		private enum dateFormats
-		{
-			YYYYMMDD,
-			YYYYMMDDWithSeparators,
-			YYYYMMDDhhmmss,
-			YYYYMMDDhhmmssWithSeparators,
-			YYYYMMDDhhmmssmmmWithSeparators
+			catch (Exception) { }
+			return r;
 		}
 		/// <summary>
 		/// Remove unwanted chars (CR, LF, TAB) from a string
@@ -256,91 +317,92 @@ namespace COMMON
 		{
 			if (!KeepCRLF)
 			{
-				s = s.Replace(Chars.CR, " ");
-				s = s.Replace(Chars.LF, " ");
-				s = s.Replace(Chars.TAB, " ");
+				string t;
+				do { t = s; s = s.Replace(Chars.CRCR, Chars.CR); } while (t != s);
+				do { t = s; s = s.Replace(Chars.CRLF, Chars.CR); } while (t != s);
+				do { t = s; s = s.Replace(Chars.LFLF, Chars.LF); } while (t != s);
+				do { t = s; s = s.Replace(Chars.LFCR, Chars.CR); } while (t != s);
+				do { t = s; s = s.Replace(Chars.TABTAB, Chars.TAB); } while (t != s);
+				s = s.Replace(Chars.CR, LinesSeparator);
+				s = s.Replace(Chars.LF, LinesSeparator);
+				//s = s.Replace(Chars.TAB, LinesSeparator);
 			}
 			return s;
 		}
 		/// <summary>
 		/// Actually write message to the log file
 		/// </summary>
-		/// <param name="s"></param>
+		/// <param name="ls"></param>
 		/// <param name="severity">severity level</param>
-		/// <returns>The string as it has been written, null if an error has occurred</returns>
-		private static string AddToLog(string s, TLog severity)
+		private static void AddToLog(List<string> ls, TLog severity)
 		{
-			//if (string.IsNullOrEmpty(s)) return string.Empty;
-			//try
-			//{
-			//	string v = BuildDate(dateFormats.YYYYMMDDhhmmssWithSeparators) + " - " + severity.ToString() + " - " + Thread.CurrentThread.ManagedThreadId.ToString("X8") + " - " + RemoveCRLF(s.Trim());
-			//	if (!string.IsNullOrEmpty(LogFileName))
-			//	{
-			//		using (StreamWriter file = new StreamWriter(LogFileName, true, Encoding.UTF8))
-			//			file.WriteLine(v);
-			//	}
-			//}
-			//catch (Exception)
-			//{ }
-			//return string.IsNullOrEmpty(s) ? string.Empty : s;
-
-			if (string.IsNullOrEmpty(s)) return null;
+			if (null == ls || 0 == ls.Count) return;
 			try
 			{
 				lock (mylock)
 				{
-					AddToLogUnsafe(s, severity);
+					AddToLogUnsafe(ls, severity);
 				}
 			}
 			catch (Exception) { }
-			return s;
+		}
+		private static void AddToLog(string s, TLog severity)
+		{
+			if (!string.IsNullOrEmpty(s)) AddToLog(new List<string>() { s }, severity);
 		}
 		/// <summary>
 		/// Actually write message to the log file
 		/// </summary>
-		/// <param name="s"></param>
+		/// <param name="ls"></param>
 		/// <param name="severity">severity level</param>
-		/// <returns>The string as it has been written, null if an error has occurred</returns>
-		private static string AddToLogUnsafe(string s, TLog severity)
+		private static void AddToLogUnsafe(List<string> ls, TLog severity)
 		{
 			try
 			{
-				string v = BuildDate(dateFormats.YYYYMMDDhhmmssWithSeparators) + Chars.TAB + severity.ToString() + Chars.TAB + Thread.CurrentThread.ManagedThreadId.ToString("X8") + Chars.TAB + RemoveCRLF((TLog.ERROR == severity && ErrorToUpper ? s.Trim().ToUpper() : s.Trim()));
-				streamWriter?.WriteLine(v);
+				foreach (string s in ls)
+					streamWriter?.WriteLine(s);
 			}
 			catch (Exception) { }
-			return s;
 		}
+		private static void AddToLogUnsafe(string s, TLog severity)
+		{
+			AddToLogUnsafe(new List<string>() { s }, severity);
+		}
+		/// <summary>
+		/// Create the complete kist of strings to log
+		/// </summary>
+		/// <param name="ls"></param>
+		/// <param name="severity"></param>
+		/// <param name="r"></param>
+		/// <returns></returns>
+		private static List<string> StringsToLog(List<string> ls, TLog severity, out string r)
+		{
+			r = null;
+			List<string> lls = new List<string>();
+			try
+			{
+				string v = $"{CMisc.BuildDate(_dateFormat)}{Chars.TAB}{severity}{Chars.TAB}{Thread.CurrentThread.ManagedThreadId.ToString("X8")}{Chars.TAB}{Guid.NewGuid()}{Chars.TAB}";
+				for (int i = 0; i < ls.Count; i++)
+				{
+					string q = $"{RemoveCRLF((TLog.ERROR == severity && ErrorToUpper ? ls[i].Trim().ToUpper() : ls[i].Trim()))}";
+					lls.Add($"{v}{q}");
+					r += ls[i] + (i < ls.Count - 1 ? Chars.CRLF : null);
+				}
+			}
+			catch (Exception) { }
+			return lls;
+		}
+		private static List<string> StringsToLog(string s, TLog severity, out string r)
+		{
+			return StringsToLog(new List<string>() { s }, severity, out r);
+		}
+
+		#region log file management
 		/// <summary>
 		/// Open the log file
 		/// </summary>
 		private static bool OpenLogFile(string fileName)
 		{
-			//// only if a file open has been requested
-			//CloseLogFile();
-			//try
-			//{
-			//	// try to open the file
-			//	string name = BuildLogFileName();
-			//	using (StreamWriter LogFile = new StreamWriter(name, true, Encoding.UTF8))
-			//	{
-			//		// the file has been opened, get its attributes
-			//		FileInfo fi = new FileInfo(name);
-			//		LogFilePath = fi.DirectoryName;
-			//		// this method is called when LogFileName, use the private data instead
-			//		_logfilename = fi.FullName;
-			//	}
-			//	AddToLog("+++++", TLog.INFOR);
-			//	AddToLog("+++++ " + LogFileName.ToUpper() + " OPENED: " + BuildDate(dateFormats.YYYYMMDDhhmmssWithSeparators, CreatedOn) + " (VERSION: " + CMisc.Version(CMisc.VersionType.assembly) + "-" + CMisc.Version(CMisc.VersionType.assemblyFile) + "-" + CMisc.Version(CMisc.VersionType.assemblyInfo) + ")", TLog.INFOR);
-			//	AddToLog("+++++", TLog.INFOR);
-			//	if (AutoPurgeLogFiles)
-			//		PurgeFiles(NumberOfFilesToKeep);
-			//}
-			//catch (Exception)
-			//{
-			//	CloseLogFile();
-			//}
-
 			if (string.IsNullOrEmpty(fileName)) return false;
 			// only if a file open has been requested
 			CloseLogFile();
@@ -354,15 +416,16 @@ namespace COMMON
 						_logfilename = BuildLogFileName(fileName);
 						streamWriter = new StreamWriter(_logfilename, true, Encoding.UTF8);
 						streamWriter.AutoFlush = true;
-						AddToLogUnsafe("+++++", TLog.INFOR);
-						AddToLogUnsafe("+++++ " + LogFileName.ToUpper() + " OPENED: " + BuildDate(dateFormats.YYYYMMDDhhmmssWithSeparators, CreatedOn) + " (VERSION: " + CMisc.Version(CMisc.VersionType.assembly) + "-" + CMisc.Version(CMisc.VersionType.assemblyFile) + "-" + CMisc.Version(CMisc.VersionType.assemblyInfo) + ")", TLog.INFOR);
-						AddToLogUnsafe("+++++", TLog.INFOR);
+						AddToLogUnsafe($"+++++", TLog.INFOR);
+						AddToLogUnsafe($"+++++ {LogFileName.ToUpper()} OPENED: {CMisc.BuildDate(_dateFormat, CreatedOn)} (VERSION: {CMisc.Version(CMisc.VersionType.assembly)}-{CMisc.Version(CMisc.VersionType.assemblyFile)}-{CMisc.Version(CMisc.VersionType.assemblyInfo)})", TLog.INFOR);
+						AddToLogUnsafe($"+++++", TLog.INFOR);
 						try
 						{
 							if (AutoPurgeLogFiles)
 								PurgeFiles(NumberOfFilesToKeep);
 						}
 						catch (Exception) { }
+						canChangeAllSettings = false;
 						return true;
 					}
 					catch (Exception)
@@ -388,7 +451,7 @@ namespace COMMON
 				originalFNameWithoutExtension = Path.GetFileNameWithoutExtension(fi.FullName);
 				LogFilePath = Path.GetDirectoryName(fi.FullName);
 				CreatedOn = DateTime.Now;
-				return LogFilePath + originalFNameWithoutExtension + "-" + BuildDate(dateFormats.YYYYMMDD, CreatedOn) + (string.IsNullOrEmpty(originalFNameExtension) ? EXTENSION : originalFNameExtension);
+				return $"{LogFilePath}{originalFNameWithoutExtension}-{CMisc.BuildDate(CMisc.DateFormat.YYYYMMDD, CreatedOn)}{(string.IsNullOrEmpty(originalFNameExtension) ? EXTENSION : originalFNameExtension)}";
 			}
 			catch (Exception) { }
 			return null;
@@ -398,15 +461,6 @@ namespace COMMON
 		/// </summary>
 		private static void CloseLogFile()
 		{
-			//if (!string.IsNullOrEmpty(LogFileName))
-			//{
-			//	// close current log file
-			//	AddToLog("-----", TLog.INFOR);
-			//	AddToLog("----- " + LogFileName.ToUpper() + " CLOSED: " + BuildDate(dateFormats.YYYYMMDDhhmmssWithSeparators), TLog.INFOR);
-			//	AddToLog("-----", TLog.INFOR);
-			//	_logfilename = string.Empty;
-			//}
-
 			lock (mylock)
 			{
 				try
@@ -414,9 +468,9 @@ namespace COMMON
 					if (null != streamWriter)
 					{
 						// close current log file
-						AddToLogUnsafe("-----", TLog.INFOR);
-						AddToLogUnsafe("----- " + LogFileName.ToUpper() + " CLOSED: " + BuildDate(dateFormats.YYYYMMDDhhmmssWithSeparators), TLog.INFOR);
-						AddToLogUnsafe("-----", TLog.INFOR);
+						AddToLogUnsafe($"-----", TLog.INFOR);
+						AddToLogUnsafe($"----- {LogFileName.ToUpper()} CLOSED: {CMisc.BuildDate(_dateFormat)}", TLog.INFOR);
+						AddToLogUnsafe($"-----", TLog.INFOR);
 					}
 				}
 				catch (Exception) { }
@@ -425,33 +479,8 @@ namespace COMMON
 			streamWriter = null;
 			CreatedOn = default;
 			_logfilename = LogFilePath = originalFName = originalFNameExtension = originalFNameWithoutExtension = null;
+			canChangeAllSettings = true;
 		}
-		///// <summary>
-		///// Reset the current log file (keeping context to reopen it)
-		///// </summary>
-		//private static void ResetLogFile()
-		//{
-		//	CloseLogFile();
-		//	OpenLogFile();
-		//}
-		///// <summary>
-		///// Delete the current log file
-		///// </summary>
-		//public static void DeleteLogFile()
-		//{
-		//	lock (mylock)
-		//	{
-		//		CloseLogFile();
-		//		try
-		//		{
-		//			DirectoryInfo fi = new DirectoryInfo(LogFileName);
-		//			fi.Delete();
-		//		}
-		//		catch (Exception)
-		//		{
-		//		}
-		//	}
-		//}
 		/// <summary>
 		/// Purge existing log file with the same name
 		/// </summary>
@@ -464,7 +493,7 @@ namespace COMMON
 				{
 					// get files fitting search pattern and order them by descending creation date
 					DirectoryInfo di = new DirectoryInfo(Path.GetDirectoryName(LogFileName));
-					FileSystemInfo[] files = di.GetFileSystemInfos(originalFNameWithoutExtension + "*" + EXTENSION);
+					FileSystemInfo[] files = di.GetFileSystemInfos($"{originalFNameWithoutExtension}*{originalFNameExtension}");
 					// order is from newer to older
 					var orderedFiles = files.OrderByDescending(x => x.CreationTimeUtc).ToList();
 					int counter = 0;
@@ -487,6 +516,8 @@ namespace COMMON
 				finally { }
 			}
 		}
+		#endregion
+
 		#endregion
 	}
 }

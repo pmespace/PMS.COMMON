@@ -50,7 +50,7 @@ namespace COMMON
 				{
 					// use a default file for settings
 					_filename = Path.GetRandomFileName();
-					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"File {value} can't be found, using temporary file {_filename} instead");
+					CLog.EXCEPT(ex, $"File {value} can't be found, using temporary file {_filename} instead");
 				}
 			}
 		}
@@ -81,7 +81,8 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
+				jsonException = true;
+				CLog.EXCEPT(ex);
 				return default(TSettings);
 			}
 		}
@@ -108,7 +109,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
+				CLog.EXCEPT(ex);
 				return false;
 			}
 		}
@@ -129,7 +130,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
+				CLog.EXCEPT(ex);
 				return string.Empty;
 			}
 		}
@@ -150,14 +151,14 @@ namespace COMMON
 			catch (Exception ex)
 			{
 				jsonException = true;
-				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
+				CLog.EXCEPT(ex);
 				return default(TSettings);
 			}
 		}
 		/// <summary>
 		/// Prepare json settings to use
 		/// </summary>
-		/// <param name="addNull">Indicates whether <see langword="null"/>values must be kept or not</param>
+		/// <param name="addNull">Indicates whether <see langword="null"/> values must be kept or not when serializing data</param>
 		/// <returns></returns>
 		private static object Prepare(bool addNull)
 		{

@@ -235,7 +235,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "OnStart generated an exception");
+					CLog.EXCEPT(ex, "OnStart generated an exception");
 					// by default let's start the server
 					ok = true;
 				}
@@ -262,14 +262,14 @@ namespace COMMON
 						}
 						catch (Exception ex)
 						{
-							CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "Starting the server thread generated an exception" + SERVER_NOT_RUNNING);
+							CLog.EXCEPT(ex, "Starting the server thread generated an exception" + SERVER_NOT_RUNNING);
 						}
 						// arrived here we can stop the listener
 						listener.Stop();
 					}
 					catch (Exception ex)
 					{
-						CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"Network listener could not be started on {listener.LocalEndpoint}" + SERVER_NOT_RUNNING);
+						CLog.EXCEPT(ex, $"Network listener could not be started on {listener.LocalEndpoint}" + SERVER_NOT_RUNNING);
 					}
 					// arrived here we can dismiss the listener
 					listener = null;
@@ -281,7 +281,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "Starting the server generated an exception" + SERVER_NOT_RUNNING);
+				CLog.EXCEPT(ex, "Starting the server generated an exception" + SERVER_NOT_RUNNING);
 			}
 			return false;
 		}
@@ -340,7 +340,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex);
+				CLog.EXCEPT(ex);
 			}
 			return false;
 		}
@@ -382,7 +382,7 @@ namespace COMMON
 					}
 					catch (Exception ex)
 					{
-						CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "Cleaning up the server generated an exception");
+						CLog.EXCEPT(ex, "Cleaning up the server generated an exception");
 					}
 				}
 				connectedClients.Clear();
@@ -393,7 +393,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, "OnStop generated an exception");
+					CLog.EXCEPT(ex, "OnStop generated an exception");
 				}
 				//CThread.SendNotification(ThreadData, ID, 0, true);
 			}
@@ -446,7 +446,7 @@ namespace COMMON
 									}
 									catch (Exception ex)
 									{
-										CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"{threadName} - OnConnect generated an exception");
+										CLog.EXCEPT(ex, $"{threadName} - OnConnect generated an exception");
 									}
 									if (client.Connected)
 									{
@@ -474,7 +474,7 @@ namespace COMMON
 						}
 						catch (Exception ex)
 						{
-							CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"{threadName} - Failed to start server");
+							CLog.EXCEPT(ex, $"{threadName} - Failed to start server");
 							if (!ok)
 								try
 								{
@@ -487,7 +487,7 @@ namespace COMMON
 					}
 					catch (Exception ex)
 					{
-						CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"{threadName} - Failed to prepare server to start");
+						CLog.EXCEPT(ex, $"{threadName} - Failed to prepare server to start");
 						res = (int)ThreadResult.Exception;
 					}
 					finally
@@ -510,7 +510,7 @@ namespace COMMON
 					}
 					else
 					{
-						CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"{threadName} - Is stopping");
+						CLog.EXCEPT(ex, $"{threadName} - Is stopping");
 						res = (int)ThreadResult.Exception;
 					}
 					keepOnRunning = false;
@@ -603,7 +603,7 @@ namespace COMMON
 					}
 					else
 					{
-						CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"{threadName}");
+						CLog.EXCEPT(ex, $"{threadName}");
 						res = (int)ThreadResult.Exception;
 					}
 					keepOnRunning = false;
@@ -622,7 +622,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"{threadName} - OnDisconnect generated an exception");
+				CLog.EXCEPT(ex, $"{threadName} - OnDisconnect generated an exception");
 			}
 			client.ReceiverEvents.SetStopped();
 			client.Stop();
@@ -673,7 +673,7 @@ namespace COMMON
 							}
 							catch (Exception ex)
 							{
-								CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"{threadName} - Fetching message generated an exception");
+								CLog.EXCEPT(ex, $"{threadName} - Fetching message generated an exception");
 								request = null;
 							}
 						}
@@ -707,7 +707,7 @@ namespace COMMON
 						}
 						catch (Exception ex)
 						{
-							CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"{threadName} - OnRequest method generated an exception");
+							CLog.EXCEPT(ex, $"{threadName} - OnRequest method generated an exception");
 						}
 					}
 					else
@@ -717,7 +717,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.AddException($"{MethodBase.GetCurrentMethod().Module.Name}.{MethodBase.GetCurrentMethod().DeclaringType.Name}.{MethodBase.GetCurrentMethod().Name}", ex, $"{threadName}");
+					CLog.EXCEPT(ex, $"{threadName}");
 					res = (int)ThreadResult.Exception;
 					keepOnRunning = false;
 				}

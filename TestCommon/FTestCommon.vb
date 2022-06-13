@@ -28,7 +28,7 @@ Public Class FTestCommon
 		SetButtons()
 		Dim visible As Boolean = False
 		CLog.LogFileName = "test.log"
-		CLog.Add("Starting testcommon")
+		CLog.Add($"Starting testcommon")
 #If DEBUG Then
 		visible = True
 #End If
@@ -55,8 +55,8 @@ Public Class FTestCommon
 		settings.SelectCommand = efSelect.Text
 		settings.TableName = efTableName.Text
 
-		Dim except As Boolean
-		json.WriteSettings(settings, except)
+		Dim addnull As Boolean = True
+		json.WriteSettings(settings, addnull)
 	End Sub
 
 	Private Sub SetButtons()

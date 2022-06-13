@@ -239,7 +239,7 @@ namespace COMMON
 				}
 				else if (0 != announcedSize)
 				{
-					CLog.Add("No data has been received though expecting some (invalid announced length,...)", TLog.ERROR);
+					CLog.Add($"No data has been received though expecting some (invalid announced length,...)", TLog.ERROR);
 					error = true;
 				}
 				else

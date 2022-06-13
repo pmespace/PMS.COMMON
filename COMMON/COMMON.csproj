@@ -3,10 +3,10 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net35;net40;net45</TargetFrameworks>
     <AssemblyName>PMS.COMMON</AssemblyName>
-    <Version>6.1.0</Version>
+    <Version>6.1.1</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <FileVersion>6.1.0</FileVersion>
-    <AssemblyVersion>6.1.0</AssemblyVersion>
+    <FileVersion>6.1.1</FileVersion>
+    <AssemblyVersion>6.1.1</AssemblyVersion>
     <Authors>philippemp31</Authors>
     <Company>PMS</Company>
     <Description></Description>

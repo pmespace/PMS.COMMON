@@ -91,11 +91,22 @@ namespace COMMON
 		/// </summary>
 		/// <param name="settings">The settings to write</param>
 		/// <param name="addNull">Indicates whether null values must be kept or not when serializing</param>
+		/// <param name="overwrite">Indicates whether writing can overwrite an existing file; if false and the existing file is not empty then a new file is created and the old one is being added a ".sav" extension</param>
 		/// <returns>TRUE if the settings have been written, FALSE otherwise</returns>
-		public bool WriteSettings(TSettings settings, bool addNull = false)
+		public bool WriteSettings(TSettings settings, bool addNull = false, bool overwrite = true)
 		{
 			try
 			{
+				try
+				{
+					FileInfo fi = new FileInfo(FileName);
+					if (fi.Exists && 0 != fi.Length && !overwrite)
+						File.Move(FileName, FileName + ".sav");
+				}
+				catch (Exception ex)
+				{
+					CLog.EXCEPT(ex);
+				}
 				// open file and deserialize it
 				using (FileStream stream = new FileStream(FileName, FileMode.Create, FileAccess.Write))
 				{

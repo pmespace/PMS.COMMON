@@ -145,6 +145,7 @@ namespace TestCore
 				IP = "127.0.0.1",
 				Port = Port,
 				ServerName = UseSSL ? "hello world" : null,
+				ConnectTimeout = 10,
 			};
 			CStreamClientIO clientIO = CStream.Connect(settings);
 			if (null != clientIO)
@@ -173,6 +174,7 @@ namespace TestCore
 				IP = "127.0.0.1",
 				Port = Port,
 				ServerName = UseSSL ? "hello world" : null,
+				ConnectTimeout = 10,
 			};
 			Console.Write("Message to send: ");
 			string request = Console.ReadLine();

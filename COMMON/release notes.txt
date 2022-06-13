@@ -1,3 +1,6 @@
+6.1.1
+- CJson.WriteSettings now accepts a 3rd parameter indicating whether the file is overwritten if exists (and not empty). This is usefull if opening the file returned no data because of a bad structure, allowing to avoid deleting an "invalid" file
+
 6.1.0
 - New property inside CStreamClientSettings to set the connect timer applying when trying to connect to a host
 - Changed the way Exception are being reported in CLog, CLog.AddException (still usable) is replaced by CLog.EXCEPT

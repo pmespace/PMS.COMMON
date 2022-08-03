@@ -618,7 +618,7 @@ namespace COMMON
 				 * will block the main thread preventing the application to close.
 				 */
 				if (client.Connected && !isCleaningUp)
-					StartSettings.OnDisconnect?.Invoke(null != clientEndPoint ? clientEndPoint.ToString() : "[address not available]", /*StartSettings.ThreadData*/ thread, StartSettings.Parameters);
+					StartSettings.OnDisconnect?.Invoke(client.Tcp, /*null != clientEndPoint ? clientEndPoint.ToString() : "[address not available]",*/ /*StartSettings.ThreadData*/ thread, StartSettings.Parameters);
 			}
 			catch (Exception ex)
 			{

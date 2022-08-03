@@ -42,10 +42,10 @@ namespace COMMON
 		/// <summary>
 		/// Function called when a client disconnects from the server
 		/// </summary>
-		/// <param name="remoteClient">The remote address being disconnected</param>
+		/// <param name="client">The remote address being disconnected</param>
 		/// <param name="thread">Structure describing the thread</param>
 		/// <param name="parameters">Private parameters passed to the thread</param>
-		public delegate void ServerOnDisconnectDelegate(string remoteClient, CThread thread, object parameters);
+		public delegate void ServerOnDisconnectDelegate(TcpClient client, CThread thread, object parameters);
 		/// <summary>
 		/// Function called when a the server has received a stop request from any client
 		/// </summary>

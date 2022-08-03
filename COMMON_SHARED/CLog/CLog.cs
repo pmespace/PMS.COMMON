@@ -250,11 +250,19 @@ namespace COMMON
 				StackTrace st = new StackTrace(ex, true);
 				List<string> ls = new List<string>();
 				ls.Add($"[EXCEPTION] {ex.GetType()}{(string.IsNullOrEmpty(ex.Message) ? null : $" - {ex.Message}")}{(string.IsNullOrEmpty(msg) ? null : $" - {msg}")}");
+				Exception exx = ex.InnerException;
+				while (null != exx)
+				{
+					ls.Add($"[EXCEPTION] {exx.GetType()}{(string.IsNullOrEmpty(exx.Message) ? null : $" - {exx.Message}")}");
+					exx = exx.InnerException;
+				}
 				for (int i = 0; i < st.FrameCount; i++)
 				{
 					StackFrame sf = st.GetFrame(i);
 					//ls.Add((i != 0 ? "   " : null) + $"{CMisc.Trimmed(st.ToString())} - File: {sf.GetFileName()} - Method: {sf.GetMethod()} - Line Number: {sf.GetFileLineNumber()}");
-					ls.Add($"{Chars.TAB}File: {sf.GetFileName()} - Method: {sf.GetMethod()} - Line Number: {sf.GetFileLineNumber()}");
+					string f = string.IsNullOrEmpty(sf.GetFileName()) ? "??" : sf.GetFileName();
+					string m = string.IsNullOrEmpty(sf.GetMethod().ToString()) ? "??" : $"{sf.GetMethod()}";
+					ls.Add($"File: {f} - Method: {m} - Line Number: {sf.GetFileLineNumber()}");
 				}
 				r = AddEx(ls, TLog.EXCPT);
 			}

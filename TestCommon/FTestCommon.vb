@@ -12,6 +12,7 @@ Imports Newtonsoft.Json
 Public Class FTestCommon
 	Private database As New CDatabase
 	Private json As New CJson(Of Settings)
+	Private serial As New JsonSerializerSettings
 	Private Const CONNECT As String = "Connect database"
 	Private Const DISCONNECT As String = "Disconnect database"
 	Private DbM As New CDatabaseTableManager
@@ -21,7 +22,7 @@ Public Class FTestCommon
 
 	Private Sub FTestCommon_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 		json.FileName = "..\testcommon.settings.json"
-		ReadSettings()
+		LoadSettings()
 		lblSelectRes.Text = String.Empty
 		lblSQLNbRows.Text = String.Empty
 		lblSQLRes.Text = String.Empty
@@ -34,11 +35,18 @@ Public Class FTestCommon
 #End If
 		pbHex.Visible = visible
 		pbOther.Visible = visible
+
 	End Sub
 
-	Private Sub ReadSettings()
-		Dim except As Boolean
-		Dim settings = json.ReadSettings(except)
+	Private Sub LoadSettings()
+		Dim settings As Settings
+		If Not cbNewJson.Checked Then
+			Dim except As Boolean
+			settings = json.ReadSettings(except)
+		Else
+			Dim except As Exception = Nothing
+			settings = json.ReadSettings(except, serial)
+		End If
 
 		If Not IsNothing(settings) Then
 			efConnectionString.Text = settings.ConnectionString
@@ -48,15 +56,27 @@ Public Class FTestCommon
 		End If
 	End Sub
 
-	Private Sub WriteSettings()
+	Private Sub SaveSettings()
 		Dim settings As New Settings
 		settings.ConnectionString = efConnectionString.Text
 		settings.SQLCommand = efAnyRequest.Text
 		settings.SelectCommand = efSelect.Text
 		settings.TableName = efTableName.Text
 
-		Dim addnull As Boolean = True
-		json.WriteSettings(settings, addnull)
+		If Not cbNewJson.Checked Then
+			Dim addnull As Boolean = True
+			json.WriteSettings(settings, addnull)
+		Else
+			Dim except As Exception = Nothing
+			If rbAlphabetical.Checked Then
+				serial = json.SerializeAlphabetically(serial)
+			ElseIf rbBaseClass.Checked Then
+				serial = json.SerializeBaseClassFirst(serial)
+			Else
+				serial = json.SerializeStandard(serial)
+			End If
+			json.WriteSettings(settings, except, serial)
+		End If
 	End Sub
 
 	Private Sub SetButtons()
@@ -135,11 +155,11 @@ Public Class FTestCommon
 	End Function
 
 	Private Sub FTestCommon_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
-		WriteSettings()
+		SaveSettings()
 	End Sub
 
 	Private Sub pbSaveSettings_Click(sender As Object, e As EventArgs) Handles pbSaveSettings.Click
-		WriteSettings()
+		SaveSettings()
 	End Sub
 
 	Private Sub pbClose_Click(sender As Object, e As EventArgs) Handles pbClose.Click
@@ -403,7 +423,9 @@ Public Class FTestCommon
 		CMisc.AdjustMinMax1N(min, max, 10)
 
 
+
 		min = 100
 		Dim ok As Boolean = True
 	End Sub
+
 End Class

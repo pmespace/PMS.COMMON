@@ -1,3 +1,6 @@
+6.3.0
+- Added commands to sort output when serializing to file using CJson methods SerializeBaseClassFirst, SerializeAlphabetically and SerializeStandard
+
 6.2.0
 - CStreamServer.OnDisconnect function (ServerOnDisconnectDelegate delegate) now receives a TcpClient as the first parameter instead of a string announcing the disconnecting IP address.
 

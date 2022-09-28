@@ -58,9 +58,14 @@ Partial Class FTestCommon
 		Me.Button2 = New System.Windows.Forms.Button()
 		Me.lblMessage = New System.Windows.Forms.Label()
 		Me.pbHex = New System.Windows.Forms.Button()
+		Me.pbOther = New System.Windows.Forms.Button()
+		Me.cbNewJson = New System.Windows.Forms.CheckBox()
 		Me.DataGridView1 = New System.Windows.Forms.DataGridView()
 		Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
-		Me.pbOther = New System.Windows.Forms.Button()
+		Me.panelOrder = New System.Windows.Forms.FlowLayoutPanel()
+		Me.rbAlphabetical = New System.Windows.Forms.RadioButton()
+		Me.rbBaseClass = New System.Windows.Forms.RadioButton()
+		Me.rbNoOrder = New System.Windows.Forms.RadioButton()
 		Me.pnlMain.SuspendLayout()
 		Me.TableLayoutPanel1.SuspendLayout()
 		Me.TabControl1.SuspendLayout()
@@ -73,6 +78,7 @@ Partial Class FTestCommon
 		Me.TableLayoutPanel4.SuspendLayout()
 		Me.FlowLayoutPanel1.SuspendLayout()
 		CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).BeginInit()
+		Me.panelOrder.SuspendLayout()
 		Me.SuspendLayout()
 		'
 		'pnlMain
@@ -498,6 +504,8 @@ Partial Class FTestCommon
 		Me.FlowLayoutPanel1.Controls.Add(Me.lblMessage)
 		Me.FlowLayoutPanel1.Controls.Add(Me.pbHex)
 		Me.FlowLayoutPanel1.Controls.Add(Me.pbOther)
+		Me.FlowLayoutPanel1.Controls.Add(Me.cbNewJson)
+		Me.FlowLayoutPanel1.Controls.Add(Me.panelOrder)
 		Me.FlowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
 		Me.FlowLayoutPanel1.Location = New System.Drawing.Point(3, 137)
 		Me.FlowLayoutPanel1.Name = "FlowLayoutPanel1"
@@ -534,6 +542,26 @@ Partial Class FTestCommon
 		Me.pbHex.UseVisualStyleBackColor = True
 		Me.pbHex.Visible = False
 		'
+		'pbOther
+		'
+		Me.pbOther.Location = New System.Drawing.Point(237, 3)
+		Me.pbOther.Name = "pbOther"
+		Me.pbOther.Size = New System.Drawing.Size(75, 23)
+		Me.pbOther.TabIndex = 3
+		Me.pbOther.Text = "Other tests"
+		Me.pbOther.UseVisualStyleBackColor = True
+		'
+		'cbNewJson
+		'
+		Me.cbNewJson.Anchor = System.Windows.Forms.AnchorStyles.Left
+		Me.cbNewJson.AutoSize = True
+		Me.cbNewJson.Location = New System.Drawing.Point(318, 6)
+		Me.cbNewJson.Name = "cbNewJson"
+		Me.cbNewJson.Size = New System.Drawing.Size(80, 17)
+		Me.cbNewJson.TabIndex = 4
+		Me.cbNewJson.Text = "New CJson"
+		Me.cbNewJson.UseVisualStyleBackColor = True
+		'
 		'DataGridView1
 		'
 		Me.DataGridView1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
@@ -545,14 +573,49 @@ Partial Class FTestCommon
 		Me.DataGridView1.Size = New System.Drawing.Size(714, 221)
 		Me.DataGridView1.TabIndex = 0
 		'
-		'pbOther
+		'panelOrder
 		'
-		Me.pbOther.Location = New System.Drawing.Point(237, 3)
-		Me.pbOther.Name = "pbOther"
-		Me.pbOther.Size = New System.Drawing.Size(75, 23)
-		Me.pbOther.TabIndex = 3
-		Me.pbOther.Text = "Other tests"
-		Me.pbOther.UseVisualStyleBackColor = True
+		Me.panelOrder.Anchor = System.Windows.Forms.AnchorStyles.Left
+		Me.panelOrder.AutoSize = True
+		Me.panelOrder.Controls.Add(Me.rbBaseClass)
+		Me.panelOrder.Controls.Add(Me.rbAlphabetical)
+		Me.panelOrder.Controls.Add(Me.rbNoOrder)
+		Me.panelOrder.Location = New System.Drawing.Point(404, 3)
+		Me.panelOrder.Name = "panelOrder"
+		Me.panelOrder.Size = New System.Drawing.Size(243, 23)
+		Me.panelOrder.TabIndex = 5
+		'
+		'rbAlphabetical
+		'
+		Me.rbAlphabetical.AutoSize = True
+		Me.rbAlphabetical.Location = New System.Drawing.Point(85, 3)
+		Me.rbAlphabetical.Name = "rbAlphabetical"
+		Me.rbAlphabetical.Size = New System.Drawing.Size(83, 17)
+		Me.rbAlphabetical.TabIndex = 0
+		Me.rbAlphabetical.Text = "Alphabetical"
+		Me.rbAlphabetical.UseVisualStyleBackColor = True
+		'
+		'rbBaseClass
+		'
+		Me.rbBaseClass.AutoSize = True
+		Me.rbBaseClass.Checked = True
+		Me.rbBaseClass.Location = New System.Drawing.Point(3, 3)
+		Me.rbBaseClass.Name = "rbBaseClass"
+		Me.rbBaseClass.Size = New System.Drawing.Size(76, 17)
+		Me.rbBaseClass.TabIndex = 1
+		Me.rbBaseClass.TabStop = True
+		Me.rbBaseClass.Text = "Base class"
+		Me.rbBaseClass.UseVisualStyleBackColor = True
+		'
+		'rbNoOrder
+		'
+		Me.rbNoOrder.AutoSize = True
+		Me.rbNoOrder.Location = New System.Drawing.Point(174, 3)
+		Me.rbNoOrder.Name = "rbNoOrder"
+		Me.rbNoOrder.Size = New System.Drawing.Size(66, 17)
+		Me.rbNoOrder.TabIndex = 2
+		Me.rbNoOrder.Text = "No order"
+		Me.rbNoOrder.UseVisualStyleBackColor = True
 		'
 		'FTestCommon
 		'
@@ -584,6 +647,8 @@ Partial Class FTestCommon
 		Me.FlowLayoutPanel1.ResumeLayout(False)
 		Me.FlowLayoutPanel1.PerformLayout()
 		CType(Me.DataGridView1, System.ComponentModel.ISupportInitialize).EndInit()
+		Me.panelOrder.ResumeLayout(False)
+		Me.panelOrder.PerformLayout()
 		Me.ResumeLayout(False)
 		Me.PerformLayout()
 
@@ -627,4 +692,9 @@ Partial Class FTestCommon
 	Friend WithEvents ToolTip1 As ToolTip
 	Friend WithEvents pbHex As Button
 	Friend WithEvents pbOther As Button
+	Friend WithEvents cbNewJson As CheckBox
+	Friend WithEvents panelOrder As FlowLayoutPanel
+	Friend WithEvents rbAlphabetical As RadioButton
+	Friend WithEvents rbBaseClass As RadioButton
+	Friend WithEvents rbNoOrder As RadioButton
 End Class

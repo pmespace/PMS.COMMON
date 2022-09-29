@@ -336,7 +336,7 @@ namespace COMMON
 		/// <returns>A <see cref="JsonSerializerSettings"/> set accordingly, this could be <paramref name="settings"/> updated if specified</returns>
 		public JsonSerializerSettings SerializeBaseClassFirst(JsonSerializerSettings settings = null, bool alphabetical = true)
 		{
-			if (null != settings) settings = new JsonSerializerSettings();
+			if (null == settings) settings = new JsonSerializerSettings();
 			settings.ContractResolver = (alphabetical ? baseFirstThenAlphabeticalResolver : baseFirstResolver);
 			settings.TypeNameHandling = TypeNameHandling.None;
 			return settings;
@@ -348,7 +348,7 @@ namespace COMMON
 		/// <returns>A <see cref="JsonSerializerSettings"/> set accordingly, this could be <paramref name="settings"/> updated if specified</returns>
 		public JsonSerializerSettings SerializeAlphabetically(JsonSerializerSettings settings = null)
 		{
-			if (null != settings) settings = new JsonSerializerSettings();
+			if (null == settings) settings = new JsonSerializerSettings();
 			settings.ContractResolver = alphabeticalResolver;
 			settings.TypeNameHandling = TypeNameHandling.None;
 			return settings;
@@ -360,7 +360,7 @@ namespace COMMON
 		/// <returns>A <see cref="JsonSerializerSettings"/> set accordingly, this could be <paramref name="settings"/> updated if specified</returns>
 		public JsonSerializerSettings SerializeStandard(JsonSerializerSettings settings = null)
 		{
-			if (null != settings) settings = new JsonSerializerSettings();
+			if (null == settings) settings = new JsonSerializerSettings();
 			settings.ContractResolver = null;
 			settings.TypeNameHandling = TypeNameHandling.None;
 			return settings;

@@ -386,6 +386,45 @@ Public Class FTestCommon
 	End Enum
 
 	Private Sub pbOther_Click(sender As Object, e As EventArgs) Handles pbOther.Click
+
+		Dim i As Integer = 65532
+		Dim st As String = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(i))
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(i, True))
+		i = 56
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(i))
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(i, True))
+		Dim s As Short = 32767
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(s))
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(s, True))
+		s = 56
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(s))
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(s, True))
+		Dim l As Long = -65532
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(l))
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(l, True))
+		l = 567
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(l))
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(l, True))
+		l = 1
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(l))
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(l, True))
+		l = 10
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(l))
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(l, True))
+		l = 100
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(l))
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(l, True))
+		l = 1000
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(l))
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(l, True))
+		l = 10000
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(l))
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(l, True))
+		l = 1000000
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(l))
+		st = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(l, True))
+
+
 		Dim z As New CStreamServerSettings
 		Dim f As Boolean = CMisc.IsEnumValue(GetType(AAA), AAA.C)
 		Dim aqw As AAA = CMisc.GetEnumValue(GetType(AAA), AAA.C.ToString)

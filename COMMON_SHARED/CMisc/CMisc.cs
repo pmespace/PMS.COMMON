@@ -186,27 +186,83 @@ namespace COMMON
 		/// The array of bytes is 2 bytes long (size of short).
 		/// This function is useful to transform an integral type to bytes
 		/// </summary>
-		/// <param name="value">The integral type to copy to an array of butes</param>
+		/// <param name="value">The integral type to copy to an array of bytes</param>
+		/// <param name="optimize">If true the created buffer is optimized removing the bytes on the right set to 0, false means the buffer length is according to the length of the <paramref name="value"/> type</param>
 		/// <returns>The array of bytes created after copying the integral type</returns>
-		public static byte[] SetBytesFromIntegralTypeValue(short value)
+		public static byte[] SetBytesFromIntegralTypeValue(short value, bool optimize = false)
 		{
-			byte[] bb = BitConverter.GetBytes(value);
-			if (BitConverter.IsLittleEndian)
-				Array.Reverse(bb);
-			return bb;
+			//byte[] bb = BitConverter.GetBytes(value);
+			//if (BitConverter.IsLittleEndian)
+			//	Array.Reverse(bb);
+			//return bb;
+			return SetBytesFromIntegralTypeValue(value, sizeof(short), optimize);
 		}
 		/// <summary>
 		/// Copy bytes from int integral type to byte[].
 		/// The array of bytes is 4 bytes long (size of int).
 		/// This function is useful to transform an integral type to bytes
 		/// </summary>
-		/// <param name="value">The integral type to copy to an array of butes</param>
+		/// <param name="value">The integral type to copy to an array of bytes</param>
+		/// <param name="optimize">If true the created buffer is optimized removing the bytes on the right set to 0, false means the buffer length is according to the length of the <paramref name="value"/> type</param>
 		/// <returns>The array of bytes created after copying the integral type</returns>
-		public static byte[] SetBytesFromIntegralTypeValue(int value)
+		public static byte[] SetBytesFromIntegralTypeValue(int value, bool optimize = false)
 		{
+			//byte[] bb = BitConverter.GetBytes(value);
+			//if (BitConverter.IsLittleEndian)
+			//	Array.Reverse(bb);
+			//return bb;
+			return SetBytesFromIntegralTypeValue(value, sizeof(int), optimize);
+		}
+		/// <summary>
+		/// Copy bytes from long integral type to byte[].
+		/// The array of bytes is 8 bytes long (size of long).
+		/// This function is useful to transform an integral type to bytes
+		/// </summary>
+		/// <param name="value">The integral type to copy to an array of bytes</param>
+		/// <param name="optimize">If true the created buffer is optimized removing the bytes on the right set to 0, false means the buffer length is according to the length of the <paramref name="value"/> type</param>
+		/// <returns>The array of bytes created after copying the integral type</returns>
+		public static byte[] SetBytesFromIntegralTypeValue(long value, bool optimize = false)
+		{
+			//byte[] bb = BitConverter.GetBytes(value);
+			//if (BitConverter.IsLittleEndian)
+			//	Array.Reverse(bb);
+			//return bb;
+			return SetBytesFromIntegralTypeValue(value, sizeof(long), optimize);
+		}
+		/// <summary>
+		/// Copy bytes from long integral type to byte[].
+		/// The array of bytes is 8 bytes long (size of long).
+		/// This function is useful to transform an integral type to bytes
+		/// </summary>
+		/// <param name="value">The integral type to copy to an array of bytes</param>
+		/// <param name="maxsize">The maximum size of the expected buffer</param>
+		/// <param name="optimize">If true the created buffer is optimized removing the bytes on the right set to 0, false means the buffer length is according to the length of the <paramref name="value"/> type</param>
+		/// <returns>The array of bytes created after copying the integral type</returns>
+		public static byte[] SetBytesFromIntegralTypeValue(long value, int maxsize, bool optimize)
+		{
+			if (sizeof(long) < maxsize) return new byte[0];
+
 			byte[] bb = BitConverter.GetBytes(value);
 			if (BitConverter.IsLittleEndian)
 				Array.Reverse(bb);
+
+			byte[] bbx = new byte[maxsize];
+			// copy the buffer according to its expected maximum size (taking only the final part)
+			Buffer.BlockCopy(bb, bb.Length - maxsize, bbx, 0, bbx.Length);
+			bb = bbx;
+
+			// if optimization has been requested remove all trailing bytes set to 0
+			if (optimize)
+			{
+				int i = 0;
+				int counter = 0;
+				// determine the number of bytes set to 0 at the beginning of the buffer taking care to always keep at least 1 byte (the most right one)
+				while (i < bb.Length - 1 && 0x00 == bb[i++]) counter++;
+				bbx = new byte[bb.Length - counter];
+				// copy the buffer according to its expected maximum size (taking only the final part)
+				Buffer.BlockCopy(bb, counter, bbx, 0, bbx.Length);
+				bb = bbx;
+			}
 			return bb;
 		}
 		/// <summary>
@@ -214,21 +270,7 @@ namespace COMMON
 		/// The array of bytes is 8 bytes long (size of long).
 		/// This function is useful to transform an integral type to bytes
 		/// </summary>
-		/// <param name="value">The integral type to copy to an array of butes</param>
-		/// <returns>The array of bytes created after copying the integral type</returns>
-		public static byte[] SetBytesFromIntegralTypeValue(long value)
-		{
-			byte[] bb = BitConverter.GetBytes(value);
-			if (BitConverter.IsLittleEndian)
-				Array.Reverse(bb);
-			return bb;
-		}
-		/// <summary>
-		/// Copy bytes from long integral type to byte[].
-		/// The array of bytes is 8 bytes long (size of long).
-		/// This function is useful to transform an integral type to bytes
-		/// </summary>
-		/// <param name="value">The integral type to copy to an array of butes</param>
+		/// <param name="value">The integral type to copy to an array of bytes</param>
 		/// <param name="maxlen">Size of the buffer to create that will receive the value computed</param>
 		/// <returns>The array of bytes created after copying the integral type</returns>
 		public static byte[] SetBytesFromIntegralTypeValue(long value, int maxlen)
@@ -252,7 +294,17 @@ namespace COMMON
 						return SetBytesFromIntegralTypeValue(value);
 				}
 			}
-			return null;
+			return new byte[maxlen];
+		}
+		/// <summary>
+		/// Get integral long value value from an array of bytes where each byte (up to 8 bytes) represents a part of the integral value.
+		/// This function is useful to retrieve an integral value from a set of bytes
+		/// </summary>
+		/// <param name="buffer">The array of bytes to analyse</param>
+		/// <returns>A long describing the value stored inside the array of bytes, 0 otherwise</returns>
+		public static long GetIntegralTypeValueFromBytes(byte[] buffer)
+		{
+			return GetIntegralTypeValueFromBytes(buffer, 0, buffer.Length);
 		}
 		/// <summary>
 		/// Get integral long value value from an array of bytes where each byte (up to 8 bytes) represents a part of the integral value.
@@ -275,7 +327,7 @@ namespace COMMON
 		/// <returns>A long describing the value stored inside the array of bytes, 0 otherwise</returns>
 		public static long GetIntegralTypeValueFromBytes(byte[] buffer, int start, int maxlen = CMisc.FOURBYTES)
 		{
-			if (null == buffer || 0 == buffer.Length || buffer.Length <= start) return 0;
+			if (null == buffer || 0 == buffer.Length || buffer.Length <= start || maxlen > sizeof(long)) return 0;
 			long l = 0;
 			maxlen = Math.Min(buffer.Length - start, maxlen);
 			byte[] ab = new byte[maxlen];

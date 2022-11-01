@@ -13,17 +13,17 @@ namespace COMMON
 		/// <summary>
 		/// IP formats
 		/// </summary>
-		public const string REGEX_IPV4_PORT_NUMBER = @"(:([0-9]{1,4}|[1-5][0-9]{1,4}|6[0-9]{1,3}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]))";
-		public const string REGEX_IPV4_ADDRESS_PART = @"([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])";
-		public const string REGEX_IPV4_PARTS_1TO3 = "(" + REGEX_IPV4_ADDRESS_PART + @"\.)";
-		public const string REGEX_IPV4_PART_4 = REGEX_IPV4_ADDRESS_PART;
 		public const string REGEX_HEADER = @"^";
 		public const string REGEX_TRAILER = @"$";
-		public const string REGEX_URL_CHARACTER_SET = @"[0-9A-Za-z\./-]";
-		public const string REGEX_IPV4_WITHOUT_PORT = REGEX_HEADER + REGEX_IPV4_PARTS_1TO3 + "{3}" + REGEX_IPV4_PART_4 + "{1}" + REGEX_TRAILER;
-		public const string REGEX_IPV4_WITH_PORT = REGEX_HEADER + REGEX_IPV4_PARTS_1TO3 + "{3}" + REGEX_IPV4_PART_4 + "{1}" + REGEX_IPV4_PORT_NUMBER + "{0,1}" + REGEX_TRAILER;
+		public const string REGEX_IPV4_ADDRESS_PART = @"([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])";
+		public const string REGEX_IPV4_PORT_NUMBER_PART = @":([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])";
+		public const string REGEX_IPV4_PARTS_1TO3 = "(" + REGEX_IPV4_ADDRESS_PART + @"\.){3}";
+		public const string REGEX_IPV4_PART_4 = REGEX_IPV4_ADDRESS_PART;
+		public const string REGEX_IPV4_WITHOUT_PORT = REGEX_HEADER + REGEX_IPV4_PARTS_1TO3 + REGEX_IPV4_PART_4 + REGEX_TRAILER;
+		public const string REGEX_IPV4_WITH_PORT = REGEX_IPV4_WITHOUT_PORT + REGEX_IPV4_PORT_NUMBER_PART + REGEX_TRAILER;
+		public const string REGEX_URL_CHARACTER_SET = @"^(?i)([a-z0-9]|[a-z0-9][a-z0-9\-]{0,61}[a-z0-9])(\.([a-z0-9]|[a-z0-9][a-z0-9\-]{0,61}[a-z0-9]))*$";
 		public const string REGEX_URL_WITHOUT_PORT = REGEX_HEADER + REGEX_URL_CHARACTER_SET + "+" + REGEX_TRAILER;
-		public const string REGEX_URL_WITH_PORT = REGEX_HEADER + REGEX_URL_CHARACTER_SET + "+" + REGEX_IPV4_PORT_NUMBER + "{0,1}" + REGEX_TRAILER;
+		public const string REGEX_URL_WITH_PORT = REGEX_HEADER + REGEX_URL_CHARACTER_SET + "+" + REGEX_IPV4_PORT_NUMBER_PART + REGEX_TRAILER;
 	}
 
 	/// <summary>

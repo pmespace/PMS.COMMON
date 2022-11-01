@@ -32,7 +32,7 @@ namespace COMMON
 		/// <param name="v4">True if a v4 address is expected, false if a v6 one is expected, v4 is the default</param>
 		/// <param name="loopback">True if the address must be loopback, false if an internet address, not loopback is the default</param>
 		/// <returns>A string containing the local IP address</returns>
-		public static string Localhost(bool v4 = true, bool loopback = false)
+		public static string Localhost(bool loopback = false, bool v4 = true)
 		{
 			try
 			{
@@ -49,10 +49,13 @@ namespace COMMON
 						}
 					}
 				}
-				// no internat address, let's use the loopback
+				// no internal address, let's use the loopback
 				return addresses[0].ToString();
 			}
-			catch (Exception) { }
+			catch (Exception ex)
+			{
+				CLog.EXCEPT(ex);
+			}
 			// arrived here no IP address at all
 			return null;
 		}
@@ -87,7 +90,7 @@ namespace COMMON
 		/// Connect a stream according to the settings provided.
 		/// </summary>
 		/// <param name="settings">Network settings to use to connect the stream</param>
-		/// <returns>A <see cref="CStreamClientIO"/> object is evrything went fine, null otherwise</returns>
+		/// <returns>A <see cref="CStreamClientIO"/> object if everything went fine, null otherwise</returns>
 		public static CStreamClientIO Connect(CStreamClientSettings settings)
 		{
 			CStreamClientIO stream = null;
@@ -99,7 +102,7 @@ namespace COMMON
 				TcpClient tcpclient = new TcpClient(v6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork);
 				try
 				{
-					CLog.DEBUG($"About to connect to {settings.FullIP}");
+					CLog.DEBUG($"Trying to connect to {settings.FullIP}");
 					//tcpclient.Connect(settings.Address, (int)settings.Port);
 					var result = tcpclient.BeginConnect(settings.Address, (int)settings.Port, null, null);
 					var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(settings.ConnectTimeout));
@@ -107,6 +110,7 @@ namespace COMMON
 					{
 						// stream is connected
 						tcpclient.EndConnect(result);
+						CLog.DEBUG($"Connected to {settings.FullIP}");
 						tcpclient.SendBufferSize = (tcpclient.SendBufferSize >= settings.SendBufferSize ? tcpclient.SendBufferSize : settings.SendBufferSize + 1);
 						tcpclient.ReceiveBufferSize = (tcpclient.ReceiveBufferSize >= settings.ReceiveBufferSize ? tcpclient.SendBufferSize : settings.ReceiveBufferSize);
 						tcpclient.SendTimeout = settings.SendTimeout * CStreamSettings.ONESECOND;
@@ -156,7 +160,7 @@ namespace COMMON
 				if (stream.Send(request, addSizeHeader))
 					return true;
 				// arrived here the message hasn't been sent
-				CLog.Add($"An error has occurred while sending the message", TLog.ERROR);
+				CLog.ERROR($"An error has occurred while sending the message");
 			}
 			catch (Exception ex)
 			{
@@ -192,7 +196,7 @@ namespace COMMON
 				CLog.DEBUG($"About to send string message of {request.Length} characters");
 				if (stream.SendLine(request, EOT))
 					return true;
-				CLog.Add($"An error has occurred while sending the string message", TLog.ERROR);
+				CLog.ERROR($"An error has occurred while sending the string message");
 			}
 			catch (Exception ex)
 			{
@@ -239,7 +243,7 @@ namespace COMMON
 				}
 				else if (0 != announcedSize)
 				{
-					CLog.Add($"No data has been received though expecting some (invalid announced length,...)", TLog.ERROR);
+					CLog.ERROR($"No data has been received though expecting some (invalid announced length,...)");
 					error = true;
 				}
 				else

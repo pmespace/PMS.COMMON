@@ -194,7 +194,7 @@ namespace COMMON
 			{
 				FileInfo fi = new FileInfo(FileName);
 				if (fi.Exists && 0 != fi.Length && !overwrite)
-					File.Move(FileName, FileName + ".sav");
+					File.Move(FileName, FileName + $".{DateTime.Now.ToString(Chars.SDATETIMEEX)}.sav.json");
 			}
 			catch (Exception ex)
 			{

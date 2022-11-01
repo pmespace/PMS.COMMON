@@ -29,6 +29,13 @@ namespace COMMON
 		public const string TIMEEX = "HH:mm:ss.fff";
 		public const string DATETIME = DATE + " " + TIME;
 		public const string DATETIMEEX = DATE + " " + TIMEEX;
+		public const string SEPARATOR = "; ";
+		public const string FOLLOWEDBY = " - ";
+		public const string SDATE = "yyyyMMdd";
+		public const string STIME = "HHmmss";
+		public const string STIMEEX = "HHmmssfff";
+		public const string SDATETIME = SDATE + STIME;
+		public const string SDATETIMEEX = SDATE + STIMEEX;
 	}
 
 	[ComVisible(true)]

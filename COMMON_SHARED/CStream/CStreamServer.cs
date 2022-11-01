@@ -4,19 +4,224 @@ using System.Reflection;
 using System.Net;
 using System.IO;
 using System;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Collections.ObjectModel;
+using COMMON;
+using Newtonsoft.Json;
+using System.Text.RegularExpressions;
 
 namespace COMMON
 {
-	//public class CStreamServerParameters
+	[ComVisible(true)]
+	[Guid("7711DAC5-9223-4760-A93C-D2C993359A61")]
+	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	public interface IStreamServerStatistics
+	{
+		[DispId(1)]
+		IPEndPoint EndPoint { get; }
+		[DispId(2)]
+		DateTime ConnectTimestamp { get; }
+		[DispId(4)]
+		int ReceivedMessages { get; }
+		[DispId(5)]
+		int SentMessages { get; }
+		[DispId(6)]
+		decimal ReceivedBytes { get; }
+		[DispId(7)]
+		decimal SentBytes { get; }
+
+		[DispId(100)]
+		string ToString();
+	}
+	[Guid("648A391F-5B00-4E95-90FD-3F5E6E9FEFD4")]
+	[ClassInterface(ClassInterfaceType.None)]
+	[ComVisible(true)]
+	public class CStreamServerStatistics : IStreamServerStatistics
+	{
+		#region properties
+		/// <summary>
+		/// IP of the caller
+		/// </summary>
+		public IPEndPoint EndPoint { get; protected set; }
+		/// <summary>
+		/// connection datetime of the caller
+		/// </summary>
+		public DateTime ConnectTimestamp { get; protected set; }
+		/// <summary>
+		/// number of messages received from the caller
+		/// </summary>
+		public int ReceivedMessages { get; protected set; }
+		/// <summary>
+		/// number of messages sent to the caller
+		/// </summary>
+		public int SentMessages { get; protected set; }
+		/// <summary>
+		/// number of bytes received from the caller
+		/// </summary>
+		public decimal ReceivedBytes { get; protected set; }
+		/// <summary>
+		/// number of bytes sent to the caller
+		/// </summary>
+		public decimal SentBytes { get; protected set; }
+		#endregion
+
+		#region public methods
+		public override string ToString()
+		{
+			string s = $"Client: {(null == EndPoint ? "<unknown>" : EndPoint.Address.ToString())}; Connect: {ConnectTimestamp.ToString(Chars.DATETIMEEX)}; ";
+			s += $"Received: {ReceivedMessages} messages [{ReceivedBytes} bytes]; Sent: {SentMessages} messages [{SentBytes} bytes]";
+			return s;
+		}
+		#endregion
+
+		#region internal private methods
+		#endregion
+	}
+
+	//[ComVisible(true)]
+	//[Guid("7711DAC5-9223-4760-A93C-D2C993359A61")]
+	//[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+	//public interface IStreamServerClientsDictionary<K, T>
 	//{
-	//	public CThread Thread { get; internal set; }
-	//	public TcpClient Tcp { get; internal set; }
-	//	public CThreadData ThreadData { get; internal set; }
-	//	public object GlobalParameters { get; internal set; }
-	//	public object O;
+	//	#region ISafeDictionary properties
+	//	[DispId(1)]
+	//	Dictionary<K, T> Dict { get; }
+	//	[DispId(2)]
+	//	int Count { get; }
+	//	[DispId(3)]
+	//	ISafeList<K> Keys { get; }
+	//	[DispId(4)]
+	//	ISafeList<T> Values { get; }
+	//	[DispId(5)]
+	//	T this[K k] { get; set; }
+	//	#endregion
+
+	//	#region ISafeDictionary methods
+	//	[DispId(100)]
+	//	void Clear();
+	//	[DispId(101)]
+	//	bool Add(K k, T o);
+	//	[DispId(102)]
+	//	bool Remove(K k);
+	//	[DispId(103)]
+	//	bool ContainsKey(K k);
+	//	[DispId(104)]
+	//	CSafeKeyValue<K, T>[] ToArray();
+	//	[DispId(105)]
+	//	T Get(K k);
+	//	#endregion
+
+	//	#region specific
+	//	[DispId(100)]
+	//	string ToString();
+	//	[DispId(101)]
+	//	string ToString(bool full);
+	//	[DispId(102)]
+	//	bool IsConnected(Guid guid);
+	//	//[DispId(103)]
+	//	//bool IsConnected(K k);
+	//	#endregion
+	//}
+	//[Guid("3BBAFC6D-6FB4-4782-8384-E1ACC3E29462")]
+	//[ClassInterface(ClassInterfaceType.None)]
+	//[ComVisible(true)]
+	//public class CStreamServerClientsDictionary : CSafeDictionary<Guid, CStreamServerClient>, IStreamServerClientsDictionary<Guid, CStreamServerClient>
+	//{
+	//	#region properties
+	//	/// <summary>
+	//	/// Get the list of currently connected clients
+	//	/// </summary>
+	//	/// <returns>The list of connected clients</returns>
+	//	public CSafeList<CStreamServerClient> Connected { get => new CSafeList<CStreamServerClient>(Dict.Select(p => p.Value).Where(c => c.IsConnected).ToList()); }
+	//	#endregion
+
+	//	#region methods
+	//	public override string ToString() { return ToString(false); }
+	//	public string ToString(bool full)
+	//	{
+	//		string t;
+	//		ISafeList<CStreamServerClient> list;
+	//		if (full)
+	//		{
+	//			list = Connected;
+	//			t = "All";
+	//		}
+	//		else
+	//		{
+	//			list = Values;
+	//			t = "Connected";
+	//		}
+	//		if (0 == list.Count)
+	//			return $"No currently connected client";
+	//		string s = $"{t} clients:{Chars.CRLF}";
+	//		for (int i = 0; i < list.Count; i++)
+	//			s += Chars.TAB + list[i].ToString() + (i == list.Count - 1 ? null : Chars.CRLF);
+	//		return s;
+	//	}
+	//	/// <summary>
+	//	/// Check wether a <see cref="CStreamServerClient"/> is connected or not
+	//	/// </summary>
+	//	/// <param name="guid"></param>
+	//	/// <returns>true if connected, false otherwise</returns>
+	//	public bool IsConnected(Guid guid)
+	//	{
+	//		try { return this[guid].IsConnected; }
+	//		catch (Exception) { }
+	//		return false;
+	//	}
+	//	///// <summary>
+	//	///// Check wether a client is connected based on its IP address
+	//	///// </summary>
+	//	///// <param name="ip">IP address of a connected client to look for</param>
+	//	///// <returns>true if connected, false otherwise</returns>
+	//	//public bool IsConnected(string ip)
+	//	//{
+	//	//	if (ip.IsNullOrEmpty()) return false;
+	//	//	// verify this is a valid IP address with port number
+	//	//	Match m = Regex.Match(ip, RegexIP.REGEX_IPV4_WITH_PORT);
+	//	//	if (!m.Success) return false;
+	//	//	// get the list of connected with this IP
+	//	//	var v = Dict.Select(p => p.Value).Where(c => c.EndPoint.ToString() == ip && c.IsConnected).ToList();
+	//	//	return 0 != v.Count;
+	//	//}
+	//	/// <summary>
+	//	/// Set all clients disconnected
+	//	/// </summary>
+	//	internal void SetDiconnected()
+	//	{
+	//		foreach (KeyValuePair<Guid, CStreamServerClient> c in Dict)
+	//		{
+	//			if (c.Value.IsConnected)
+	//				c.Value.SetDisconnected();
+	//		}
+	//	}
+	//	/// <summary>
+	//	/// Get all clients connected from a given IP address (only IP or IP+port)
+	//	/// </summary>
+	//	/// <param name="endpoint">IP address to test; if <see cref="IPEndPoint.Port"/> is 0 all clients from the same IP will be returned</param>
+	//	/// <returns>A list of <see cref="CStreamServerClient"/> connected clients, an empty list if no connected client from the given IP</returns>
+	//	internal CSafeList<CStreamServerClient> this[EndPoint endpoint]
+	//	{
+	//		get
+	//		{
+	//			if (null != endpoint)
+	//			{
+	//				try
+	//				{
+	//					IPEndPoint ipendpoint = (IPEndPoint)endpoint;
+	//					return new CSafeList<CStreamServerClient>(Dict.Select(p => p.Value).Where(c => c.EndPoint.Address == ipendpoint.Address && (0 != ipendpoint.Port ? c.EndPoint.Port == ipendpoint.Port : true)).ToList());
+	//				}
+	//				catch (Exception ex)
+	//				{
+	//					CLog.EXCEPT(ex);
+	//				}
+	//			}
+	//			return new CSafeList<CStreamServerClient>();
+	//		}
+	//	}
+	//	#endregion
 	//}
 
 	[ComVisible(true)]
@@ -131,6 +336,10 @@ namespace COMMON
 		bool StartServer(CStreamServerStartSettings settings);
 		[DispId(101)]
 		void StopServer();
+		[DispId(102)]
+		bool Send1WayNotification(byte[] msg, bool addBufferSize, string process, object o);
+		[DispId(103)]
+		List<CStreamServerStatistics> Statistics();
 	}
 	/// <summary>
 	/// Server processing implementation
@@ -245,7 +454,7 @@ namespace COMMON
 					listener = new TcpListener(IPAddress.Any, (int)settings.StreamServerSettings.Port);
 					try
 					{
-						CLog.Add($"{mainThread.Description} - Server listener created reading port {settings.StreamServerSettings.Port}", TLog.TRACE);
+						CLog.TRACE($"{mainThread.Description} - Server listener created reading port {settings.StreamServerSettings.Port}");
 						//listenerEvents.Reset();
 						listener.Start();
 						try
@@ -257,7 +466,7 @@ namespace COMMON
 							}
 							else
 							{
-								CLog.Add($"{mainThread.Description} - Server thread could not be created" + SERVER_NOT_RUNNING, TLog.ERROR);
+								CLog.ERROR($"{mainThread.Description} - Server thread could not be created" + SERVER_NOT_RUNNING);
 							}
 						}
 						catch (Exception ex)
@@ -276,7 +485,7 @@ namespace COMMON
 				}
 				else
 				{
-					CLog.Add($"{mainThread.Description} - The server was not allowed to start", TLog.ERROR);
+					CLog.ERROR($"{mainThread.Description} - The server was not allowed to start");
 				}
 			}
 			catch (Exception ex)
@@ -296,7 +505,7 @@ namespace COMMON
 				// clean up and synchronize thread termination
 				Cleanup();
 				mainThread.Wait();
-				CLog.Add($"{mainThread.Description} - Server has been stopped", TLog.TRACE);
+				CLog.TRACE($"{mainThread.Description} - Server has been stopped");
 			}
 		}
 		/// <summary>
@@ -335,14 +544,35 @@ namespace COMMON
 			try
 			{
 				StreamServerClient client = (StreamServerClient)o;
-				if (null != client && null != client.StreamIO && client.StreamIO.Send(msg, addBufferSize))
+				if (null != client && null != client.StreamIO)
+				{
+					EndPoint endpoint = client.Tcp.Client.RemoteEndPoint;
+					if (client.StreamIO.Send(msg, addBufferSize))
+					{
+						client.UpdateStatistics(null, msg);
+					}
 					return true;
+				}
 			}
 			catch (Exception ex)
 			{
 				CLog.EXCEPT(ex);
 			}
 			return false;
+		}
+		/// <summary>
+		/// Get the server statistics
+		/// </summary>
+		/// <returns>Get the list of currently connected clients and their own statistics</returns>
+		public List<CStreamServerStatistics> Statistics()
+		{
+			List<CStreamServerStatistics> l = new List<CStreamServerStatistics>();
+			lock (myLock)
+			{
+				foreach (StreamServerClient c in connectedClients.Values.ToList())
+					l.Add(c);
+			}
+			return l;
 		}
 		#endregion
 
@@ -359,7 +589,7 @@ namespace COMMON
 				// stop listener (that will stop the thread waiting for clients)
 				if (null != listener)
 				{
-					CLog.Add($"{mainThread.Description} - Shutting down listener", TLog.TRACE);
+					CLog.TRACE($"{mainThread.Description} - Shutting down listener");
 					listener.Stop();
 					listenerEvents.WaitStopped();
 					listener = null;
@@ -439,37 +669,37 @@ namespace COMMON
 								client.ProcessingThread.Name = "PROCESSOR";
 								if (client.ProcessingThread.Start(StreamServerProcessorMethod, StartSettings.ThreadData, client, client.ProcessorEvents.Started))
 								{
+									object privateData = null;
 									// arrived here everything's in place, let's verify whether the client is accepted or not from that ip address
 									try
 									{
-										client.Connected = (null == StartSettings.OnConnect ? true : StartSettings.OnConnect(tcp, thread, StartSettings.Parameters));
+										if (client.Connected = (null == StartSettings.OnConnect ? true : StartSettings.OnConnect(tcp, thread, StartSettings.Parameters, ref client._data)))
+										{
+											lock (myLock)
+											{
+												connectedClients.Add(client.Key, client);
+												ok = true;
+											}
+											CLog.TRACE($"{threadName} - Client {clientEndPoint} is connected to the server");
+										}
+										else
+										{
+											CLog.WARNING($"{threadName} - Connection from {clientEndPoint} has been refused");
+										}
 									}
 									catch (Exception ex)
 									{
 										CLog.EXCEPT(ex, $"{threadName} - OnConnect generated an exception");
 									}
-									if (client.Connected)
-									{
-										CLog.Add($"{threadName} - Client {clientEndPoint} is connected to the server", TLog.TRACE);
-										lock (myLock)
-										{
-											connectedClients.Add(client.Key, client);
-											ok = true;
-										}
-									}
-									else
-									{
-										CLog.Add($"{threadName} - Connection from {clientEndPoint} has been refused", TLog.WARNG);
-									}
 								}
 								else
 								{
-									CLog.Add($"{threadName} - Failed to start processor thread for client {clientEndPoint}", TLog.ERROR);
+									CLog.ERROR($"{threadName} - Failed to start processor thread for client {clientEndPoint}");
 								}
 							}
 							else
 							{
-								CLog.Add($"{threadName} - Failed to start receiver thread for client {clientEndPoint}", TLog.ERROR);
+								CLog.ERROR($"{threadName} - Failed to start receiver thread for client {clientEndPoint}");
 							}
 						}
 						catch (Exception ex)
@@ -505,7 +735,7 @@ namespace COMMON
 				{
 					if (ex is InvalidOperationException || (ex is SocketException && SocketError.Interrupted == ((SocketException)ex).SocketErrorCode))
 					{
-						CLog.Add($"{threadName} - Stopped", TLog.TRACE);
+						CLog.TRACE($"{threadName} - Stopped");
 						res = (int)ThreadResult.OK;
 					}
 					else
@@ -562,7 +792,7 @@ namespace COMMON
 
 						if (clientShutdown = ArraysAreEqual(STOP_SERVER_CLIENT_THREAD_REQUEST_MESSAGE, incoming))
 						{
-							CLog.Add($"{threadName} - Received client stop order", TLog.TRACE);
+							CLog.TRACE($"{threadName} - Received client stop order");
 							// acknowledge instance shutdown
 							outgoing = new byte[STOP_SERVER_ACCEPT_REPLY_MESSAGE.Length];
 							Buffer.BlockCopy(STOP_SERVER_ACCEPT_REPLY_MESSAGE, 0, outgoing, 0, STOP_SERVER_ACCEPT_REPLY_MESSAGE.Length);
@@ -588,7 +818,7 @@ namespace COMMON
 					else
 					{
 						// no message received, might be an exception because the socket was closed
-						CLog.Add($"{threadName} - Reception of an empty message, probably client disconnection", TLog.TRACE);
+						CLog.TRACE($"{threadName} - Reception of an empty message, probably client disconnection");
 						//res = (int)StreamServerResult.clientReceivedInvalidMessage;
 						keepOnRunning = false;
 					}
@@ -598,7 +828,7 @@ namespace COMMON
 					if (ex is IOException || ex is EDisconnected)
 					{
 						// the connection has been closed, normal stop
-						CLog.Add($"{threadName} - Client {(null != clientEndPoint ? clientEndPoint.ToString() : "[address not available]")} is disconnecting", TLog.TRACE);
+						CLog.TRACE($"{threadName} - Client {(null != clientEndPoint ? clientEndPoint.ToString() : "[address not available]")} is disconnecting");
 						res = (int)ThreadResult.OK;
 					}
 					else
@@ -618,7 +848,9 @@ namespace COMMON
 				 * will block the main thread preventing the application to close.
 				 */
 				if (client.Connected && !isCleaningUp)
-					StartSettings.OnDisconnect?.Invoke(client.Tcp, /*null != clientEndPoint ? clientEndPoint.ToString() : "[address not available]",*/ /*StartSettings.ThreadData*/ thread, StartSettings.Parameters);
+				{
+					StartSettings.OnDisconnect?.Invoke(client.Tcp, thread, StartSettings.Parameters, client);
+				}
 			}
 			catch (Exception ex)
 			{
@@ -626,6 +858,15 @@ namespace COMMON
 			}
 			client.ReceiverEvents.SetStopped();
 			client.Stop();
+			// mark the client as disconnected
+			try
+			{
+				connectedClients.Remove(client.Key);
+			}
+			catch (Exception ex)
+			{
+				CLog.EXCEPT(ex);
+			}
 			return res;
 		}
 		/// <summary>
@@ -684,25 +925,27 @@ namespace COMMON
 							if (null != request && 0 != request.Length)
 							{
 								// check whether the messge must be hidden or not
-								CLog.Add($"{threadName} - Starting processing request of {request.Length} bytes [{MessageToLog(client, request, true)}]", TLog.TRACE);
+								CLog.TRACE($"{threadName} - Starting processing request of {request.Length} bytes [{MessageToLog(client, request, true)}]");
 								// forward request for processing
-								byte[] reply = StartSettings.OnMessage(client.Tcp, request, out bool addBufferSize, thread, StartSettings.Parameters, client);
+								byte[] reply = StartSettings.OnMessage(client.Tcp, request, out bool addBufferSize, thread, StartSettings.Parameters, client.Data, client);
 								if (null != reply && 0 != reply.Length)
 								{
-									CLog.Add($"{threadName} - Sending reply of {reply.Length} bytes [{MessageToLog(client, reply, false)}]", TLog.TRACE);
+									CLog.TRACE($"{threadName} - Sending reply of {reply.Length} bytes [{MessageToLog(client, reply, false)}]");
 									if (null == client.StreamIO || !client.StreamIO.Send(reply, addBufferSize))
 									{
-										CLog.Add($"{threadName} - The reply was not sent to the client", TLog.ERROR);
+										CLog.ERROR($"{threadName} - The reply was not sent to the client");
 									}
 								}
 								else
 								{
-									CLog.Add($"{threadName} - No reply to send", TLog.WARNG);
+									CLog.WARNING($"{threadName} - No reply to send");
 								}
+								// set statistics for this client
+								client.UpdateStatistics(request, reply);
 							}
 							else
 							{
-								CLog.Add($"{threadName} - No request has been received", TLog.WARNG);
+								CLog.WARNING($"{threadName} - No request has been received");
 							}
 						}
 						catch (Exception ex)
@@ -712,7 +955,7 @@ namespace COMMON
 					}
 					else
 					{
-						CLog.Add($"{threadName} - Unknown non fatal error", TLog.WARNG);
+						CLog.WARNING($"{threadName} - Unknown non fatal error");
 					}
 				}
 				catch (Exception ex)
@@ -768,7 +1011,7 @@ namespace COMMON
 		/// <summary>
 		/// Connected client
 		/// </summary>
-		class StreamServerClient
+		class StreamServerClient : CStreamServerStatistics
 		{
 			#region constructor
 			public StreamServerClient(TcpClient tcp, CStreamServerSettings settings)
@@ -786,6 +1029,7 @@ namespace COMMON
 				StreamIO = new CStreamServerIO(Tcp, StreamServerSettings);
 				WaitBeforeAbort = 5;
 				Connected = false;
+				Data = null;
 			}
 			~StreamServerClient()
 			{
@@ -794,7 +1038,17 @@ namespace COMMON
 			#endregion
 
 			#region properties
-			public bool Connected { get; set; }
+			public bool Connected
+			{
+				get => _connected;
+				set
+				{
+					if (value && default(DateTime) == ConnectTimestamp)
+						ConnectTimestamp = DateTime.Now;
+					_connected = value;
+				}
+			}
+			bool _connected = false;
 			public string Key { get => ToString(); }
 			public Guid ID { get; }
 			public object myLock = new object();
@@ -811,10 +1065,45 @@ namespace COMMON
 			public int WaitBeforeAbort { get; }
 			private Mutex isStoppingMutex = new Mutex(false);
 			internal string Server = null;
-			public object Parameters { get; set; } = null;
+			public object Data { get => _data; set => _data = value; }
+			internal object _data = null;
 			#endregion
 
+			//#region IStreamServerStatistics implementation
+			//public IPEndPoint EndPoint { get; private set; }
+			//public DateTime ConnectTimestamp { get; private set; }
+			//public int ReceivedMessages { get; private set; }
+			//public int SentMessages { get; private set; }
+			//public decimal ReceivedBytes { get; private set; }
+			//public decimal SentBytes { get; private set; }
+			//#endregion
+
 			#region methods
+			/// <summary>
+			/// Update clients statictics
+			/// </summary>
+			/// <param name="request">Request message</param>
+			/// <param name="reply">Reply message</param>
+			public void UpdateStatistics(byte[] request, byte[] reply)
+			{
+				try
+				{
+					if (null != request && 0 != request.Length)
+					{
+						ReceivedMessages++;
+						ReceivedBytes += request.Length;
+					}
+					if (null != reply && 0 != reply.Length)
+					{
+						SentMessages++;
+						SentBytes += reply.Length;
+					}
+				}
+				catch (Exception ex)
+				{
+					CLog.EXCEPT(ex);
+				}
+			}
 			/// <summary>
 			/// Stop running threads for this client
 			/// </summary>

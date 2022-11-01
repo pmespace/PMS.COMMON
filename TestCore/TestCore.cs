@@ -55,6 +55,7 @@ namespace TestCore
 			Menu.Add('5', new CMenu() { Text = "Create log", Fnc = CreateLog });
 			Menu.Add('6', new CMenu() { Text = "Stop log", Fnc = StopLog });
 			Menu.Add('7', new CMenu() { Text = "Stop log", Fnc = TestConnect });
+			Menu.Add('8', new CMenu() { Text = "Server statistics", Fnc = ServerStatistics });
 			Menu.Add('X', new CMenu() { Text = "Exit", Fnc = Exit });
 
 			bool ok = true;
@@ -85,17 +86,36 @@ namespace TestCore
 		/// <summary>
 		/// 
 		/// </summary>
+		/// <param name="tcpclient"></param>
+		/// <param name="thread"></param>
+		/// <param name="parameters"></param>
+		/// <param name="privateData"></param>
+		/// <returns></returns>
+		bool ServerOnConnect(TcpClient tcpclient, CThread thread, object parameters, ref object privateData)
+		{
+			privateData = new ServerClass();
+			(privateData as ServerClass).DT = DateTime.Now;
+			return true;
+		}
+		class ServerClass
+		{
+			public DateTime DT { get; set; }
+		}
+		/// <summary>
+		/// 
+		/// </summary>
 		/// <param name="client"></param>
 		/// <param name="request"></param>
 		/// <param name="addBufferSize"></param>
 		/// <param name="thread"></param>
 		/// <param name="parameters"></param>
+		/// <param name="serverclient"></param>
 		/// <param name="o"></param>
 		/// <returns></returns>
-		byte[] ServerOnMessage(TcpClient client, byte[] request, out bool addBufferSize, CThread thread, object parameters, object o)
+		byte[] ServerOnMessage(TcpClient client, byte[] request, out bool addBufferSize, CThread thread, object parameters, object privateData, object o)
 		{
 			addBufferSize = true;
-			Console.WriteLine($"SERVER RECEIVED: {Encoding.UTF8.GetString(request)}");
+			Console.WriteLine($"SERVER (connected at {(privateData as ServerClass).DT}) RECEIVED: {Encoding.UTF8.GetString(request)}");
 			//return Encoding.UTF8.GetBytes("That's fine");
 			server.Send1WayNotification(Encoding.UTF8.GetBytes("That's fine"), addBufferSize, "TEST", o);
 			return null;
@@ -136,13 +156,10 @@ namespace TestCore
 		/// <returns></returns>
 		bool TestConnect(char c)
 		{
-			StartServer(c);
-
 			CStreamClientSettings settings = new CStreamClientSettings()
 			{
 				AllowedSslErrors = SslPolicyErrors.RemoteCertificateNotAvailable | SslPolicyErrors.RemoteCertificateNameMismatch | SslPolicyErrors.RemoteCertificateChainErrors,
-				//IP = CStream.Localhost(),
-				IP = "127.0.0.1",
+				IP = CStream.Localhost(),
 				Port = Port,
 				ServerName = UseSSL ? "hello world" : null,
 				ConnectTimeout = 10,
@@ -165,13 +182,22 @@ namespace TestCore
 		/// 
 		/// </summary>
 		/// <returns></returns>
+		bool ServerStatistics(char c)
+		{
+			if (null != server)
+				Console.WriteLine(server.Statistics());
+			return true;
+		}
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
 		bool SendData(char c)
 		{
 			CStreamClientSettings settings = new CStreamClientSettings()
 			{
 				AllowedSslErrors = SslPolicyErrors.RemoteCertificateNotAvailable | SslPolicyErrors.RemoteCertificateNameMismatch | SslPolicyErrors.RemoteCertificateChainErrors,
-				//IP = CStream.Localhost(),
-				IP = "127.0.0.1",
+				IP = CStream.Localhost(),
 				Port = Port,
 				ServerName = UseSSL ? "hello world" : null,
 				ConnectTimeout = 10,
@@ -221,6 +247,7 @@ namespace TestCore
 			};
 			CStreamServerStartSettings startSettings = new CStreamServerStartSettings()
 			{
+				OnConnect = ServerOnConnect,
 				OnMessage = ServerOnMessage,
 				StreamServerSettings = serverSettings,
 			};
@@ -240,7 +267,10 @@ namespace TestCore
 		bool StopServer(char c)
 		{
 			if (null != server)
+			{
 				server.StopServer();
+				Console.WriteLine(server.Statistics());
+			}
 			server = null;
 			return true;
 		}

@@ -1,6 +1,8 @@
 6.3.0
 - Added commands to sort output when serializing to file using CJson methods SerializeBaseClassFirst, SerializeAlphabetically and SerializeStandard
 - Added a new SetBytesFromIntegralTypeValue(long, int, bool) function in CMisc and added an optional optimize flag to all SetBytesFromIntegralTypeValue functions
+- Added a new Statistics() method to CStreamServer allowing to view the currently connected clients with their statistics
+- ADded new classes CSafeList and CSafeDictionary to ease the use of List and Dictionary
 
 6.2.0
 - CStreamServer.OnDisconnect function (ServerOnDisconnectDelegate delegate) now receives a TcpClient as the first parameter instead of a string announcing the disconnecting IP address.

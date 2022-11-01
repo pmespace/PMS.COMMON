@@ -6,6 +6,8 @@ using System;
 using System.Threading;
 using System.Net.Security;
 using Newtonsoft.Json;
+using System.Net.Sockets;
+using System.Text.RegularExpressions;
 
 namespace COMMON
 {
@@ -123,10 +125,15 @@ namespace COMMON
 		[JsonIgnore]
 		public bool UseSsl { get; protected set; } = false;
 		/// <summary>
-		/// The local host IP address
+		/// The local host IP v4 address
 		/// </summary>
 		[JsonIgnore]
 		public string Localhost { get => CStream.Localhost(); }
+		/// <summary>
+		/// The local host IP v6 address
+		/// </summary>
+		[JsonIgnore]
+		public string LocalhostV6 { get => CStream.Localhost(false); }
 		/// <summary>
 		/// Default server port to use
 		/// </summary>
@@ -205,6 +212,8 @@ namespace COMMON
 		uint DefaultServerPort { get; }
 		[DispId(1009)]
 		CStreamDelegates.ClientServerOnMessageToLog OnMessageToLog { get; set; }
+		[DispId(1010)]
+		string LocalhostV6 { get; }
 		#endregion
 	}
 	[Guid("990A2D0C-1A1C-4E34-9C9D-75905AC95915")]
@@ -312,39 +321,127 @@ namespace COMMON
 		/// <returns>TRUE if the IP has been set, FALSE otherwise</returns>
 		private bool SetIP(string ip, uint port = DEFAULT_PORT)
 		{
-			bool url = false;
-			// test IP address or URL, either that works
-			if (!string.IsNullOrEmpty(ip) && (CMisc.IsValidFormat(ip, RegexIP.REGEX_IPV4_WITHOUT_PORT) || (url = CMisc.IsValidFormat(ip, RegexIP.REGEX_URL_WITHOUT_PORT))))
-			{
+			//bool url = false;
+			//// test IP address or URL, either that works
+			//if (!ip.IsNullOrEmpty() && (CMisc.IsValidFormat(ip, RegexIP.REGEX_IPV4_WITHOUT_PORT) || (url = CMisc.IsValidFormat(ip, RegexIP.REGEX_URL_WITHOUT_PORT))))
+			//{
+			//	try
+			//	{
+			//		try
+			//		{
+			//			// if DNS is not supported or requested bypass it
+			//			if (!url)
+			//				throw new Exception();
+			//			// URL is valid, let's try to resolve
+			//			IPHostEntry ipHost = Dns.GetHostEntry(ip);
+			//			FoundOnDNS = true;
+			//			Address = ipHost.AddressList[0];
+			//			EndPoint = new IPEndPoint(Address, (int)port);
+			//		}
+			//		catch (Exception)
+			//		{
+			//			// IP address is not found on DNS
+			//			FoundOnDNS = false;
+			//			Address = IPAddress.Parse(ip);
+			//			EndPoint = new IPEndPoint(Address, (int)port);
+			//		}
+			//		return true;
+			//	}
+			//	catch (Exception ex)
+			//	{
+			//		CLog.EXCEPT(new Exception("Invalid IP address: " + ip + (0 < port ? ":" + port : string.Empty), ex));
+			//		Address = null;
+			//		EndPoint = null;
+			//	}
+			//}
+			//return false;
+
+			if (!ip.IsNullOrEmpty())
 				try
 				{
+					IPHostEntry ipHost = null;
 					try
 					{
-						// if DNS is not supported or requested bypass it
-						if (!url)
-							throw new Exception();
-						// URL is valid, let's try to resolve
-						IPHostEntry ipHost = Dns.GetHostEntry(ip);
+						ipHost = Dns.GetHostEntry(ip);
 						FoundOnDNS = true;
-						Address = ipHost.AddressList[0];
-						EndPoint = new IPEndPoint(Address, (int)port);
 					}
 					catch (Exception)
 					{
-						// IP address is not found on DNS
 						FoundOnDNS = false;
-						Address = IPAddress.Parse(ip);
-						EndPoint = new IPEndPoint(Address, (int)port);
 					}
+
+					try
+					{
+						Address = IPAddress.Parse(ip);
+					}
+					catch (Exception ex)
+					{
+						// not a valid IP address, it may be a URL, let's use the list of IPs if available
+						Address = null != ipHost && 0 != ipHost.AddressList.Length ? ipHost.AddressList[0] : null;
+					}
+					EndPoint = new IPEndPoint(Address, (int)port);
 					return true;
 				}
 				catch (Exception ex)
 				{
-					CLog.EXCEPT(new Exception("Invalid IP address: " + ip + (0 < port ? ":" + port : string.Empty), ex));
+					CLog.EXCEPT(new Exception("Invalid IP address: " + ip + (0 < port ? $":{port}" : null), ex));
 					Address = null;
 					EndPoint = null;
 				}
-			}
+
+			//// test IP address or URL, either that works
+			//if (!ip.IsNullOrEmpty())
+			//{
+			//	string pattern = RegexIP.REGEX_IPV4_WITHOUT_PORT;
+			//	bool url = CMisc.IsValidFormat(ip, RegexIP.REGEX_URL_WITHOUT_PORT);
+
+			//	string pattern2 = @"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$";// RegexIP.REGEX_IPV4_WITHOUT_PORT);
+			//	bool v4 = CMisc.IsValidFormat(ip, pattern2);// @"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$");// RegexIP.REGEX_IPV4_WITHOUT_PORT);
+			//	v4 = CMisc.IsValidFormat(ip, RegexIP.REGEX_IPV4_WITHOUT_PORT);
+			//	Match m = Regex.Match(ip, @"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$");// RegexIP.REGEX_IPV4_WITHOUT_PORT);
+			//	m = Regex.Match(ip, RegexIP.REGEX_IPV4_WITHOUT_PORT);
+			//	try
+			//	{
+			//		try
+			//		{
+			//			// let's try to resolve the address
+			//			IPHostEntry ipHost = Dns.GetHostEntry(ip);
+			//			FoundOnDNS = true;
+			//			Address = null;
+			//			foreach (IPAddress addr in ipHost.AddressList)
+			//			{
+			//				// if v4 address passed, look for the first v4 address
+			//				if (v4 && AddressFamily.InterNetwork == addr.AddressFamily)
+			//				{
+			//					Address = addr;
+			//					break;
+			//				}
+			//				// if v6 address passed, look for the first v6 address
+			//				else if (!v4 && AddressFamily.InterNetworkV6 == addr.AddressFamily)
+			//				{
+			//					Address = addr;
+			//					break;
+			//				}
+			//			}
+			//			EndPoint = new IPEndPoint(Address, (int)port);
+			//		}
+			//		catch (Exception)
+			//		{
+			//			// IP address is not found on DNS
+			//			FoundOnDNS = false;
+			//			Address = IPAddress.Parse(ip);
+			//			EndPoint = new IPEndPoint(Address, (int)port);
+			//		}
+			//		return true;
+			//	}
+			//	catch (Exception ex)
+			//	{
+			//		CLog.EXCEPT(new Exception("Invalid IP address: " + ip + (0 < port ? ":" + port : string.Empty), ex));
+			//		Address = null;
+			//		EndPoint = null;
+			//	}
+			//}
+
 			return false;
 		}
 		#endregion
@@ -388,6 +485,8 @@ namespace COMMON
 		uint DefaultServerPort { get; }
 		[DispId(1009)]
 		CStreamDelegates.ClientServerOnMessageToLog OnMessageToLog { get; set; }
+		[DispId(1010)]
+		string LocalhostV6 { get; }
 		#endregion
 	}
 	[Guid("EF1D0636-72B9-4F21-98A2-6F0EE3B048B5")]

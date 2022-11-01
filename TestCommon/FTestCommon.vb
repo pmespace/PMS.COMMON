@@ -385,7 +385,16 @@ Public Class FTestCommon
 		D
 	End Enum
 
+	Class AB
+		Property AB1 As String
+		Property AB2 As Integer
+	End Class
+
 	Private Sub pbOther_Click(sender As Object, e As EventArgs) Handles pbOther.Click
+
+		Dim cs As New CStreamClientSettings With {.IP = "192.168.0.111"}
+
+		'Dim cs As New CSafeList(Of A)()
 
 		Dim i As Integer = 65532
 		Dim st As String = CMisc.AsHexString(CMisc.SetBytesFromIntegralTypeValue(i))

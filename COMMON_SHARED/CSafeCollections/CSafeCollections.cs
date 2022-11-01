@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace COMMON
 {
@@ -17,6 +18,10 @@ namespace COMMON
 		int Count { get; }
 		[DispId(3)]
 		T this[int index] { get; set; }
+		[DispId(98)]
+		bool Exception { get; }
+		[DispId(99)]
+		Exception LastException { get; }
 		#endregion
 
 		#region ISafeList methods
@@ -34,6 +39,8 @@ namespace COMMON
 		T Get(int i);
 		[DispId(106)]
 		T[] ToArray();
+		[DispId(107)]
+		string ToJson(JsonSerializerSettings settings = null);
 		#endregion
 	}
 	[Guid("D9318A4A-0C92-4AAD-B8F3-6A5F96F2C9B0")]
@@ -69,10 +76,14 @@ namespace COMMON
 			{
 				try
 				{
+					Exception = false;
+					LastException = null;
 					return List[index];
 				}
 				catch (Exception ex)
 				{
+					Exception = true;
+					LastException = ex;
 					CLog.EXCEPT(ex);
 				}
 				return default(T);
@@ -81,14 +92,26 @@ namespace COMMON
 			{
 				try
 				{
+					Exception = false;
+					LastException = null;
 					List[index] = value;
 				}
 				catch (Exception ex)
 				{
+					Exception = true;
+					LastException = ex;
 					CLog.EXCEPT(ex);
 				}
 			}
 		}
+		/// <summary>
+		/// True if an exception occurred while trying to access a record in the list, false otherwise
+		/// </summary>
+		public bool Exception { get; private set; }
+		/// <summary>
+		/// Last exception raised
+		/// </summary>
+		public Exception LastException { get; private set; }
 		#endregion
 
 		#region methods
@@ -105,11 +128,15 @@ namespace COMMON
 		{
 			try
 			{
+				Exception = false;
+				LastException = null;
 				List.Add(o);
 				return true;
 			}
 			catch (Exception ex)
 			{
+				Exception = true;
+				LastException = ex;
 				CLog.EXCEPT(ex);
 			}
 			return false;
@@ -124,11 +151,15 @@ namespace COMMON
 		{
 			try
 			{
+				Exception = false;
+				LastException = null;
 				List.Insert(index, o);
 				return true;
 			}
 			catch (Exception ex)
 			{
+				Exception = true;
+				LastException = ex;
 				CLog.EXCEPT(ex);
 			}
 			return false;
@@ -142,11 +173,15 @@ namespace COMMON
 		{
 			try
 			{
+				Exception = false;
+				LastException = null;
 				List.Remove(o);
 				return true;
 			}
 			catch (Exception ex)
 			{
+				Exception = true;
+				LastException = ex;
 				CLog.EXCEPT(ex);
 			}
 			return false;
@@ -160,11 +195,15 @@ namespace COMMON
 		{
 			try
 			{
+				Exception = false;
+				LastException = null;
 				List.RemoveAt(index);
 				return true;
 			}
 			catch (Exception ex)
 			{
+				Exception = true;
+				LastException = ex;
 				CLog.EXCEPT(ex);
 			}
 			return false;
@@ -178,8 +217,28 @@ namespace COMMON
 		/// <summary>
 		/// Get the the encapsulated list as an array
 		/// </summary>
-		/// <returns>An arry of objects</returns>
+		/// <returns>An array of objects</returns>
 		public T[] ToArray() { return List.ToArray(); }
+		/// <summary>
+		/// Get the the encapsulated list as a json string
+		/// </summary>
+		/// <returns>A string in json notatiion if successful, null otherwise</returns>
+		public string ToJson(JsonSerializerSettings settings = null)
+		{
+			try
+			{
+				Exception = false;
+				LastException = null;
+				return JsonConvert.SerializeObject(List, null != settings ? settings : new JsonSerializerSettings() { Formatting = Formatting.None, NullValueHandling = NullValueHandling.Ignore });
+			}
+			catch (Exception ex)
+			{
+				Exception = true;
+				LastException = ex;
+				CLog.EXCEPT(ex);
+			}
+			return null;
+		}
 		#endregion
 	}
 
@@ -220,6 +279,10 @@ namespace COMMON
 		ISafeList<T> Values { get; }
 		[DispId(5)]
 		T this[K k] { get; set; }
+		[DispId(98)]
+		bool Exception { get; }
+		[DispId(99)]
+		Exception LastException { get; }
 		#endregion
 
 		#region ISafeDictionary methods
@@ -293,10 +356,14 @@ namespace COMMON
 			{
 				try
 				{
+					Exception = false;
+					LastException = null;
 					return Dict[k];
 				}
 				catch (Exception ex)
 				{
+					Exception = true;
+					LastException = ex;
 					CLog.EXCEPT(ex);
 				}
 				return default(T);
@@ -305,14 +372,26 @@ namespace COMMON
 			{
 				try
 				{
+					Exception = false;
+					LastException = null;
 					Dict[k] = value;
 				}
 				catch (Exception ex)
 				{
+					Exception = true;
+					LastException = ex;
 					CLog.EXCEPT(ex);
 				}
 			}
 		}
+		/// <summary>
+		/// True if an exception occurred while trying to access a record in the dictionary, false otherwise
+		/// </summary>
+		public bool Exception { get; private set; }
+		/// <summary>
+		/// Last exception raised
+		/// </summary>
+		public Exception LastException { get; private set; }
 		#endregion
 
 		#region methods
@@ -330,11 +409,15 @@ namespace COMMON
 		{
 			try
 			{
+				Exception = false;
+				LastException = null;
 				Dict.Add(k, o);
 				return true;
 			}
 			catch (Exception ex)
 			{
+				Exception = true;
+				LastException = ex;
 				CLog.EXCEPT(ex);
 			}
 			return false;
@@ -348,11 +431,15 @@ namespace COMMON
 		{
 			try
 			{
+				Exception = false;
+				LastException = null;
 				Dict.Remove(k);
 				return true;
 			}
 			catch (Exception ex)
 			{
+				Exception = true;
+				LastException = ex;
 				CLog.EXCEPT(ex);
 			}
 			return false;
@@ -369,7 +456,7 @@ namespace COMMON
 		/// <summary>
 		/// Get the the encapsulated dictionary as an array of <see cref="CSafeKeyValue{K, T}"/>
 		/// </summary>
-		/// <returns>An arry of objects</returns>
+		/// <returns>An array of objects</returns>
 		public CSafeKeyValue<K, T>[] ToArray()
 		{
 			int i = 0;
@@ -387,6 +474,26 @@ namespace COMMON
 		/// <param name="k">Key of the object to look for</param>
 		/// <returns>true if removed, false otherwise</returns>
 		public T Get(K k) { return this[k]; }
+		/// <summary>
+		/// Get the the encapsulated dictionary as a json string
+		/// </summary>
+		/// <returns>A string in json notatiion if successful, null otherwise</returns>
+		public string ToJson(JsonSerializerSettings settings = null)
+		{
+			try
+			{
+				Exception = false;
+				LastException = null;
+				return JsonConvert.SerializeObject(Dict, null != settings ? settings : new JsonSerializerSettings() { Formatting = Formatting.None, NullValueHandling = NullValueHandling.Ignore });
+			}
+			catch (Exception ex)
+			{
+				Exception = true;
+				LastException = ex;
+				CLog.EXCEPT(ex);
+			}
+			return null;
+		}
 		#endregion
 	}
 }

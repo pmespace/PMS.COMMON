@@ -34,9 +34,31 @@ namespace TestCore
 		CStreamServer server = null;
 		#endregion
 
+		#region classes
+		class MySafeList : CSafeList<string> { }
+		class MySafeDict : CSafeDictionary<string, object> { }
+		#endregion
+
 		#region main method
 		public int Start(string[] args)
 		{
+			MySafeDict hh = new MySafeDict();
+			hh.Add("123", new object());
+			hh.Add("456", new object());
+			object o = hh["123"];
+			o = hh["789"];
+			string json = hh.ToJson();
+
+			MySafeList ll = new MySafeList();
+			ll.Add("123");
+			ll.Add("456");
+			string ls = ll[0];
+			ls = ll[255];
+			ll.Insert("wopa", 255);
+			ls = ll[255];
+			ls = ll[2];
+			json = ll.ToJson();
+
 			//string[] yes1 = { "OUI", "O" };
 			//string[] yes2 = { "123", "3" };
 			//string[] no1 = { "123", "3" };

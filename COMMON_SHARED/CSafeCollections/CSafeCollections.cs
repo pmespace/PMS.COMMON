@@ -41,6 +41,8 @@ namespace COMMON
 		T[] ToArray();
 		[DispId(107)]
 		string ToJson(JsonSerializerSettings settings = null);
+		[DispId(108)]
+		void Reset();
 		#endregion
 	}
 	[Guid("D9318A4A-0C92-4AAD-B8F3-6A5F96F2C9B0")]
@@ -239,6 +241,10 @@ namespace COMMON
 			}
 			return null;
 		}
+		/// <summary>
+		/// Reset the list empty
+		/// </summary>
+		public void Reset() { List.Clear(); }
 		#endregion
 	}
 
@@ -298,6 +304,8 @@ namespace COMMON
 		CSafeKeyValue<K, T>[] ToArray();
 		[DispId(105)]
 		T Get(K k);
+		[DispId(108)]
+		void Reset();
 		#endregion
 	}
 	[Guid("C67F6A91-8D10-462A-9F28-67F08705942D")]
@@ -494,6 +502,10 @@ namespace COMMON
 			}
 			return null;
 		}
+		/// <summary>
+		/// Reset the dictionary empty
+		/// </summary>
+		public void Reset() { Dict.Clear(); }
 		#endregion
 	}
 }

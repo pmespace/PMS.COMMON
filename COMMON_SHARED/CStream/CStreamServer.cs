@@ -706,7 +706,7 @@ namespace COMMON
 				{
 					StartSettings.OnDisconnect?.Invoke(client.Tcp, thread, StartSettings.Parameters, client);
 				}
-			}
+			}	
 			catch (Exception ex)
 			{
 				CLog.EXCEPT(ex, $"{threadName} - OnDisconnect generated an exception");

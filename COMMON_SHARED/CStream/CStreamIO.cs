@@ -13,6 +13,7 @@ using System.Net.NetworkInformation;
 using System.Linq;
 using System.Net;
 using Newtonsoft.Json;
+using System.IO;
 
 namespace COMMON
 {
@@ -149,29 +150,48 @@ namespace COMMON
 		private bool Write(byte[] data)
 		{
 			if (data.IsNullOrEmpty()) return false;
-			if (null != sslStream)
+			//if (null != sslStream)
+			//{
+			//	try
+			//	{
+			//		sslStream.Write(data);
+			//		return true;
+			//	}
+			//	catch (Exception ex)
+			//	{
+			//		CLog.EXCEPT(ex, "sslStream");
+			//	}
+			//}
+			//else if (null != networkStream)
+			//{
+			//	try
+			//	{
+			//		networkStream.Write(data, 0, data.Length);
+			//		return true;
+			//	}
+			//	catch (Exception ex)
+			//	{
+			//		CLog.EXCEPT(ex, "networkStream");
+			//	}
+			//}
+			//return false;
+
+			string s = "networkStream";
+			Stream stream = networkStream;
+			if (null == stream)
 			{
-				try
-				{
-					sslStream.Write(data);
-					return true;
-				}
-				catch (Exception ex)
-				{
-					CLog.EXCEPT(ex, "sslStream");
-				}
+				s = "sslStream";
+				stream = sslStream;
 			}
-			else if (null != networkStream)
+
+			try
 			{
-				try
-				{
-					networkStream.Write(data, 0, data.Length);
-					return true;
-				}
-				catch (Exception ex)
-				{
-					CLog.EXCEPT(ex, "networkStream");
-				}
+				stream.Write(data, 0, data.Length);
+				return true;
+			}
+			catch (Exception ex)
+			{
+				CLog.EXCEPT(ex, s);
 			}
 			return false;
 		}
@@ -180,27 +200,44 @@ namespace COMMON
 		/// </summary>
 		private void Flush()
 		{
-			if (null != sslStream)
+			//if (null != sslStream)
+			//{
+			//	try
+			//	{
+			//		sslStream.Flush();
+			//	}
+			//	catch (Exception ex)
+			//	{
+			//		CLog.EXCEPT(ex, "sslStream");
+			//	}
+			//}
+			//else if (null != networkStream)
+			//{
+			//	try
+			//	{
+			//		networkStream.Flush();
+			//	}
+			//	catch (Exception ex)
+			//	{
+			//		CLog.EXCEPT(ex, "networkStream");
+			//	}
+			//}
+
+			string s = "networkStream";
+			Stream stream = networkStream;
+			if (null == stream)
 			{
-				try
-				{
-					sslStream.Flush();
-				}
-				catch (Exception ex)
-				{
-					CLog.EXCEPT(ex, "sslStream");
-				}
+				s = "sslStream";
+				stream = sslStream;
 			}
-			else if (null != networkStream)
+
+			try
 			{
-				try
-				{
-					networkStream.Flush();
-				}
-				catch (Exception ex)
-				{
-					CLog.EXCEPT(ex, "networkStream");
-				}
+				stream.Flush();
+			}
+			catch (Exception ex)
+			{
+				CLog.EXCEPT(ex, s);
 			}
 		}
 		/// <summary>
@@ -211,32 +248,53 @@ namespace COMMON
 		/// <returns>The number of bytes read</returns>
 		private int Read(byte[] data, int offset)//, int count)
 		{
+			//int read = 0;
+			//if (data.IsNullOrEmpty() || data.Length <= offset)// || data.Length < offset + count)
+			//	return 0;
+			//if (null != sslStream)
+			//{
+			//	try
+			//	{
+			//		//read = sslStream.Read(data, offset, count);
+			//		read = sslStream.Read(data, offset, data.Length - offset);
+			//	}
+			//	catch (Exception ex)
+			//	{
+			//		CLog.EXCEPT(ex, "sslStream");
+			//	}
+			//}
+			//else if (null != networkStream)
+			//{
+			//	try
+			//	{
+			//		//read = networkStream.Read(data, offset, count);
+			//		read = networkStream.Read(data, offset, data.Length - offset);
+			//	}
+			//	catch (Exception ex)
+			//	{
+			//		CLog.EXCEPT(ex, "networkStream");
+			//	}
+			//}
+			//return read;
+
+			if (data.IsNullOrEmpty() || data.Length <= offset) return 0;
 			int read = 0;
-			if (data.IsNullOrEmpty() || data.Length <= offset)// || data.Length < offset + count)
-				return 0;
-			if (null != sslStream)
+			string s = "networkStream";
+			Stream stream = networkStream;
+			if (null == stream)
 			{
-				try
-				{
-					//read = sslStream.Read(data, offset, count);
-					read = sslStream.Read(data, offset, data.Length - offset);
-				}
-				catch (Exception ex)
-				{
-					CLog.EXCEPT(ex, "sslStream");
-				}
+				s = "sslStream";
+				stream = sslStream;
 			}
-			else if (null != networkStream)
+
+			try
 			{
-				try
-				{
-					//read = networkStream.Read(data, offset, count);
-					read = networkStream.Read(data, offset, data.Length - offset);
-				}
-				catch (Exception ex)
-				{
-					CLog.EXCEPT(ex, "networkStream");
-				}
+				read = stream.Read(data, offset, data.Length - offset);
+			}
+			catch (IOException) { }
+			catch (Exception ex)
+			{
+				CLog.EXCEPT(ex, s);
 			}
 			return read;
 		}

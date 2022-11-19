@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net35;net40;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net35</TargetFrameworks>
     <AssemblyName>PMS.COMMON</AssemblyName>
-    <Version>6.3.1</Version>
+    <Version>6.3.2</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <FileVersion>6.3.1</FileVersion>
-    <AssemblyVersion>6.3.1</AssemblyVersion>
+    <FileVersion>6.3.2</FileVersion>
+    <AssemblyVersion>6.3.2</AssemblyVersion>
     <Authors>philippemp31</Authors>
     <Company>PMS</Company>
     <Description></Description>
@@ -71,6 +71,14 @@
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>pms.key.file.pfx</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
   <Target Name="ResetPackages" BeforeTargets="DispatchToInnerBuilds">

@@ -118,6 +118,8 @@ namespace COMMON
 						// Create an SSL stream that will close the client's stream.
 						stream = new CStreamClientIO(tcpclient, settings);
 					}
+					else
+						throw new Exception($"Connection to {settings.FullIP} has failed");
 				}
 				catch (Exception ex)
 				{

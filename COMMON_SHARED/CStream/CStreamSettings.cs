@@ -231,7 +231,8 @@ namespace COMMON
 		#region public properties
 		public override bool IsValid { get => null != EndPoint; }
 		/// <summary>
-		/// The IP address to reach or an empty string if invalid
+		/// The IP address to reach or an empty string if invalid.
+		/// This can be set to "localhost" (case irrelevant) and the local host IP address will be resolved and put as the IP address to use
 		/// </summary>
 		public string IP
 		{
@@ -321,44 +322,13 @@ namespace COMMON
 		/// <returns>TRUE if the IP has been set, FALSE otherwise</returns>
 		private bool SetIP(string ip, uint port = DEFAULT_PORT)
 		{
-			//bool url = false;
-			//// test IP address or URL, either that works
-			//if (!ip.IsNullOrEmpty() && (CMisc.IsValidFormat(ip, RegexIP.REGEX_IPV4_WITHOUT_PORT) || (url = CMisc.IsValidFormat(ip, RegexIP.REGEX_URL_WITHOUT_PORT))))
-			//{
-			//	try
-			//	{
-			//		try
-			//		{
-			//			// if DNS is not supported or requested bypass it
-			//			if (!url)
-			//				throw new Exception();
-			//			// URL is valid, let's try to resolve
-			//			IPHostEntry ipHost = Dns.GetHostEntry(ip);
-			//			FoundOnDNS = true;
-			//			Address = ipHost.AddressList[0];
-			//			EndPoint = new IPEndPoint(Address, (int)port);
-			//		}
-			//		catch (Exception)
-			//		{
-			//			// IP address is not found on DNS
-			//			FoundOnDNS = false;
-			//			Address = IPAddress.Parse(ip);
-			//			EndPoint = new IPEndPoint(Address, (int)port);
-			//		}
-			//		return true;
-			//	}
-			//	catch (Exception ex)
-			//	{
-			//		CLog.EXCEPT(new Exception("Invalid IP address: " + ip + (0 < port ? ":" + port : string.Empty), ex));
-			//		Address = null;
-			//		EndPoint = null;
-			//	}
-			//}
-			//return false;
-
 			if (!ip.IsNullOrEmpty())
 				try
 				{
+					// if localhost is requested get its address
+					if (0 == string.Compare(ip, "localhost", true))
+						ip = CStream.Localhost();
+
 					IPHostEntry ipHost = null;
 					try
 					{
@@ -388,60 +358,6 @@ namespace COMMON
 					Address = null;
 					EndPoint = null;
 				}
-
-			//// test IP address or URL, either that works
-			//if (!ip.IsNullOrEmpty())
-			//{
-			//	string pattern = RegexIP.REGEX_IPV4_WITHOUT_PORT;
-			//	bool url = CMisc.IsValidFormat(ip, RegexIP.REGEX_URL_WITHOUT_PORT);
-
-			//	string pattern2 = @"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$";// RegexIP.REGEX_IPV4_WITHOUT_PORT);
-			//	bool v4 = CMisc.IsValidFormat(ip, pattern2);// @"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$");// RegexIP.REGEX_IPV4_WITHOUT_PORT);
-			//	v4 = CMisc.IsValidFormat(ip, RegexIP.REGEX_IPV4_WITHOUT_PORT);
-			//	Match m = Regex.Match(ip, @"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$");// RegexIP.REGEX_IPV4_WITHOUT_PORT);
-			//	m = Regex.Match(ip, RegexIP.REGEX_IPV4_WITHOUT_PORT);
-			//	try
-			//	{
-			//		try
-			//		{
-			//			// let's try to resolve the address
-			//			IPHostEntry ipHost = Dns.GetHostEntry(ip);
-			//			FoundOnDNS = true;
-			//			Address = null;
-			//			foreach (IPAddress addr in ipHost.AddressList)
-			//			{
-			//				// if v4 address passed, look for the first v4 address
-			//				if (v4 && AddressFamily.InterNetwork == addr.AddressFamily)
-			//				{
-			//					Address = addr;
-			//					break;
-			//				}
-			//				// if v6 address passed, look for the first v6 address
-			//				else if (!v4 && AddressFamily.InterNetworkV6 == addr.AddressFamily)
-			//				{
-			//					Address = addr;
-			//					break;
-			//				}
-			//			}
-			//			EndPoint = new IPEndPoint(Address, (int)port);
-			//		}
-			//		catch (Exception)
-			//		{
-			//			// IP address is not found on DNS
-			//			FoundOnDNS = false;
-			//			Address = IPAddress.Parse(ip);
-			//			EndPoint = new IPEndPoint(Address, (int)port);
-			//		}
-			//		return true;
-			//	}
-			//	catch (Exception ex)
-			//	{
-			//		CLog.EXCEPT(new Exception("Invalid IP address: " + ip + (0 < port ? ":" + port : string.Empty), ex));
-			//		Address = null;
-			//		EndPoint = null;
-			//	}
-			//}
-
 			return false;
 		}
 		#endregion

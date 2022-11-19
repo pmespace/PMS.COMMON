@@ -64,7 +64,7 @@ namespace COMMON
 			if (oldValue.Length == 0)
 			{
 				// Same as original .NET C# string.Replace behavior.
-				throw new ArgumentException("String cannot be of zero length.");
+				throw new ArgumentException("String cannot be of zero length");
 			}
 
 			// Prepare string builder for storing the processed string.
@@ -131,6 +131,17 @@ namespace COMMON
 		public static bool IsNullOrEmpty(this string s)
 		{
 			return string.IsNullOrEmpty(s);
+		}
+		/// <summary>
+		/// Compares the current string with another one
+		/// </summary>
+		/// <param name="s">The string to compare</param>
+		/// <param name="value">The string to match to</param>
+		/// <param name="ignoreCase">true if case must be ignored, false otherwise</param>
+		/// <returns>true if both strings are equal, false otherwise</returns>
+		public static bool Compare(this string s, string value, bool ignoreCase = true)
+		{
+			return 0 == string.Compare(s, value, ignoreCase);
 		}
 	}
 
@@ -867,8 +878,9 @@ namespace COMMON
 			{
 				fullfinal = final;
 				// add "\" if required
-				if (!final.EndsWith(@"\"))
-					fullfinal += @"\";
+				string sep = new string(Path.DirectorySeparatorChar, 1);
+				if (!final.EndsWith(sep))
+					fullfinal += sep;
 				if (addtrailer)
 					final = fullfinal;
 

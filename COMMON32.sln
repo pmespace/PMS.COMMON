@@ -1,0 +1,83 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30523.141
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "COMMON_SHARED", "COMMON_SHARED\COMMON_SHARED.shproj", "{FCA4181F-59B5-42FD-8015-E10AF44C0DAC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A4CD66B1-7E2B-4A93-97D9-A64740B216AD}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "TestCommon", "TestCommon\TestCommon.vbproj", "{3E5BAF1A-A375-47CB-94F4-E170E98B62F2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7AFF3FF8-B99E-4690-AC1A-730FD76F3B90} = {7AFF3FF8-B99E-4690-AC1A-730FD76F3B90}
+	EndProjectSection
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "COMMON_WIN32", "COMMON_WIN32\COMMON_WIN32.shproj", "{AB7828DB-A9AD-4C0D-9320-3D71F0F4E000}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "TestCommon35", "TestCommon35\TestCommon35.vbproj", "{6BD9340D-2BB6-439D-9332-0D69FB3DCE28}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7AFF3FF8-B99E-4690-AC1A-730FD76F3B90} = {7AFF3FF8-B99E-4690-AC1A-730FD76F3B90}
+	EndProjectSection
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "COMMON_ODBC", "COMMON_ODBC\COMMON_ODBC.shproj", "{FF85AC31-5139-4DC2-B573-1EBEE353A1D9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{23B06AB6-0DF4-415D-BC24-8D22245FA715}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestCore", "TestCore\TestCore.csproj", "{F434B64C-F388-48BA-AFB8-1E6837520043}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7AFF3FF8-B99E-4690-AC1A-730FD76F3B90} = {7AFF3FF8-B99E-4690-AC1A-730FD76F3B90}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "COMMON", "COMMON\COMMON.csproj", "{7AFF3FF8-B99E-4690-AC1A-730FD76F3B90}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SHARED CODE", "SHARED CODE", "{F879F8D5-1557-4130-BA79-34138116EC75}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		COMMON_ODBC\COMMON_ODBC.projitems*{7aff3ff8-b99e-4690-ac1a-730fd76f3b90}*SharedItemsImports = 5
+		COMMON_SHARED\COMMON_SHARED.projitems*{7aff3ff8-b99e-4690-ac1a-730fd76f3b90}*SharedItemsImports = 5
+		COMMON_WIN32\COMMON_WIN32.projitems*{ab7828db-a9ad-4c0d-9320-3d71f0f4e000}*SharedItemsImports = 13
+		COMMON_SHARED\COMMON_SHARED.projitems*{fca4181f-59b5-42fd-8015-e10af44c0dac}*SharedItemsImports = 13
+		COMMON_ODBC\COMMON_ODBC.projitems*{ff85ac31-5139-4dc2-b573-1ebee353a1d9}*SharedItemsImports = 13
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3E5BAF1A-A375-47CB-94F4-E170E98B62F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E5BAF1A-A375-47CB-94F4-E170E98B62F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E5BAF1A-A375-47CB-94F4-E170E98B62F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E5BAF1A-A375-47CB-94F4-E170E98B62F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BD9340D-2BB6-439D-9332-0D69FB3DCE28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BD9340D-2BB6-439D-9332-0D69FB3DCE28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BD9340D-2BB6-439D-9332-0D69FB3DCE28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BD9340D-2BB6-439D-9332-0D69FB3DCE28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F434B64C-F388-48BA-AFB8-1E6837520043}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F434B64C-F388-48BA-AFB8-1E6837520043}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F434B64C-F388-48BA-AFB8-1E6837520043}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F434B64C-F388-48BA-AFB8-1E6837520043}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AFF3FF8-B99E-4690-AC1A-730FD76F3B90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AFF3FF8-B99E-4690-AC1A-730FD76F3B90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AFF3FF8-B99E-4690-AC1A-730FD76F3B90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AFF3FF8-B99E-4690-AC1A-730FD76F3B90}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FCA4181F-59B5-42FD-8015-E10AF44C0DAC} = {F879F8D5-1557-4130-BA79-34138116EC75}
+		{3E5BAF1A-A375-47CB-94F4-E170E98B62F2} = {23B06AB6-0DF4-415D-BC24-8D22245FA715}
+		{AB7828DB-A9AD-4C0D-9320-3D71F0F4E000} = {F879F8D5-1557-4130-BA79-34138116EC75}
+		{6BD9340D-2BB6-439D-9332-0D69FB3DCE28} = {23B06AB6-0DF4-415D-BC24-8D22245FA715}
+		{FF85AC31-5139-4DC2-B573-1EBEE353A1D9} = {F879F8D5-1557-4130-BA79-34138116EC75}
+		{F434B64C-F388-48BA-AFB8-1E6837520043} = {23B06AB6-0DF4-415D-BC24-8D22245FA715}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FD10E091-FE93-4BEE-BE53-C94BD728C1DD}
+	EndGlobalSection
+EndGlobal

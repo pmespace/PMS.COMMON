@@ -666,37 +666,6 @@ namespace COMMON
 		{
 			return (short)HexToDecimal(s);
 		}
-		///// <summary>
-		///// Check a string value against an enum type values
-		///// </summary>
-		///// <param name="type">the enum type to consider</param>
-		///// <param name="value">the string to search inside this enum</param>
-		///// <param name="defv">default value to use (if not null) it the string does not apply to the enum</param>
-		///// <returns>the value inside the enum matching the string, defvalue if not null and value not found, <see cref="CMisc.UNKNOWN"/> otherwise</returns>
-		//public static object StringToEnumValue(Type type, string value, object defv = null)
-		//{
-		//	if (!string.IsNullOrEmpty(value))
-		//	{
-		//		Array array = Enum.GetValues(type);
-		//		foreach (object i in array)
-		//			if (value.ToLower() == GetEnumName(type, i, defv).ToLower())
-		//				return i;
-		//	}
-		//	return (null == defv ? UNKNOWN : defv);
-		//}
-		///// <summary>
-		///// Get the name of a value inside an enum
-		///// </summary>
-		///// <param name="type">the enum type to consider</param>
-		///// <param name="value">the value to search for</param>
-		///// <returns>The name of the value inside the enum if available, an empty string otherwise</returns>
-		//public static string EnumValueToString(Type type, object value)
-		//{
-		//	try
-		//	{ return Enum.GetName(type, value); }
-		//	catch (Exception)
-		//	{ return null; }
-		//}
 		/// <summary>
 		/// Indicates whether a value is contained inside an enum type
 		/// </summary>
@@ -731,6 +700,13 @@ namespace COMMON
 			return null;
 		}
 		/// <summary>
+		/// Get the litteral name of an enum value
+		/// </summary>
+		/// <param name="T">The enum type to check against</param>
+		/// <param name="value">The value to find</param>
+		/// <returns>The litteral string describing the value inside the enum, null if it does not exist</returns>
+		public static string EnumGetName(Type T, object value) { return GetEnumName(T, value); }
+		/// <summary>
 		/// Verify whether a value is valid inside an enumeration
 		/// </summary>
 		/// <param name="T">The enum type to check against</param>
@@ -748,8 +724,16 @@ namespace COMMON
 				return Enum.Parse(T, value, true);
 			}
 			catch (Exception) { }
-			return (null == defv ? UNKNOWN : defv);
+			return (defv ?? UNKNOWN);
 		}
+		/// <summary>
+		/// Verify whether a value is valid inside an enumeration
+		/// </summary>
+		/// <param name="T">The enum type to check against</param>
+		/// <param name="value">The value to verify</param>
+		/// <param name="defv">Default value to use if <paramref name="value"/> to search is not found; if null then <see cref="CMisc.UNKNOWN"/> will be used as the default value</param>
+		/// <returns><paramref name="value"/> if it is inside the enumeration, <paramref name="defv"/> is not inside the enumeration</returns>
+		public static object EnumGetValue(Type T, string value, object defv = null) { return GetEnumValue(T, value, defv); }
 		/// <summary>
 		/// Returns the simples form of a string
 		/// </summary>
@@ -771,7 +755,7 @@ namespace COMMON
 		/// <returns>a trimmed and set to lowercase string or null if string is empty</returns>
 		public static string Lowered(string s)
 		{
-			s = CMisc.Trimmed(s);
+			s = Trimmed(s);
 			if (string.IsNullOrEmpty(s))
 				return null;
 			return s.ToLower();
@@ -1024,10 +1008,10 @@ namespace COMMON
 		/// <param name="fmt">format to use to build the date</param>
 		/// <param name="dt">date to use to build the date</param>
 		/// <returns>A string representing the date in the desired format</returns>
-		public static string BuildDate(DateFormat fmt, DateTime dt = default(DateTime))
+		public static string BuildDate(DateFormat fmt, DateTime dt = default)
 		{
 			// if no date was specified, use the current date
-			if (default(DateTime) == dt)
+			if (default == dt)
 				dt = DateTime.Now;
 			dt = DateFormat.GMT == fmt ? dt.ToUniversalTime() : dt;
 			// build the date with requested format

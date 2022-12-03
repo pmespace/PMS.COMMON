@@ -47,7 +47,7 @@ namespace COMMON
 		/// <summary>
 		/// The fully qualified file name for the settings file
 		/// Setting this file name will open a LOG file if it is valid
-		/// If the file name is not valid a temp file is opened whose name is tored inside this variable
+		/// If the file name cannot be found the file name remains null
 		/// </summary>
 		public string FileName
 		{

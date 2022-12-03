@@ -187,6 +187,8 @@ namespace COMMON
 		string Description { get; }
 		[DispId(9)]
 		int Result { get; }
+		[DispId(10)]
+		bool TextMessages { get; set; }
 
 		[DispId(100)]
 		bool StartServer(CStreamServerStartSettings settings);
@@ -261,6 +263,12 @@ namespace COMMON
 		/// <see cref="CThread.Result"/>
 		/// </summary>
 		public int Result { get => mainThread.Result; }
+		/// <summary>
+		/// Indicates whether messages are in text format or not.
+		/// This is only informational but will be used when calling the <see cref="CStreamSettings.OnMessageToLog"/> function.
+		/// </summary>
+		public bool TextMessages { get => _textmessages; set => _textmessages = value; }
+		bool _textmessages = false;
 		#endregion
 
 		#region constants
@@ -706,7 +714,7 @@ namespace COMMON
 				{
 					StartSettings.OnDisconnect?.Invoke(client.Tcp, thread, StartSettings.Parameters, client);
 				}
-			}	
+			}
 			catch (Exception ex)
 			{
 				CLog.EXCEPT(ex, $"{threadName} - OnDisconnect generated an exception");
@@ -780,12 +788,12 @@ namespace COMMON
 							if (null != request && 0 != request.Length)
 							{
 								// check whether the messge must be hidden or not
-								CLog.TRACE($"{threadName} - Starting processing request of {request.Length} bytes [{MessageToLog(client, request, true)}]");
+								CLog.TRACE($"{threadName} - Starting processing request of {request.Length} bytes [{MessageToLog(client, request, true, TextMessages)}]");
 								// forward request for processing
 								byte[] reply = StartSettings.OnMessage(client.Tcp, request, out bool addBufferSize, thread, StartSettings.Parameters, client.Data, client);
 								if (null != reply && 0 != reply.Length)
 								{
-									CLog.TRACE($"{threadName} - Sending reply of {reply.Length} bytes [{MessageToLog(client, reply, false)}]");
+									CLog.TRACE($"{threadName} - Sending reply of {reply.Length} bytes [{MessageToLog(client, reply, false, TextMessages)}]");
 									if (null == client.StreamIO || !client.StreamIO.Send(reply, addBufferSize))
 									{
 										CLog.ERROR($"{threadName} - The reply was not sent to the client");
@@ -825,17 +833,17 @@ namespace COMMON
 			client.Stop();
 			return res;
 		}
-		private static string MessageToLog(StreamServerClient client, byte[] buffer, bool isRequest)
+		private static string MessageToLog(StreamServerClient client, byte[] buffer, bool isRequest, bool textMessages)
 		{
 			// check whether the message must be hidden or not
 			if (null != client.StreamServerSettings.OnMessageToLog)
 			{
-				string s = client.StreamServerSettings.OnMessageToLog(buffer, CMisc.AsString(buffer), isRequest);
+				string s = client.StreamServerSettings.OnMessageToLog(buffer, textMessages ? CMisc.AsString(buffer) : CMisc.AsHexString(buffer), isRequest);
 				return (string.IsNullOrEmpty(s) ? "<MESSAGE HIDDEN>" : s);
 			}
 			else
 			{
-				return CMisc.AsString(buffer);
+				return textMessages ? CMisc.AsString(buffer) : CMisc.AsHexString(buffer);
 			}
 		}
 		/// <summary>

@@ -28,11 +28,11 @@ namespace COMMON
 		[DispId(100)]
 		void Clear();
 		[DispId(101)]
-		bool Add(T o);
+		bool Add(T item);
 		[DispId(102)]
-		bool Insert(T o, int index = 0);
+		bool Insert(T item, int index = 0);
 		[DispId(103)]
-		bool Remove(T o);
+		bool Remove(T item);
 		[DispId(104)]
 		bool RemoveAt(int index);
 		[DispId(105)]
@@ -43,6 +43,8 @@ namespace COMMON
 		string ToJson(JsonSerializerSettings settings = null);
 		[DispId(108)]
 		void Reset();
+		[DispId(109)]
+		bool Contains(T item);
 		#endregion
 	}
 	[Guid("D9318A4A-0C92-4AAD-B8F3-6A5F96F2C9B0")]
@@ -124,15 +126,15 @@ namespace COMMON
 		/// <summary>
 		/// Add an item at the end of the encapsulated list
 		/// </summary>
-		/// <param name="o">Object to add</param>
+		/// <param name="item">Object to add</param>
 		/// <returns>true if added, false otherwise</returns>
-		public bool Add(T o)
+		public bool Add(T item)
 		{
 			try
 			{
 				Exception = false;
 				LastException = null;
-				List.Add(o);
+				List.Add(item);
 				return true;
 			}
 			catch (Exception ex)
@@ -147,15 +149,15 @@ namespace COMMON
 		/// Insert an item inside the encapsulated list at the specified position
 		/// </summary>
 		/// <param name="index">Zero-based index at which the object should be inserted</param>
-		/// <param name="o">Object to insert</param>
+		/// <param name="item">Object to insert</param>
 		/// <returns>true if inserted, false otherwise</returns>
-		public bool Insert(T o, int index = 0)
+		public bool Insert(T item, int index = 0)
 		{
 			try
 			{
 				Exception = false;
 				LastException = null;
-				List.Insert(index, o);
+				List.Insert(index, item);
 				return true;
 			}
 			catch (Exception ex)
@@ -169,15 +171,15 @@ namespace COMMON
 		/// <summary>
 		/// Remove an object from the encapsulated list
 		/// </summary>
-		/// <param name="o">Object to remove</param>
+		/// <param name="item">Object to remove</param>
 		/// <returns>true if removed, false otherwise</returns>
-		public bool Remove(T o)
+		public bool Remove(T item)
 		{
 			try
 			{
 				Exception = false;
 				LastException = null;
-				List.Remove(o);
+				List.Remove(item);
 				return true;
 			}
 			catch (Exception ex)
@@ -245,6 +247,12 @@ namespace COMMON
 		/// Reset the list empty
 		/// </summary>
 		public void Reset() { List.Clear(); }
+		/// <summary>
+		/// Tells whether the list contains at least 1 element of the specified value
+		/// </summary>
+		/// <param name="item">Item to look for inside the lits</param>
+		/// <returns>true if the item is contained, false otherwise</returns>
+		public bool Contains(T item) { return List.Contains(item); }
 		#endregion
 	}
 
@@ -295,7 +303,7 @@ namespace COMMON
 		[DispId(100)]
 		void Clear();
 		[DispId(101)]
-		bool Add(K k, T o);
+		bool Add(K k, T item);
 		[DispId(102)]
 		bool Remove(K k);
 		[DispId(103)]
@@ -311,7 +319,7 @@ namespace COMMON
 	[Guid("C67F6A91-8D10-462A-9F28-67F08705942D")]
 	[ClassInterface(ClassInterfaceType.None)]
 	[ComVisible(true)]
-	public abstract class CSafeDictionary<K, T> : ISafeDictionary<K, T>
+	public class CSafeDictionary<K, T> : ISafeDictionary<K, T>
 	{
 		#region constructor
 		public CSafeDictionary() { }
@@ -411,15 +419,15 @@ namespace COMMON
 		/// Add an item at the end of the encapsulated dictionary
 		/// </summary>
 		/// <param name="k">Object key</param>
-		/// <param name="o">Object to add</param>
+		/// <param name="item">Object to add</param>
 		/// <returns>true if added, false otherwise</returns>
-		public bool Add(K k, T o)
+		public bool Add(K k, T item)
 		{
 			try
 			{
 				Exception = false;
 				LastException = null;
-				Dict.Add(k, o);
+				Dict.Add(k, item);
 				return true;
 			}
 			catch (Exception ex)

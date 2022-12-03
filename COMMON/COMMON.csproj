@@ -3,10 +3,10 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net35</TargetFrameworks>
     <AssemblyName>PMS.COMMON</AssemblyName>
-    <Version>6.3.2</Version>
+    <Version>6.3.3</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <FileVersion>6.3.2</FileVersion>
-    <AssemblyVersion>6.3.2</AssemblyVersion>
+    <FileVersion>6.3.3</FileVersion>
+    <AssemblyVersion>6.3.3</AssemblyVersion>
     <Authors>philippemp31</Authors>
     <Company>PMS</Company>
     <Description></Description>
@@ -47,6 +47,13 @@
   <Import Project="..\COMMON_WIN32\COMMON_WIN32.projitems" Label="Shared" Condition="'$(TargetFramework)'=='net35' Or '$(TargetFramework)'=='net40' Or '$(TargetFramework)'=='net45' Or '$(TargetFramework)'=='net47'" />
 
   <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Data.Odbc" Version="6.0.0" Condition="'$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='net50'" />
   </ItemGroup>
@@ -72,6 +79,9 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>pms.key.file.pfx</AssemblyOriginatorKeyFile>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
+    <BaseOutputPath>bin\</BaseOutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">

@@ -1,3 +1,7 @@
+6.3.3
+- Added 2 functions to work with enums (EnumGetName and EnumGetValue) in CMisc; they are only a revamping of the name of the old ones (GetEnumName and GetEnumValue)
+- Updated README
+
 6.3.2
 - Fixed a bug in CMisc.VerifyDirectory which made it not to work as it should while not under Windows
 - Added to possibility to specify "localhost" instead of a real IP address in CStreamClientSettings (thus reaching the localhost can be done without having to specify the IP address)

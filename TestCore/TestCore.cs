@@ -42,6 +42,18 @@ namespace TestCore
 		#region main method
 		public int Start(string[] args)
 		{
+
+			string dir = CMisc.VerifyDirectory(".", false);
+			dir = CMisc.VerifyDirectory(".", true);
+			dir = CMisc.VerifyDirectory("", false);
+			dir = CMisc.VerifyDirectory("", true);
+			dir = CMisc.VerifyDirectory(@"..\net47\testcommon.exe", false);
+			dir = CMisc.VerifyDirectory(@".\testcommon.exe", true);
+			dir = CMisc.VerifyDirectory(@"c:\testcommon.exe", false);
+			dir = CMisc.VerifyDirectory(@"c:\testcommon.exe", true);
+
+
+
 			MySafeDict hh = new MySafeDict();
 			hh.Add("123", new object());
 			hh.Add("456", new object());

@@ -850,15 +850,72 @@ namespace COMMON
 		/// <summary>
 		/// Allows verifying a folder exists, eventually with write privileges if required
 		/// </summary>
-		/// <param name="dir">Folder to verify existence</param>
+		/// <param name="dir">Folder to verify existence; it can contain a file name; if null or empty the current folder is assumed</param>
 		/// <param name="addtrailer">Indicates whether the returned value must contain a final "\" or not</param>
 		/// <param name="writeaccess">Indicates whether write privilege is required or not</param>
 		/// <returns>The folder path (eventually with a #\" trailer if required) if exists with the requested privileges, null otherwise</returns>
 		public static string VerifyDirectory(string dir, bool addtrailer, bool writeaccess = true)
 		{
-			string final = dir, fullfinal;
-			// chech whether directory exists or not
-			if (Directory.Exists(final))
+			//string final = dir, fullfinal;
+			//try
+			//{
+			//	final = Path.GetDirectoryName(dir);
+			//}
+			//catch (Exception)
+			//{
+			//	final = null;
+			//}
+			//// chech whether directory exists or not
+			//if (Directory.Exists(final))
+			//{
+			//	fullfinal = final;
+			//	// add "\" if required
+			//	string sep = new string(Path.DirectorySeparatorChar, 1);
+			//	if (!final.EndsWith(sep))
+			//		fullfinal += sep;
+			//	if (addtrailer)
+			//		final = fullfinal;
+
+			//	// test write access if required
+			//	if (!writeaccess)
+			//		return final;
+			//	// try creating a temp file with write access (then delete it)
+			//	string s = Path.GetRandomFileName();
+			//	try
+			//	{
+			//		string sdir = fullfinal + s;
+			//		FileStream fs = File.Open(sdir, FileMode.CreateNew);
+			//		// arrived here write access is granted
+			//		fs.Close();
+			//		File.Delete(sdir);
+			//		return final;
+			//	}
+			//	catch (Exception) { }
+			//	// arrived here write access is not granted
+			//	return null;
+			//}
+			//return null;
+
+			string final, fullfinal;
+			try
+			{
+				final = Path.GetFullPath(dir.IsNullOrEmpty() ? "." : dir);
+				if (File.Exists(final))
+				{
+					FileInfo fi = new FileInfo(final);
+					final = fi.DirectoryName;
+				}
+				else if (!Directory.Exists(final))
+				{
+					final = string.Empty;
+				}
+			}
+			catch (Exception)
+			{
+				final = string.Empty;
+			}
+			// try to determine if a file name or directory name
+			if (!final.IsNullOrEmpty())
 			{
 				fullfinal = final;
 				// add "\" if required

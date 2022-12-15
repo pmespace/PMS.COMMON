@@ -63,17 +63,20 @@ namespace COMMON
 		/// <summary>
 		/// The encapsulated list
 		/// </summary>
+		[JsonIgnore]
 		public List<T> List { get => _list; private set => _list = null != value ? value : _list; }
 		List<T> _list = new List<T>();
 		/// <summary>
 		/// Number of objects inside the list
 		/// </summary>
+		[JsonIgnore]
 		public int Count { get => List.Count; }
 		/// <summary>
 		/// Get the object at the specified position
 		/// </summary>
 		/// <param name="index">Zero-based index of the object to fetch</param>
 		/// <returns>An object if successful, null otherwise</returns>
+		[JsonIgnore]
 		public T this[int index]
 		{
 			get
@@ -111,10 +114,12 @@ namespace COMMON
 		/// <summary>
 		/// True if an exception occurred while trying to access a record in the list, false otherwise
 		/// </summary>
+		[JsonIgnore]
 		public bool Exception { get; private set; }
 		/// <summary>
 		/// Last exception raised
 		/// </summary>
+		[JsonIgnore]
 		public Exception LastException { get; private set; }
 		#endregion
 
@@ -273,7 +278,9 @@ namespace COMMON
 	[ComVisible(true)]
 	public class CSafeKeyValue<K, T> : ISafeDictionaryElement<K, T>
 	{
+		[JsonIgnore]
 		public K Key { get; set; }
+		[JsonIgnore]
 		public T Value { get; set; }
 	}
 
@@ -331,15 +338,18 @@ namespace COMMON
 		/// <summary>
 		/// The encapsulated dictionary
 		/// </summary>
+		[JsonIgnore]
 		public Dictionary<K, T> Dict { get => _dict; private set => _dict = null != value ? value : _dict; }
 		Dictionary<K, T> _dict = new Dictionary<K, T>();
 		/// <summary>
 		/// Number of objects inside the ldictionary
 		/// </summary>
+		[JsonIgnore]
 		public int Count { get => Dict.Count; }
 		/// <summary>
 		/// A static list of all keys inside the dictionary
 		/// </summary>
+		[JsonIgnore]
 		public ISafeList<K> Keys
 		{
 			get
@@ -352,6 +362,7 @@ namespace COMMON
 		/// <summary>
 		/// A static list of all values inside the dictionary
 		/// </summary>
+		[JsonIgnore]
 		public ISafeList<T> Values
 		{
 			get
@@ -366,6 +377,7 @@ namespace COMMON
 		/// </summary>
 		/// <param name="k">Key to use</param>
 		/// <returns></returns>
+		[JsonIgnore]
 		public T this[K k]
 		{
 			get
@@ -403,10 +415,12 @@ namespace COMMON
 		/// <summary>
 		/// True if an exception occurred while trying to access a record in the dictionary, false otherwise
 		/// </summary>
+		[JsonIgnore]
 		public bool Exception { get; private set; }
 		/// <summary>
 		/// Last exception raised
 		/// </summary>
+		[JsonIgnore]
 		public Exception LastException { get; private set; }
 		#endregion
 

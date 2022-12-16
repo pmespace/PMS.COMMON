@@ -911,25 +911,28 @@ namespace COMMON
 		/// </summary>
 		/// <param name="path">[OUT] path of the file</param>
 		/// <param name="fname">[OUT] file name itelf</param>
+		/// <param name="uniquePart">[REF] the unique  part of <paramref name="fname"/> on return; if set when called this part is reused to generate the final file name instead of trying to create a temporary file name</param>
 		/// <param name="prefix">Prefix to use to generate a file name</param>
 		/// <param name="postfix">Postfix to use to generate a file name</param>
 		/// <param name="extension">Extension to use to generate a file name, if none is specified .tmp is used</param>
 		/// <param name="useguid">True if a guid must be used to generate a file name</param>
 		/// <param name="separator">Separator to use between parts (prefix, postfix, guid) to generate the file name</param>
 		/// <returns>Full file name including path</returns>
-		public static string GetTempFileName(out string path, out string fname, string prefix = null, string postfix = null, string extension = null, bool useguid = false, string separator = "-")
+		public static string GetTempFileName(out string path, out string fname, ref string uniquePart, string prefix = null, string postfix = null, string extension = null, bool useguid = false, string separator = "-")
 		{
 			Func<string, bool, string, string> GetPart = (string _part_, bool _before_, string _sep_) => { return _part_.IsNullOrEmpty() ? string.Empty : _before_ ? $"{_sep_}{_part_}" : $"{_part_}{_sep_}"; };
 
 			string tempFileName = Path.GetTempFileName();
-			string guid = useguid ? GetPart(Guid.NewGuid().ToString("N"), true, separator) : string.Empty;
+			uniquePart = uniquePart.IsNullOrEmpty() ? $"{Path.GetFileNameWithoutExtension(tempFileName)}{(useguid ? GetPart(Guid.NewGuid().ToString("N"), true, separator) : string.Empty)}" : uniquePart;
 			string ext = extension.IsNullOrEmpty() ? Path.GetExtension(tempFileName) : GetPart(extension, true, extension.StartsWith(".") ? string.Empty : ".");
-			fname = $"{GetPart(prefix, false, separator)}{Path.GetFileNameWithoutExtension(tempFileName)}{guid}{GetPart(postfix, true, separator)}{ext}";
+			fname = $"{GetPart(prefix, false, separator)}{uniquePart}{GetPart(postfix, true, separator)}{ext}";
 			path = Path.GetDirectoryName(tempFileName);
 			string fullName = Path.Combine(path, fname);
+			// if the final name differs from the original temporary file created by the system delete the temporary file
 			if (!fullName.Compare(tempFileName))
 				try
 				{
+					//File.Create(fullName);
 					File.Delete(tempFileName);
 				}
 				catch (Exception) { }

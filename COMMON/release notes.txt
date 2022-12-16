@@ -1,5 +1,6 @@
 6.3.4
 - Made all object in CSafe... not serializable in json
+- Added a CMisc.GetTempFileName function to create extended temporary file names
 
 6.3.3
 - Added 2 functions to work with enums (EnumGetName and EnumGetValue) in CMisc; they are only a revamping of the name of the old ones (GetEnumName and GetEnumValue)

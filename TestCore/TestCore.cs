@@ -42,6 +42,10 @@ namespace TestCore
 		#region main method
 		public int Start(string[] args)
 		{
+			string tmpf = CMisc.GetTempFileName(out string path, out string fname, null, null, "json");
+			tmpf = CMisc.GetTempFileName(out path, out fname);
+			tmpf = CMisc.GetTempFileName(out path, out fname, null, null, ".json", false, "*");
+			tmpf = CMisc.GetTempFileName(out path, out fname, "hello", "hella", ".json", true, "_");
 
 			string dir = CMisc.VerifyDirectory(".", false);
 			dir = CMisc.VerifyDirectory(".", true);

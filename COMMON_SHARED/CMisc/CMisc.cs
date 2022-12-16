@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using System;
 using System.IO;
+using System.Xml.Linq;
 
 namespace COMMON
 {
@@ -856,46 +857,6 @@ namespace COMMON
 		/// <returns>The folder path (eventually with a #\" trailer if required) if exists with the requested privileges, null otherwise</returns>
 		public static string VerifyDirectory(string dir, bool addtrailer, bool writeaccess = true)
 		{
-			//string final = dir, fullfinal;
-			//try
-			//{
-			//	final = Path.GetDirectoryName(dir);
-			//}
-			//catch (Exception)
-			//{
-			//	final = null;
-			//}
-			//// chech whether directory exists or not
-			//if (Directory.Exists(final))
-			//{
-			//	fullfinal = final;
-			//	// add "\" if required
-			//	string sep = new string(Path.DirectorySeparatorChar, 1);
-			//	if (!final.EndsWith(sep))
-			//		fullfinal += sep;
-			//	if (addtrailer)
-			//		final = fullfinal;
-
-			//	// test write access if required
-			//	if (!writeaccess)
-			//		return final;
-			//	// try creating a temp file with write access (then delete it)
-			//	string s = Path.GetRandomFileName();
-			//	try
-			//	{
-			//		string sdir = fullfinal + s;
-			//		FileStream fs = File.Open(sdir, FileMode.CreateNew);
-			//		// arrived here write access is granted
-			//		fs.Close();
-			//		File.Delete(sdir);
-			//		return final;
-			//	}
-			//	catch (Exception) { }
-			//	// arrived here write access is not granted
-			//	return null;
-			//}
-			//return null;
-
 			string final, fullfinal;
 			try
 			{
@@ -944,6 +905,35 @@ namespace COMMON
 				return null;
 			}
 			return null;
+		}
+		/// <summary>
+		/// Get a temporary file name with multiple variations
+		/// </summary>
+		/// <param name="path">[OUT] path of the file</param>
+		/// <param name="fname">[OUT] file name itelf</param>
+		/// <param name="prefix">Prefix to use to generate a file name</param>
+		/// <param name="postfix">Postfix to use to generate a file name</param>
+		/// <param name="extension">Extension to use to generate a file name, if none is specified .tmp is used</param>
+		/// <param name="useguid">True if a guid must be used to generate a file name</param>
+		/// <param name="separator">Separator to use between parts (prefix, postfix, guid) to generate the file name</param>
+		/// <returns>Full file name including path</returns>
+		public static string GetTempFileName(out string path, out string fname, string prefix = null, string postfix = null, string extension = null, bool useguid = false, string separator = "-")
+		{
+			Func<string, bool, string, string> GetPart = (string _part_, bool _before_, string _sep_) => { return _part_.IsNullOrEmpty() ? string.Empty : _before_ ? $"{_sep_}{_part_}" : $"{_part_}{_sep_}"; };
+
+			string tempFileName = Path.GetTempFileName();
+			string guid = useguid ? GetPart(Guid.NewGuid().ToString("N"), true, separator) : string.Empty;
+			string ext = extension.IsNullOrEmpty() ? Path.GetExtension(tempFileName) : GetPart(extension, true, extension.StartsWith(".") ? string.Empty : ".");
+			fname = $"{GetPart(prefix, false, separator)}{Path.GetFileNameWithoutExtension(tempFileName)}{guid}{GetPart(postfix, true, separator)}{ext}";
+			path = Path.GetDirectoryName(tempFileName);
+			string fullName = Path.Combine(path, fname);
+			if (!fullName.Compare(tempFileName))
+				try
+				{
+					File.Delete(tempFileName);
+				}
+				catch (Exception) { }
+			return fullName;
 		}
 		/// <summary>
 		/// [CONSOLE ONLY] Request a YES/NO answer.

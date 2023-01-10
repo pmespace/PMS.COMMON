@@ -107,7 +107,7 @@ namespace COMMON
 		/// </summary>
 		/// <param name="serializerSettings">Settings to use to deserialize, if null default settings are as iin <see cref="Deserialize(string, JsonSerializerSettings)"/></param>
 		/// <returns>
-		/// A structure of the specified settings if successful, null otherwise
+		/// A structure of the specified settings if successful, null or an exception otherwise
 		/// </returns>
 		public TSettings ReadSettings(JsonSerializerSettings serializerSettings = default)
 		{
@@ -161,7 +161,7 @@ namespace COMMON
 		/// <param name="serializerSettings">Settings to use to serialize, if null default settings are as in <see cref="Serialize(TSettings, JsonSerializerSettings)"/>/></param>
 		/// <param name="overwrite">Indicates whether writing can overwrite an existing file; if false and the existing file is not empty then a new file is created and the old one is being added a ".sav" extension</param>
 		/// <returns>
-		/// A structure of the specified settings if successful, null otherwise
+		/// True if successful, false or an exception otherwise
 		/// </returns>
 		public bool WriteSettings(TSettings o, JsonSerializerSettings serializerSettings = default, bool overwrite = true)
 		{

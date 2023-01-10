@@ -105,12 +105,13 @@ namespace COMMON
 		/// <summary>
 		/// Read settings from a file
 		/// </summary>
+		/// <param name="serializerSettings">Settings to use to serialize, if null default settings will be used</param>
 		/// <returns>
 		/// A structure of the specified settings if successful, null otherwise
 		/// </returns>
-		public TSettings ReadSettings()
+		public TSettings ReadSettings(JsonSerializerSettings serializerSettings = default)
 		{
-			return ReadSettings(out Exception except);
+			return ReadSettings(out Exception except, serializerSettings);
 		}
 		/// <summary>
 		/// Read settings from a file
@@ -154,6 +155,19 @@ namespace COMMON
 		public bool WriteSettings(TSettings o, bool addNull = true, bool overwrite = true)
 		{
 			return WriteSettings(o, out Exception except, SerializerSettings(addNull), overwrite);
+		}
+		/// <summary>
+		/// Write settings of the specified type
+		/// </summary>
+		/// <param name="o">The settings to write</param>
+		/// <param name="serializerSettings">Settings to use to serialize, if null default settings will be used</param>
+		/// <param name="overwrite">Indicates whether writing can overwrite an existing file; if false and the existing file is not empty then a new file is created and the old one is being added a ".sav" extension</param>
+		/// <returns>
+		/// TRUE if the settings have been written, FALSE otherwise
+		/// </returns>
+		public bool WriteSettings(TSettings o, JsonSerializerSettings serializerSettings = default, bool overwrite = true)
+		{
+			return WriteSettings(o, out Exception except, serializerSettings, overwrite);
 		}
 		/// <summary>
 		/// Write settings of the specified type

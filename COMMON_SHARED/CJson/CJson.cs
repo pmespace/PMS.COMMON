@@ -70,6 +70,10 @@ namespace COMMON
 		}
 		private string _filename = default;
 		/// <summary>
+		/// Last exception encountered during processing
+		/// </summary>
+		public Exception LastException { get; private set; }
+		/// <summary>
 		/// To write elements base class before child class
 		/// </summary>
 		static readonly IContractResolver baseFirstResolver = new BaseFirstContractResolver { };
@@ -111,6 +115,7 @@ namespace COMMON
 		/// </returns>
 		public TSettings ReadSettings(JsonSerializerSettings serializerSettings = default)
 		{
+			LastException = default;
 			try
 			{
 				// open file and deserialize it
@@ -125,6 +130,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
+				LastException = ex;
 				CLog.EXCEPT(ex);
 			}
 			return default;
@@ -164,6 +170,7 @@ namespace COMMON
 		/// </returns>
 		public bool WriteSettings(TSettings o, JsonSerializerSettings serializerSettings = default, bool overwrite = true)
 		{
+			LastException = default;
 			try
 			{
 				SafeFileWrite(overwrite);
@@ -181,6 +188,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
+				LastException = ex;
 				CLog.EXCEPT(ex);
 			}
 			return false;

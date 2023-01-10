@@ -107,7 +107,7 @@ namespace COMMON
 		/// </summary>
 		/// <param name="serializerSettings">Settings to use to deserialize, if null default settings are as iin <see cref="Deserialize(string, JsonSerializerSettings)"/></param>
 		/// <returns>
-		/// A structure of the specified settings if successful, null or an exception otherwise
+		/// A structure of the specified settings if successful, null otherwise
 		/// </returns>
 		public TSettings ReadSettings(JsonSerializerSettings serializerSettings = default)
 		{
@@ -126,10 +126,9 @@ namespace COMMON
 			catch (Exception ex)
 			{
 				CLog.EXCEPT(ex);
-				throw;
 			}
+			return default;
 		}
-
 		/// <summary>
 		/// Deserialize an object to a string
 		/// </summary>
@@ -161,7 +160,7 @@ namespace COMMON
 		/// <param name="serializerSettings">Settings to use to serialize, if null default settings are as in <see cref="Serialize(TSettings, JsonSerializerSettings)"/>/></param>
 		/// <param name="overwrite">Indicates whether writing can overwrite an existing file; if false and the existing file is not empty then a new file is created and the old one is being added a ".sav" extension</param>
 		/// <returns>
-		/// True if successful, false or an exception otherwise
+		/// True if successful, false otherwise
 		/// </returns>
 		public bool WriteSettings(TSettings o, JsonSerializerSettings serializerSettings = default, bool overwrite = true)
 		{
@@ -183,8 +182,8 @@ namespace COMMON
 			catch (Exception ex)
 			{
 				CLog.EXCEPT(ex);
-				throw;
 			}
+			return false;
 		}
 		private void SafeFileWrite(bool overwrite)
 		{
@@ -225,22 +224,6 @@ namespace COMMON
 			}
 			return default;
 		}
-		///// <summary>
-		///// Prepare json settings to use
-		///// </summary>
-		///// <param name="addNull">Indicates whether null values must be kept or not when serializing data</param>
-		///// <param name="ignoreMissingMember">Indicates whether missing members must be ignored or not (thus preventing deserialization to complete)</param>
-		///// <returns>A <see cref="JsonSerializerSettings"/> object to use</returns>
-		//private static JsonSerializerSettings Prepare(bool addNull, bool ignoreMissingMember)
-		//{
-		//	return new JsonSerializerSettings()
-		//	{
-		//		NullValueHandling = addNull ? NullValueHandling.Include : NullValueHandling.Ignore,
-		//		DefaultValueHandling = DefaultValueHandling.Include,
-		//		MissingMemberHandling = ignoreMissingMember ? MissingMemberHandling.Ignore : MissingMemberHandling.Error,
-		//	};
-		//}
-
 		/// <summary>
 		/// Set <see cref="JsonSerializerSettings"/> to put base class properties first
 		/// </summary>

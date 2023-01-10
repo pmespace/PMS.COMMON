@@ -44,7 +44,7 @@ Public Class FTestCommon
 			settings = json.ReadSettings()
 		Else
 			Dim except As Exception = Nothing
-			settings = json.ReadSettings(except, serial)
+			settings = json.ReadSettings(serial)
 		End If
 
 		If Not IsNothing(settings) Then
@@ -74,7 +74,7 @@ Public Class FTestCommon
 			Else
 				serial = json.SerializeStandard(serial)
 			End If
-			json.WriteSettings(settings, except, serial)
+			json.WriteSettings(settings, serial)
 		End If
 	End Sub
 

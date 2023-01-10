@@ -105,33 +105,12 @@ namespace COMMON
 		/// <summary>
 		/// Read settings from a file
 		/// </summary>
-		/// <param name="addNull">Indicates whether null values must be kept or not inside </param>
-		/// <param name="except">Indicate whether an exception occured while processing the json data, set to true if an exception occured during operation, false otherwise</param>
 		/// <returns>
 		/// A structure of the specified settings if successful, null otherwise
 		/// </returns>
-		[Obsolete("Consider using ReadSettings(out Exception except, JsonSerializerSettings serializerSettings = null)")]
-		public TSettings ReadSettings(out bool except, bool addNull = false)
+		public TSettings ReadSettings()
 		{
-			except = false;
-			try
-			{
-				// open file and deserialize it
-				using (FileStream stream = new FileStream(FileName, FileMode.OpenOrCreate, FileAccess.Read))
-				{
-					using (StreamReader reader = new StreamReader(stream))
-					{
-						string data = reader.ReadToEnd();
-						return Deserialize(data, out except, addNull);
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				except = true;
-				CLog.EXCEPT(ex);
-			}
-			return default;
+			return ReadSettings(out Exception except);
 		}
 		/// <summary>
 		/// Read settings from a file
@@ -172,42 +151,9 @@ namespace COMMON
 		/// <returns>
 		/// TRUE if the settings have been written, FALSE otherwise
 		/// </returns>
-		[Obsolete("Consider using WriteSettings(TSettings o, out Exception except, JsonSerializerSettings serializerSettings = null, bool overwrite = true)")]
-		public bool WriteSettings(TSettings o, bool addNull = false, bool overwrite = true)
+		public bool WriteSettings(TSettings o, bool addNull = true, bool overwrite = true)
 		{
-			try
-			{
-				SafeFileWrite(overwrite);
-
-				// open file and deserialize it
-				using (FileStream stream = new FileStream(FileName, FileMode.Create, FileAccess.Write))
-				{
-					using (StreamWriter writer = new StreamWriter(stream))
-					{
-						string data = Serialize(o, addNull);
-						writer.Write(data);
-						return true;
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				CLog.EXCEPT(ex);
-			}
-			return false;
-		}
-		private void SafeFileWrite(bool overwrite)
-		{
-			try
-			{
-				FileInfo fi = new FileInfo(FileName);
-				if (fi.Exists && 0 != fi.Length && !overwrite)
-					File.Move(FileName, FileName + $".{DateTime.Now.ToString(Chars.SDATETIMEEX)}.sav.json");
-			}
-			catch (Exception ex)
-			{
-				CLog.EXCEPT(ex);
-			}
+			return WriteSettings(o, out Exception except, SerializerSettings(addNull), overwrite);
 		}
 		/// <summary>
 		/// Write settings of the specified type
@@ -244,6 +190,19 @@ namespace COMMON
 			}
 			return false;
 		}
+		private void SafeFileWrite(bool overwrite)
+		{
+			try
+			{
+				FileInfo fi = new FileInfo(FileName);
+				if (fi.Exists && 0 != fi.Length && !overwrite)
+					File.Move(FileName, FileName + $".{DateTime.Now.ToString(Chars.SDATETIMEEX)}.sav.json");
+			}
+			catch (Exception ex)
+			{
+				CLog.EXCEPT(ex);
+			}
+		}
 		/// <summary>
 		/// Serialize a TSettings object
 		/// </summary>
@@ -252,35 +211,26 @@ namespace COMMON
 		/// <returns>
 		/// A string representing the serialized object, null otherwise
 		/// </returns>
-		[Obsolete("Consider using Serialize(TSettings o, out Exception except, JsonSerializerSettings serializerSettings = null, bool indent = false)", true)]
 		public static string Serialize(TSettings o, bool addNull = false)
 		{
-			try
-			{
-				return JsonConvert.SerializeObject(o, Newtonsoft.Json.Formatting.Indented, (JsonSerializerSettings)Prepare(addNull, true));
-			}
-			catch (Exception ex)
-			{
-				CLog.EXCEPT(ex);
-				return default;
-			}
+			return Serialize(o, out Exception except, SerializerSettings(addNull));
 		}
 		/// <summary>
 		/// Serialize a TSettings object
 		/// </summary>
 		/// <param name="o">The object to serialize</param>
 		/// <param name="except">The exception if one occurred</param>
-		/// <param name="serializerSettings">Settings to use to serialize, if null default settings will be used (no null values)</param>
-		/// <param name="indent">If true the resulting json is indented, no indent otherwise</param>
+		/// <param name="serializerSettings">Settings to use to serialize, if null default settings will be used (no null values, indented)</param>
 		/// <returns>
 		/// A string representing the serialized object, null otherwise
 		/// </returns>
-		public static string Serialize(TSettings o, out Exception except, JsonSerializerSettings serializerSettings = default, bool indent = true)
+		public static string Serialize(TSettings o, out Exception except, JsonSerializerSettings serializerSettings = default)
 		{
 			except = null;
 			try
 			{
-				return JsonConvert.SerializeObject(o, indent ? Newtonsoft.Json.Formatting.Indented : Newtonsoft.Json.Formatting.None, serializerSettings ?? SerializerSettings());
+				serializerSettings = serializerSettings ?? SerializerSettings();
+				return JsonConvert.SerializeObject(o, serializerSettings.Formatting, serializerSettings);
 			}
 			catch (Exception ex)
 			{
@@ -289,36 +239,27 @@ namespace COMMON
 				return default;
 			}
 		}
-		static JsonSerializerSettings SerializerSettings()
+		static JsonSerializerSettings SerializerSettings(bool addNull = true, bool indent = true, bool addDefaultValue = true)
 		{
 			return new JsonSerializerSettings()
 			{
-				NullValueHandling = NullValueHandling.Ignore,
+				NullValueHandling = addNull ? NullValueHandling.Include : NullValueHandling.Ignore,
+				Formatting = indent ? Newtonsoft.Json.Formatting.Indented : Newtonsoft.Json.Formatting.None,
+				DefaultValueHandling = addDefaultValue ? DefaultValueHandling.Include : DefaultValueHandling.Ignore,
 			};
 		}
 		/// <summary>
 		/// Deserialize an object to a string
 		/// </summary>
 		/// <param name="o">The object to deserialize</param>
-		/// <param name="jsonException">Indicate whether an exception occured while processing the json data, set to true if an exception occured during operation, false otherwise</param>
 		/// <param name="ignoreMissingMember">Indicates whether missing members must be ignored or not (thus preventing deserialization to complete)</param>
 		/// <returns>
 		/// The deserialized object if successful, null otherwise
 		/// </returns>
-		[Obsolete("Consider using Deserialize(string o, out Exception except, JsonSerializerSettings serializerSettings = null)")]
-		public static TSettings Deserialize(string o, out bool jsonException, bool ignoreMissingMember = true)
+		[Obsolete("Consider using Deserialize(string o, out Exception except, JsonSerializerSettings serializerSettings = null)", true)]
+		public static TSettings Deserialize(string o, bool ignoreMissingMember = true)
 		{
-			jsonException = false;
-			try
-			{
-				return JsonConvert.DeserializeObject<TSettings>(o, (JsonSerializerSettings)Prepare(false, ignoreMissingMember));
-			}
-			catch (Exception ex)
-			{
-				jsonException = true;
-				CLog.EXCEPT(ex);
-				return default;
-			}
+			return Deserialize(o, out Exception except, DeserializerSettings(ignoreMissingMember));
 		}
 		/// <summary>
 		/// Deserialize an object to a string
@@ -334,7 +275,8 @@ namespace COMMON
 			except = null;
 			try
 			{
-				return JsonConvert.DeserializeObject<TSettings>(o, serializerSettings ?? DeserializerSettings());
+				serializerSettings = serializerSettings ?? DeserializerSettings();
+				return JsonConvert.DeserializeObject<TSettings>(o, serializerSettings);
 			}
 			catch (Exception ex)
 			{
@@ -343,12 +285,11 @@ namespace COMMON
 				return default;
 			}
 		}
-		static JsonSerializerSettings DeserializerSettings()
+		static JsonSerializerSettings DeserializerSettings(bool ignoreMissingMember = true)
 		{
 			return new JsonSerializerSettings()
 			{
-				MissingMemberHandling = MissingMemberHandling.Ignore,
-				DefaultValueHandling = DefaultValueHandling.Include,
+				MissingMemberHandling = ignoreMissingMember ? MissingMemberHandling.Ignore : MissingMemberHandling.Error,
 			};
 		}
 		/// <summary>

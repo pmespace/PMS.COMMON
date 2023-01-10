@@ -41,8 +41,7 @@ Public Class FTestCommon
 	Private Sub LoadSettings()
 		Dim settings As Settings
 		If Not cbNewJson.Checked Then
-			Dim except As Boolean
-			settings = json.ReadSettings(except)
+			settings = json.ReadSettings()
 		Else
 			Dim except As Exception = Nothing
 			settings = json.ReadSettings(except, serial)

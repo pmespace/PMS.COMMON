@@ -306,21 +306,21 @@ namespace COMMON
 				MissingMemberHandling = ignoreMissingMember ? MissingMemberHandling.Ignore : MissingMemberHandling.Error,
 			};
 		}
-		/// <summary>
-		/// Prepare json settings to use
-		/// </summary>
-		/// <param name="addNull">Indicates whether null values must be kept or not when serializing data</param>
-		/// <param name="ignoreMissingMember">Indicates whether missing members must be ignored or not (thus preventing deserialization to complete)</param>
-		/// <returns>A <see cref="JsonSerializerSettings"/> object to use</returns>
-		private static JsonSerializerSettings Prepare(bool addNull, bool ignoreMissingMember)
-		{
-			return new JsonSerializerSettings()
-			{
-				NullValueHandling = addNull ? NullValueHandling.Include : NullValueHandling.Ignore,
-				DefaultValueHandling = DefaultValueHandling.Include,
-				MissingMemberHandling = ignoreMissingMember ? MissingMemberHandling.Ignore : MissingMemberHandling.Error,
-			};
-		}
+		///// <summary>
+		///// Prepare json settings to use
+		///// </summary>
+		///// <param name="addNull">Indicates whether null values must be kept or not when serializing data</param>
+		///// <param name="ignoreMissingMember">Indicates whether missing members must be ignored or not (thus preventing deserialization to complete)</param>
+		///// <returns>A <see cref="JsonSerializerSettings"/> object to use</returns>
+		//private static JsonSerializerSettings Prepare(bool addNull, bool ignoreMissingMember)
+		//{
+		//	return new JsonSerializerSettings()
+		//	{
+		//		NullValueHandling = addNull ? NullValueHandling.Include : NullValueHandling.Ignore,
+		//		DefaultValueHandling = DefaultValueHandling.Include,
+		//		MissingMemberHandling = ignoreMissingMember ? MissingMemberHandling.Ignore : MissingMemberHandling.Error,
+		//	};
+		//}
 		/// <summary>
 		/// Set <see cref="JsonSerializerSettings"/> to put base class properties first
 		/// </summary>

@@ -151,8 +151,8 @@ namespace COMMON
 			catch (Exception ex)
 			{
 				CLog.EXCEPT(ex);
-				throw;
 			}
+			return default;
 		}
 		/// <summary>
 		/// Write settings of the specified type
@@ -222,8 +222,8 @@ namespace COMMON
 			catch (Exception ex)
 			{
 				CLog.EXCEPT(ex);
-				throw;
 			}
+			return default;
 		}
 		///// <summary>
 		///// Prepare json settings to use

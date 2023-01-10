@@ -74,6 +74,10 @@ namespace COMMON
 
 		#region properties
 		/// <summary>
+		/// Indicate whether the LOG system is active or not
+		/// </summary>
+		public static bool Active { get => !_logfilename.IsNullOrEmpty(); }
+		/// <summary>
 		/// The date the file was created
 		/// </summary>
 		public static DateTime CreatedOn { get; private set; } = default;
@@ -87,7 +91,7 @@ namespace COMMON
 			{
 				if (_logfilename != value)
 				{
-					if (string.IsNullOrEmpty(value))
+					if (value.IsNullOrEmpty())
 						CloseLogFile();
 					else
 						OpenLogFile(value);
@@ -102,7 +106,7 @@ namespace COMMON
 		public static string LogFilePath
 		{
 			get => _logfilepath;
-			private set => _logfilepath = (string.IsNullOrEmpty(value) ? default : value + (Path.DirectorySeparatorChar != value[value.Length - 1] ? new string(Path.DirectorySeparatorChar, 1) : default));
+			private set => _logfilepath = (value.IsNullOrEmpty() ? default : value + (Path.DirectorySeparatorChar != value[value.Length - 1] ? new string(Path.DirectorySeparatorChar, 1) : default));
 		}
 		private static string _logfilepath = default;
 		/// <summary>

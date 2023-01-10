@@ -989,8 +989,10 @@ namespace COMMON
 		///// <param name="acceptEscape">True is ESCAPE can be accepted as a choice; if not already present it is added to the list of choices but returns 0 in <paramref name="choice"/></param>
 		///// <param name="resetPosition">If true position of the first choice is at the top of the window, after the current text otherwise</param>
 		///// <param name="colors">Collors to use to display the choice menu: <see cref="CConsoleColors.Input"/> will be used to display the choice while <see cref="CConsoleColors.Text"/> will be used to display the attached text of the choice; if not provided everything is display according to default <see cref="CMisc.ConsoleColors"/></param>
-		///// <returns>The <see cref="ConsoleKey"/> selected by the user</returns>
-		//public static ConsoleKey Choice(Dictionary<ConsoleKey, string> invites, out char choice, bool acceptEscape = false, bool resetPosition = false, CConsoleColors colors = null)
+		///// <returns>
+		///// The <see cref="ConsoleKeyInfo"/> selected by the user
+		///// </returns>
+		//public static ConsoleKeyInfo Choice(Dictionary<ConsoleKey, string> invites, out char choice, bool acceptEscape = false, bool resetPosition = false, CConsoleColors colors = null)
 		//{
 		//	colors = colors ?? ConsoleColors;
 		//	CMisc.ConsoleColors.SetTextColors();

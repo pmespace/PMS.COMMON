@@ -64,7 +64,7 @@ Public Class FTestCommon
 
 		If Not cbNewJson.Checked Then
 			Dim addnull As Boolean = True
-			json.WriteSettings(settings, addnull)
+			json.WriteSettings(settings)
 		Else
 			Dim except As Exception = Nothing
 			If rbAlphabetical.Checked Then

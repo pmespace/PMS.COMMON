@@ -105,7 +105,7 @@ namespace COMMON
 		/// <summary>
 		/// Read settings from a file
 		/// </summary>
-		/// <param name="serializerSettings">Settings to use to serialize, if null default settings will be used</param>
+		/// <param name="serializerSettings">Settings to use to deserialize, if null default settings will be used (missing members are ignored)</param>
 		/// <returns>
 		/// A structure of the specified settings if successful, null otherwise
 		/// </returns>
@@ -117,7 +117,7 @@ namespace COMMON
 		/// Read settings from a file
 		/// </summary>
 		/// <param name="except">The exception if one occurred</param>
-		/// <param name="serializerSettings">Settings to use to serialize, if null default settings will be used</param>
+		/// <param name="serializerSettings">Settings to use to deserialize, if null default settings will be used (missing members are ignored)</param>
 		/// <returns>
 		/// A structure of the specified settings if successful, null otherwise
 		/// </returns>
@@ -144,23 +144,53 @@ namespace COMMON
 			return default;
 		}
 		/// <summary>
-		/// Write settings of the specified type
+		/// Deserialize an object to a string
 		/// </summary>
-		/// <param name="o">The settings to write</param>
-		/// <param name="addNull">Indicates whether null values must be kept or not when serializing</param>
-		/// <param name="overwrite">Indicates whether writing can overwrite an existing file; if false and the existing file is not empty then a new file is created and the old one is being added a ".sav" extension</param>
+		/// <param name="o">The object to deserialize</param>
+		/// <param name="serializerSettings">Settings to use to deserialize, if null default settings will be used (missing members are ignored)</param>
 		/// <returns>
-		/// TRUE if the settings have been written, FALSE otherwise
+		/// The deserialized object if successful, null otherwise
 		/// </returns>
-		public bool WriteSettings(TSettings o, bool addNull = true, bool overwrite = true)
+		public static TSettings Deserialize(string o, JsonSerializerSettings serializerSettings = default)
 		{
-			return WriteSettings(o, out Exception except, SerializerSettings(addNull), overwrite);
+			return Deserialize(o, out Exception except, serializerSettings);
+		}
+		/// <summary>
+		/// Deserialize an object to a string
+		/// </summary>
+		/// <param name="o">The object to deserialize</param>
+		/// <param name="except">The exception if one occurred</param>
+		/// <param name="serializerSettings">Settings to use to deserialize, if null default settings will be used (missing members are ignored)</param>
+		/// <returns>
+		/// The deserialized object if successful, null otherwise
+		/// </returns>
+		public static TSettings Deserialize(string o, out Exception except, JsonSerializerSettings serializerSettings = default)
+		{
+			except = null;
+			try
+			{
+				serializerSettings = serializerSettings ?? DeserializerSettings();
+				return JsonConvert.DeserializeObject<TSettings>(o, serializerSettings);
+			}
+			catch (Exception ex)
+			{
+				except = ex;
+				CLog.EXCEPT(ex);
+				return default;
+			}
+		}
+		static JsonSerializerSettings DeserializerSettings(bool ignoreMissingMember = true)
+		{
+			return new JsonSerializerSettings()
+			{
+				MissingMemberHandling = ignoreMissingMember ? MissingMemberHandling.Ignore : MissingMemberHandling.Error,
+			};
 		}
 		/// <summary>
 		/// Write settings of the specified type
 		/// </summary>
 		/// <param name="o">The settings to write</param>
-		/// <param name="serializerSettings">Settings to use to serialize, if null default settings will be used</param>
+		/// <param name="serializerSettings">Settings to use to serialize, if null default settings will be used (null and default value added, indentation)</param>
 		/// <param name="overwrite">Indicates whether writing can overwrite an existing file; if false and the existing file is not empty then a new file is created and the old one is being added a ".sav" extension</param>
 		/// <returns>
 		/// TRUE if the settings have been written, FALSE otherwise
@@ -174,7 +204,7 @@ namespace COMMON
 		/// </summary>
 		/// <param name="o">The settings to write</param>
 		/// <param name="except">The exception if one occurred</param>
-		/// <param name="serializerSettings">Settings to use to serialize, if null default settings will be used</param>
+		/// <param name="serializerSettings">Settings to use to serialize, if null default settings will be used (null and default value added, indentation)</param>
 		/// <param name="overwrite">Indicates whether writing can overwrite an existing file; if false and the existing file is not empty then a new file is created and the old one is being added a ".sav" extension</param>
 		/// <returns>
 		/// A structure of the specified settings if successful, null otherwise
@@ -221,20 +251,20 @@ namespace COMMON
 		/// Serialize a TSettings object
 		/// </summary>
 		/// <param name="o">The object to serialize</param>
-		/// <param name="addNull">Indicates whether null values must be kept or not</param>
+		/// <param name="serializerSettings">Settings to use to serialize, if null default settings will be used (null and default value added, indentation)</param>
 		/// <returns>
 		/// A string representing the serialized object, null otherwise
 		/// </returns>
-		public static string Serialize(TSettings o, bool addNull = false)
+		public static string Serialize(TSettings o, JsonSerializerSettings serializerSettings = default)
 		{
-			return Serialize(o, out Exception except, SerializerSettings(addNull));
+			return Serialize(o, out Exception except, serializerSettings);
 		}
 		/// <summary>
 		/// Serialize a TSettings object
 		/// </summary>
 		/// <param name="o">The object to serialize</param>
 		/// <param name="except">The exception if one occurred</param>
-		/// <param name="serializerSettings">Settings to use to serialize, if null default settings will be used (no null values, indented)</param>
+		/// <param name="serializerSettings">Settings to use to serialize, if null default settings will be used (null and default value added, indentation)</param>
 		/// <returns>
 		/// A string representing the serialized object, null otherwise
 		/// </returns>
@@ -262,50 +292,7 @@ namespace COMMON
 				DefaultValueHandling = addDefaultValue ? DefaultValueHandling.Include : DefaultValueHandling.Ignore,
 			};
 		}
-		/// <summary>
-		/// Deserialize an object to a string
-		/// </summary>
-		/// <param name="o">The object to deserialize</param>
-		/// <param name="ignoreMissingMember">Indicates whether missing members must be ignored or not (thus preventing deserialization to complete)</param>
-		/// <returns>
-		/// The deserialized object if successful, null otherwise
-		/// </returns>
-		[Obsolete("Consider using Deserialize(string o, out Exception except, JsonSerializerSettings serializerSettings = null)", true)]
-		public static TSettings Deserialize(string o, bool ignoreMissingMember = true)
-		{
-			return Deserialize(o, out Exception except, DeserializerSettings(ignoreMissingMember));
-		}
-		/// <summary>
-		/// Deserialize an object to a string
-		/// </summary>
-		/// <param name="o">The object to deserialize</param>
-		/// <param name="except">The exception if one occurred</param>
-		/// <param name="serializerSettings">Settings to use to deserialize, if null default settings will be used (missing members are ignored, default values are added)</param>
-		/// <returns>
-		/// The deserialized object if successful, null otherwise
-		/// </returns>
-		public static TSettings Deserialize(string o, out Exception except, JsonSerializerSettings serializerSettings = default)
-		{
-			except = null;
-			try
-			{
-				serializerSettings = serializerSettings ?? DeserializerSettings();
-				return JsonConvert.DeserializeObject<TSettings>(o, serializerSettings);
-			}
-			catch (Exception ex)
-			{
-				except = ex;
-				CLog.EXCEPT(ex);
-				return default;
-			}
-		}
-		static JsonSerializerSettings DeserializerSettings(bool ignoreMissingMember = true)
-		{
-			return new JsonSerializerSettings()
-			{
-				MissingMemberHandling = ignoreMissingMember ? MissingMemberHandling.Ignore : MissingMemberHandling.Error,
-			};
-		}
+
 		///// <summary>
 		///// Prepare json settings to use
 		///// </summary>
@@ -321,6 +308,7 @@ namespace COMMON
 		//		MissingMemberHandling = ignoreMissingMember ? MissingMemberHandling.Ignore : MissingMemberHandling.Error,
 		//	};
 		//}
+
 		/// <summary>
 		/// Set <see cref="JsonSerializerSettings"/> to put base class properties first
 		/// </summary>

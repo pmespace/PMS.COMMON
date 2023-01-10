@@ -264,7 +264,7 @@ namespace COMMON
 				UseSsl = (!string.IsNullOrEmpty(ServerName));
 			}
 		}
-		private string _servername = string.Empty;
+		private string _servername = default;
 		/// <summary>
 		/// Use certificate security or not
 		/// </summary>
@@ -275,7 +275,7 @@ namespace COMMON
 		/// The full IP address
 		/// </summary>
 		[JsonIgnore]
-		public string FullIP { get => (IsValid ? IP + (0 != Port ? ":" + Port : string.Empty) : string.Empty); }
+		public string FullIP { get => (IsValid ? IP + (0 != Port ? ":" + Port : default) : default); }
 		/// <summary>
 		/// Connection timer specified in SECONDS
 		/// </summary>
@@ -311,7 +311,7 @@ namespace COMMON
 			//if (null != EndPoint)
 			//	return EndPoint.ToString();
 			//else
-			//	return string.Empty;
+			//	return default;
 			return $"Endpoint: {EndPoint}, Servername: {ServerName}, AllowedSslErrors: {AllowedSslErrors}, " + base.ToString();
 		}
 		/// <summary>

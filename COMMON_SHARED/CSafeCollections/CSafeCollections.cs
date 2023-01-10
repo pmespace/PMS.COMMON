@@ -3,14 +3,32 @@ using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace COMMON
 {
+	public abstract class CSafeBase
+	{
+		#region properties
+		/// <summary>
+		/// The tesxt to display when calling the ToString method and the list is empty
+		/// </summary>
+		[JsonIgnore]
+		public string Empty { get => _empty; set => _empty = value; }
+		string _empty = "empty";
+		#endregion
+	}
+
 	[ComVisible(true)]
 	[Guid("AF2F75A3-E80B-425D-B9B6-061CEDC0D3C1")]
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 	public interface ISafeList<T>
 	{
+		#region ISafeList properties
+		[DispId(1000)]
+		string Empty { get; set; }
+		#endregion
+
 		#region ISafeList properties
 		[DispId(1)]
 		List<T> List { get; }
@@ -26,23 +44,23 @@ namespace COMMON
 
 		#region ISafeList methods
 		[DispId(100)]
-		void Clear();
+		string ToString();
 		[DispId(101)]
-		bool Add(T item);
+		void Clear();
 		[DispId(102)]
-		bool Insert(T item, int index = 0);
+		bool Add(T item);
 		[DispId(103)]
-		bool Remove(T item);
+		bool Insert(T item, int index = 0);
 		[DispId(104)]
-		bool RemoveAt(int index);
+		bool Remove(T item);
 		[DispId(105)]
-		T Get(int i);
+		bool RemoveAt(int index);
 		[DispId(106)]
-		T[] ToArray();
+		T IndexOf(int i);
 		[DispId(107)]
-		string ToJson(JsonSerializerSettings settings = null);
+		T[] ToArray();
 		[DispId(108)]
-		void Reset();
+		string ToJson(JsonSerializerSettings settings = null);
 		[DispId(109)]
 		bool Contains(T item);
 		#endregion
@@ -50,7 +68,7 @@ namespace COMMON
 	[Guid("D9318A4A-0C92-4AAD-B8F3-6A5F96F2C9B0")]
 	[ClassInterface(ClassInterfaceType.None)]
 	[ComVisible(true)]
-	public class CSafeList<T> : ISafeList<T>
+	public class CSafeList<T> : CSafeBase, ISafeList<T>
 	{
 		#region constructor
 		public CSafeList() { }
@@ -64,7 +82,7 @@ namespace COMMON
 		/// The encapsulated list
 		/// </summary>
 		[JsonIgnore]
-		public List<T> List { get => _list; private set => _list = null != value ? value : _list; }
+		public List<T> List { get => _list; private set => _list = value ?? _list; }
 		List<T> _list = new List<T>();
 		/// <summary>
 		/// Number of objects inside the list
@@ -93,7 +111,7 @@ namespace COMMON
 					LastException = ex;
 					CLog.EXCEPT(ex);
 				}
-				return default(T);
+				return default;
 			}
 			set
 			{
@@ -124,6 +142,19 @@ namespace COMMON
 		#endregion
 
 		#region methods
+		public override string ToString()
+		{
+			if (0 == Count) return Empty;
+
+			int i = 0;
+			string s = default;
+			foreach (T k in this.List)
+			{
+				i++;
+				s += $" - {k}" + (i < Count ? Chars.CRLF : default);
+			}
+			return s;
+		}
 		/// <summary>
 		/// Clears the encapsulated list
 		/// </summary>
@@ -222,7 +253,7 @@ namespace COMMON
 		/// </summary>
 		/// <param name="index">Zero-based index of the object to fetch</param>
 		/// <returns>An object if successful, null otherwise</returns>
-		public T Get(int index) { return List[index]; }
+		public T IndexOf(int index) { return List[index]; }
 		/// <summary>
 		/// Get the the encapsulated list as an array
 		/// </summary>
@@ -238,7 +269,7 @@ namespace COMMON
 			{
 				Exception = false;
 				LastException = null;
-				return JsonConvert.SerializeObject(List, null != settings ? settings : new JsonSerializerSettings() { Formatting = Formatting.None, NullValueHandling = NullValueHandling.Ignore });
+				return JsonConvert.SerializeObject(List, settings ?? new JsonSerializerSettings() { Formatting = Formatting.None, NullValueHandling = NullValueHandling.Ignore });
 			}
 			catch (Exception ex)
 			{
@@ -248,10 +279,6 @@ namespace COMMON
 			}
 			return null;
 		}
-		/// <summary>
-		/// Reset the list empty
-		/// </summary>
-		public void Reset() { List.Clear(); }
 		/// <summary>
 		/// Tells whether the list contains at least 1 element of the specified value
 		/// </summary>
@@ -271,6 +298,9 @@ namespace COMMON
 		K Key { get; set; }
 		[DispId(2)]
 		T Value { get; set; }
+
+		[DispId(100)]
+		string ToString();
 		#endregion
 	}
 	[Guid("E975A182-43E1-4CAD-9E8B-F4E7BAD75EB2")]
@@ -282,6 +312,7 @@ namespace COMMON
 		public K Key { get; set; }
 		[JsonIgnore]
 		public T Value { get; set; }
+		public override string ToString() { return $"{Key} => {Value}"; }
 	}
 
 	[ComVisible(true)]
@@ -289,6 +320,11 @@ namespace COMMON
 	[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
 	public interface ISafeDictionary<K, T>
 	{
+		#region ISafeList properties
+		[DispId(1000)]
+		string Empty { get; set; }
+		#endregion
+
 		#region ISafeDictionary properties
 		[DispId(1)]
 		Dictionary<K, T> Dict { get; }
@@ -308,25 +344,25 @@ namespace COMMON
 
 		#region ISafeDictionary methods
 		[DispId(100)]
-		void Clear();
+		string ToString();
 		[DispId(101)]
-		bool Add(K k, T item);
+		void Clear();
 		[DispId(102)]
-		bool Remove(K k);
+		bool Add(K k, T item);
 		[DispId(103)]
-		bool ContainsKey(K k);
+		bool Remove(K k);
 		[DispId(104)]
-		CSafeKeyValue<K, T>[] ToArray();
+		bool ContainsKey(K k);
 		[DispId(105)]
+		CSafeKeyValue<K, T>[] ToArray();
+		[DispId(106)]
 		T Get(K k);
-		[DispId(108)]
-		void Reset();
 		#endregion
 	}
 	[Guid("C67F6A91-8D10-462A-9F28-67F08705942D")]
 	[ClassInterface(ClassInterfaceType.None)]
 	[ComVisible(true)]
-	public class CSafeDictionary<K, T> : ISafeDictionary<K, T>
+	public class CSafeDictionary<K, T> : CSafeBase, ISafeDictionary<K, T>
 	{
 		#region constructor
 		public CSafeDictionary() { }
@@ -339,8 +375,13 @@ namespace COMMON
 		/// The encapsulated dictionary
 		/// </summary>
 		[JsonIgnore]
-		public Dictionary<K, T> Dict { get => _dict; private set => _dict = null != value ? value : _dict; }
+		public Dictionary<K, T> Dict { get => _dict; private set => _dict = value ?? _dict; }
 		Dictionary<K, T> _dict = new Dictionary<K, T>();
+		/// <summary>
+		/// The dictionary sorted by key
+		/// </summary>
+		[JsonIgnore]
+		public Dictionary<K, T> SortedDict { get => Dict.OrderBy(x => x.Key).ToDictionary(x => x.Key, x => x.Value); }
 		/// <summary>
 		/// Number of objects inside the ldictionary
 		/// </summary>
@@ -394,7 +435,7 @@ namespace COMMON
 					LastException = ex;
 					CLog.EXCEPT(ex);
 				}
-				return default(T);
+				return default;
 			}
 			set
 			{
@@ -425,6 +466,19 @@ namespace COMMON
 		#endregion
 
 		#region methods
+		public override string ToString()
+		{
+			if (0 == Count) return Empty;
+
+			int i = 0;
+			string s = default;
+			foreach (KeyValuePair<K, T> k in this.SortedDict)
+			{
+				i++;
+				s += $" - {k.Key} => {k.Value}" + (i < Count ? Chars.CRLF : default);
+			}
+			return s;
+		}
 		/// <summary>
 		/// Clears the encapsulated dictionary
 		/// </summary>
@@ -493,8 +547,7 @@ namespace COMMON
 			CSafeKeyValue<K, T>[] e = new CSafeKeyValue<K, T>[Dict.Count];
 			foreach (KeyValuePair<K, T> k in Dict)
 			{
-				e[i].Key = k.Key;
-				e[i++].Value = k.Value;
+				e[i++] = new CSafeKeyValue<K, T>() { Key = k.Key, Value = k.Value };
 			}
 			return e;
 		}
@@ -514,7 +567,7 @@ namespace COMMON
 			{
 				Exception = false;
 				LastException = null;
-				return JsonConvert.SerializeObject(Dict, null != settings ? settings : new JsonSerializerSettings() { Formatting = Formatting.None, NullValueHandling = NullValueHandling.Ignore });
+				return JsonConvert.SerializeObject(Dict, settings ?? new JsonSerializerSettings() { Formatting = Formatting.None, NullValueHandling = NullValueHandling.Ignore });
 			}
 			catch (Exception ex)
 			{
@@ -524,10 +577,22 @@ namespace COMMON
 			}
 			return null;
 		}
-		/// <summary>
-		/// Reset the dictionary empty
-		/// </summary>
-		public void Reset() { Dict.Clear(); }
 		#endregion
 	}
+
+	/// <summary>
+	/// base class for lists of strings
+	/// </summary>
+	[Guid("36E77450-B165-4F64-9B67-280D4986FCB8")]
+	[ClassInterface(ClassInterfaceType.None)]
+	[ComVisible(true)]
+	public class CStringList : CSafeList<string>, ISafeList<string> { }
+
+	/// <summary>
+	/// base class for dictionaries of any kind with a string key
+	/// </summary>
+	[Guid("629FE821-B788-4593-8B92-C5DF4B408E83")]
+	[ClassInterface(ClassInterfaceType.None)]
+	[ComVisible(true)]
+	public class CStringTDictionary<T> : CSafeDictionary<string, T>, ISafeDictionary<string, T> { }
 }

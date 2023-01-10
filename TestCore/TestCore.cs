@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Net.Security;
 using System.Collections.Generic;
 using COMMON;
+using Newtonsoft.Json.Serialization;
 
 namespace TestCore
 {
@@ -29,6 +30,7 @@ namespace TestCore
 
 		#region properties
 		private SortedDictionary<char, CMenu> Menu = new SortedDictionary<char, CMenu>();
+		//private Dictionary<ConsoleKey, string> Choice = new Dictionary<ConsoleKey, string>();
 		private uint Port = 29134;
 		private bool UseSSL = false;
 		CStreamServer server = null;
@@ -42,7 +44,14 @@ namespace TestCore
 		#region main method
 		public int Start(string[] args)
 		{
-			string unique = null;
+			DateTime dt1 = DateTime.Now;
+			CStreamClientSettings q = new CStreamClientSettings() { IP = "localhost", Port = 2018 };
+			DateTime dt2 = DateTime.Now;
+			TimeSpan ts = dt2.Subtract(dt1);
+			Console.WriteLine($"duration: {ts}");
+
+			CLog.LogFileName = "testcore.log";
+			string unique = default;
 			string tmpf = CMisc.GetTempFileName(out string path, out string fname, ref unique, null, null, "json");
 			tmpf = CMisc.GetTempFileName(out path, out fname, ref unique);
 			unique = null; tmpf = CMisc.GetTempFileName(out path, out fname, ref unique, null, null, ".json", false, "*");
@@ -58,24 +67,29 @@ namespace TestCore
 			dir = CMisc.VerifyDirectory(@"c:\testcommon.exe", false);
 			dir = CMisc.VerifyDirectory(@"c:\testcommon.exe", true);
 
+			CMisc.ConsoleColors.InputForegroundColor = ConsoleColor.Cyan;
+
+			CMisc.Input("hello", default, out bool isdef, "invite");
 
 
 			MySafeDict hh = new MySafeDict();
-			hh.Add("123", new object());
 			hh.Add("456", new object());
+			hh.Add("123", new object());
 			object o = hh["123"];
 			o = hh["789"];
 			string json = hh.ToJson();
+			var hhr = hh.ToArray();
 
 			MySafeList ll = new MySafeList();
-			ll.Add("123");
 			ll.Add("456");
+			ll.Add("123");
 			string ls = ll[0];
 			ls = ll[255];
 			ll.Insert("wopa", 255);
 			ls = ll[255];
 			ls = ll[2];
 			json = ll.ToJson();
+			var llr = ll.ToArray();
 
 			//string[] yes1 = { "OUI", "O" };
 			//string[] yes2 = { "123", "3" };
@@ -87,6 +101,7 @@ namespace TestCore
 			//Console.WriteLine(CMisc.YesNo("useDeult/YES/no ESC", true, true, false, null, no2, true) ? "YES" : "NO");
 			//Console.WriteLine(CMisc.YesNo("not useDeult/YES/ESC", true, true, false, yes2, null) ? "YES" : "NO");
 			//Console.WriteLine(CMisc.YesNo("useDeult/YES/no ESC", true, true, false, null, no2) ? "YES" : "NO");
+
 
 			Menu.Add('1', new CMenu() { Text = "Start server", Fnc = StartServer });
 			Menu.Add('2', new CMenu() { Text = "Stop server", Fnc = StopServer });
@@ -105,6 +120,7 @@ namespace TestCore
 				ok = fnc(c);
 			}
 			StopServer('2');
+			CMisc.ConsoleColors.ResetColors();
 			return 0;
 		}
 		/// <summary>
@@ -113,14 +129,21 @@ namespace TestCore
 		/// <returns></returns>
 		private DFnc DisplayMenu(out char c)
 		{
+			CMisc.ConsoleColors.SetTextColors();
+
 			Console.WriteLine("");
 			foreach (KeyValuePair<char, CMenu> m in Menu)
 				Console.WriteLine($"{m.Key}/ {m.Value.Text}");
 			do
 			{
+				CMisc.ConsoleColors.SetInputColors();
 				ConsoleKeyInfo keyInfo = Console.ReadKey(true);
 				c = keyInfo.KeyChar.ToString().ToUpper()[0];
 			} while (!Menu.ContainsKey(c));
+			CMisc.ConsoleColors.SetTextColors();
+
+			//CMisc.Choice(new Dictionary<ConsoleKey, string>() { })
+
 			return Menu[c].Fnc;
 		}
 		/// <summary>
@@ -208,11 +231,16 @@ namespace TestCore
 			if (null != clientIO)
 			{
 				clientIO.Send("hello");
+				CMisc.ConsoleColors.SetInputColors();
 				Console.ReadKey();
+				CMisc.ConsoleColors.SetTextColors();
 				Console.WriteLine($"Client connected: {clientIO.Connected}");
+				CMisc.ConsoleColors.SetInputColors();
 				Console.ReadKey();
 				StopServer(c);
+				CMisc.ConsoleColors.SetInputColors();
 				Console.ReadKey();
+				CMisc.ConsoleColors.SetTextColors();
 				Console.WriteLine($"Client connected: {clientIO.Connected}");
 				clientIO.Close();
 			}
@@ -225,7 +253,10 @@ namespace TestCore
 		bool ServerStatistics(char c)
 		{
 			if (null != server)
+			{
+				CMisc.ConsoleColors.SetTextColors();
 				Console.WriteLine(server.Statistics());
+			}
 			return true;
 		}
 		/// <summary>
@@ -242,7 +273,9 @@ namespace TestCore
 				ServerName = UseSSL ? "hello world" : null,
 				ConnectTimeout = 10,
 			};
+			CMisc.ConsoleColors.SetTextColors();
 			Console.Write("Message to send: ");
+			CMisc.ConsoleColors.SetInputColors();
 			string request = Console.ReadLine();
 			string reply = null;
 			if (null != (reply = CStream.ConnectSendReceive(settings, string.IsNullOrEmpty(request) ? DateTime.Now.ToString() : request, out int size, out bool error)))

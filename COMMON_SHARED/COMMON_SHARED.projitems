@@ -23,6 +23,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)CStream\CStreamDelegates.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CStream\CStreamServer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CStream\CStreamSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CSynchronize\CSynchronize.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CThread\CThread.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CThread\CThreadData.cs" />
   </ItemGroup>

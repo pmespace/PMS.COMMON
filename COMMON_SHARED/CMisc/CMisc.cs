@@ -5,6 +5,7 @@ using System.Text;
 using System;
 using System.IO;
 using System.Xml.Linq;
+using System.Collections.Generic;
 
 namespace COMMON
 {
@@ -27,6 +28,36 @@ namespace COMMON
 		public const string REGEX_URL_WITH_PORT = REGEX_HEADER + REGEX_URL_CHARACTER_SET + "+" + REGEX_IPV4_PORT_NUMBER_PART + REGEX_TRAILER;
 	}
 
+	[ComVisible(false)]
+	public class CConsoleColors
+	{
+		public CConsoleColors()
+		{
+			Default = new Colors();
+			Text = new Colors();
+			Input = new Colors();
+		}
+		class Colors
+		{
+			public Colors() { ForegroundColor = Console.ForegroundColor; BackgroundColor = Console.BackgroundColor; }
+			public Colors(Colors c) { ForegroundColor = c.ForegroundColor; BackgroundColor = c.BackgroundColor; }
+			public ConsoleColor ForegroundColor { get; set; }
+			public ConsoleColor BackgroundColor { get; set; }
+		}
+		Colors Default;
+		Colors Text;
+		Colors Input;
+		public ConsoleColor TextForegroundColor { get => Text.ForegroundColor; set => Text.ForegroundColor = value; }
+		public ConsoleColor TextBackgroundColor { get => Text.BackgroundColor; set => Text.BackgroundColor = value; }
+		public ConsoleColor InputForegroundColor { get => Input.ForegroundColor; set => Input.ForegroundColor = value; }
+		public ConsoleColor InputBackgroundColor { get => Input.BackgroundColor; set => Input.BackgroundColor = value; }
+		public void ResetColors() { Console.ForegroundColor = Default.ForegroundColor; Console.BackgroundColor = Default.BackgroundColor; }
+		public void SetTextColors() { Console.ForegroundColor = Text.ForegroundColor; Console.BackgroundColor = Text.BackgroundColor; }
+		public void ResetTextColors() { TextForegroundColor = Default.ForegroundColor; TextBackgroundColor = Default.BackgroundColor; }
+		public void SetInputColors() { Console.ForegroundColor = Input.ForegroundColor; Console.BackgroundColor = Input.BackgroundColor; }
+		public void ResetInputColors() { InputForegroundColor = Default.ForegroundColor; InputBackgroundColor = Default.BackgroundColor; }
+	}
+
 	/// <summary>
 	/// COMMON extensions to c#
 	/// </summary>
@@ -47,7 +78,7 @@ namespace COMMON
 		public static string Replace(this string str, string oldValue, string @newValue, StringComparison comparisonType)
 		{
 			// Check inputs.
-			if (str == null)
+			if (str.IsNullOrEmpty())
 			{
 				// Same as original .NET C# string.Replace behavior.
 				throw new ArgumentNullException(nameof(str));
@@ -57,7 +88,7 @@ namespace COMMON
 				// Same as original .NET C# string.Replace behavior.
 				return str;
 			}
-			if (oldValue == null)
+			if (oldValue.IsNullOrEmpty())
 			{
 				// Same as original .NET C# string.Replace behavior.
 				throw new ArgumentNullException(nameof(oldValue));
@@ -122,7 +153,7 @@ namespace COMMON
 		/// <returns>True if null or Length=0, false otherwise</returns>
 		public static bool IsNullOrEmpty(this byte[] ab)
 		{
-			return (null == ab || 0 == ab.Length);
+			return (default == ab || 0 == ab.Length);
 		}
 		/// <summary>
 		/// Indicates whether a string is null or empty
@@ -157,22 +188,10 @@ namespace COMMON
 		public const int FOURBYTES = 4;
 		public const int EIGHTBYTES = 8;
 		public const int UNKNOWN = -int.MaxValue;
-		///// <summary>
-		///// Converts an array of bytes to a UTF-8 string (if possible)
-		///// </summary>
-		///// <param name="buffer">The array of bytes to convert</param>
-		///// <returns>The converted array into a UTF-8 string if successful, an empty string if any error occured</returns>
-		//public static string BytesToStr(byte[] buffer)
-		//{
-		//	if (null == buffer || 0 == buffer.Length) return null;
-		//	string res = string.Empty;
-		//	try
-		//	{
-		//		res = Encoding.UTF8.GetString(buffer);
-		//	}
-		//	catch (Exception) { res = null; }
-		//	return res;
-		//}
+
+		public static CConsoleColors ConsoleColors { get => _colors; }
+		static CConsoleColors _colors = new CConsoleColors();
+
 		/// <summary>
 		/// Safe string to int function
 		/// </summary>
@@ -339,7 +358,7 @@ namespace COMMON
 		/// <returns>A long describing the value stored inside the array of bytes, 0 otherwise</returns>
 		public static long GetIntegralTypeValueFromBytes(byte[] buffer, int start, int maxlen = CMisc.FOURBYTES)
 		{
-			if (null == buffer || 0 == buffer.Length || buffer.Length <= start || maxlen > sizeof(long)) return 0;
+			if (buffer.IsNullOrEmpty() || buffer.Length <= start || maxlen > sizeof(long)) return 0;
 			long l = 0;
 			maxlen = Math.Min(buffer.Length - start, maxlen);
 			byte[] ab = new byte[maxlen];
@@ -445,7 +464,7 @@ namespace COMMON
 		public static int LenToUse(byte[] buffer, ref int minlen, ref int maxlen)
 		{
 			AdjustMinMax1N(ref minlen, ref maxlen);
-			if (null == buffer || 0 == buffer.Length) return 0;
+			if (buffer.IsNullOrEmpty()) return 0;
 			int len = buffer.Length;
 			if (len >= minlen && len <= maxlen)
 				return len;
@@ -567,24 +586,6 @@ namespace COMMON
 			}
 			return ab;
 		}
-		///// <summary>
-		///// Converts an array of bytes to an hexadecimal string
-		///// Each byte gives a 2 chars hexadecimal value
-		///// </summary>
-		///// <param name="buffer">The array of bytes to convert</param>
-		///// <returns>The converted array into a string if successful, an empty string if any error occured</returns>
-		//public static string BinToHex(byte[] buffer)
-		//{
-		//	if (null == buffer || 0 == buffer.Length) return null;
-		//	string res = string.Empty;
-		//	try
-		//	{
-		//		foreach (byte b in buffer)
-		//			res += b.ToString("X2");
-		//	}
-		//	catch (Exception) { res = null; }
-		//	return res;
-		//}
 		/// <summary>
 		/// Converts a numric value to it hexadecimal representation
 		/// THIS FUNCTION MAY THROW AN EXCEPTION
@@ -595,7 +596,7 @@ namespace COMMON
 		/// <returns>A string with the hexadecimal representation of the passed value or an exception if an error occurs</returns>
 		public static string ValueToHex(decimal v, int minlen = 0, bool oddLengthAllowed = false)
 		{
-			string s = string.Empty;
+			string s = default;
 			while (0 != v)
 			{
 				int f = (int)(v % 16);
@@ -675,7 +676,7 @@ namespace COMMON
 		/// <returns>true if the value is contained inside the enum type, false otherwise</returns>
 		public static bool IsEnumValue(Type T, object value)
 		{
-			if (null != value)
+			if (default != value)
 				try
 				{
 					return Enum.IsDefined(T, value);
@@ -692,13 +693,13 @@ namespace COMMON
 		/// <returns>The litteral string describing the value inside the enum, null if it does not exist</returns>
 		public static string GetEnumName(Type T, object value)
 		{
-			if (null != value)
+			if (default != value)
 				try
 				{
 					return Enum.GetName(T, value);
 				}
 				catch (Exception) { }
-			return null;
+			return default;
 		}
 		/// <summary>
 		/// Get the litteral name of an enum value
@@ -714,7 +715,7 @@ namespace COMMON
 		/// <param name="value">The value to verify</param>
 		/// <param name="defv">Default value to use if <paramref name="value"/> to search is not found; if null then <see cref="CMisc.UNKNOWN"/> will be used as the default value</param>
 		/// <returns><paramref name="value"/> if it is inside the enumeration, <paramref name="defv"/> is not inside the enumeration</returns>
-		public static object GetEnumValue(Type T, string value, object defv = null)
+		public static object GetEnumValue(Type T, string value, object defv = default)
 		{
 			try
 			{
@@ -734,7 +735,7 @@ namespace COMMON
 		/// <param name="value">The value to verify</param>
 		/// <param name="defv">Default value to use if <paramref name="value"/> to search is not found; if null then <see cref="CMisc.UNKNOWN"/> will be used as the default value</param>
 		/// <returns><paramref name="value"/> if it is inside the enumeration, <paramref name="defv"/> is not inside the enumeration</returns>
-		public static object EnumGetValue(Type T, string value, object defv = null) { return GetEnumValue(T, value, defv); }
+		public static object EnumGetValue(Type T, string value, object defv = default) { return GetEnumValue(T, value, defv); }
 		/// <summary>
 		/// Returns the simples form of a string
 		/// </summary>
@@ -743,10 +744,10 @@ namespace COMMON
 		public static string Trimmed(string s)
 		{
 			if (string.IsNullOrEmpty(s))
-				return null;
+				return default;
 			s = s.Trim();
 			if (string.IsNullOrEmpty(s))
-				return null;
+				return default;
 			return s;
 		}
 		/// <summary>
@@ -758,7 +759,7 @@ namespace COMMON
 		{
 			s = Trimmed(s);
 			if (string.IsNullOrEmpty(s))
-				return null;
+				return default;
 			return s.ToLower();
 		}
 		/// <summary>
@@ -768,7 +769,7 @@ namespace COMMON
 		/// <returns>The string  or an empty string</returns>
 		public static string AsString(string s)
 		{
-			return string.IsNullOrEmpty(s) ? string.Empty : s;
+			return string.IsNullOrEmpty(s) ? default : s;
 		}
 		/// <summary>
 		/// Returns the string inside an array of bytes
@@ -778,7 +779,7 @@ namespace COMMON
 		/// <returns>The string contained inside the array of bytes or an empty string</returns>
 		public static string AsString(byte[] ab, bool asUtf8 = true)
 		{
-			string s = string.Empty;
+			string s = default;
 			try
 			{
 				s = asUtf8 ? Encoding.UTF8.GetString(ab) : Encoding.ASCII.GetString(ab);
@@ -794,14 +795,14 @@ namespace COMMON
 		/// <returns>The converted array into a string if successful, an empty string if any error occured</returns>
 		public static string AsHexString(byte[] buffer)
 		{
-			if (null == buffer || 0 == buffer.Length) return null;
-			string res = string.Empty;
+			if (buffer.IsNullOrEmpty()) return default;
+			string res = default;
 			try
 			{
 				foreach (byte b in buffer)
 					res += b.ToString("X2");
 			}
-			catch (Exception) { res = string.Empty; }
+			catch (Exception) { res = default; }
 			return res;
 		}
 		/// <summary>
@@ -828,26 +829,6 @@ namespace COMMON
 			assemblyFile,
 			assemblyInfo,
 		}
-		///// <summary>
-		///// Get the value associated to an enum entry from its name
-		///// </summary>
-		///// <param name="T">The enum type to check against</param>
-		///// <param name="s">The name of the value</param>
-		///// <param name="def">Default value to use, if null <see cref="CMisc.UNKNOWN"/> will be used</param>
-		///// <returns>The value represented by the string inside the enum, UNKNOWN if the string does not exist inside the enum</returns>
-		//public static object GetEnumValue(Type T, string s, object def = null)
-		//{
-		//	if (null == def)
-		//		def = (object)UNKNOWN;
-		//	if (!string.IsNullOrEmpty(s))
-		//		try
-		//		{
-		//			if (Enum.IsDefined(T, s))
-		//				return Enum.Parse(T, s);
-		//		}
-		//		catch (Exception) { }
-		//	return def;
-		//}
 		/// <summary>
 		/// Allows verifying a folder exists, eventually with write privileges if required
 		/// </summary>
@@ -868,12 +849,12 @@ namespace COMMON
 				}
 				else if (!Directory.Exists(final))
 				{
-					final = string.Empty;
+					final = default;
 				}
 			}
 			catch (Exception)
 			{
-				final = string.Empty;
+				final = default;
 			}
 			// try to determine if a file name or directory name
 			if (!final.IsNullOrEmpty())
@@ -902,9 +883,8 @@ namespace COMMON
 				}
 				catch (Exception) { }
 				// arrived here write access is not granted
-				return null;
 			}
-			return null;
+			return default;
 		}
 		/// <summary>
 		/// Get a temporary file name with multiple variations
@@ -918,13 +898,13 @@ namespace COMMON
 		/// <param name="useguid">True if a guid must be used to generate a file name</param>
 		/// <param name="separator">Separator to use between parts (prefix, postfix, guid) to generate the file name</param>
 		/// <returns>Full file name including path</returns>
-		public static string GetTempFileName(out string path, out string fname, ref string uniquePart, string prefix = null, string postfix = null, string extension = null, bool useguid = false, string separator = "-")
+		public static string GetTempFileName(out string path, out string fname, ref string uniquePart, string prefix = default, string postfix = default, string extension = default, bool useguid = false, string separator = "-")
 		{
-			Func<string, bool, string, string> GetPart = (string _part_, bool _before_, string _sep_) => { return _part_.IsNullOrEmpty() ? string.Empty : _before_ ? $"{_sep_}{_part_}" : $"{_part_}{_sep_}"; };
+			Func<string, bool, string, string> GetPart = (string _part_, bool _before_, string _sep_) => { return _part_.IsNullOrEmpty() ? default : _before_ ? $"{_sep_}{_part_}" : $"{_part_}{_sep_}"; };
 
 			string tempFileName = Path.GetTempFileName();
-			uniquePart = uniquePart.IsNullOrEmpty() ? $"{Path.GetFileNameWithoutExtension(tempFileName)}{(useguid ? GetPart(Guid.NewGuid().ToString("N"), true, separator) : string.Empty)}" : uniquePart;
-			string ext = extension.IsNullOrEmpty() ? Path.GetExtension(tempFileName) : GetPart(extension, true, extension.StartsWith(".") ? string.Empty : ".");
+			uniquePart = uniquePart.IsNullOrEmpty() ? $"{Path.GetFileNameWithoutExtension(tempFileName)}{(useguid ? GetPart(Guid.NewGuid().ToString("N"), true, separator) : default)}" : uniquePart;
+			string ext = extension.IsNullOrEmpty() ? Path.GetExtension(tempFileName) : GetPart(extension, true, extension.StartsWith(".") ? default : ".");
 			fname = $"{GetPart(prefix, false, separator)}{uniquePart}{GetPart(postfix, true, separator)}{ext}";
 			path = Path.GetDirectoryName(tempFileName);
 			string fullName = Path.Combine(path, fname);
@@ -951,16 +931,16 @@ namespace COMMON
 		/// <param name="novalues">A set of 2 strings indicating the string to display for "NO" and the character meaning NO (i.e. {"No", "N"}, {"Non", "N"},... If not or partially set the function will use {"NO", "N"}</param>
 		/// <param name="displayYesNo">If true the function will display "question (YES=Y/NO=N)", if false it will display  "question (Y/N)", according to <paramref name="yesvalues"/> and <paramref name="novalues"/> values</param>
 		/// <returns>True if YES, false if NO</returns>
-		public static bool YesNo(string msg, bool useDefault = false, bool theDefault = true, bool useESC = false, string[] yesvalues = null, string[] novalues = null, bool displayYesNo = false)
+		public static bool YesNo(string msg, bool useDefault = false, bool theDefault = true, bool useESC = false, string[] yesvalues = default, string[] novalues = default, bool displayYesNo = true)
 		{
 			const string YES = "YES";
 			const string NO = "NO";
 			const string Y = "Y";
 			const string N = "N";
-			string lyes = null == yesvalues || 0 == yesvalues.Length || 0 == yesvalues[0].Length ? YES : yesvalues[0];
-			string syes = null == yesvalues || 1 > yesvalues.Length || 0 == yesvalues[1].Length ? Y : yesvalues[1].Substring(0, 1);
-			string lno = null == novalues || 0 == novalues.Length || 0 == novalues[0].Length ? NO : novalues[0];
-			string sno = null == novalues || 1 > novalues.Length || 0 == novalues[1].Length ? N : novalues[1].Substring(0, 1);
+			string lyes = default == yesvalues || 0 == yesvalues.Length || 0 == yesvalues[0].Length ? YES : yesvalues[0];
+			string syes = default == yesvalues || 1 > yesvalues.Length || 0 == yesvalues[1].Length ? Y : yesvalues[1].Substring(0, 1);
+			string lno = default == novalues || 0 == novalues.Length || 0 == novalues[0].Length ? NO : novalues[0];
+			string sno = default == novalues || 1 > novalues.Length || 0 == novalues[1].Length ? N : novalues[1].Substring(0, 1);
 			if (0 == string.Compare(lyes, lno, true))
 			{
 				lyes = YES;
@@ -976,10 +956,12 @@ namespace COMMON
 			string defaultA = theDefault ? syes : sno;
 			string confirm = syes + sno;
 			string answer = defaultA;
+			ConsoleColors.SetTextColors();
 			Console.WriteLine();
-			Console.Write(msg + $" ({(displayYesNo ? lyes + "=" : null)}{syes}/{(displayYesNo ? lno + "=" : null)}{sno})" + (useDefault ? $" [{defaultA}]" : null) + " ? ");
+			Console.Write(msg + $" ({(displayYesNo ? lyes + "=" : default)}{syes}/{(displayYesNo ? lno + "=" : default)}{sno})" + (useDefault ? $" [{defaultA}]" : default) + " ? ");
 			do
 			{
+				ConsoleColors.SetInputColors();
 				ConsoleKeyInfo keyInfo = Console.ReadKey(true);
 				if (useDefault && ConsoleKey.Enter == keyInfo.Key)
 				{
@@ -994,20 +976,123 @@ namespace COMMON
 					answer = keyInfo.KeyChar.ToString().ToUpper();
 				}
 			} while (!confirm.Contains(answer));
+			ConsoleColors.ResetColors();
 			return 0 == string.Compare(syes, answer, true);
 		}
+		///// <summary>
+		///// [CONSOLE ONLY] Request a YES/NO answer.
+		///// Once requested the naswer entered by the user is a 1 character long string.
+		///// This function can also being used to request a digit among 2 (1 or 2 for instance).
+		///// </summary>
+		///// <param name="invites">A dictionary containing the keys to choose and the attached messages to display</param>
+		///// <param name="choice">[OUT] the chosen character (if any)</param>
+		///// <param name="acceptEscape">True is ESCAPE can be accepted as a choice; if not already present it is added to the list of choices but returns 0 in <paramref name="choice"/></param>
+		///// <param name="resetPosition">If true position of the first choice is at the top of the window, after the current text otherwise</param>
+		///// <param name="colors">Collors to use to display the choice menu: <see cref="CConsoleColors.Input"/> will be used to display the choice while <see cref="CConsoleColors.Text"/> will be used to display the attached text of the choice; if not provided everything is display according to default <see cref="CMisc.ConsoleColors"/></param>
+		///// <returns>The <see cref="ConsoleKey"/> selected by the user</returns>
+		//public static ConsoleKey Choice(Dictionary<ConsoleKey, string> invites, out char choice, bool acceptEscape = false, bool resetPosition = false, CConsoleColors colors = null)
+		//{
+		//	colors = colors ?? ConsoleColors;
+		//	CMisc.ConsoleColors.SetTextColors();
+		//	Console.SetCursorPosition(0, resetPosition ? 0 : Console.CursorTop);
+
+		//	Func<ConsoleKey, string> GetStringToDisplay = (ConsoleKey _k_) =>
+		//	{
+		//		string _s_ = default;
+		//		switch (_k_)
+		//		{
+		//			case ConsoleKey.D0:
+		//			case ConsoleKey.D1:
+		//			case ConsoleKey.D2:
+		//			case ConsoleKey.D3:
+		//			case ConsoleKey.D4:
+		//			case ConsoleKey.D5:
+		//			case ConsoleKey.D6:
+		//			case ConsoleKey.D7:
+		//			case ConsoleKey.D8:
+		//			case ConsoleKey.D9:
+		//			case ConsoleKey.NumPad0:
+		//			case ConsoleKey.NumPad1:
+		//			case ConsoleKey.NumPad2:
+		//			case ConsoleKey.NumPad3:
+		//			case ConsoleKey.NumPad4:
+		//			case ConsoleKey.NumPad5:
+		//			case ConsoleKey.NumPad6:
+		//			case ConsoleKey.NumPad7:
+		//			case ConsoleKey.NumPad8:
+		//			case ConsoleKey.NumPad9:
+		//				_s_ = _k_.ToString().Substring(_k_.ToString().Length - 1);
+		//				break;
+		//			case ConsoleKey.Escape:
+		//				_s_ = "ESC";
+		//				break;
+		//			case ConsoleKey.Tab:
+		//				_s_ = "TAB";
+		//				break;
+		//			case ConsoleKey.Spacebar:
+		//				_s_ = "SPACE";
+		//				break;
+		//		}
+		//		return _s_;
+		//	};
+
+		//	// determines the maximum length of an choice to display
+		//	int length = 0;
+		//	foreach (KeyValuePair<ConsoleKey, string> m in invites)
+		//	{
+		//		length = Math.Max(GetStringToDisplay(m.Key).Length, length);
+		//	}
+		//	// prepare the strings to display
+		//	Dictionary<string, string> msg = new Dictionary<string, string>();
+		//	Console.WriteLine();
+		//	foreach (KeyValuePair<ConsoleKey, string> m in invites)
+		//	{
+		//		if (!m.Value.IsNullOrEmpty())
+		//		{
+		//			string s = GetStringToDisplay(m.Key);
+		//			s = new string(' ', length - s.Length) + s;
+		//			colors.SetInputColors();
+		//			Console.Write($"{s}");
+		//			colors.SetTextColors();
+		//			Console.WriteLine($"/ {m.Value}");
+		//		}
+		//	}
+
+		//	// if ESC is accepted but not present we add it, iot won't be displayed
+		//	if (acceptEscape)
+		//		try { invites.Add(ConsoleKey.Escape, default); }
+		//		catch (Exception) { }
+
+		//	// start waiting for entry
+		//	ConsoleKeyInfo keyInfo;
+		//	do
+		//	{
+		//		ConsoleColors.SetInputColors();
+		//		keyInfo = Console.ReadKey(true);
+		//		choice = keyInfo.KeyChar;
+		//	} while (!invites.ContainsKey(keyInfo.Key));
+		//	CMisc.ConsoleColors.SetTextColors();
+		//	return keyInfo.Key;
+		//}
+		//public struct ChoiceEntry
+		//{
+		//	public ConsoleKey Key;
+		//	public string Text;
+		//}
 		/// <summary>
 		/// [CONSOLE ONLY] Request an entry with the possibility of a default value
 		/// </summary>
 		/// <param name="msg">Message to display to request the entry</param>
 		/// <param name="defv">Default value (in case of direct ENTER)</param>
 		/// <param name="isdef">True if the default value has been chosen</param>
-		/// <param name="invite">If something has been entered, the function displays it precedeed by this invite</param>
+		/// <param name="invite">If something has been entered the function displays it precedeed by this invite</param>
 		/// <returns></returns>
-		public static string Input(string msg, string defv, out bool isdef, string invite = null)
+		public static string Input(string msg, string defv, out bool isdef, string invite = default)
 		{
+			ConsoleColors.SetTextColors();
 			Console.WriteLine();
-			Console.Write(msg + (!defv.IsNullOrEmpty() ? $" [{defv}]" : null) + ": ");
+			Console.Write(msg + (!defv.IsNullOrEmpty() ? $" [{defv}]" : default) + ": ");
+			ConsoleColors.SetInputColors();
 			string s = Console.ReadLine();
 			if (isdef = (!defv.IsNullOrEmpty() && s.IsNullOrEmpty()))
 			{
@@ -1015,7 +1100,8 @@ namespace COMMON
 				Console.WriteLine(invite + s);
 			}
 			else if (string.IsNullOrEmpty(s))
-				s = null;
+				s = default;
+			ConsoleColors.ResetColors();
 			return s;
 		}
 		/// <summary>
@@ -1025,7 +1111,7 @@ namespace COMMON
 		/// <param name="option">The option to look for</param>
 		/// <param name="index">Index of the option inside the list of arguments, -1 if not found</param>
 		/// <param name="occurrence">Occurrence (1 based) of the option in the list of arguments, if the option can be present more than once</param>
-		/// <returns>The value of the option if present with the indicated occurrence (it could be an empty string <see cref="string.Empty"/>), null if not present</returns>
+		/// <returns>The value of the option if present with the indicated occurrence (it could be an empty string), null if not present</returns>
 		public static string SearchInArgs(string[] args, string option, out int index, int occurrence = 1)
 		{
 			index = -1;
@@ -1035,7 +1121,7 @@ namespace COMMON
 				try
 				{
 					string fulloption;
-					if (args[i].StartsWith(fulloption = $"-{option}", true, null) || args[i].StartsWith(fulloption = $"/{option}", true, null))
+					if (args[i].StartsWith(fulloption = $"-{option}", true, default) || args[i].StartsWith(fulloption = $"/{option}", true, default))
 					{
 						// the option has been found, update the occurrence
 						k++;
@@ -1050,7 +1136,7 @@ namespace COMMON
 				}
 				catch (Exception) { }
 			}
-			return null;
+			return default;
 		}
 		/// <summary>
 		/// Build a date to a specied format
@@ -1092,7 +1178,7 @@ namespace COMMON
 				case DateFormat.hhmmssmmmEx:
 					return dt.ToString("HH:mm:ss.fff");
 				default:
-					return string.Empty;
+					return default;
 			}
 		}
 		[ComVisible(true)]

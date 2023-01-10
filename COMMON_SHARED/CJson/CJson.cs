@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace COMMON
 {
-	public static class CJsonTypeExtensions
+	static class CJsonTypeExtensions
 	{
 		public static IEnumerable<Type> BaseTypesAndSelf(this Type type)
 		{
@@ -54,7 +54,7 @@ namespace COMMON
 			get => _filename;
 			set
 			{
-				value = string.IsNullOrEmpty(value) ? string.Empty : value.Trim();
+				value = string.IsNullOrEmpty(value) ? default : value.Trim();
 				// check whether the file is valid or not
 				try
 				{
@@ -64,15 +64,15 @@ namespace COMMON
 				catch (Exception ex)
 				{
 					CLog.EXCEPT(ex, $"File {value} can't be found");
-					_filename = null;
+					_filename = default;
 				}
 			}
 		}
-		private string _filename = null;
+		private string _filename = default;
 		/// <summary>
 		/// To write elements base class before child class
 		/// </summary>
-		IContractResolver baseFirstResolver = new BaseFirstContractResolver { };
+		static readonly IContractResolver baseFirstResolver = new BaseFirstContractResolver { };
 		class BaseFirstContractResolver : DefaultContractResolver
 		{
 			protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization) =>
@@ -82,7 +82,7 @@ namespace COMMON
 		/// <summary>
 		/// To write elements in alphabatical order
 		/// </summary>
-		IContractResolver alphabeticalResolver = new AlphabeticalContractResolver { };
+		static readonly IContractResolver alphabeticalResolver = new AlphabeticalContractResolver { };
 		class AlphabeticalContractResolver : DefaultContractResolver
 		{
 			protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization) =>
@@ -92,7 +92,7 @@ namespace COMMON
 		/// <summary>
 		/// To write elements base class first but in alphabetical order
 		/// </summary>
-		IContractResolver baseFirstThenAlphabeticalResolver = new BaseFirstThenAlphabeticalContractResolver { };
+		static readonly IContractResolver baseFirstThenAlphabeticalResolver = new BaseFirstThenAlphabeticalContractResolver { };
 		class BaseFirstThenAlphabeticalContractResolver : DefaultContractResolver
 		{
 			protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization) =>
@@ -107,7 +107,10 @@ namespace COMMON
 		/// </summary>
 		/// <param name="addNull">Indicates whether null values must be kept or not inside </param>
 		/// <param name="except">Indicate whether an exception occured while processing the json data, set to true if an exception occured during operation, false otherwise</param>
-		/// <returns>A structure of the specified settings if successful, null otherwise</returns>
+		/// <returns>
+		/// A structure of the specified settings if successful, null otherwise
+		/// </returns>
+		[Obsolete("Consider using ReadSettings(out Exception except, JsonSerializerSettings serializerSettings = null)")]
 		public TSettings ReadSettings(out bool except, bool addNull = false)
 		{
 			except = false;
@@ -128,17 +131,19 @@ namespace COMMON
 				except = true;
 				CLog.EXCEPT(ex);
 			}
-			return default(TSettings);
+			return default;
 		}
 		/// <summary>
 		/// Read settings from a file
 		/// </summary>
 		/// <param name="except">The exception if one occurred</param>
 		/// <param name="serializerSettings">Settings to use to serialize, if null default settings will be used</param>
-		/// <returns>A structure of the specified settings if successful, null otherwise</returns>
-		public TSettings ReadSettings(out Exception except, JsonSerializerSettings serializerSettings = null)
+		/// <returns>
+		/// A structure of the specified settings if successful, null otherwise
+		/// </returns>
+		public TSettings ReadSettings(out Exception except, JsonSerializerSettings serializerSettings = default)
 		{
-			except = null;
+			except = default;
 			try
 			{
 				// open file and deserialize it
@@ -156,7 +161,7 @@ namespace COMMON
 				except = ex;
 				CLog.EXCEPT(ex);
 			}
-			return default(TSettings);
+			return default;
 		}
 		/// <summary>
 		/// Write settings of the specified type
@@ -164,7 +169,10 @@ namespace COMMON
 		/// <param name="o">The settings to write</param>
 		/// <param name="addNull">Indicates whether null values must be kept or not when serializing</param>
 		/// <param name="overwrite">Indicates whether writing can overwrite an existing file; if false and the existing file is not empty then a new file is created and the old one is being added a ".sav" extension</param>
-		/// <returns>TRUE if the settings have been written, FALSE otherwise</returns>
+		/// <returns>
+		/// TRUE if the settings have been written, FALSE otherwise
+		/// </returns>
+		[Obsolete("Consider using WriteSettings(TSettings o, out Exception except, JsonSerializerSettings serializerSettings = null, bool overwrite = true)")]
 		public bool WriteSettings(TSettings o, bool addNull = false, bool overwrite = true)
 		{
 			try
@@ -208,10 +216,12 @@ namespace COMMON
 		/// <param name="except">The exception if one occurred</param>
 		/// <param name="serializerSettings">Settings to use to serialize, if null default settings will be used</param>
 		/// <param name="overwrite">Indicates whether writing can overwrite an existing file; if false and the existing file is not empty then a new file is created and the old one is being added a ".sav" extension</param>
-		/// <returns>A structure of the specified settings if successful, null otherwise</returns>
-		public bool WriteSettings(TSettings o, out Exception except, JsonSerializerSettings serializerSettings = null, bool overwrite = true)
+		/// <returns>
+		/// A structure of the specified settings if successful, null otherwise
+		/// </returns>
+		public bool WriteSettings(TSettings o, out Exception except, JsonSerializerSettings serializerSettings = default, bool overwrite = true)
 		{
-			except = null;
+			except = default;
 			try
 			{
 				SafeFileWrite(overwrite);
@@ -238,18 +248,21 @@ namespace COMMON
 		/// Serialize a TSettings object
 		/// </summary>
 		/// <param name="o">The object to serialize</param>
-		/// <param name="addNull">Indicates whether <see langword="null"/>values must be kept or not</param>
-		/// <returns></returns>
+		/// <param name="addNull">Indicates whether null values must be kept or not</param>
+		/// <returns>
+		/// A string representing the serialized object, null otherwise
+		/// </returns>
+		[Obsolete("Consider using Serialize(TSettings o, out Exception except, JsonSerializerSettings serializerSettings = null, bool indent = false)", true)]
 		public static string Serialize(TSettings o, bool addNull = false)
 		{
 			try
 			{
-				return JsonConvert.SerializeObject(o, Newtonsoft.Json.Formatting.Indented, (JsonSerializerSettings)Prepare(addNull));
+				return JsonConvert.SerializeObject(o, Newtonsoft.Json.Formatting.Indented, (JsonSerializerSettings)Prepare(addNull, true));
 			}
 			catch (Exception ex)
 			{
 				CLog.EXCEPT(ex);
-				return string.Empty;
+				return default;
 			}
 		}
 		/// <summary>
@@ -257,41 +270,54 @@ namespace COMMON
 		/// </summary>
 		/// <param name="o">The object to serialize</param>
 		/// <param name="except">The exception if one occurred</param>
-		/// <param name="serializerSettings">Settings to use to serialize, if null default settings will be used</param>
-		/// <returns></returns>
-		public static string Serialize(TSettings o, out Exception except, JsonSerializerSettings serializerSettings = null)
+		/// <param name="serializerSettings">Settings to use to serialize, if null default settings will be used (no null values)</param>
+		/// <param name="indent">If true the resulting json is indented, no indent otherwise</param>
+		/// <returns>
+		/// A string representing the serialized object, null otherwise
+		/// </returns>
+		public static string Serialize(TSettings o, out Exception except, JsonSerializerSettings serializerSettings = default, bool indent = true)
 		{
 			except = null;
 			try
 			{
-				return JsonConvert.SerializeObject(o, Newtonsoft.Json.Formatting.Indented, (null == serializerSettings ? (JsonSerializerSettings)Prepare(true) : serializerSettings));
+				return JsonConvert.SerializeObject(o, indent ? Newtonsoft.Json.Formatting.Indented : Newtonsoft.Json.Formatting.None, serializerSettings ?? SerializerSettings());
 			}
 			catch (Exception ex)
 			{
 				except = ex;
 				CLog.EXCEPT(ex);
-				return string.Empty;
+				return default;
 			}
+		}
+		static JsonSerializerSettings SerializerSettings()
+		{
+			return new JsonSerializerSettings()
+			{
+				NullValueHandling = NullValueHandling.Ignore,
+			};
 		}
 		/// <summary>
 		/// Deserialize an object to a string
 		/// </summary>
 		/// <param name="o">The object to deserialize</param>
 		/// <param name="jsonException">Indicate whether an exception occured while processing the json data, set to true if an exception occured during operation, false otherwise</param>
-		/// <param name="addNull">Indicates whether <see langword="null"/>values must be kept or not</param>
-		/// <returns>The desirialized object or null if an error has occurred</returns>
-		public static TSettings Deserialize(string o, out bool jsonException, bool addNull = false)
+		/// <param name="ignoreMissingMember">Indicates whether missing members must be ignored or not (thus preventing deserialization to complete)</param>
+		/// <returns>
+		/// The deserialized object if successful, null otherwise
+		/// </returns>
+		[Obsolete("Consider using Deserialize(string o, out Exception except, JsonSerializerSettings serializerSettings = null)")]
+		public static TSettings Deserialize(string o, out bool jsonException, bool ignoreMissingMember = true)
 		{
 			jsonException = false;
 			try
 			{
-				return JsonConvert.DeserializeObject<TSettings>(o, (JsonSerializerSettings)Prepare(addNull));
+				return JsonConvert.DeserializeObject<TSettings>(o, (JsonSerializerSettings)Prepare(false, ignoreMissingMember));
 			}
 			catch (Exception ex)
 			{
 				jsonException = true;
 				CLog.EXCEPT(ex);
-				return default(TSettings);
+				return default;
 			}
 		}
 		/// <summary>
@@ -299,34 +325,46 @@ namespace COMMON
 		/// </summary>
 		/// <param name="o">The object to deserialize</param>
 		/// <param name="except">The exception if one occurred</param>
-		/// <param name="serializerSettings">Settings to use to deserialize, if null default settings will be used</param>
-		/// <returns>The desirialized object or null if an error has occurred</returns>
-		public static TSettings Deserialize(string o, out Exception except, JsonSerializerSettings serializerSettings = null)
+		/// <param name="serializerSettings">Settings to use to deserialize, if null default settings will be used (missing members are ignored, default values are added)</param>
+		/// <returns>
+		/// The deserialized object if successful, null otherwise
+		/// </returns>
+		public static TSettings Deserialize(string o, out Exception except, JsonSerializerSettings serializerSettings = default)
 		{
 			except = null;
 			try
 			{
-				return JsonConvert.DeserializeObject<TSettings>(o, (null == serializerSettings ? (JsonSerializerSettings)Prepare(true) : serializerSettings));
+				return JsonConvert.DeserializeObject<TSettings>(o, serializerSettings ?? DeserializerSettings());
 			}
 			catch (Exception ex)
 			{
 				except = ex;
 				CLog.EXCEPT(ex);
-				return default(TSettings);
+				return default;
 			}
+		}
+		static JsonSerializerSettings DeserializerSettings()
+		{
+			return new JsonSerializerSettings()
+			{
+				MissingMemberHandling = MissingMemberHandling.Ignore,
+				DefaultValueHandling = DefaultValueHandling.Include,
+			};
 		}
 		/// <summary>
 		/// Prepare json settings to use
 		/// </summary>
-		/// <param name="addNull">Indicates whether <see langword="null"/> values must be kept or not when serializing data</param>
-		/// <returns></returns>
-		private static object Prepare(bool addNull)
+		/// <param name="addNull">Indicates whether null values must be kept or not when serializing data</param>
+		/// <param name="ignoreMissingMember">Indicates whether missing members must be ignored or not (thus preventing deserialization to complete)</param>
+		/// <returns>A <see cref="JsonSerializerSettings"/> object to use</returns>
+		private static JsonSerializerSettings Prepare(bool addNull, bool ignoreMissingMember)
 		{
-			JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings();
-			jsonSerializerSettings.NullValueHandling = addNull ? NullValueHandling.Include : NullValueHandling.Ignore;
-			jsonSerializerSettings.DefaultValueHandling = DefaultValueHandling.Include;
-			jsonSerializerSettings.MissingMemberHandling = MissingMemberHandling.Ignore;
-			return jsonSerializerSettings;
+			return new JsonSerializerSettings()
+			{
+				NullValueHandling = addNull ? NullValueHandling.Include : NullValueHandling.Ignore,
+				DefaultValueHandling = DefaultValueHandling.Include,
+				MissingMemberHandling = ignoreMissingMember ? MissingMemberHandling.Ignore : MissingMemberHandling.Error,
+			};
 		}
 		/// <summary>
 		/// Set <see cref="JsonSerializerSettings"/> to put base class properties first
@@ -334,9 +372,9 @@ namespace COMMON
 		/// <param name="settings"><see cref="JsonSerializerSettings"/> to update if any</param>
 		/// <param name="alphabetical">true if properties must be order alphabetically inside the objects, false if not required</param>
 		/// <returns>A <see cref="JsonSerializerSettings"/> set accordingly, this could be <paramref name="settings"/> updated if specified</returns>
-		public JsonSerializerSettings SerializeBaseClassFirst(JsonSerializerSettings settings = null, bool alphabetical = true)
+		public JsonSerializerSettings SerializeBaseClassFirst(JsonSerializerSettings settings = default, bool alphabetical = true)
 		{
-			if (null == settings) settings = new JsonSerializerSettings();
+			if (default == settings) settings = new JsonSerializerSettings();
 			settings.ContractResolver = (alphabetical ? baseFirstThenAlphabeticalResolver : baseFirstResolver);
 			settings.TypeNameHandling = TypeNameHandling.None;
 			return settings;
@@ -346,9 +384,9 @@ namespace COMMON
 		/// </summary>
 		/// <param name="settings"><see cref="JsonSerializerSettings"/> to update if any</param>
 		/// <returns>A <see cref="JsonSerializerSettings"/> set accordingly, this could be <paramref name="settings"/> updated if specified</returns>
-		public JsonSerializerSettings SerializeAlphabetically(JsonSerializerSettings settings = null)
+		public JsonSerializerSettings SerializeAlphabetically(JsonSerializerSettings settings = default)
 		{
-			if (null == settings) settings = new JsonSerializerSettings();
+			if (default == settings) settings = new JsonSerializerSettings();
 			settings.ContractResolver = alphabeticalResolver;
 			settings.TypeNameHandling = TypeNameHandling.None;
 			return settings;
@@ -358,10 +396,10 @@ namespace COMMON
 		/// </summary>
 		/// <param name="settings"><see cref="JsonSerializerSettings"/> to update if any</param>
 		/// <returns>A <see cref="JsonSerializerSettings"/> set accordingly, this could be <paramref name="settings"/> updated if specified</returns>
-		public JsonSerializerSettings SerializeStandard(JsonSerializerSettings settings = null)
+		public JsonSerializerSettings SerializeStandard(JsonSerializerSettings settings = default)
 		{
-			if (null == settings) settings = new JsonSerializerSettings();
-			settings.ContractResolver = null;
+			if (default == settings) settings = new JsonSerializerSettings();
+			settings.ContractResolver = default;
 			settings.TypeNameHandling = TypeNameHandling.None;
 			return settings;
 		}

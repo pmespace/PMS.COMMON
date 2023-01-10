@@ -503,6 +503,121 @@ namespace COMMON
 		/// <returns></returns>
 		private int StreamServerListenerMethod(CThread thread, object o)
 		{
+			//string threadName = $"{mainThread.Description} - LISTENER";
+			//int res = (int)ThreadResult.OK;
+			//bool keepOnRunning = true;
+			//// indicate listener is on
+			//listenerEvents.SetStarted();
+			//while (keepOnRunning)
+			//{
+			//	bool ok = false;
+			//	TcpClient tcp = null;
+			//	try
+			//	{
+			//		// accept client connection
+			//		tcp = listener.AcceptTcpClient();
+			//		StreamServerClient client = null;
+			//		try
+			//		{
+			//			EndPoint clientEndPoint = tcp.Client.RemoteEndPoint;
+			//			client = new StreamServerClient(tcp, StartSettings.StreamServerSettings);
+			//			string clientKey = client.Key;
+			//			try
+			//			{
+			//				tcp.SendTimeout = StartSettings.StreamServerSettings.SendTimeout * CStreamSettings.ONESECOND;
+			//				tcp.ReceiveTimeout = StartSettings.StreamServerSettings.ReceiveTimeout * CStreamSettings.ONESECOND;
+			//				// start the processing and receiving threads to process messages from this client
+			//				client.ReceivingThread.Name = "RECEIVER";
+			//				if (client.ReceivingThread.Start(StreamServerReceiverMethod, StartSettings.ThreadData, client, client.ReceiverEvents.Started))
+			//				{
+			//					client.ProcessingThread.Name = "PROCESSOR";
+			//					if (client.ProcessingThread.Start(StreamServerProcessorMethod, StartSettings.ThreadData, client, client.ProcessorEvents.Started))
+			//					{
+			//						// arrived here everything's in place, let's verify whether the client is accepted or not from that ip address
+			//						try
+			//						{
+			//							if (client.Connected = (null == StartSettings.OnConnect ? true : StartSettings.OnConnect(tcp, thread, StartSettings.Parameters, ref client._data)))
+			//							{
+			//								lock (myLock)
+			//								{
+			//									connectedClients.Add(client.Key, client);
+			//									ok = true;
+			//								}
+			//								CLog.TRACE($"{threadName} - Client {clientEndPoint} is connected to the server");
+			//							}
+			//							else
+			//							{
+			//								CLog.WARNING($"{threadName} - Connection from {clientEndPoint} has been refused");
+			//							}
+			//						}
+			//						catch (Exception ex)
+			//						{
+			//							CLog.EXCEPT(ex, $"{threadName} - OnConnect generated an exception");
+			//						}
+			//					}
+			//					else
+			//					{
+			//						CLog.ERROR($"{threadName} - Failed to start processor thread for client {clientEndPoint}");
+			//					}
+			//				}
+			//				else
+			//				{
+			//					CLog.ERROR($"{threadName} - Failed to start receiver thread for client {clientEndPoint}");
+			//				}
+			//			}
+			//			catch (Exception ex)
+			//			{
+			//				CLog.EXCEPT(ex, $"{threadName} - Failed to start server");
+			//				if (!ok)
+			//					try
+			//					{
+			//						if (connectedClients.ContainsKey(clientKey))
+			//							connectedClients.Remove(clientKey);
+			//					}
+			//					catch (Exception) { }
+			//				res = (int)ThreadResult.Exception;
+			//			}
+			//		}
+			//		catch (Exception ex)
+			//		{
+			//			CLog.EXCEPT(ex, $"{threadName} - Failed to prepare server to start");
+			//			res = (int)ThreadResult.Exception;
+			//		}
+			//		finally
+			//		{
+			//			// cleanup if necesary
+			//			if (null != client && !ok)
+			//			{
+			//				client.Stop();
+			//			}
+			//		}
+			//		if (!ok && null != tcp)
+			//			tcp.Close();
+			//	}
+			//	catch (Exception ex)
+			//	{
+			//		if (ex is InvalidOperationException || (ex is SocketException && SocketError.Interrupted == ((SocketException)ex).SocketErrorCode))
+			//		{
+			//			CLog.TRACE($"{threadName} - Stopped");
+			//			res = (int)ThreadResult.OK;
+			//		}
+			//		else
+			//		{
+			//			CLog.EXCEPT(ex, $"{threadName} - Is stopping");
+			//			res = (int)ThreadResult.Exception;
+			//		}
+			//		keepOnRunning = false;
+			//		if (null != tcp)
+			//			tcp.Close();
+			//	}
+			//}
+			//// server cleanup
+			//listenerEvents.SetStopped();
+			//// indicate the listener is down
+			//listener = null;
+			//Cleanup();
+			//return res;
+
 			string threadName = $"{mainThread.Description} - LISTENER";
 			int res = (int)ThreadResult.OK;
 			bool keepOnRunning = true;
@@ -517,82 +632,57 @@ namespace COMMON
 					// accept client connection
 					tcp = listener.AcceptTcpClient();
 					StreamServerClient client = null;
+					EndPoint clientEndPoint = tcp.Client.RemoteEndPoint;
+					client = new StreamServerClient(tcp, StartSettings.StreamServerSettings);
+					string clientKey = client.Key;
 					try
 					{
-						EndPoint clientEndPoint = tcp.Client.RemoteEndPoint;
-						client = new StreamServerClient(tcp, StartSettings.StreamServerSettings);
-						string clientKey = client.Key;
-						try
+						tcp.SendTimeout = StartSettings.StreamServerSettings.SendTimeout * CStreamSettings.ONESECOND;
+						tcp.ReceiveTimeout = StartSettings.StreamServerSettings.ReceiveTimeout * CStreamSettings.ONESECOND;
+						// start the processing and receiving threads to process messages from this client
+						client.ReceivingThread.Name = "RECEIVER";
+						if (!client.ReceivingThread.Start(StreamServerReceiverMethod, StartSettings.ThreadData, client, client.ReceiverEvents.Started))
+							throw new ReceiverProcessorException();
+
+						client.ProcessingThread.Name = "PROCESSOR";
+						if (!client.ProcessingThread.Start(StreamServerProcessorMethod, StartSettings.ThreadData, client, client.ProcessorEvents.Started))
+							throw new ReceiverProcessorException();
+
+						// arrived here everything's in place, let's verify whether the client is accepted or not from that ip address
+						if (!(client.Connected = (null == StartSettings.OnConnect ? true : StartSettings.OnConnect(tcp, thread, StartSettings.Parameters, ref client._data))))
+							throw new ConnectionException();
+
+						// log the client
+						lock (myLock)
 						{
-							tcp.SendTimeout = StartSettings.StreamServerSettings.SendTimeout * CStreamSettings.ONESECOND;
-							tcp.ReceiveTimeout = StartSettings.StreamServerSettings.ReceiveTimeout * CStreamSettings.ONESECOND;
-							// start the processing and receiving threads to process messages from this client
-							client.ReceivingThread.Name = "RECEIVER";
-							if (client.ReceivingThread.Start(StreamServerReceiverMethod, StartSettings.ThreadData, client, client.ReceiverEvents.Started))
-							{
-								client.ProcessingThread.Name = "PROCESSOR";
-								if (client.ProcessingThread.Start(StreamServerProcessorMethod, StartSettings.ThreadData, client, client.ProcessorEvents.Started))
-								{
-									// arrived here everything's in place, let's verify whether the client is accepted or not from that ip address
-									try
-									{
-										if (client.Connected = (null == StartSettings.OnConnect ? true : StartSettings.OnConnect(tcp, thread, StartSettings.Parameters, ref client._data)))
-										{
-											lock (myLock)
-											{
-												connectedClients.Add(client.Key, client);
-												ok = true;
-											}
-											CLog.TRACE($"{threadName} - Client {clientEndPoint} is connected to the server");
-										}
-										else
-										{
-											CLog.WARNING($"{threadName} - Connection from {clientEndPoint} has been refused");
-										}
-									}
-									catch (Exception ex)
-									{
-										CLog.EXCEPT(ex, $"{threadName} - OnConnect generated an exception");
-									}
-								}
-								else
-								{
-									CLog.ERROR($"{threadName} - Failed to start processor thread for client {clientEndPoint}");
-								}
-							}
-							else
-							{
-								CLog.ERROR($"{threadName} - Failed to start receiver thread for client {clientEndPoint}");
-							}
+							connectedClients.Add(client.Key, client);
 						}
-						catch (Exception ex)
-						{
-							CLog.EXCEPT(ex, $"{threadName} - Failed to start server");
-							if (!ok)
-								try
-								{
-									if (connectedClients.ContainsKey(clientKey))
-										connectedClients.Remove(clientKey);
-								}
-								catch (Exception) { }
-							res = (int)ThreadResult.Exception;
-						}
+						CLog.TRACE($"{threadName} - Client {clientEndPoint} is connected to the server");
+						ok = true;
+					}
+					catch (ReceiverProcessorException ex)
+					{
+						CLog.EXCEPT(ex, $"{threadName} - Failed to start {client.ReceivingThread.Name} thread for client {clientEndPoint}");
+						res = (int)ThreadResult.KO;
+					}
+					catch (ConnectionException ex)
+					{
+						CLog.EXCEPT(ex, $"{threadName} - Connection from {clientEndPoint} has been refused, closing it");
+						res = (int)ThreadResult.KO;
 					}
 					catch (Exception ex)
 					{
-						CLog.EXCEPT(ex, $"{threadName} - Failed to prepare server to start");
+						CLog.EXCEPT(ex, $"{threadName} - Failed to start server");
 						res = (int)ThreadResult.Exception;
 					}
 					finally
 					{
 						// cleanup if necesary
 						if (null != client && !ok)
-						{
 							client.Stop();
-						}
+						if (null != tcp && !ok)
+							tcp.Close();
 					}
-					if (!ok && null != tcp)
-						tcp.Close();
 				}
 				catch (Exception ex)
 				{
@@ -618,6 +708,8 @@ namespace COMMON
 			Cleanup();
 			return res;
 		}
+		class ReceiverProcessorException : Exception { }
+		class ConnectionException : Exception { /*public ConnectionException(string s) : base(s) { }*/ }
 		/// <summary>
 		/// Server thread processing all incoming messages.
 		/// When a message is received it is transfered to the server for processing, then looping on receiving next message.

@@ -24,7 +24,7 @@ namespace COMMON
 		/// <param name="writeArrayAttribute">[NewtonSoft.Json] This attribute helps preserve arrays when converting the written XML back to JSON</param>
 		/// <param name="encodeSpecialCharacters">[NewtonSoft.Json] A value to indicate whether to encode special characters when converting JSON to XML</param>
 		/// <returns>The XML produced from the JSON string, or an empty string if an error has occurred. This is required for non .NET 3.5 builds</returns>
-		public static string JsonToXML(string json, string root = null, bool writeArrayAttribute = true, bool encodeSpecialCharacters = false)
+		public static string JsonToXML(string json, string root = default, bool writeArrayAttribute = true, bool encodeSpecialCharacters = false)
 		{
 			if (!string.IsNullOrEmpty(json))
 			{
@@ -39,7 +39,7 @@ namespace COMMON
 				}
 				catch (Exception) { }
 			}
-			return string.Empty;
+			return default;
 		}
 		/// <summary>
 		/// Converts a XML to a JSPN representation
@@ -61,7 +61,7 @@ namespace COMMON
 				}
 				catch (Exception) { }
 			}
-			return string.Empty;
+			return default;
 		}
 		#endregion
 	}

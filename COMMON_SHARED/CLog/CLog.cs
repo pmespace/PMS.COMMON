@@ -65,11 +65,11 @@ namespace COMMON
 		#endregion
 
 		#region const 
-		private static string EXTENSION = ".log";
+		private const string EXTENSION = ".log";
 		/// <summary>
 		/// Value to use to indicate no file will be purged
 		/// </summary>
-		public static readonly int KEEP_ALL_FILES = -1;
+		public const int KEEP_ALL_FILES = -1;
 		#endregion
 
 		#region properties
@@ -94,7 +94,7 @@ namespace COMMON
 				}
 			}
 		}
-		private static string _logfilename = null;
+		private static string _logfilename = default;
 		/// <summary>
 		/// Path of the log file, without the log file name.
 		/// It always ends with "\" (or any other platform folder separator)
@@ -102,9 +102,9 @@ namespace COMMON
 		public static string LogFilePath
 		{
 			get => _logfilepath;
-			private set => _logfilepath = (string.IsNullOrEmpty(value) ? null : value + (Path.DirectorySeparatorChar != value[value.Length - 1] ? new string(Path.DirectorySeparatorChar, 1) : null));
+			private set => _logfilepath = (string.IsNullOrEmpty(value) ? default : value + (Path.DirectorySeparatorChar != value[value.Length - 1] ? new string(Path.DirectorySeparatorChar, 1) : default));
 		}
-		private static string _logfilepath = null;
+		private static string _logfilepath = default;
 		/// <summary>
 		/// Indicates whether autopurge previous log file when opening a new one
 		/// </summary>
@@ -184,15 +184,15 @@ namespace COMMON
 		/// <summary>
 		/// Original fname used to create the log file
 		/// </summary>
-		private static string originalFName = null;
+		private static string originalFName = default;
 		/// <summary>
 		/// Original name (given by the log file creator) of the log file, without its extension
 		/// </summary>
-		private static string originalFNameWithoutExtension = null;
+		private static string originalFNameWithoutExtension = default;
 		/// <summary>
 		/// Original extension (given by the log file creator) of the log file
 		/// </summary>
-		private static string originalFNameExtension = null;
+		private static string originalFNameExtension = default;
 		/// <summary>
 		/// Indicates whether some settings may be changed or not
 		/// </summary>
@@ -200,26 +200,26 @@ namespace COMMON
 		/// <summary>
 		/// Log file handle
 		/// </summary>
-		private static StreamWriter streamWriter = null;
+		private static StreamWriter streamWriter = default;
 		/// <summary>
 		/// Lock object
 		/// </summary>
-		private static Object mylock = new Object();
+		private static readonly Object mylock = new Object();
 		#endregion
 
 		#region methods
-		public static string DEBUG(string s = null) { return Add(s, TLog.DEBUG); }
-		public static string INFORMATION(string s = null) { return Add(s, TLog.INFOR); }
-		public static string TRACE(string s = null) { return Add(s, TLog.TRACE); }
-		public static string WARNING(string s = null) { return Add(s, TLog.WARNG); }
-		public static string ERROR(string s = null) { return Add(s, TLog.ERROR); }
-		public static string EXCEPT(Exception ex, string s = null) { return AddException(ex, s); }
+		public static string DEBUG(string s = default) { return Add(s, TLog.DEBUG); }
+		public static string INFORMATION(string s = default) { return Add(s, TLog.INFOR); }
+		public static string TRACE(string s = default) { return Add(s, TLog.TRACE); }
+		public static string WARNING(string s = default) { return Add(s, TLog.WARNG); }
+		public static string ERROR(string s = default) { return Add(s, TLog.ERROR); }
+		public static string EXCEPT(Exception ex, string s = default) { return AddException(ex, s); }
 		/// <summary>
 		/// Test if a severity is within bounds
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		private static bool IsTLog(TLog value) { return (TLog._begin < value && value < TLog._end ? true : false); }
+		private static bool IsTLog(TLog value) { return (TLog._begin < value && value < TLog._end); }
 		/// <summary>
 		/// Log a message to the log file
 		/// </summary>
@@ -250,33 +250,32 @@ namespace COMMON
 		/// <returns>The string as it has been written, null if an error has occurred</returns>
 		private static string AddException(Exception ex, string msg)
 		{
-			string r = null;
-			if (null == ex) return r;
+			string r = default;
+			if (default == ex) return r;
 			try
 			{
 				StackTrace st = new StackTrace(ex, true);
 				List<string> ls = new List<string>();
-				ls.Add($"[EXCEPTION] {ex.GetType()}{(string.IsNullOrEmpty(ex.Message) ? null : $" - {ex.Message}")}{(string.IsNullOrEmpty(msg) ? null : $" - {msg}")}");
+				ls.Add($"[EXCEPTION] {ex.GetType()}{(string.IsNullOrEmpty(ex.Message) ? default : $" - {ex.Message}")}{(string.IsNullOrEmpty(msg) ? default : $" - {msg}")}");
 				Exception exx = ex.InnerException;
-				while (null != exx)
+				while (default != exx)
 				{
-					ls.Add($"[EXCEPTION] {exx.GetType()}{(string.IsNullOrEmpty(exx.Message) ? null : $" - {exx.Message}")}");
+					ls.Add($"[EXCEPTION] {exx.GetType()}{(string.IsNullOrEmpty(exx.Message) ? default : $" - {exx.Message}")}");
 					exx = exx.InnerException;
 				}
-				for (int i = 0; i < st.FrameCount; i++)
+				for (int i = st.FrameCount; 0 != i; i--)
 				{
-					StackFrame sf = st.GetFrame(i);
-					//ls.Add((i != 0 ? "   " : null) + $"{CMisc.Trimmed(st.ToString())} - File: {sf.GetFileName()} - Method: {sf.GetMethod()} - Line Number: {sf.GetFileLineNumber()}");
+					StackFrame sf = st.GetFrame(i - 1);
 					string f = string.IsNullOrEmpty(sf.GetFileName()) ? "??" : sf.GetFileName();
 					string m = string.IsNullOrEmpty(sf.GetMethod().ToString()) ? "??" : $"{sf.GetMethod()}";
-					ls.Add($"File: {f} - Method: {m} - Line Number: {sf.GetFileLineNumber()}");
+					ls.Add($"[EXCEPTION #{st.FrameCount - i + 1}] File: {f} - Method: {m} - Line Number: {sf.GetFileLineNumber()}");
 				}
 				r = AddEx(ls, TLog.EXCPT);
 			}
 			catch (Exception) { }
 			return r;
 		}
-		public static string AddException(string dummy, Exception ex, string msg = null)
+		public static string AddException(string dummy, Exception ex, string msg = "")
 		{
 			return AddException(ex, msg);
 		}
@@ -288,10 +287,10 @@ namespace COMMON
 		/// <returns></returns>
 		private static string AddEx(List<string> ls, TLog severity)
 		{
-			if (null == ls || 0 == ls.Count) return null;
+			if (default == ls || 0 == ls.Count) return default;
 
 			// create the string to log
-			string r = null;
+			string r = default;
 			try
 			{
 				List<string> lls = StringsToLog(ls, severity, out r);
@@ -351,7 +350,7 @@ namespace COMMON
 		/// <param name="severity">severity level</param>
 		private static void AddToLog(List<string> ls, TLog severity)
 		{
-			if (null == ls || 0 == ls.Count) return;
+			if (default == ls || 0 == ls.Count) return;
 			try
 			{
 				lock (mylock)
@@ -392,7 +391,7 @@ namespace COMMON
 		/// <returns></returns>
 		private static List<string> StringsToLog(List<string> ls, TLog severity, out string r)
 		{
-			r = null;
+			r = default;
 			List<string> lls = new List<string>();
 			try
 			{
@@ -401,7 +400,7 @@ namespace COMMON
 				{
 					string q = $"{RemoveCRLF((TLog.ERROR == severity && ErrorToUpper ? ls[i].Trim().ToUpper() : ls[i].Trim()))}";
 					lls.Add($"{v}{q}");
-					r += ls[i] + (i < ls.Count - 1 ? Chars.CRLF : null);
+					r += ls[i] + (i < ls.Count - 1 ? Chars.CRLF : default);
 				}
 			}
 			catch (Exception) { }
@@ -469,7 +468,7 @@ namespace COMMON
 				return $"{LogFilePath}{originalFNameWithoutExtension}-{CMisc.BuildDate(CMisc.DateFormat.YYYYMMDD, CreatedOn)}{(string.IsNullOrEmpty(originalFNameExtension) ? EXTENSION : originalFNameExtension)}";
 			}
 			catch (Exception) { }
-			return null;
+			return default;
 		}
 		/// <summary>
 		/// Close the current log file
@@ -480,7 +479,7 @@ namespace COMMON
 			{
 				try
 				{
-					if (null != streamWriter)
+					if (default != streamWriter)
 					{
 						// close current log file
 						AddToLogUnsafe($"-----", TLog.INFOR);
@@ -491,9 +490,9 @@ namespace COMMON
 				catch (Exception) { }
 			}
 			streamWriter?.Close();
-			streamWriter = null;
+			streamWriter = default;
 			CreatedOn = default;
-			_logfilename = LogFilePath = originalFName = originalFNameExtension = originalFNameWithoutExtension = null;
+			_logfilename = LogFilePath = originalFName = originalFNameExtension = originalFNameWithoutExtension = default;
 			canChangeAllSettings = true;
 		}
 		/// <summary>

@@ -1,9 +1,10 @@
-6.3.4
+7.0.0
 - Made all object in CSafe... not serializable in json
 - Removed Reset methods in CSafe... objects
 - Added a CMisc.GetTempFileName function to create extended temporary file names
 - Created CManualResetEvent and CManualResetEvents classes to easily manage any ManualResetEvent
 - Expanded CSafeCollections to support new properties and created new basic classes based on list of strinig and dictionary with a string key
+- Updated CStreamSettings to be faster when creating an object
 
 6.3.3
 - Added 2 functions to work with enums (EnumGetName and EnumGetValue) in CMisc; they are only a revamping of the name of the old ones (GetEnumName and GetEnumValue)

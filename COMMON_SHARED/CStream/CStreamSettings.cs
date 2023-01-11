@@ -144,7 +144,7 @@ namespace COMMON
 		/// </summary>
 		[JsonIgnore]
 		public CStreamDelegates.ClientServerOnMessageToLog OnMessageToLog { get => _onmessagetolog; set => _onmessagetolog = value; }
-		private CStreamDelegates.ClientServerOnMessageToLog _onmessagetolog = null;
+		private CStreamDelegates.ClientServerOnMessageToLog _onmessagetolog = default;
 		/// <summary>
 		/// Allowed SSL errors while trying to connect
 		/// </summary>
@@ -159,7 +159,7 @@ namespace COMMON
 		#region methods
 		public override string ToString()
 		{
-			return $"ReceiveTimeout: {ReceiveTimeout}, SendTimeout: {SendTimeout}, ReceiveBufferSize: {ReceiveBufferSize}, SendBufferSize: {SendBufferSize}, UseSsl: {UseSsl}, " + base.ToString();
+			return $"ReceiveTimeout: {ReceiveTimeout}; SendTimeout: {SendTimeout}; ReceiveBufferSize: {ReceiveBufferSize}; SendBufferSize: {SendBufferSize}; UseSsl: {UseSsl}; Valid: {IsValid}; " + base.ToString();
 		}
 		#endregion
 	}
@@ -222,21 +222,21 @@ namespace COMMON
 	public class CStreamClientSettings : CStreamSettings, IStreamClientSettings
 	{
 		#region constructors
-		public CStreamClientSettings() { SetIP(null); }
-		public CStreamClientSettings(int lengthBufferSize) : base(lengthBufferSize) { SetIP(null); }
+		public CStreamClientSettings() { SetIP(default); }
+		public CStreamClientSettings(int lengthBufferSize) : base(lengthBufferSize) { SetIP(default); }
 		public CStreamClientSettings(string ip, uint port = DEFAULT_PORT) { SetIP(ip, port); }
 		public CStreamClientSettings(int lengthBufferSize, string ip, uint port = DEFAULT_PORT) : base(lengthBufferSize) { SetIP(ip, port); }
 		#endregion
 
 		#region public properties
-		public override bool IsValid { get => null != EndPoint; }
+		public override bool IsValid { get => default != EndPoint; }
 		/// <summary>
 		/// The IP address to reach or an empty string if invalid.
 		/// This can be set to "localhost" (case irrelevant) and the local host IP address will be resolved and put as the IP address to use
 		/// </summary>
 		public string IP
 		{
-			get => (IsValid ? EndPoint.Address.ToString() : null);
+			get => (IsValid ? EndPoint.Address.ToString() : default);
 			set => SetIP(value, Port);
 		}
 		/// <summary>
@@ -251,7 +251,7 @@ namespace COMMON
 		/// The IP port to use or 0 if invalid
 		/// </summary>
 		[JsonIgnore]
-		public bool FoundOnDNS { get; private set; } = false;
+		public bool FoundOnDNS { get => CanBeFoundOnDNS(IP); }
 		/// <summary>
 		/// The name of the server to authenticate against. It must be empty if no authentication is required
 		/// </summary>
@@ -298,21 +298,37 @@ namespace COMMON
 		/// <summary>
 		/// IP address to targer
 		/// </summary>
-		internal IPAddress Address { get; private set; } = null;
+		internal IPAddress Address { get; private set; } = default;
 		/// <summary>
 		/// IP end point to target
 		/// </summary>
-		internal IPEndPoint EndPoint { get; private set; } = null;
+		internal IPEndPoint EndPoint { get; private set; } = default;
 		#endregion
 
 		#region methods
 		public override string ToString()
 		{
-			//if (null != EndPoint)
-			//	return EndPoint.ToString();
-			//else
-			//	return default;
 			return $"Endpoint: {EndPoint}, Servername: {ServerName}, AllowedSslErrors: {AllowedSslErrors}, " + base.ToString();
+		}
+		/// <summary>
+		/// Tells whether an IP is found on DNS or not
+		/// </summary>
+		/// <param name="ip">It must be a valid IP address (v4 or v6) WITHOUT the port</param>
+		/// <returns>
+		/// True if found, false otherwise (or invalid address)
+		/// </returns>
+		public static bool CanBeFoundOnDNS(string ip)
+		{
+			try
+			{
+				IPHostEntry ipHost = Dns.GetHostEntry(ip);
+				return true;
+			}
+			catch (Exception ex)
+			{
+				CLog.EXCEPT(ex);
+			}
+			return false;
 		}
 		/// <summary>
 		/// Set the TCP/IP address to use
@@ -326,37 +342,24 @@ namespace COMMON
 				try
 				{
 					// if localhost is requested get its address
-					if (0 == string.Compare(ip, "localhost", true))
-						ip = CStream.Localhost();
-
-					IPHostEntry ipHost = null;
-					try
-					{
-						ipHost = Dns.GetHostEntry(ip);
-						FoundOnDNS = true;
-					}
-					catch (Exception)
-					{
-						FoundOnDNS = false;
-					}
+					if (0 == string.Compare(ip, "localhost", true)) ip = CStream.Localhost();
 
 					try
 					{
 						Address = IPAddress.Parse(ip);
+						EndPoint = new IPEndPoint(Address, (int)port);
+						return true;
 					}
 					catch (Exception ex)
 					{
-						// not a valid IP address, it may be a URL, let's use the list of IPs if available
-						Address = null != ipHost && 0 != ipHost.AddressList.Length ? ipHost.AddressList[0] : null;
 					}
-					EndPoint = new IPEndPoint(Address, (int)port);
-					return true;
+					return false;
 				}
 				catch (Exception ex)
 				{
-					CLog.EXCEPT(new Exception("Invalid IP address: " + ip + (0 < port ? $":{port}" : null), ex));
-					Address = null;
-					EndPoint = null;
+					CLog.EXCEPT(new Exception("Invalid IP address: " + ip + (0 < port ? $":{port}" : string.Empty), ex));
+					Address = default;
+					EndPoint = default;
 				}
 			return false;
 		}
@@ -444,10 +447,10 @@ namespace COMMON
 			set
 			{
 				_servercertificate = value;
-				UseSsl = (null != ServerCertificate);
+				UseSsl = (default != ServerCertificate);
 			}
 		}
-		private X509Certificate _servercertificate = null;
+		private X509Certificate _servercertificate = default;
 		#endregion
 	}
 }

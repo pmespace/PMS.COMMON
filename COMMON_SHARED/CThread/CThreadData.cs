@@ -114,7 +114,7 @@ namespace COMMON
 			get => _eventtosignal;
 			set => _eventtosignal = value;
 		}
-		private EventWaitHandle _eventtosignal = null;
+		private EventWaitHandle _eventtosignal = default;
 		/// <summary>
 		/// Function that will be called from inside the thread when it terminates
 		/// This is the last action inside the thread
@@ -136,9 +136,9 @@ namespace COMMON
 
 #if NETFRAMEWORK
 			string SEP = " - ";
-			return "Window to warn: " + (null != WindowToWarn).ToString() + SEP
-				+ (null != WindowToWarn ? "Stopped message: " + StoppedMessage + SEP : null)
-				+ (null != WindowToWarn ? "Information message: " + InformationMessage + SEP : null);
+			return "Window to warn: " + (default != WindowToWarn).ToString() + SEP
+				+ (default != WindowToWarn ? "Stopped message: " + StoppedMessage + SEP : default)
+				+ (default != WindowToWarn ? "Information message: " + InformationMessage + SEP : default);
 #else
 			return base.ToString();
 #endif

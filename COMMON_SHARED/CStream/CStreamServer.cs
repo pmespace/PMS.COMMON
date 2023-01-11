@@ -70,7 +70,7 @@ namespace COMMON
 		#region public methods
 		public override string ToString()
 		{
-			string s = $"Client: {(null == EndPoint ? "<unknown>" : EndPoint.Address.ToString())}; Connect: {ConnectTimestamp.ToString(Chars.DATETIMEEX)}; ";
+			string s = $"Client: {(default == EndPoint ? "<unknown>" : EndPoint.Address.ToString())}; Connect: {ConnectTimestamp.ToString(Chars.DATETIMEEX)}; ";
 			s += $"Received: {ReceivedMessages} messages [{ReceivedBytes} bytes]; Sent: {SentMessages} messages [{SentBytes} bytes]";
 			return s;
 		}
@@ -120,15 +120,15 @@ namespace COMMON
 		/// <summary>
 		/// Indicates whether the object is valid or not
 		/// </summary>
-		public bool IsValid { get => (null != StreamServerSettings && StreamServerSettings.IsValid) && (null == ThreadData || ThreadData.IsValid) && null != OnMessage; }
+		public bool IsValid { get => (default != StreamServerSettings && StreamServerSettings.IsValid) && (default == ThreadData || ThreadData.IsValid) && default != OnMessage; }
 		/// <summary>
 		/// Thread data to use to identify the thread
 		/// </summary>
-		public CThreadData ThreadData { get; set; } // = null;
+		public CThreadData ThreadData { get; set; } 
 		/// <summary>
 		/// Server 
 		/// </summary>
-		public CStreamServerSettings StreamServerSettings { get; set; } // = null;
+		public CStreamServerSettings StreamServerSettings { get; set; } 
 		/// <summary>
 		/// Private parameters passed to the thread
 		/// </summary>
@@ -141,26 +141,26 @@ namespace COMMON
 		/// Called before starting processing requests from a client.
 		/// This function allows to initialise the server context.
 		/// </summary>
-		public CStreamDelegates.ServerOnStartDelegate OnStart { get; set; } // = null;
+		public CStreamDelegates.ServerOnStartDelegate OnStart { get; set; } 
 		/// <summary>
 		/// Called when a client connected to the server.
 		/// This function allows to initialise the client context inside the server.
 		/// </summary>
-		public CStreamDelegates.ServerOnConnectDelegate OnConnect { get; set; } // = null;
+		public CStreamDelegates.ServerOnConnectDelegate OnConnect { get; set; } 
 		/// <summary>
 		/// Called when a request has been received to process it and prepare the reply
 		/// </summary>
-		public CStreamDelegates.ServerOnMessageDelegate OnMessage { get; set; } // = null;
+		public CStreamDelegates.ServerOnMessageDelegate OnMessage { get; set; } 
 		/// <summary>
 		/// Called when a client connected to the server.
 		/// This function allows to initialise the client context inside the server.
 		/// </summary>
-		public CStreamDelegates.ServerOnDisconnectDelegate OnDisconnect { get; set; } // = null;
+		public CStreamDelegates.ServerOnDisconnectDelegate OnDisconnect { get; set; } 
 		/// <summary>
 		/// Called after the server has received a stop order.
 		/// This function allows to clear the server context.
 		/// </summary>
-		public CStreamDelegates.ServerOnStopDelegate OnStop { get; set; } // = null;
+		public CStreamDelegates.ServerOnStopDelegate OnStop { get; set; } 
 		#endregion
 	}
 
@@ -218,7 +218,7 @@ namespace COMMON
 		/// All clients connected to the server
 		/// </summary>
 		private object myLock = new object();
-		private TcpListener listener = null;
+		private TcpListener listener = default;
 		private CThreadEvents listenerEvents = new CThreadEvents();
 		private StreamServerClients connectedClients = new StreamServerClients();
 		private Mutex isCleaningUpMutex = new Mutex(false);
@@ -230,15 +230,15 @@ namespace COMMON
 		/// <summary>
 		/// The port used by the server
 		/// </summary>
-		public uint Port { get => (null != listener ? (uint)((IPEndPoint)listener.LocalEndpoint).Port : 0); }
+		public uint Port { get => (default != listener ? (uint)((IPEndPoint)listener.LocalEndpoint).Port : 0); }
 		/// <summary>
 		/// The IP address of the server
 		/// </summary>
-		public string Address { get => (null != listener ? ((IPEndPoint)listener.LocalEndpoint).Address.ToString() : null); }
+		public string Address { get => (default != listener ? ((IPEndPoint)listener.LocalEndpoint).Address.ToString() : default); }
 		/// <summary>
 		/// The full IP address + port of the server
 		/// </summary>
-		public string FullAddress { get => (null != listener ? Address + (0 != Port ? $":{Port}" : null) : null); }
+		public string FullAddress { get => (default != listener ? Address + (0 != Port ? $":{Port}" : default) : default); }
 		/// <summary>
 		/// <see cref="CThread.ID"/>
 		/// </summary>
@@ -293,7 +293,7 @@ namespace COMMON
 			const string SERVER_NOT_RUNNING = ", server is not running";
 			if (!mainThread.CanStart)
 				return false;
-			if (null == settings || !settings.IsValid)
+			if (default == settings || !settings.IsValid)
 				return false;
 
 			StartSettings = settings;
@@ -304,7 +304,7 @@ namespace COMMON
 				// verify wether starting the server is accepted or not
 				try
 				{
-					ok = (null == settings.OnStart ? true : settings.OnStart(settings.ThreadData, settings.Parameters));
+					ok = (default == settings.OnStart ? true : settings.OnStart(settings.ThreadData, settings.Parameters));
 				}
 				catch (Exception ex)
 				{
@@ -324,7 +324,7 @@ namespace COMMON
 						try
 						{
 							// start the thread and sleep to allow him to actually run
-							if (mainThread.Start(StreamServerListenerMethod, settings.ThreadData, null, listenerEvents.Started, true))
+							if (mainThread.Start(StreamServerListenerMethod, settings.ThreadData, default, listenerEvents.Started, true))
 							{
 								return true;
 							}
@@ -345,7 +345,7 @@ namespace COMMON
 						CLog.EXCEPT(ex, $"Network listener could not be started on {listener.LocalEndpoint}" + SERVER_NOT_RUNNING);
 					}
 					// arrived here we can dismiss the listener
-					listener = null;
+					listener = default;
 				}
 				else
 				{
@@ -383,7 +383,7 @@ namespace COMMON
 			byte[] reply = CStream.SendReceive(stream,
 				STOP_SERVER_CLIENT_THREAD_REQUEST_MESSAGE,
 				true, out int replySize, out bool timeout);
-			return (!timeout && null != reply && replySize == reply.Length && ACK == reply[0]);
+			return (!timeout && default != reply && replySize == reply.Length && ACK == reply[0]);
 		}
 		/// <summary>
 		/// Allows a server to asynchronously send a message to the caller while processing a request and before sending a reply.
@@ -408,12 +408,12 @@ namespace COMMON
 			try
 			{
 				StreamServerClient client = (StreamServerClient)o;
-				if (null != client && null != client.StreamIO)
+				if (default != client && default != client.StreamIO)
 				{
 					EndPoint endpoint = client.Tcp.Client.RemoteEndPoint;
 					if (client.StreamIO.Send(msg, addBufferSize))
 					{
-						client.UpdateStatistics(null, msg);
+						client.UpdateStatistics(default, msg);
 					}
 					return true;
 				}
@@ -451,12 +451,12 @@ namespace COMMON
 				// indicate the server is stopping
 				isCleaningUp = true;
 				// stop listener (that will stop the thread waiting for clients)
-				if (null != listener)
+				if (default != listener)
 				{
 					CLog.TRACE($"{mainThread.Description} - Shutting down listener");
 					listener.Stop();
 					listenerEvents.WaitStopped();
-					listener = null;
+					listener = default;
 				}
 				// wait for the listener to be closed
 				//stop all client threads
@@ -626,12 +626,12 @@ namespace COMMON
 			while (keepOnRunning)
 			{
 				bool ok = false;
-				TcpClient tcp = null;
+				TcpClient tcp = default;
 				try
 				{
 					// accept client connection
 					tcp = listener.AcceptTcpClient();
-					StreamServerClient client = null;
+					StreamServerClient client = default;
 					EndPoint clientEndPoint = tcp.Client.RemoteEndPoint;
 					client = new StreamServerClient(tcp, StartSettings.StreamServerSettings);
 					string clientKey = client.Key;
@@ -649,7 +649,7 @@ namespace COMMON
 							throw new ReceiverProcessorException();
 
 						// arrived here everything's in place, let's verify whether the client is accepted or not from that ip address
-						if (!(client.Connected = (null == StartSettings.OnConnect ? true : StartSettings.OnConnect(tcp, thread, StartSettings.Parameters, ref client._data))))
+						if (!(client.Connected = (default == StartSettings.OnConnect ? true : StartSettings.OnConnect(tcp, thread, StartSettings.Parameters, ref client._data))))
 							throw new ConnectionException();
 
 						// log the client
@@ -678,9 +678,9 @@ namespace COMMON
 					finally
 					{
 						// cleanup if necesary
-						if (null != client && !ok)
+						if (default != client && !ok)
 							client.Stop();
-						if (null != tcp && !ok)
+						if (default != tcp && !ok)
 							tcp.Close();
 					}
 				}
@@ -697,14 +697,14 @@ namespace COMMON
 						res = (int)ThreadResult.Exception;
 					}
 					keepOnRunning = false;
-					if (null != tcp)
+					if (default != tcp)
 						tcp.Close();
 				}
 			}
 			// server cleanup
 			listenerEvents.SetStopped();
 			// indicate the listener is down
-			listener = null;
+			listener = default;
 			Cleanup();
 			return res;
 		}
@@ -726,7 +726,7 @@ namespace COMMON
 			bool keepOnRunning = true;
 			bool clientShutdown = false;
 			client.ReceiverEvents.SetStarted();
-			EndPoint clientEndPoint = null;
+			EndPoint clientEndPoint = default;
 			try
 			{
 				clientEndPoint = client.Tcp.Client.RemoteEndPoint;
@@ -738,10 +738,10 @@ namespace COMMON
 				try
 				{
 					bool addSizeHeader = true;
-					byte[] outgoing = null;
+					byte[] outgoing = default;
 					// wait for receiving a message from the client
 					byte[] incoming = client.StreamIO.Receive(out int size);
-					if (null != incoming && 0 != incoming.Length)
+					if (default != incoming && 0 != incoming.Length)
 					{
 						// a message has been received and needs to be processed
 
@@ -783,7 +783,7 @@ namespace COMMON
 					if (ex is IOException || ex is EDisconnected)
 					{
 						// the connection has been closed, normal stop
-						CLog.TRACE($"{threadName} - Client {(null != clientEndPoint ? clientEndPoint.ToString() : "[address not available]")} is disconnecting");
+						CLog.TRACE($"{threadName} - Client {(default != clientEndPoint ? clientEndPoint.ToString() : "[address not available]")} is disconnecting");
 						res = (int)ThreadResult.OK;
 					}
 					else
@@ -858,7 +858,7 @@ namespace COMMON
 					else if (client.MessageReceivedEvent == handles[index])
 					{
 
-						byte[] request = null;
+						byte[] request = default;
 
 						// dequeue the message
 						lock (client.myLock)
@@ -870,23 +870,23 @@ namespace COMMON
 							catch (Exception ex)
 							{
 								CLog.EXCEPT(ex, $"{threadName} - Fetching message generated an exception");
-								request = null;
+								request = default;
 							}
 						}
 
 						// if a message has been fetched, process it
 						try
 						{
-							if (null != request && 0 != request.Length)
+							if (default != request && 0 != request.Length)
 							{
 								// check whether the messge must be hidden or not
 								CLog.TRACE($"{threadName} - Starting processing request of {request.Length} bytes [{MessageToLog(client, request, true, TextMessages)}]");
 								// forward request for processing
 								byte[] reply = StartSettings.OnMessage(client.Tcp, request, out bool addBufferSize, thread, StartSettings.Parameters, client.Data, client);
-								if (null != reply && 0 != reply.Length)
+								if (default != reply && 0 != reply.Length)
 								{
 									CLog.TRACE($"{threadName} - Sending reply of {reply.Length} bytes [{MessageToLog(client, reply, false, TextMessages)}]");
-									if (null == client.StreamIO || !client.StreamIO.Send(reply, addBufferSize))
+									if (default == client.StreamIO || !client.StreamIO.Send(reply, addBufferSize))
 									{
 										CLog.ERROR($"{threadName} - The reply was not sent to the client");
 									}
@@ -928,7 +928,7 @@ namespace COMMON
 		private static string MessageToLog(StreamServerClient client, byte[] buffer, bool isRequest, bool textMessages)
 		{
 			// check whether the message must be hidden or not
-			if (null != client.StreamServerSettings.OnMessageToLog)
+			if (default != client.StreamServerSettings.OnMessageToLog)
 			{
 				string s = client.StreamServerSettings.OnMessageToLog(buffer, textMessages ? CMisc.AsString(buffer) : CMisc.AsHexString(buffer), isRequest);
 				return (string.IsNullOrEmpty(s) ? "<MESSAGE HIDDEN>" : s);
@@ -947,7 +947,7 @@ namespace COMMON
 		/// <returns>TRUE if equal, FALSE otherwise</returns>
 		private static bool ArraysAreEqual(byte[] b1, byte[] b2)
 		{
-			if (null == b2 || null == b2)
+			if (default == b2 || default == b2)
 				return false;
 			bool fOK;
 			if (fOK = b1.Length == b2.Length)
@@ -984,7 +984,7 @@ namespace COMMON
 				StreamIO = new CStreamServerIO(Tcp, StreamServerSettings);
 				WaitBeforeAbort = 5;
 				Connected = false;
-				Data = null;
+				Data = default;
 			}
 			~StreamServerClient()
 			{
@@ -1009,7 +1009,7 @@ namespace COMMON
 			public object myLock = new object();
 			public TcpClient Tcp { get; }
 			public CStreamServerSettings StreamServerSettings { get; }
-			public CStreamServerIO StreamIO { get; private set; } = null;
+			public CStreamServerIO StreamIO { get; private set; } = default;
 			public CThread ReceivingThread { get; }
 			public CThread ProcessingThread { get; }
 			public QueueOfMessages Messages { get; }
@@ -1019,9 +1019,9 @@ namespace COMMON
 			public AutoResetEvent StopProcessingThreadEvent { get; }
 			public int WaitBeforeAbort { get; }
 			private Mutex isStoppingMutex = new Mutex(false);
-			internal string Server = null;
+			internal string Server = default;
 			public object Data { get => _data; set => _data = value; }
-			internal object _data = null;
+			internal object _data = default;
 			#endregion
 
 			//#region IStreamServerStatistics implementation
@@ -1043,12 +1043,12 @@ namespace COMMON
 			{
 				try
 				{
-					if (null != request && 0 != request.Length)
+					if (default != request && 0 != request.Length)
 					{
 						ReceivedMessages++;
 						ReceivedBytes += request.Length;
 					}
-					if (null != reply && 0 != reply.Length)
+					if (default != reply && 0 != reply.Length)
 					{
 						SentMessages++;
 						SentBytes += reply.Length;
@@ -1064,13 +1064,13 @@ namespace COMMON
 			/// </summary>
 			public void StopReceivingThread()
 			{
-				if (null != StreamIO && ReceivingThread.IsRunning)
+				if (default != StreamIO && ReceivingThread.IsRunning)
 				{
 					// close communication stream
 					StreamIO.Close();
 					// wait for the thread to actually stop
 					ReceiverEvents.WaitStopped();
-					StreamIO = null;
+					StreamIO = default;
 				}
 			}
 			public void StopProcessingThread()
@@ -1090,7 +1090,7 @@ namespace COMMON
 				{
 					StopReceivingThread();
 					StopProcessingThread();
-					if (null != StreamIO)
+					if (default != StreamIO)
 						StreamIO.Close();
 					isStoppingMutex.ReleaseMutex();
 				}

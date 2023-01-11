@@ -16,7 +16,7 @@ namespace COMMON
 	{
 		public static IEnumerable<Type> BaseTypesAndSelf(this Type type)
 		{
-			while (null != type)
+			while (default != type)
 			{
 				yield return type;
 				type = type.BaseType;

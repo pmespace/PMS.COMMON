@@ -6,6 +6,7 @@ using System.Net.Security;
 using System.Collections.Generic;
 using COMMON;
 using Newtonsoft.Json.Serialization;
+using System.Threading;
 
 namespace TestCore
 {
@@ -44,13 +45,55 @@ namespace TestCore
 		#region main method
 		public int Start(string[] args)
 		{
-			DateTime dt1 = DateTime.Now;
-			CStreamClientSettings q = new CStreamClientSettings() { IP = "localhost", Port = 2018 };
-			DateTime dt2 = DateTime.Now;
-			TimeSpan ts = dt2.Subtract(dt1);
-			Console.WriteLine($"duration: {ts}");
+			Func<string, uint, bool> ddd = (string _addr_, uint _port_) =>
+			{
+				CStreamClientSettings _q_;
+				DateTime dt1 = DateTime.Now;
+				if (_addr_.IsNullOrEmpty() && 0 == _port_)
+					_q_ = new CStreamClientSettings();
+				else if (_addr_.IsNullOrEmpty())
+					_q_ = new CStreamClientSettings() { Port = _port_ };
+				else if (0 == _port_)
+					_q_ = new CStreamClientSettings() { IP = _addr_ };
+				else
+					_q_ = new CStreamClientSettings() { IP = _addr_, Port = 2018 };
+				DateTime dt2 = DateTime.Now;
+				TimeSpan ts = dt2.Subtract(dt1);
+				Console.WriteLine(CLog.TRACE($"duration: {ts} [{_addr_}, {_port_}] {_q_}"));
+				return true;
+			};
 
 			CLog.LogFileName = "testcore.log";
+			ConsoleKeyInfo keyInfo;
+			do
+			{
+				ddd(default, 0);
+				ddd("localhost", 0);
+				ddd("localhost", 2018);
+				ddd("192.168.0.225", 0);
+				ddd("192.168.0.225", 2018);
+				ddd("192.168.0.225", 9999);
+				ddd("192.168.0.137", 0);
+				ddd("192.168.0.137", 2018);
+
+				Console.WriteLine("Sleeping...");
+				Thread.Sleep(1000);
+
+				ddd(default, 0);
+				ddd("localhost", 0);
+				ddd("localhost", 2018);
+				ddd("192.168.0.225", 0);
+				ddd("192.168.0.225", 2018);
+				ddd("192.168.0.225", 9999);
+				ddd("192.168.0.137", 0);
+				ddd("192.168.0.137", 2018);
+
+				Console.WriteLine("Press a key or ESC");
+				CMisc.ConsoleColors.SetInputColors();
+				keyInfo = Console.ReadKey(true);
+			} while (keyInfo.Key != ConsoleKey.Escape);
+
+
 			string unique = default;
 			string tmpf = CMisc.GetTempFileName(out string path, out string fname, ref unique, null, null, "json");
 			tmpf = CMisc.GetTempFileName(out path, out fname, ref unique);

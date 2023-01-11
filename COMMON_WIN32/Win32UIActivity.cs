@@ -59,7 +59,7 @@ namespace COMMON.WIN32
 		/// <summary>
 		/// The <see cref="Control"/> to use to invoke the UI method
 		/// </summary>
-		public Control Ctrl { get; set; } = null;
+		public Control Ctrl { get; set; } = default;
 		/// <summary>
 		/// The type of activity to pass to the activity processing method
 		/// <see cref="UIActivityEnum"/> values are for information, it is possible to extend the range as desired
@@ -68,11 +68,11 @@ namespace COMMON.WIN32
 		/// <summary>
 		/// A message to pass to the activity processing method
 		/// </summary>
-		public string Message { get; set; } = null;
+		public string Message { get; set; } = default;
 		/// <summary>
 		/// An object to pass to the activity processing method
 		/// </summary>
-		public object Value { get; set; } = null;
+		public object Value { get; set; } = default;
 		/// <summary>
 		/// Striing description of the activity
 		/// </summary>
@@ -104,7 +104,7 @@ namespace COMMON.WIN32
 		{
 			try
 			{
-				if (null != method && null != activity && null != activity.Ctrl)
+				if (default != method && default != activity && default != activity.Ctrl)
 				{
 					activity.Ctrl.Invoke(method, activity);
 				}

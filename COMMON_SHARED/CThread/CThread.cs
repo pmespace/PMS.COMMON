@@ -81,7 +81,7 @@ namespace COMMON
 		/// <param name="thread"><see cref="CThread"/></param>
 		/// <param name="o">Parameters passed to the thread</param>
 		/// <returns>The result of the function, any muneric value pertaining to the caller. That value will be set inside <see cref="Result"/></returns>
-		public delegate int ThreadFunction(CThread thread, object o = null);
+		public delegate int ThreadFunction(CThread thread, object o = default);
 		#endregion
 
 		#region public properties
@@ -96,7 +96,7 @@ namespace COMMON
 		/// <summary>
 		/// The thread unique ID
 		/// </summary>
-		public int UniqueID { get => null != Thread ? Thread.ManagedThreadId : NO_THREAD; }
+		public int UniqueID { get => default != Thread ? Thread.ManagedThreadId : NO_THREAD; }
 		public const int NO_THREAD = 0;
 		public int NoThread { get => NO_THREAD; }
 
@@ -146,11 +146,11 @@ namespace COMMON
 					_name = value;
 			}
 		}
-		private string _name = null;
+		private string _name = default;
 		/// <summary>
 		/// Description of the thread
 		/// </summary>
-		public string Description { get => $"Thread: {Name}{(0 != ID ? $" (ID: {ID})" : null)}"; }
+		public string Description { get => $"Thread: {Name}{(0 != ID ? $" (ID: {ID})" : default)}"; }
 		/// <summary>
 		/// Indicate whether the thread has already been started
 		/// </summary>
@@ -186,11 +186,11 @@ namespace COMMON
 		/// <param name="evt">An <see cref="ManualResetEvent"/> object created by the calling application to wait for when starting the thread. This event can be used by the calling application to indicate it has finished its own initialisation process and must therefore be set within the calling applictaioin's thread function to unlock processing. Set to null means no event to wait for.</param>
 		/// <param name="isBackground">Indicates whether the created thread is a background one or not</param>
 		/// <returns>True if started, false otherwise</returns>
-		public bool Start(ThreadFunction method, CThreadData threadData = null, object threadParams = null, ManualResetEvent evt = null, bool isBackground = true)
+		public bool Start(ThreadFunction method, CThreadData threadData = default, object threadParams = default, ManualResetEvent evt = default, bool isBackground = true)
 		{
 			if (!CanStart)
 				return false;
-			if (null != threadData && !threadData.IsValid)
+			if (default != threadData && !threadData.IsValid)
 				return false;
 			try
 			{
@@ -203,7 +203,7 @@ namespace COMMON
 				Thread.Start();
 				Thread.IsBackground = isBackground;
 				Events.WaitStarted();
-				if (null != evt)
+				if (default != evt)
 					evt.WaitOne();
 				IsRunning = true;
 				return IsRunning;
@@ -242,7 +242,7 @@ namespace COMMON
 			Events.SetStarted();
 			try
 			{
-				if (null != ThreadMethod)
+				if (default != ThreadMethod)
 				{
 					Result = ThreadMethod(this, ThreadParams);
 					CLog.DEBUG($"{Description} - Thread result: {Result}");
@@ -287,7 +287,7 @@ namespace COMMON
 		/// <param name="value">Value to send, inside lParam</param>
 		public void SendNotification(int value, bool stopped)
 		{
-			if (null != ThreadData
+			if (default != ThreadData
 				&& IntPtr.Zero != ThreadData.WindowToWarn)
 				SendNotification(ThreadData, ID, value, stopped);
 		}
@@ -300,7 +300,7 @@ namespace COMMON
 		/// <param name="stopped">Tru if use <see cref="CThreadData.StoppedMessage"/>, using <see cref="CThreadData.InformationMessage"/> otherwise</param>
 		public static void SendNotification(CThreadData threadData, int id, int value, bool stopped = true)
 		{
-			if (null != threadData
+			if (default != threadData
 				&& IntPtr.Zero != threadData.WindowToWarn)
 				Win32.PostMessage(threadData.WindowToWarn, stopped ? threadData.StoppedMessage : threadData.InformationMessage, id, value);
 		}

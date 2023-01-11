@@ -63,10 +63,10 @@ namespace COMMON
 		}
 		~CStreamIO()
 		{
-			if (null != Tcp)
+			if (default != Tcp)
 			{
 				Tcp.Close();
-				Tcp = null;
+				Tcp = default;
 			}
 		}
 		#endregion
@@ -77,7 +77,7 @@ namespace COMMON
 			get => _tcp;
 			private set => _tcp = value;
 		}
-		private TcpClient _tcp = null;
+		private TcpClient _tcp = default;
 		/// <summary>
 		/// SSL stream if SSL security is required
 		/// </summary>
@@ -87,11 +87,11 @@ namespace COMMON
 			set
 			{
 				_sslstream = value;
-				if (null != sslStream)
-					networkStream = null;
+				if (default != sslStream)
+					networkStream = default;
 			}
 		}
-		private SslStream _sslstream = null;
+		private SslStream _sslstream = default;
 		/// <summary>
 		/// Standard stream if no security is required
 		/// </summary>
@@ -101,11 +101,11 @@ namespace COMMON
 			set
 			{
 				_networkstream = value;
-				if (null != networkStream)
-					sslStream = null;
+				if (default != networkStream)
+					sslStream = default;
 			}
 		}
-		private NetworkStream _networkstream = null;
+		private NetworkStream _networkstream = default;
 		/// <summary>
 		/// Indicates whether a StreamIO is connected or not
 		/// </summary>
@@ -113,11 +113,11 @@ namespace COMMON
 		{
 			get
 			{
-				if (null != Tcp)
+				if (default != Tcp)
 				{
 					IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();
 					TcpConnectionInformation[] tcpConnections = ipProperties.GetActiveTcpConnections().Where(x => x.LocalEndPoint.Equals(Tcp.Client.RemoteEndPoint) && x.RemoteEndPoint.Equals(Tcp.Client.LocalEndPoint)).ToArray();
-					if (tcpConnections != null && tcpConnections.Length > 0)
+					if (tcpConnections != default && tcpConnections.Length > 0)
 					{
 						TcpState stateOfConnection = tcpConnections.First().State;
 						return (stateOfConnection == TcpState.Established);
@@ -138,9 +138,9 @@ namespace COMMON
 		#region methods
 		public override string ToString()
 		{
-			if (null != Tcp)
+			if (default != Tcp)
 				return $"StreamIO - Connected: {Tcp.Connected}; Remote end point: {Tcp.Client.RemoteEndPoint}; Receive buffer size: {Tcp.ReceiveBufferSize}; Receive timeout: {Tcp.ReceiveTimeout}";
-			return null;
+			return default;
 		}
 		/// <summary>
 		/// Write to the adequate stream
@@ -150,35 +150,10 @@ namespace COMMON
 		private bool Write(byte[] data)
 		{
 			if (data.IsNullOrEmpty()) return false;
-			//if (null != sslStream)
-			//{
-			//	try
-			//	{
-			//		sslStream.Write(data);
-			//		return true;
-			//	}
-			//	catch (Exception ex)
-			//	{
-			//		CLog.EXCEPT(ex, "sslStream");
-			//	}
-			//}
-			//else if (null != networkStream)
-			//{
-			//	try
-			//	{
-			//		networkStream.Write(data, 0, data.Length);
-			//		return true;
-			//	}
-			//	catch (Exception ex)
-			//	{
-			//		CLog.EXCEPT(ex, "networkStream");
-			//	}
-			//}
-			//return false;
 
 			string s = "networkStream";
 			Stream stream = networkStream;
-			if (null == stream)
+			if (default == stream)
 			{
 				s = "sslStream";
 				stream = sslStream;
@@ -200,32 +175,9 @@ namespace COMMON
 		/// </summary>
 		private void Flush()
 		{
-			//if (null != sslStream)
-			//{
-			//	try
-			//	{
-			//		sslStream.Flush();
-			//	}
-			//	catch (Exception ex)
-			//	{
-			//		CLog.EXCEPT(ex, "sslStream");
-			//	}
-			//}
-			//else if (null != networkStream)
-			//{
-			//	try
-			//	{
-			//		networkStream.Flush();
-			//	}
-			//	catch (Exception ex)
-			//	{
-			//		CLog.EXCEPT(ex, "networkStream");
-			//	}
-			//}
-
 			string s = "networkStream";
 			Stream stream = networkStream;
-			if (null == stream)
+			if (default == stream)
 			{
 				s = "sslStream";
 				stream = sslStream;
@@ -248,40 +200,11 @@ namespace COMMON
 		/// <returns>The number of bytes read</returns>
 		private int Read(byte[] data, int offset)//, int count)
 		{
-			//int read = 0;
-			//if (data.IsNullOrEmpty() || data.Length <= offset)// || data.Length < offset + count)
-			//	return 0;
-			//if (null != sslStream)
-			//{
-			//	try
-			//	{
-			//		//read = sslStream.Read(data, offset, count);
-			//		read = sslStream.Read(data, offset, data.Length - offset);
-			//	}
-			//	catch (Exception ex)
-			//	{
-			//		CLog.EXCEPT(ex, "sslStream");
-			//	}
-			//}
-			//else if (null != networkStream)
-			//{
-			//	try
-			//	{
-			//		//read = networkStream.Read(data, offset, count);
-			//		read = networkStream.Read(data, offset, data.Length - offset);
-			//	}
-			//	catch (Exception ex)
-			//	{
-			//		CLog.EXCEPT(ex, "networkStream");
-			//	}
-			//}
-			//return read;
-
 			if (data.IsNullOrEmpty() || data.Length <= offset) return 0;
 			int read = 0;
 			string s = "networkStream";
 			Stream stream = networkStream;
-			if (null == stream)
+			if (default == stream)
 			{
 				s = "sslStream";
 				stream = sslStream;
@@ -332,7 +255,7 @@ namespace COMMON
 		/// <returns>TRUE if the message has been sent, HALSE otherwise</returns>
 		public bool Send(string data)
 		{
-			byte[] bdata = (null != data ? Encoding.UTF8.GetBytes(data) : null);
+			byte[] bdata = (default != data ? Encoding.UTF8.GetBytes(data) : default);
 			return Send(bdata, true);
 		}
 		/// <summary>
@@ -354,7 +277,7 @@ namespace COMMON
 				// add the EOL at the end of string
 				data += EOT;
 			}
-			byte[] bdata = (null != data ? Encoding.UTF8.GetBytes(data) : null);
+			byte[] bdata = (default != data ? Encoding.UTF8.GetBytes(data) : default);
 			return Send(bdata, false);
 		}
 		/// <summary>
@@ -370,7 +293,7 @@ namespace COMMON
 		private byte[] ReceiveSizedBuffer(int bufferSize)
 		{
 			// allocate buffer to receive
-			if (0 == bufferSize) return null;
+			if (0 == bufferSize) return default;
 			byte[] buffer = new byte[bufferSize];
 			int bytesRead = 0;
 			bool doContinue;
@@ -462,7 +385,7 @@ namespace COMMON
 						return buffer;
 				}
 			}
-			return null;
+			return default;
 		}
 		/// <summary>
 		/// Receive a string of an unknown size from the server.
@@ -478,7 +401,7 @@ namespace COMMON
 		{
 			// receive the buffer
 			byte[] buffer = Receive(out int size);
-			return (!buffer.IsNullOrEmpty() && size == buffer.Length ? Encoding.UTF8.GetString(buffer) : null);
+			return (!buffer.IsNullOrEmpty() && size == buffer.Length ? Encoding.UTF8.GetString(buffer) : default);
 		}
 		/// <summary>
 		/// Receive a string of an unknown size from the server.
@@ -496,7 +419,7 @@ namespace COMMON
 		{
 			// receive the buffer
 			byte[] buffer = ReceiveNonSizedBuffer(EOT);
-			string s = (null != buffer ? Encoding.UTF8.GetString(buffer) : null);
+			string s = (default != buffer ? Encoding.UTF8.GetString(buffer) : default);
 			// remove EOT if necessary
 			if (!string.IsNullOrEmpty(s))
 				s = s.Replace(EOT, "");
@@ -507,7 +430,7 @@ namespace COMMON
 		/// </summary>
 		public void Close()
 		{
-			if (null != sslStream)
+			if (default != sslStream)
 			{
 				try
 				{
@@ -518,7 +441,7 @@ namespace COMMON
 					CLog.EXCEPT(ex, "sslStream");
 				}
 			}
-			else if (null != networkStream)
+			else if (default != networkStream)
 			{
 				try
 				{
@@ -529,7 +452,7 @@ namespace COMMON
 					CLog.EXCEPT(ex, "networkStream");
 				}
 			}
-			Tcp = null;
+			Tcp = default;
 		}
 		#endregion
 	}
@@ -590,7 +513,7 @@ namespace COMMON
 				// determine the kind of link to use
 				if (Settings.UseSsl)
 				{
-					sslStream = new SslStream(client.GetStream(), false, new RemoteCertificateValidationCallback(ValidateServerCertificate), null);
+					sslStream = new SslStream(client.GetStream(), false, new RemoteCertificateValidationCallback(ValidateServerCertificate), default);
 					int tmo = client.ReceiveTimeout * 1000;
 					client.ReceiveTimeout = 5000;
 					try
@@ -603,13 +526,13 @@ namespace COMMON
 						try
 						{
 							RegistryKey key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5");
-							object value = (null != key ? key.GetValue("SP") : null);
-							useTLS = (null != value && 1 <= (int)value);
+							object value = (default != key ? key.GetValue("SP") : default);
+							useTLS = (default != value && 1 <= (int)value);
 						}
 						catch (Exception ex) { }
 						CLog.Add($".NET 3.5 {(useTLS ? "using TLS 1.2" : "not using TLS")}", TLog.INFOR);
 						if (useTLS)
-							sslStream.AuthenticateAsClient(Settings.ServerName, null, (System.Security.Authentication.SslProtocols)3072, false);
+							sslStream.AuthenticateAsClient(Settings.ServerName, default, (System.Security.Authentication.SslProtocols)3072, false);
 						else
 							sslStream.AuthenticateAsClient(Settings.ServerName);
 #else
@@ -620,7 +543,7 @@ namespace COMMON
 					catch (Exception ex)
 					{
 						CLog.EXCEPT(ex);
-						sslStream = null;
+						sslStream = default;
 						throw;
 					}
 					finally
@@ -637,7 +560,7 @@ namespace COMMON
 		#endregion
 
 		#region properties
-		private CStreamClientSettings Settings = null;
+		private CStreamClientSettings Settings = default;
 		#endregion
 
 		#region methods
@@ -721,7 +644,7 @@ namespace COMMON
 			if (settings.UseSsl)
 			{
 				// SSL stream
-				sslStream = new SslStream(client.GetStream(), false, new RemoteCertificateValidationCallback(ValidateServerCertificate), null);
+				sslStream = new SslStream(client.GetStream(), false, new RemoteCertificateValidationCallback(ValidateServerCertificate), default);
 				int tmo = client.ReceiveTimeout * 1000;
 				client.ReceiveTimeout = 5000;
 				try
@@ -732,7 +655,7 @@ namespace COMMON
 				catch (Exception ex)
 				{
 					CLog.EXCEPT(ex);
-					sslStream = null;
+					sslStream = default;
 					throw;
 				}
 				finally
@@ -750,7 +673,7 @@ namespace COMMON
 
 		#region properties
 		public uint Port { get; private set; }
-		private CStreamServerSettings Settings = null;
+		private CStreamServerSettings Settings = default;
 		#endregion
 
 		#region methods

@@ -23,7 +23,7 @@ namespace COMMON
 			if (display) return Display(text, colors);
 			return text;
 		}
-		public static string Display(string text, CColors colors)
+		public static string Display(string text, CColors colors = default)
 		{
 			CMisc.ConsoleColors.Text = colors;
 			CMisc.ConsoleColors.ApplyTextColors();

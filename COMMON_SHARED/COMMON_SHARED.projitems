@@ -15,6 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)CJson\CJson.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CJson\CJsonConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CLog\CLog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CLog\CLogger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CMisc\CMisc.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CExceptions\ENotImplemented.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CSafeCollections\CSafeCollections.cs" />
@@ -28,7 +29,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)CThread\CThreadData.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)CLog\" />
     <Folder Include="$(MSBuildThisFileDirectory)CMisc\" />
     <Folder Include="$(MSBuildThisFileDirectory)CSafeCollections\" />
   </ItemGroup>

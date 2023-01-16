@@ -64,6 +64,10 @@ namespace TestCore
 			};
 
 			CLog.LogFileName = "testcore.log";
+
+			CLogger.EXCEPT(new Exception("test except"));
+
+
 			ConsoleKeyInfo keyInfo;
 			do
 			{
@@ -89,7 +93,7 @@ namespace TestCore
 				ddd("192.168.0.137", 2018);
 
 				Console.WriteLine("Press a key or ESC");
-				CMisc.ConsoleColors.SetInputColors();
+				CMisc.ConsoleColors.ApplyInputColors();
 				keyInfo = Console.ReadKey(true);
 			} while (keyInfo.Key != ConsoleKey.Escape);
 
@@ -110,7 +114,8 @@ namespace TestCore
 			dir = CMisc.VerifyDirectory(@"c:\testcommon.exe", false);
 			dir = CMisc.VerifyDirectory(@"c:\testcommon.exe", true);
 
-			CMisc.ConsoleColors.InputForegroundColor = ConsoleColor.Cyan;
+			CMisc.ConsoleColors.Input.Foreground = ConsoleColor.Cyan;
+			CMisc.ConsoleColors.Input.Background = ConsoleColor.White;
 
 			CMisc.Input("hello", default, out bool isdef, "invite");
 
@@ -172,18 +177,18 @@ namespace TestCore
 		/// <returns></returns>
 		private DFnc DisplayMenu(out char c)
 		{
-			CMisc.ConsoleColors.SetTextColors();
+			CMisc.ConsoleColors.ApplyTextColors();
 
 			Console.WriteLine("");
 			foreach (KeyValuePair<char, CMenu> m in Menu)
 				Console.WriteLine($"{m.Key}/ {m.Value.Text}");
 			do
 			{
-				CMisc.ConsoleColors.SetInputColors();
+				CMisc.ConsoleColors.ApplyInputColors();
 				ConsoleKeyInfo keyInfo = Console.ReadKey(true);
 				c = keyInfo.KeyChar.ToString().ToUpper()[0];
 			} while (!Menu.ContainsKey(c));
-			CMisc.ConsoleColors.SetTextColors();
+			CMisc.ConsoleColors.ApplyTextColors();
 
 			//CMisc.Choice(new Dictionary<ConsoleKey, string>() { })
 
@@ -274,16 +279,16 @@ namespace TestCore
 			if (null != clientIO)
 			{
 				clientIO.Send("hello");
-				CMisc.ConsoleColors.SetInputColors();
+				CMisc.ConsoleColors.ApplyInputColors();
 				Console.ReadKey();
-				CMisc.ConsoleColors.SetTextColors();
+				CMisc.ConsoleColors.ApplyTextColors();
 				Console.WriteLine($"Client connected: {clientIO.Connected}");
-				CMisc.ConsoleColors.SetInputColors();
+				CMisc.ConsoleColors.ApplyInputColors();
 				Console.ReadKey();
 				StopServer(c);
-				CMisc.ConsoleColors.SetInputColors();
+				CMisc.ConsoleColors.ApplyInputColors();
 				Console.ReadKey();
-				CMisc.ConsoleColors.SetTextColors();
+				CMisc.ConsoleColors.ApplyTextColors();
 				Console.WriteLine($"Client connected: {clientIO.Connected}");
 				clientIO.Close();
 			}
@@ -297,7 +302,7 @@ namespace TestCore
 		{
 			if (null != server)
 			{
-				CMisc.ConsoleColors.SetTextColors();
+				CMisc.ConsoleColors.ApplyTextColors();
 				Console.WriteLine(server.Statistics());
 			}
 			return true;
@@ -316,9 +321,9 @@ namespace TestCore
 				ServerName = UseSSL ? "hello world" : null,
 				ConnectTimeout = 10,
 			};
-			CMisc.ConsoleColors.SetTextColors();
+			CMisc.ConsoleColors.ApplyTextColors();
 			Console.Write("Message to send: ");
-			CMisc.ConsoleColors.SetInputColors();
+			CMisc.ConsoleColors.ApplyInputColors();
 			string request = Console.ReadLine();
 			string reply = null;
 			if (null != (reply = CStream.ConnectSendReceive(settings, string.IsNullOrEmpty(request) ? DateTime.Now.ToString() : request, out int size, out bool error)))

@@ -29,33 +29,35 @@ namespace COMMON
 	}
 
 	[ComVisible(false)]
-	public class CConsoleColors
+	public class CColors
+	{
+		public CColors() { Foreground = Console.ForegroundColor; Background = Console.BackgroundColor; }
+		public CColors(CColors c) { Foreground = c.Foreground; Background = c.Background; }
+		public ConsoleColor Foreground { get; set; }
+		public ConsoleColor Background { get; set; }
+		public void Apply() { Console.ForegroundColor = Foreground; Console.BackgroundColor = Background; }
+		internal void Apply(CColors colors) { Foreground = colors.Foreground; Background = colors.Background; Apply(); }
+		public override string ToString() { return $"Foreground: {Foreground}; Background: {Background}"; }
+	}
+
+	[ComVisible(false)]
+	public sealed class CConsoleColors
 	{
 		public CConsoleColors()
 		{
-			Default = new Colors();
-			Text = new Colors();
-			Input = new Colors();
+			Default = new CColors();
 		}
-		class Colors
-		{
-			public Colors() { ForegroundColor = Console.ForegroundColor; BackgroundColor = Console.BackgroundColor; }
-			public Colors(Colors c) { ForegroundColor = c.ForegroundColor; BackgroundColor = c.BackgroundColor; }
-			public ConsoleColor ForegroundColor { get; set; }
-			public ConsoleColor BackgroundColor { get; set; }
-		}
-		Colors Default;
-		Colors Text;
-		Colors Input;
-		public ConsoleColor TextForegroundColor { get => Text.ForegroundColor; set => Text.ForegroundColor = value; }
-		public ConsoleColor TextBackgroundColor { get => Text.BackgroundColor; set => Text.BackgroundColor = value; }
-		public ConsoleColor InputForegroundColor { get => Input.ForegroundColor; set => Input.ForegroundColor = value; }
-		public ConsoleColor InputBackgroundColor { get => Input.BackgroundColor; set => Input.BackgroundColor = value; }
-		public void ResetColors() { Console.ForegroundColor = Default.ForegroundColor; Console.BackgroundColor = Default.BackgroundColor; }
-		public void SetTextColors() { Console.ForegroundColor = Text.ForegroundColor; Console.BackgroundColor = Text.BackgroundColor; }
-		public void ResetTextColors() { TextForegroundColor = Default.ForegroundColor; TextBackgroundColor = Default.BackgroundColor; }
-		public void SetInputColors() { Console.ForegroundColor = Input.ForegroundColor; Console.BackgroundColor = Input.BackgroundColor; }
-		public void ResetInputColors() { InputForegroundColor = Default.ForegroundColor; InputBackgroundColor = Default.BackgroundColor; }
+
+		CColors Default;
+		public CColors Text { get => _text; set => _text = value ?? _text; }
+		CColors _text = new CColors();
+		public CColors Input { get => _input; set => _input = value ?? _input; }
+		CColors _input = new CColors();
+		public void ApplyTextColors() { Text.Apply(); }
+		public void ResetTextColors() { Text.Apply(Default); }
+		public void ApplyInputColors() { Input.Apply(); }
+		public void ResetInputColors() { Input.Apply(Default); }
+		public void ResetColors() { Console.ForegroundColor = Default.Foreground; Console.BackgroundColor = Default.Background; }
 	}
 
 	/// <summary>
@@ -956,12 +958,12 @@ namespace COMMON
 			string defaultA = theDefault ? syes : sno;
 			string confirm = syes + sno;
 			string answer = defaultA;
-			ConsoleColors.SetTextColors();
+			ConsoleColors.ApplyTextColors();
 			Console.WriteLine();
 			Console.Write(msg + $" ({(displayYesNo ? lyes + "=" : default)}{syes}/{(displayYesNo ? lno + "=" : default)}{sno})" + (useDefault ? $" [{defaultA}]" : default) + " ? ");
 			do
 			{
-				ConsoleColors.SetInputColors();
+				ConsoleColors.ApplyInputColors();
 				ConsoleKeyInfo keyInfo = Console.ReadKey(true);
 				if (useDefault && ConsoleKey.Enter == keyInfo.Key)
 				{
@@ -995,7 +997,7 @@ namespace COMMON
 		//public static ConsoleKeyInfo Choice(Dictionary<ConsoleKey, string> invites, out char choice, bool acceptEscape = false, bool resetPosition = false, CConsoleColors colors = null)
 		//{
 		//	colors = colors ?? ConsoleColors;
-		//	CMisc.ConsoleColors.SetTextColors();
+		//	CMisc.ConsoleColors.ApplyTextColors();
 		//	Console.SetCursorPosition(0, resetPosition ? 0 : Console.CursorTop);
 
 		//	Func<ConsoleKey, string> GetStringToDisplay = (ConsoleKey _k_) =>
@@ -1053,9 +1055,9 @@ namespace COMMON
 		//		{
 		//			string s = GetStringToDisplay(m.Key);
 		//			s = new string(' ', length - s.Length) + s;
-		//			colors.SetInputColors();
+		//			colors.ApplyInputColors();
 		//			Console.Write($"{s}");
-		//			colors.SetTextColors();
+		//			colors.ApplyTextColors();
 		//			Console.WriteLine($"/ {m.Value}");
 		//		}
 		//	}
@@ -1069,11 +1071,11 @@ namespace COMMON
 		//	ConsoleKeyInfo keyInfo;
 		//	do
 		//	{
-		//		ConsoleColors.SetInputColors();
+		//		ConsoleColors.ApplyInputColors();
 		//		keyInfo = Console.ReadKey(true);
 		//		choice = keyInfo.KeyChar;
 		//	} while (!invites.ContainsKey(keyInfo.Key));
-		//	CMisc.ConsoleColors.SetTextColors();
+		//	CMisc.ConsoleColors.ApplyTextColors();
 		//	return keyInfo.Key;
 		//}
 		//public struct ChoiceEntry
@@ -1091,11 +1093,12 @@ namespace COMMON
 		/// <returns></returns>
 		public static string Input(string msg, string defv, out bool isdef, string invite = default)
 		{
-			ConsoleColors.SetTextColors();
+			ConsoleColors.ApplyTextColors();
 			Console.WriteLine();
 			Console.Write(msg + (!defv.IsNullOrEmpty() ? $" [{defv}]" : default) + ": ");
-			ConsoleColors.SetInputColors();
+			ConsoleColors.ApplyInputColors();
 			string s = Console.ReadLine();
+			ConsoleColors.ApplyTextColors();
 			if (isdef = (!defv.IsNullOrEmpty() && s.IsNullOrEmpty()))
 			{
 				s = defv;

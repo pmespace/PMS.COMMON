@@ -296,7 +296,7 @@ namespace COMMON
 
 		#region private properties
 		/// <summary>
-		/// IP address to targer
+		/// IP address to target
 		/// </summary>
 		internal IPAddress Address { get; private set; } = default;
 		/// <summary>

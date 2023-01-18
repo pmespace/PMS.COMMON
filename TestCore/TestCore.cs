@@ -45,7 +45,15 @@ namespace TestCore
 		#region main method
 		public int Start(string[] args)
 		{
+			Console.ForegroundColor = ConsoleColor.Black;
+			Console.BackgroundColor = ConsoleColor.White;
 			CMisc.ResetColors();
+			CMisc.InputColors.Background = ConsoleColor.Black;
+
+			CMisc.Input("hello", default, out bool isdefx, "invite");
+
+			CMisc.YesNo("hello", true, true, true);
+
 
 			Func<string, uint, bool> ddd = (string _addr_, uint _port_) =>
 			{

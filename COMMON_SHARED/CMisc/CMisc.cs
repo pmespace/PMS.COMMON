@@ -211,8 +211,8 @@ namespace COMMON
 		/// <param name="back"></param>
 		public static void ResetColors(ConsoleColor? fore = null, ConsoleColor? back = null)
 		{
-			Console.ForegroundColor = fore ?? ConsoleColor.Gray;
-			Console.BackgroundColor = back ?? ConsoleColor.Black;
+			Console.ForegroundColor = DefaultColors.Foreground = fore ?? ConsoleColor.Gray;
+			Console.BackgroundColor = DefaultColors.Background = back ?? ConsoleColor.Black;
 		}
 		/// <summary>
 		/// Safe string to int function
@@ -952,8 +952,9 @@ namespace COMMON
 		/// <param name="yesvalues">A set of 2 strings indicating the string to display for "YES" and the character meaning YES (i.e. {"Yes", "Y"}, {"Oui", "O"},... If not or partially set the function will use{"YES", "Y"}</param>
 		/// <param name="novalues">A set of 2 strings indicating the string to display for "NO" and the character meaning NO (i.e. {"No", "N"}, {"Non", "N"},... If not or partially set the function will use {"NO", "N"}</param>
 		/// <param name="displayYesNo">If true the function will display "question (YES=Y/NO=N)", if false it will display  "question (Y/N)", according to <paramref name="yesvalues"/> and <paramref name="novalues"/> values</param>
+		/// <param name="displayChoice">If true the choivce (yes or no) is displayed</param>
 		/// <returns>True if YES, false if NO</returns>
-		public static bool YesNo(string msg, bool useDefault = false, bool theDefault = true, bool useESC = false, string[] yesvalues = default, string[] novalues = default, bool displayYesNo = true)
+		public static bool YesNo(string msg, bool useDefault = false, bool theDefault = true, bool useESC = false, string[] yesvalues = default, string[] novalues = default, bool displayYesNo = true, bool displayChoice = true)
 		{
 			const string YES = "YES";
 			const string NO = "NO";
@@ -998,6 +999,11 @@ namespace COMMON
 					answer = keyInfo.KeyChar.ToString().ToUpper();
 				}
 			} while (!confirm.Contains(answer));
+			if (displayChoice)
+			{
+				CMisc.TextColors.Apply();
+				Console.WriteLine(answer);
+			}
 			DefaultColors.Apply();
 			return 0 == string.Compare(syes, answer, true);
 		}
@@ -1122,7 +1128,9 @@ namespace COMMON
 			{
 				s = defv;
 				TextColors.Apply();
-				Console.WriteLine(invite + s);
+				Console.Write(invite);
+				InputColors.Apply();
+				Console.WriteLine(s);
 			}
 			else if (string.IsNullOrEmpty(s))
 				s = default;

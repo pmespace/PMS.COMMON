@@ -143,7 +143,7 @@ namespace COMMON
 		/// <summary>
 		/// Separator to use between multiple lines in a resulting 1 line string
 		/// </summary>
-		public static string LinesSeparator { get; set; } = Chars.TAB;
+		public static string LinesSeparator { get; set; } = " ";// Chars.TAB;
 		/// <summary>
 		/// Allows indicating whether to always (true) or not (false, thus depending on <see cref="SeverityToLog"/>) DEBUG messages
 		/// </summary>
@@ -343,7 +343,7 @@ namespace COMMON
 				do { t = s; s = s.Replace(Chars.TABTAB, Chars.TAB); } while (t != s);
 				s = s.Replace(Chars.CR, LinesSeparator);
 				s = s.Replace(Chars.LF, LinesSeparator);
-				//s = s.Replace(Chars.TAB, LinesSeparator);
+				s = s.Replace(Chars.TAB, LinesSeparator);
 			}
 			return s;
 		}

@@ -243,6 +243,7 @@ namespace COMMON
 			if (default == settings) settings = new JsonSerializerSettings();
 			settings.ContractResolver = (alphabetical ? baseFirstThenAlphabeticalResolver : baseFirstResolver);
 			settings.TypeNameHandling = TypeNameHandling.None;
+			settings.Formatting = Newtonsoft.Json.Formatting.Indented;
 			return settings;
 		}
 		/// <summary>
@@ -255,6 +256,7 @@ namespace COMMON
 			if (default == settings) settings = new JsonSerializerSettings();
 			settings.ContractResolver = alphabeticalResolver;
 			settings.TypeNameHandling = TypeNameHandling.None;
+			settings.Formatting = Newtonsoft.Json.Formatting.Indented;
 			return settings;
 		}
 		/// <summary>
@@ -267,6 +269,7 @@ namespace COMMON
 			if (default == settings) settings = new JsonSerializerSettings();
 			settings.ContractResolver = default;
 			settings.TypeNameHandling = TypeNameHandling.None;
+			settings.Formatting = Newtonsoft.Json.Formatting.Indented;
 			return settings;
 		}
 		#endregion

@@ -124,11 +124,11 @@ namespace COMMON
 		/// <summary>
 		/// Thread data to use to identify the thread
 		/// </summary>
-		public CThreadData ThreadData { get; set; } 
+		public CThreadData ThreadData { get; set; }
 		/// <summary>
 		/// Server 
 		/// </summary>
-		public CStreamServerSettings StreamServerSettings { get; set; } 
+		public CStreamServerSettings StreamServerSettings { get; set; }
 		/// <summary>
 		/// Private parameters passed to the thread
 		/// </summary>
@@ -141,26 +141,26 @@ namespace COMMON
 		/// Called before starting processing requests from a client.
 		/// This function allows to initialise the server context.
 		/// </summary>
-		public CStreamDelegates.ServerOnStartDelegate OnStart { get; set; } 
+		public CStreamDelegates.ServerOnStartDelegate OnStart { get; set; }
 		/// <summary>
 		/// Called when a client connected to the server.
 		/// This function allows to initialise the client context inside the server.
 		/// </summary>
-		public CStreamDelegates.ServerOnConnectDelegate OnConnect { get; set; } 
+		public CStreamDelegates.ServerOnConnectDelegate OnConnect { get; set; }
 		/// <summary>
 		/// Called when a request has been received to process it and prepare the reply
 		/// </summary>
-		public CStreamDelegates.ServerOnMessageDelegate OnMessage { get; set; } 
+		public CStreamDelegates.ServerOnMessageDelegate OnMessage { get; set; }
 		/// <summary>
 		/// Called when a client connected to the server.
 		/// This function allows to initialise the client context inside the server.
 		/// </summary>
-		public CStreamDelegates.ServerOnDisconnectDelegate OnDisconnect { get; set; } 
+		public CStreamDelegates.ServerOnDisconnectDelegate OnDisconnect { get; set; }
 		/// <summary>
 		/// Called after the server has received a stop order.
 		/// This function allows to clear the server context.
 		/// </summary>
-		public CStreamDelegates.ServerOnStopDelegate OnStop { get; set; } 
+		public CStreamDelegates.ServerOnStopDelegate OnStop { get; set; }
 		#endregion
 	}
 
@@ -223,7 +223,7 @@ namespace COMMON
 		private StreamServerClients connectedClients = new StreamServerClients();
 		private Mutex isCleaningUpMutex = new Mutex(false);
 		private bool isCleaningUp = false;
-		private CThread mainThread = new CThread();
+		private CThread mainThread = new CThread() { Name = "STREAMSERVER" };
 		#endregion
 
 		#region properties
@@ -290,7 +290,6 @@ namespace COMMON
 		/// <returns>True if started, false otherwise</returns>
 		public bool StartServer(CStreamServerStartSettings settings)
 		{
-			const string SERVER_NOT_RUNNING = ", server is not running";
 			if (!mainThread.CanStart)
 				return false;
 			if (default == settings || !settings.IsValid)
@@ -312,49 +311,33 @@ namespace COMMON
 					// by default let's start the server
 					ok = true;
 				}
-				if (ok)
+
+				if (!ok)
 				{
-					// create a TCP/IP socket and start listenning for incoming connections
-					listener = new TcpListener(IPAddress.Any, (int)settings.StreamServerSettings.Port);
-					try
-					{
-						CLog.TRACE($"{mainThread.Description} - Server listener created reading port {settings.StreamServerSettings.Port}");
-						//listenerEvents.Reset();
-						listener.Start();
-						try
-						{
-							// start the thread and sleep to allow him to actually run
-							if (mainThread.Start(StreamServerListenerMethod, settings.ThreadData, default, listenerEvents.Started, true))
-							{
-								return true;
-							}
-							else
-							{
-								CLog.ERROR($"{mainThread.Description} - Server thread could not be created" + SERVER_NOT_RUNNING);
-							}
-						}
-						catch (Exception ex)
-						{
-							CLog.EXCEPT(ex, "Starting the server thread generated an exception" + SERVER_NOT_RUNNING);
-						}
-						// arrived here we can stop the listener
-						listener.Stop();
-					}
-					catch (Exception ex)
-					{
-						CLog.EXCEPT(ex, $"Network listener could not be started on {listener.LocalEndpoint}" + SERVER_NOT_RUNNING);
-					}
-					// arrived here we can dismiss the listener
-					listener = default;
+					CLog.ERROR($"The server not allowed to start");
+					return false;
+				}
+
+				// create a TCP/IP socket and start listenning for incoming connections
+				listener = new TcpListener(IPAddress.Any, (int)settings.StreamServerSettings.Port);
+				listener.Start();
+				CLog.TRACE($"Server message listener created reading port {settings.StreamServerSettings.Port}");
+
+				// start the thread and sleep to allow him to actually run
+				if (mainThread.Start(StreamServerListenerMethod, settings.ThreadData, default, listenerEvents.Started, true))
+				{
+					return true;
 				}
 				else
 				{
-					CLog.ERROR($"{mainThread.Description} - The server was not allowed to start");
+					CLog.ERROR($"Server thread could not be created, server is not running");
 				}
+				listener.Stop();
+				listener = default;
 			}
 			catch (Exception ex)
 			{
-				CLog.EXCEPT(ex, "Starting the server generated an exception" + SERVER_NOT_RUNNING);
+				CLog.EXCEPT(ex, "Starting the server generated an exception, server is not running");
 			}
 			return false;
 		}
@@ -369,7 +352,7 @@ namespace COMMON
 				// clean up and synchronize thread termination
 				Cleanup();
 				mainThread.Wait();
-				CLog.TRACE($"{mainThread.Description} - Server has been stopped");
+				CLog.TRACE($"Server has been stopped");
 			}
 		}
 		/// <summary>
@@ -410,6 +393,7 @@ namespace COMMON
 				StreamServerClient client = (StreamServerClient)o;
 				if (default != client && default != client.StreamIO)
 				{
+					CLog.INFORMATION($"{process} Sending notification message to {client.Tcp.Client.RemoteEndPoint}");
 					EndPoint endpoint = client.Tcp.Client.RemoteEndPoint;
 					if (client.StreamIO.Send(msg, addBufferSize))
 					{
@@ -453,7 +437,7 @@ namespace COMMON
 				// stop listener (that will stop the thread waiting for clients)
 				if (default != listener)
 				{
-					CLog.TRACE($"{mainThread.Description} - Shutting down listener");
+					CLog.TRACE($"{mainThread.Description}Shutting down listener");
 					listener.Stop();
 					listenerEvents.WaitStopped();
 					listener = default;
@@ -503,7 +487,7 @@ namespace COMMON
 		/// <returns></returns>
 		private int StreamServerListenerMethod(CThread thread, object o)
 		{
-			//string threadName = $"{mainThread.Description} - LISTENER";
+			//string threadName = $"{mainThread.Description}LISTENER";
 			//int res = (int)ThreadResult.OK;
 			//bool keepOnRunning = true;
 			//// indicate listener is on
@@ -543,31 +527,31 @@ namespace COMMON
 			//									connectedClients.Add(client.Key, client);
 			//									ok = true;
 			//								}
-			//								CLog.TRACE($"{threadName} - Client {clientEndPoint} is connected to the server");
+			//								CLog.TRACE($"{threadName}Client {clientEndPoint} is connected to the server");
 			//							}
 			//							else
 			//							{
-			//								CLog.WARNING($"{threadName} - Connection from {clientEndPoint} has been refused");
+			//								CLog.WARNING($"{threadName}Connection from {clientEndPoint} has been refused");
 			//							}
 			//						}
 			//						catch (Exception ex)
 			//						{
-			//							CLog.EXCEPT(ex, $"{threadName} - OnConnect generated an exception");
+			//							CLog.EXCEPT(ex, $"{threadName}OnConnect generated an exception");
 			//						}
 			//					}
 			//					else
 			//					{
-			//						CLog.ERROR($"{threadName} - Failed to start processor thread for client {clientEndPoint}");
+			//						CLog.ERROR($"{threadName}Failed to start processor thread for client {clientEndPoint}");
 			//					}
 			//				}
 			//				else
 			//				{
-			//					CLog.ERROR($"{threadName} - Failed to start receiver thread for client {clientEndPoint}");
+			//					CLog.ERROR($"{threadName}Failed to start receiver thread for client {clientEndPoint}");
 			//				}
 			//			}
 			//			catch (Exception ex)
 			//			{
-			//				CLog.EXCEPT(ex, $"{threadName} - Failed to start server");
+			//				CLog.EXCEPT(ex, $"{threadName}Failed to start server");
 			//				if (!ok)
 			//					try
 			//					{
@@ -580,7 +564,7 @@ namespace COMMON
 			//		}
 			//		catch (Exception ex)
 			//		{
-			//			CLog.EXCEPT(ex, $"{threadName} - Failed to prepare server to start");
+			//			CLog.EXCEPT(ex, $"{threadName}Failed to prepare server to start");
 			//			res = (int)ThreadResult.Exception;
 			//		}
 			//		finally
@@ -598,12 +582,12 @@ namespace COMMON
 			//	{
 			//		if (ex is InvalidOperationException || (ex is SocketException && SocketError.Interrupted == ((SocketException)ex).SocketErrorCode))
 			//		{
-			//			CLog.TRACE($"{threadName} - Stopped");
+			//			CLog.TRACE($"{threadName}Stopped");
 			//			res = (int)ThreadResult.OK;
 			//		}
 			//		else
 			//		{
-			//			CLog.EXCEPT(ex, $"{threadName} - Is stopping");
+			//			CLog.EXCEPT(ex, $"{threadName}Is stopping");
 			//			res = (int)ThreadResult.Exception;
 			//		}
 			//		keepOnRunning = false;
@@ -618,7 +602,7 @@ namespace COMMON
 			//Cleanup();
 			//return res;
 
-			string threadName = $"{mainThread.Description} - LISTENER";
+			string threadName = $"{mainThread.Description}[LISTENER] ";
 			int res = (int)ThreadResult.OK;
 			bool keepOnRunning = true;
 			// indicate listener is on
@@ -657,22 +641,22 @@ namespace COMMON
 						{
 							connectedClients.Add(client.Key, client);
 						}
-						CLog.TRACE($"{threadName} - Client {clientEndPoint} is connected to the server");
+						CLog.TRACE($"{threadName}Client {clientEndPoint} is connected to the server");
 						ok = true;
 					}
 					catch (ReceiverProcessorException ex)
 					{
-						CLog.EXCEPT(ex, $"{threadName} - Failed to start {client.ReceivingThread.Name} thread for client {clientEndPoint}");
+						CLog.EXCEPT(ex, $"{threadName}Failed to start {client.ReceivingThread.Name} thread for client {clientEndPoint}");
 						res = (int)ThreadResult.KO;
 					}
 					catch (ConnectionException ex)
 					{
-						CLog.EXCEPT(ex, $"{threadName} - Connection from {clientEndPoint} has been refused, closing it");
+						CLog.EXCEPT(ex, $"{threadName}Connection from {clientEndPoint} has been refused, closing it");
 						res = (int)ThreadResult.KO;
 					}
 					catch (Exception ex)
 					{
-						CLog.EXCEPT(ex, $"{threadName} - Failed to start server");
+						CLog.EXCEPT(ex, $"{threadName}Failed to start server");
 						res = (int)ThreadResult.Exception;
 					}
 					finally
@@ -688,12 +672,12 @@ namespace COMMON
 				{
 					if (ex is InvalidOperationException || (ex is SocketException && SocketError.Interrupted == ((SocketException)ex).SocketErrorCode))
 					{
-						CLog.TRACE($"{threadName} - Stopped");
+						CLog.TRACE($"{threadName}Stopped");
 						res = (int)ThreadResult.OK;
 					}
 					else
 					{
-						CLog.EXCEPT(ex, $"{threadName} - Is stopping");
+						CLog.EXCEPT(ex, $"{threadName}Is stopping");
 						res = (int)ThreadResult.Exception;
 					}
 					keepOnRunning = false;
@@ -721,7 +705,7 @@ namespace COMMON
 		{
 			// indicate the thread is on
 			StreamServerClient client = (StreamServerClient)o;
-			string threadName = $"{mainThread.Description} - {thread.Name}";
+			string threadName = $"{mainThread.Description}[RECEIVER] ";
 			int res = (int)ThreadResult.UNKNOWN;
 			bool keepOnRunning = true;
 			bool clientShutdown = false;
@@ -747,7 +731,7 @@ namespace COMMON
 
 						if (clientShutdown = ArraysAreEqual(STOP_SERVER_CLIENT_THREAD_REQUEST_MESSAGE, incoming))
 						{
-							CLog.TRACE($"{threadName} - Received client stop order");
+							CLog.INFORMATION($"{threadName}Received client stop order");
 							// acknowledge instance shutdown
 							outgoing = new byte[STOP_SERVER_ACCEPT_REPLY_MESSAGE.Length];
 							Buffer.BlockCopy(STOP_SERVER_ACCEPT_REPLY_MESSAGE, 0, outgoing, 0, STOP_SERVER_ACCEPT_REPLY_MESSAGE.Length);
@@ -773,7 +757,7 @@ namespace COMMON
 					else
 					{
 						// no message received, might be an exception because the socket was closed
-						CLog.TRACE($"{threadName} - Reception of an empty message, probably client disconnection");
+						CLog.TRACE($"{threadName}Reception of an empty message, probably client disconnection, processing is shutting down");
 						//res = (int)StreamServerResult.clientReceivedInvalidMessage;
 						keepOnRunning = false;
 					}
@@ -783,7 +767,7 @@ namespace COMMON
 					if (ex is IOException || ex is EDisconnected)
 					{
 						// the connection has been closed, normal stop
-						CLog.TRACE($"{threadName} - Client {(default != clientEndPoint ? clientEndPoint.ToString() : "[address not available]")} is disconnecting");
+						CLog.TRACE($"{threadName}Client {(default != clientEndPoint ? clientEndPoint.ToString() : "[address not available]")} is disconnecting");
 						res = (int)ThreadResult.OK;
 					}
 					else
@@ -809,7 +793,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.EXCEPT(ex, $"{threadName} - OnDisconnect generated an exception");
+				CLog.EXCEPT(ex, $"{threadName}OnDisconnect generated an exception");
 			}
 			client.ReceiverEvents.SetStopped();
 			client.Stop();
@@ -836,7 +820,7 @@ namespace COMMON
 		private int StreamServerProcessorMethod(CThread thread, object o)
 		{
 			StreamServerClient client = (StreamServerClient)o;
-			string threadName = $"{mainThread.Description} - {thread.Name}";
+			string threadName = $"{mainThread.Description}[PROCESSOR] ";
 			int res = (int)ThreadResult.UNKNOWN;
 			bool keepOnRunning = true;
 
@@ -869,7 +853,7 @@ namespace COMMON
 							}
 							catch (Exception ex)
 							{
-								CLog.EXCEPT(ex, $"{threadName} - Fetching message generated an exception");
+								CLog.EXCEPT(ex, $"{threadName}Fetching message generated an exception");
 								request = default;
 							}
 						}
@@ -880,37 +864,37 @@ namespace COMMON
 							if (default != request && 0 != request.Length)
 							{
 								// check whether the messge must be hidden or not
-								CLog.TRACE($"{threadName} - Starting processing request of {request.Length} bytes [{MessageToLog(client, request, true, TextMessages)}]");
+								CLog.TRACE($"{threadName}Starting processing request of {request.Length} bytes [{MessageToLog(client, request, true, TextMessages)}]");
 								// forward request for processing
 								byte[] reply = StartSettings.OnMessage(client.Tcp, request, out bool addBufferSize, thread, StartSettings.Parameters, client.Data, client);
 								if (default != reply && 0 != reply.Length)
 								{
-									CLog.TRACE($"{threadName} - Sending reply of {reply.Length} bytes [{MessageToLog(client, reply, false, TextMessages)}]");
+									CLog.TRACE($"{threadName}Sending reply of {reply.Length} bytes [{MessageToLog(client, reply, false, TextMessages)}]");
 									if (default == client.StreamIO || !client.StreamIO.Send(reply, addBufferSize))
 									{
-										CLog.ERROR($"{threadName} - The reply was not sent to the client");
+										CLog.ERROR($"{threadName}The reply was not sent to the client");
 									}
 								}
 								else
 								{
-									CLog.WARNING($"{threadName} - No reply to send");
+									CLog.WARNING($"{threadName}No reply to send");
 								}
 								// set statistics for this client
 								client.UpdateStatistics(request, reply);
 							}
 							else
 							{
-								CLog.WARNING($"{threadName} - No request has been received");
+								CLog.WARNING($"{threadName}No request has been received");
 							}
 						}
 						catch (Exception ex)
 						{
-							CLog.EXCEPT(ex, $"{threadName} - OnRequest method generated an exception");
+							CLog.EXCEPT(ex, $"{threadName}OnRequest method generated an exception");
 						}
 					}
 					else
 					{
-						CLog.WARNING($"{threadName} - Unknown non fatal error");
+						CLog.WARNING($"{threadName}Unknown non fatal error");
 					}
 				}
 				catch (Exception ex)

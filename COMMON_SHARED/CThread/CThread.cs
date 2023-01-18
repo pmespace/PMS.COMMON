@@ -150,7 +150,7 @@ namespace COMMON
 		/// <summary>
 		/// Description of the thread
 		/// </summary>
-		public string Description { get => $"Thread: {Name}{(0 != ID ? $" (ID: {ID})" : default)}"; }
+		public string Description { get => $"{(Name.IsNullOrEmpty() ? string.Empty : $"[Thread: {Name}{(0 != ID ? $" (ID: {ID})" : string.Empty)}] ")}"; }
 		/// <summary>
 		/// Indicate whether the thread has already been started
 		/// </summary>

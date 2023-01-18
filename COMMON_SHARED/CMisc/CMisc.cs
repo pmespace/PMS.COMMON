@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Xml.Linq;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace COMMON
 {
@@ -1185,7 +1186,156 @@ namespace COMMON
 				default:
 					return default;
 			}
+
+
+
+
+
+
+
 		}
+
+
+
+		//public class CMenuChoiceException : Exception { }
+		//public class CMenuChoice
+		//{
+		//	public CMenuChoice() { }
+		//	/// <summary>
+		//	/// Create a menu option. At least 1 of <paramref name="c"/> and <paramref name="key"/> MUST not be null or an exception will be raised
+		//	/// </summary>
+		//	/// <param name="c">Charecter to use as the choice or null if use the <paramref name="key"/> instead</param>
+		//	/// <param name="key">Charecter to use as the choice or null if use the <paramref name="c"/> instead</param>
+		//	public CMenuChoice(char? c, ConsoleKey? key)
+		//	{
+		//		_char = c;
+		//		_key = key;
+		//		IsValid();
+		//	}
+		//	/// <summary>
+		//	/// The char to use as the choice, null if not to be used
+		//	/// </summary>
+		//	public char? Char
+		//	{
+		//		get => _char;
+		//		set { _char = value; IsValid(); }
+		//	}
+		//	char? _char = null;
+		//	/// <summary>
+		//	/// The console key top use as the choice, null if not to be used
+		//	/// </summary>
+		//	public ConsoleKey? Key
+		//	{
+		//		get => _key;
+		//		set { _key = value; IsValid(); }
+		//	}
+		//	ConsoleKey? _key = null;
+		//	/// <summary>
+		//	/// If none of <see cref="Char"/> and <see cref="Key"/> are null, true indicates to use <see cref="Key"/>, false to use <see cref="Char"/>
+		//	/// </summary>
+		//	[JsonIgnore]
+		//	public bool PreferKey { get => _preferkey; set => _preferkey = value; }
+		//	bool _preferkey = false;
+		//	/// <summary>
+		//	/// Indicates if case sensitivity must be used or not when testing <see cref="Char"/> <see langword="async"/>the effective choice
+		//	/// </summary>
+		//	[JsonIgnore]
+		//	public bool IgnoreCase { get => _ignorecase; set => _ignorecase = value; }
+		//	bool _ignorecase = true;
+		//	/// <summary>
+		//	/// Verify the choice is valid
+		//	/// Sends a <see cref="CMenuChoiceException"/> is not valid
+		//	/// </summary>
+		//	/// <exception cref="CMenuChoiceException"></exception>
+		//	void IsValid()
+		//	{
+		//		if ((null != Char && 0x33 <= Char && 0x126 >= Char) || (null != Key && IsEnumValue(typeof(ConsoleKey), Key)))
+		//			return;
+		//		throw new CMenuChoiceException();
+		//	}
+		//	/// <summary>
+		//	/// Indicates the string to display.
+		//	/// If <see cref="Key"/> is to be displayed the string is as indicated in <see cref="ConsoleKey"/> enumeration.
+		//	/// </summary>
+		//	/// <returns>
+		//	/// The string to display as the choice itself
+		//	/// </returns>
+		//	public override string ToString()
+		//	{
+		//		string s;
+		//		if (null != Char && null != Key)
+		//			if (PreferKey)
+		//				s = Key.ToString();
+		//			else
+		//				s = Char.ToString();
+		//		else if (null != Char)
+		//			s = Char.ToString();
+		//		else
+		//			s = Key.ToString();
+		//		return s;
+		//	}
+		//	/// <summary>
+		//	/// 
+		//	/// </summary>
+		//	/// <param name="choice"></param>
+		//	/// <returns></returns>
+		//	public bool IsChoice(CMenuChoice choice)
+		//	{
+		//		if (ToString().Compare(choice.ToString(), IgnoreCase))
+		//			return true;
+		//		return false;
+		//	}
+		//}
+		//public class CMenuEntry
+		//{
+		//	public CMenuChoice Option { get; set; }
+		//	public string Label { get; set; }
+		//	public CMenuDelegate Fnc { get; set; }
+		//	public object O { get; set; }
+		//}
+		//public delegate void CMenuDelegate(CMenuEntry entry, object o);
+		//public class CMenuList : SortedDictionary<CMenuChoice, CMenuEntry> { }
+		//public static CMenuChoice ProcessMenu(CManuList menu)
+		//{
+		//	do
+		//	{
+
+		//	} while (ok);
+		//	{
+		//		CMenu entry = DisplayMenu(menu, out char option);
+		//		if (null != entry)
+		//			switch (option)
+		//			{
+		//				case RELOAD_SETTINGS:
+		//					{
+		//						ReloadSettingsType type = new ReloadSettingsType() { SettingsFile = settingsFile, Listener = listener };
+		//						if (ok = entry.Fnc(menu, entry, option, type))
+		//						{
+		//							settingsFile = type.SettingsFile;
+		//							listener = type.Listener;
+		//						}
+		//						break;
+		//					}
+
+		//				case TEST_LISTENER:
+		//					{
+		//						ok = entry.Fnc(menu, entry, option, testListenerType);
+		//						break;
+		//					}
+
+		//				case DISPLAY_SETTINGS:
+		//					{
+		//						ok = entry.Fnc(menu, entry, option, listener);
+		//						break;
+		//					}
+
+		//				default:
+		//					ok = entry.Fnc(menu, entry, option, null);
+		//					break;
+		//			}
+		//	}
+		//}
+
 		[ComVisible(true)]
 		public enum DateFormat
 		{

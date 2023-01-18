@@ -8,15 +8,15 @@ namespace COMMON
 	[ComVisible(false)]
 	public static class CLogger
 	{
-		public static CColors WarningColor { get; set; } = new CColors() { Foreground = ConsoleColor.DarkYellow };
-		public static CColors ErrorColor { get; set; } = new CColors() { Foreground = ConsoleColor.DarkRed };
-		public static CColors ExceptColor { get; set; } = new CColors() { Foreground = ConsoleColor.Red };
+		//public static CColors WarningColor { get; set; } = new CColors() { Foreground = ConsoleColor.DarkYellow };
+		//public static CColors ErrorColor { get; set; } = new CColors() { Foreground = ConsoleColor.DarkRed };
+		//public static CColors ExceptColor { get; set; } = new CColors() { Foreground = ConsoleColor.Red };
 		public static string DEBUG(string s = default, bool display = true) { return Add(CLog.DEBUG(s), display, default); }
 		public static string INFORMATION(string s = default, bool display = true) { return Add(CLog.INFORMATION(s), display, default); }
 		public static string TRACE(string s = default, bool display = true) { return Add(CLog.TRACE(s), display, default); }
-		public static string WARNING(string s = default, bool display = true) { return Add(CLog.WARNING(s), display, WarningColor); ; }
-		public static string ERROR(string s = default, bool display = true) { return Add(CLog.ERROR(s), display, ErrorColor); }
-		public static string EXCEPT(Exception ex, string s = default, bool display = true) { return Add(CLog.EXCEPT(ex, s), display, ExceptColor); }
+		public static string WARNING(string s = default, bool display = true) { return Add(CLog.WARNING(s), display, CMisc.WarningColors); ; }
+		public static string ERROR(string s = default, bool display = true) { return Add(CLog.ERROR(s), display, CMisc.ErrorColors); }
+		public static string EXCEPT(Exception ex, string s = default, bool display = true) { return Add(CLog.EXCEPT(ex, s), display, CMisc.ExceptColors); }
 		static string Add(string text, bool display, CColors colors)
 		{
 			if (text.IsNullOrEmpty()) return default;
@@ -25,10 +25,10 @@ namespace COMMON
 		}
 		public static string Display(string text, CColors colors = default)
 		{
-			CMisc.ConsoleColors.Text = colors;
-			CMisc.ConsoleColors.ApplyTextColors();
+			CMisc.TextColors = colors;
+			CMisc.TextColors.Apply();
 			Console.WriteLine(text);
-			CMisc.ConsoleColors.ResetTextColors();
+			CMisc.DefaultColors.Apply();
 			return text;
 		}
 	}

@@ -45,6 +45,8 @@ namespace TestCore
 		#region main method
 		public int Start(string[] args)
 		{
+			CMisc.ResetColors();
+
 			Func<string, uint, bool> ddd = (string _addr_, uint _port_) =>
 			{
 				CStreamClientSettings _q_;

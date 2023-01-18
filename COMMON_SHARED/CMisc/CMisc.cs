@@ -34,6 +34,7 @@ namespace COMMON
 	{
 		public CColors() { Foreground = Console.ForegroundColor; Background = Console.BackgroundColor; }
 		public CColors(CColors c) { Foreground = c.Foreground; Background = c.Background; }
+		public CColors(ConsoleColor fore, ConsoleColor back) { Foreground = fore; Background = back; }
 		public ConsoleColor Foreground { get; set; }
 		public ConsoleColor Background { get; set; }
 		public void Apply() { Apply(this); }
@@ -41,26 +42,6 @@ namespace COMMON
 		public static void Apply(ConsoleColor? fore, ConsoleColor? back) { Console.ForegroundColor = fore ?? Console.ForegroundColor; Console.BackgroundColor = back ?? Console.BackgroundColor; }
 		public override string ToString() { return $"Foreground: {Foreground}; Background: {Background}"; }
 	}
-
-	//[ComVisible(false)]
-	//public sealed class CConsoleColors
-	//{
-	//	public CConsoleColors()
-	//	{
-	//		Default = new CColors();
-	//	}
-
-	//	CColors Default;
-	//	public CColors Text { get => _text; set => _text = value ?? _text; }
-	//	CColors _text = new CColors();
-	//	public CColors Input { get => _input; set => _input = value ?? _input; }
-	//	CColors _input = new CColors();
-	//	public void ApplyTextColors() { Text.Apply(); }
-	//	public void ResetTextColors() { Text.Apply(Default); }
-	//	public void ApplyInputColors() { Input.Apply(); }
-	//	public void ResetInputColors() { Input.Apply(Default); }
-	//	public void ResetColors() { Console.ForegroundColor = Default.Foreground; Console.BackgroundColor = Default.Background; }
-	//}
 
 	/// <summary>
 	/// COMMON extensions to c#
@@ -193,14 +174,11 @@ namespace COMMON
 		public const int EIGHTBYTES = 8;
 		public const int UNKNOWN = -int.MaxValue;
 
-		//public static CConsoleColors ConsoleColors { get => _colors; }
-		//static CConsoleColors _colors = new CConsoleColors();
-
 		/// <summary>
 		/// Saves the current colors at the time the object is created
 		/// </summary>
-		public static CColors DefaultColors { get => _defaultcolors; }
-		static readonly CColors _defaultcolors = new CColors();
+		public static CColors DefaultColors { get => _defaultcolors; private set => _defaultcolors = value ?? _defaultcolors; }
+		static CColors _defaultcolors = new CColors();
 		/// <summary>
 		/// Used to set the colors when a text is to be displayed
 		/// </summary>
@@ -226,7 +204,16 @@ namespace COMMON
 		/// </summary>
 		public static CColors ExceptColors { get => _exceptcolors; set => _exceptcolors = value ?? _exceptcolors; }
 		static CColors _exceptcolors = new CColors(DefaultColors) { Foreground = ConsoleColor.Red };
-
+		/// <summary>
+		/// Set the very default colors
+		/// </summary>
+		/// <param name="fore"></param>
+		/// <param name="back"></param>
+		public static void ResetColors(ConsoleColor? fore = null, ConsoleColor? back = null)
+		{
+			Console.ForegroundColor = fore ?? ConsoleColor.Gray;
+			Console.BackgroundColor = back ?? ConsoleColor.Black;
+		}
 		/// <summary>
 		/// Safe string to int function
 		/// </summary>

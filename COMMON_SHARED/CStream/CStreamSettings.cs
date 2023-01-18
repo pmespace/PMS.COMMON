@@ -291,7 +291,7 @@ namespace COMMON
 			}
 		}
 		private int _connecttimeout = DEFAULT_CONNECT_TIMEOUT;
-		public const int DEFAULT_CONNECT_TIMEOUT = 1; // 1 second
+		public const int DEFAULT_CONNECT_TIMEOUT = 5; // 5 second
 		#endregion
 
 		#region private properties

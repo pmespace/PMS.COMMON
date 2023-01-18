@@ -103,7 +103,6 @@ namespace COMMON
 				try
 				{
 					CLog.DEBUG($"Trying to connect to {settings.FullIP}");
-					//tcpclient.Connect(settings.Address, (int)settings.Port);
 					var result = tcpclient.BeginConnect(settings.Address, (int)settings.Port, default, default);
 					var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(settings.ConnectTimeout));
 					if (success)
@@ -137,13 +136,7 @@ namespace COMMON
 		/// Disconnect a stream freeing resources.
 		/// </summary>
 		/// <param name="stream">the stream to disconnect</param>
-		public static void Disconnect(CStreamIO stream)
-		{
-			if (default != stream)
-			{
-				stream.Close();
-			}
-		}
+		public static void Disconnect(CStreamIO stream) { stream?.Close(); }
 		/// <summary>
 		/// Send data on the given stream.
 		/// </summary>

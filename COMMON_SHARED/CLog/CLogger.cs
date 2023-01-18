@@ -8,9 +8,6 @@ namespace COMMON
 	[ComVisible(false)]
 	public static class CLogger
 	{
-		//public static CColors WarningColor { get; set; } = new CColors() { Foreground = ConsoleColor.DarkYellow };
-		//public static CColors ErrorColor { get; set; } = new CColors() { Foreground = ConsoleColor.DarkRed };
-		//public static CColors ExceptColor { get; set; } = new CColors() { Foreground = ConsoleColor.Red };
 		public static string DEBUG(string s = default, bool display = true) { return Add(CLog.DEBUG(s), display, default); }
 		public static string INFORMATION(string s = default, bool display = true) { return Add(CLog.INFORMATION(s), display, default); }
 		public static string TRACE(string s = default, bool display = true) { return Add(CLog.TRACE(s), display, default); }

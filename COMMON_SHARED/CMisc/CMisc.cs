@@ -30,7 +30,7 @@ namespace COMMON
 	}
 
 	[ComVisible(false)]
-	public sealed class CColors
+	public class CColors
 	{
 		public CColors() { Foreground = Console.ForegroundColor; Background = Console.BackgroundColor; }
 		public CColors(CColors c) { Foreground = c.Foreground; Background = c.Background; }

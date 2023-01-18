@@ -199,27 +199,33 @@ namespace COMMON
 		/// <summary>
 		/// Saves the current colors at the time the object is created
 		/// </summary>
-		public static CColors DefaultColors { get; } = new CColors();
+		public static CColors DefaultColors { get => _defaultcolors; }
+		static readonly CColors _defaultcolors = new CColors();
 		/// <summary>
 		/// Used to set the colors when a text is to be displayed
 		/// </summary>
-		public static CColors TextColors { get; set; } = new CColors(DefaultColors);
+		public static CColors TextColors { get => _textcolors; set => _textcolors = value ?? _textcolors; }
+		static CColors _textcolors = new CColors(DefaultColors);
 		/// <summary>
 		/// Used to set the colors to input some text
 		/// </summary>
-		public static CColors InputColors { get; set; } = new CColors(DefaultColors);
+		public static CColors InputColors { get => _inputcolors; set => _inputcolors = value ?? _inputcolors; }
+		static CColors _inputcolors = new CColors(DefaultColors);
 		/// <summary>
 		/// Used to set the colors when a warning is displayed
 		/// </summary>
-		public static CColors WarningColors { get; set; } = new CColors(DefaultColors) { Foreground = ConsoleColor.DarkYellow };
+		public static CColors WarningColors { get => _warningcolors; set => _warningcolors = value ?? _warningcolors; }
+		static CColors _warningcolors = new CColors(DefaultColors) { Foreground = ConsoleColor.DarkYellow };
 		/// <summary>
 		/// Used to set the colors when an error is displayed
 		/// </summary>
-		public static CColors ErrorColors { get; set; } = new CColors(DefaultColors) { Foreground = ConsoleColor.DarkRed };
+		public static CColors ErrorColors { get => _errorcolors; set => _errorcolors = value ?? _errorcolors; }
+		static CColors _errorcolors = new CColors(DefaultColors) { Foreground = ConsoleColor.DarkRed };
 		/// <summary>
 		/// Used to set the colors when an exception is displayed
 		/// </summary>
-		public static CColors ExceptColors { get; set; } = new CColors(DefaultColors) { Foreground = ConsoleColor.Red };
+		public static CColors ExceptColors { get => _exceptcolors; set => _exceptcolors = value ?? _exceptcolors; }
+		static CColors _exceptcolors = new CColors(DefaultColors) { Foreground = ConsoleColor.Red };
 
 		/// <summary>
 		/// Safe string to int function

@@ -45,14 +45,16 @@ namespace TestCore
 		#region main method
 		public int Start(string[] args)
 		{
-			Console.ForegroundColor = ConsoleColor.Black;
-			Console.BackgroundColor = ConsoleColor.White;
+			//Console.ForegroundColor = ConsoleColor.Black;
+			//Console.BackgroundColor = ConsoleColor.White;
+#if COLORS
 			CMisc.ResetColors();
 			CMisc.InputColors.Background = ConsoleColor.Black;
 
 			CMisc.Input("hello", default, out bool isdefx, "invite");
 
 			CMisc.YesNo("hello", true, true, true);
+#endif
 
 
 			Func<string, uint, bool> ddd = (string _addr_, uint _port_) =>
@@ -74,20 +76,41 @@ namespace TestCore
 			};
 
 			CLog.LogFileName = "testcore.log";
+			//CLog.SharedGuidClear();
+			CLog.SharedGuid = null;
+			for (int i = 0; i <= 5; i++) CLog.TRACE("Step1 " + i);
+			//CLog.SharedGuid(Guid.NewGuid());
+			CLog.SharedGuid = Guid.NewGuid();
+			CLog.SharedContext = "Context1";
+			for (int i = 0; i <= 5; i++) CLog.TRACE("Step2 " + i);
+			//CLog.SharedGuidClear();
+			CLog.SharedGuid = null;
+			CLog.SharedContext = "Context2";
+			for (int i = 0; i <= 5; i++) CLog.TRACE("Step3 " + i);
+			//CLog.SharedGuid(Guid.NewGuid());
+			CLog.SharedGuid = Guid.NewGuid();
+			CLog.SharedContext = default;
+			for (int i = 0; i <= 5; i++) CLog.TRACE("Step4 " + i);
 
 			CLogger.EXCEPT(new Exception("test except"));
 
+			for (int i = 0; i <= 5; i++) CLog.TRACE("Step5 " + i);
 
+			Guid? guid;
 			ConsoleKeyInfo keyInfo;
 			do
 			{
+				guid = CLog.SharedGuid;
 				ddd(default, 0);
+				guid = CLog.SharedGuid;
 				ddd("localhost", 0);
+				guid = CLog.SharedGuid;
 				ddd("localhost", 2018);
 				ddd("192.168.0.225", 0);
 				ddd("192.168.0.225", 2018);
 				ddd("192.168.0.225", 9999);
 				ddd("192.168.0.137", 0);
+				CLog.SharedGuid = null;
 				ddd("192.168.0.137", 2018);
 
 				Console.WriteLine("Sleeping...");
@@ -96,6 +119,7 @@ namespace TestCore
 				ddd(default, 0);
 				ddd("localhost", 0);
 				ddd("localhost", 2018);
+				CLog.SharedGuid = Guid.NewGuid();
 				ddd("192.168.0.225", 0);
 				ddd("192.168.0.225", 2018);
 				ddd("192.168.0.225", 9999);
@@ -103,7 +127,9 @@ namespace TestCore
 				ddd("192.168.0.137", 2018);
 
 				Console.WriteLine("Press a key or ESC");
+#if COLORS
 				CMisc.InputColors.Apply();
+#endif
 				keyInfo = Console.ReadKey(true);
 			} while (keyInfo.Key != ConsoleKey.Escape);
 
@@ -124,9 +150,11 @@ namespace TestCore
 			dir = CMisc.VerifyDirectory(@"c:\testcommon.exe", false);
 			dir = CMisc.VerifyDirectory(@"c:\testcommon.exe", true);
 
+#if COLORS
 			CMisc.InputColors.Foreground = ConsoleColor.Cyan;
 			CMisc.InputColors.Background = ConsoleColor.DarkYellow;
 			CMisc.TextColors.Foreground = ConsoleColor.Magenta;
+#endif
 
 			CMisc.Input("hello", default, out bool isdef, "invite");
 
@@ -179,7 +207,9 @@ namespace TestCore
 				ok = fnc(c);
 			}
 			StopServer('2');
+#if COLORS
 			CMisc.DefaultColors.Apply();
+#endif
 			return 0;
 		}
 		/// <summary>
@@ -188,24 +218,34 @@ namespace TestCore
 		/// <returns></returns>
 		private DFnc DisplayMenu(out char c)
 		{
+#if COLORS
 			CMisc.TextColors.Apply();
+#endif
 			Console.WriteLine("");
 			foreach (KeyValuePair<char, CMenu> m in Menu)
 			{
+#if COLORS
 				CColors.Apply(ConsoleColor.White, null);
+#endif
 				Console.Write($"{m.Key}");
+#if COLORS
 				CMisc.TextColors.Apply();
+#endif
 				Console.WriteLine($"/ {m.Value.Text}");
 			}
 			do
 			{
+#if COLORS
 				CMisc.InputColors.Apply();
+#endif
 				ConsoleKeyInfo keyInfo = Console.ReadKey(true);
 				c = keyInfo.KeyChar.ToString().ToUpper()[0];
 			} while (!Menu.ContainsKey(c));
 
 			//CMisc.Choice(new Dictionary<ConsoleKey, string>() { })
+#if COLORS
 			CMisc.DefaultColors.Apply();
+#endif
 			return Menu[c].Fnc;
 		}
 		/// <summary>
@@ -293,16 +333,26 @@ namespace TestCore
 			if (null != clientIO)
 			{
 				clientIO.Send("hello");
+#if COLORS
 				CMisc.InputColors.Apply();
+#endif
 				Console.ReadKey();
+#if COLORS
 				CMisc.TextColors.Apply();
+#endif
 				Console.WriteLine($"Client connected: {clientIO.Connected}");
+#if COLORS
 				CMisc.InputColors.Apply();
+#endif
 				Console.ReadKey();
 				StopServer(c);
+#if COLORS
 				CMisc.InputColors.Apply();
+#endif
 				Console.ReadKey();
+#if COLORS
 				CMisc.TextColors.Apply();
+#endif
 				Console.WriteLine($"Client connected: {clientIO.Connected}");
 				clientIO.Close();
 			}
@@ -316,7 +366,9 @@ namespace TestCore
 		{
 			if (null != server)
 			{
+#if COLORS
 				CMisc.TextColors.Apply();
+#endif
 				Console.WriteLine(server.Statistics());
 			}
 			return true;
@@ -335,9 +387,13 @@ namespace TestCore
 				ServerName = UseSSL ? "hello world" : null,
 				ConnectTimeout = 10,
 			};
+#if COLORS
 			CMisc.TextColors.Apply();
+#endif
 			Console.Write("Message to send: ");
+#if COLORS
 			CMisc.InputColors.Apply();
+#endif
 			string request = Console.ReadLine();
 			string reply = null;
 			if (null != (reply = CStream.ConnectSendReceive(settings, string.IsNullOrEmpty(request) ? DateTime.Now.ToString() : request, out int size, out bool error)))

@@ -150,7 +150,7 @@ namespace COMMON
 		/// <summary>
 		/// Description of the thread
 		/// </summary>
-		public string Description { get => $"{(Name.IsNullOrEmpty() ? string.Empty : $"[Thread: {Name}{(0 != ID ? $" (ID: {ID})" : string.Empty)}] ")}"; }
+		public string Description { get => $"{(Name.IsNullOrEmpty() ? string.Empty : $"[{Name}{(0 != ID ? $" (ID: {ID})" : string.Empty)}] ")}"; }
 		/// <summary>
 		/// Indicate whether the thread has already been started
 		/// </summary>
@@ -159,6 +159,8 @@ namespace COMMON
 		/// Indicate whethre the thread can be started
 		/// </summary>
 		public bool CanStart { get => !IsRunning && !HasBeenStarted; }
+
+		internal static string SharedName { get => $"CThread#{Thread.CurrentThread.ManagedThreadId}"; }
 		#endregion
 
 		#region private properties
@@ -275,6 +277,9 @@ namespace COMMON
 			{
 				CLog.EXCEPT(ex);
 			}
+#if !NET35
+			CLog.RazMmf();
+#endif
 		}
 
 #if NETFRAMEWORK

@@ -33,6 +33,9 @@
 			this.udPort = new System.Windows.Forms.NumericUpDown();
 			this.label1 = new System.Windows.Forms.Label();
 			this.udTimeout = new System.Windows.Forms.NumericUpDown();
+			this.textBox1 = new System.Windows.Forms.TextBox();
+			this.label2 = new System.Windows.Forms.Label();
+			this.label3 = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.udPort)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.udTimeout)).BeginInit();
 			this.SuspendLayout();
@@ -108,11 +111,39 @@
             0,
             0});
 			// 
+			// textBox1
+			// 
+			this.textBox1.Location = new System.Drawing.Point(206, 88);
+			this.textBox1.Name = "textBox1";
+			this.textBox1.Size = new System.Drawing.Size(163, 23);
+			this.textBox1.TabIndex = 5;
+			// 
+			// label2
+			// 
+			this.label2.AutoSize = true;
+			this.label2.Location = new System.Drawing.Point(149, 55);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(51, 15);
+			this.label2.TabIndex = 6;
+			this.label2.Text = "Timeout";
+			// 
+			// label3
+			// 
+			this.label3.AutoSize = true;
+			this.label3.Location = new System.Drawing.Point(128, 91);
+			this.label3.Name = "label3";
+			this.label3.Size = new System.Drawing.Size(72, 15);
+			this.label3.TabIndex = 7;
+			this.label3.Text = "Server name";
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(800, 450);
+			this.Controls.Add(this.label3);
+			this.Controls.Add(this.label2);
+			this.Controls.Add(this.textBox1);
 			this.Controls.Add(this.udTimeout);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.udPort);
@@ -134,5 +165,8 @@
 		private NumericUpDown udPort;
 		private Label label1;
 		private NumericUpDown udTimeout;
+		private TextBox textBox1;
+		private Label label2;
+		private Label label3;
 	}
 }

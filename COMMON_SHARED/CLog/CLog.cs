@@ -1,4 +1,8 @@
-﻿using System.Runtime.InteropServices;
+﻿#define DEBUGLOG
+using System.Runtime.InteropServices;
+#if !NET35
+using System.IO.MemoryMappedFiles;
+#endif
 using System.Diagnostics;
 using System.IO;
 using System;
@@ -145,10 +149,6 @@ namespace COMMON
 		/// </summary>
 		public static string LinesSeparator { get; set; } = " ";// Chars.TAB;
 		/// <summary>
-		/// Allows indicating whether to always (true) or not (false, thus depending on <see cref="SeverityToLog"/>) DEBUG messages
-		/// </summary>
-		public static bool AlwaysLogDebug { get; set; } = false;
-		/// <summary>
 		/// Allows using GMT time inside the log file instead of local time
 		/// </summary>
 		public static bool UseGMT
@@ -211,6 +211,245 @@ namespace COMMON
 		private static readonly Object mylock = new Object();
 		#endregion
 
+		#region per thread shared memory management
+		//public struct CLogObject
+		//{
+		//	public string Name { get; set; }
+		//	public int Offset { get; set; }
+		//	public int Length { get; set; }
+		//}
+		//abstract class CLogSharedMemory
+		//{
+		//	public CLogSharedMemory()
+		//	{
+		//		Mmf = MemoryMappedFile.CreateOrOpen(Name, mappedMemoryFileSize);
+		//	}
+		//	public MemoryMappedFile Mmf { get; private set; }
+		//	public string Name { get => CThread.SharedName; }
+
+		//	public object Get(CLogObject o)
+		//	{
+		//		try
+		//		{
+		//			using (var accessor = Mmf.CreateViewAccessor())
+		//			{
+		//				return GetObject(accessor, o);
+		//			}
+		//		}
+		//		catch (Exception ex)
+		//		{
+		//			AddException(ex, null, false);
+		//		}
+		//		return null;
+		//	}
+		//	public void Set(CLogObject o, object value)
+		//	{
+		//		try
+		//		{
+		//			using (var accessor = Mmf.CreateViewAccessor())
+		//			{
+		//				SetObject(accessor, o, value);
+		//			}
+		//		}
+		//		catch (Exception ex)
+		//		{
+		//			AddException(ex, null, false);
+		//		}
+		//		return;
+		//	}
+		//	protected abstract object GetObject(MemoryMappedViewAccessor mmva, CLogObject o);
+		//	protected abstract void SetObject(MemoryMappedViewAccessor mmva, CLogObject o, object value);
+		//}
+		//public static class 
+		//public static class CLogDDD
+		//{
+		//	public CLogDDD()
+		//	{
+
+		//	}
+		//	public Guid? UID { }
+		//}
+
+#if !NET35
+		/// <summary>
+		/// Dictionary of MemoryMappedFile indexed by thread number
+		/// </summary>
+		static Dictionary<int, MemoryMappedFile> Mmfs = new Dictionary<int, MemoryMappedFile>();
+		const int offsetInitialized = 0;
+		const int offsetGuid = sizeof(bool);
+		const int guidLen = 16;
+		const int offsetContextLen = offsetGuid + guidLen;
+		const int labelLen = sizeof(int);
+		const int offsetContext = offsetContextLen + labelLen;
+		const int mappedMemoryFileSize = 1024;
+		/// <summary>
+		/// Get a <see cref="MemoryMappedFile"/> handle specific to the current thread
+		/// </summary>
+		/// <returns></returns>
+		static MemoryMappedFile GetMmf()
+		{
+			MemoryMappedFile mmf;
+			try
+			{
+				lock (mylock)
+				{
+					try
+					{
+						mmf = Mmfs[Thread.CurrentThread.ManagedThreadId];
+					}
+					catch (Exception)
+					{
+						mmf = MemoryMappedFile.CreateOrOpen(Thread.CurrentThread.ManagedThreadId.ToString("00000"), mappedMemoryFileSize);
+						Mmfs.Add(Thread.CurrentThread.ManagedThreadId, mmf);
+					}
+				}
+			}
+			catch (Exception) { mmf = null; }
+			return mmf;
+		}
+		/// <summary>
+		/// Delete athe <see cref="MemoryMappedFile"/> specific to the thread
+		/// </summary>
+		internal static void RazMmf()
+		{
+			lock (mylock)
+			{
+				try
+				{
+					var mmf = GetMmf();
+					mmf.Dispose();
+					Mmfs.Remove(Thread.CurrentThread.ManagedThreadId);
+				}
+				catch (Exception) { }
+			}
+		}
+#endif
+		/// <summary>
+		/// Specific GUID to use when logging data.
+		/// This value is set per thread.
+		/// </summary>
+		public static Guid? SharedGuid
+		{
+			get
+			{
+#if NET35
+				return Guid.NewGuid();
+#else
+				// access to the shared memory
+				try
+				{
+#if DEBUG && DEBUGLOG
+					AddEx(new List<string>() { "Guid shared memory name: " + CThread.SharedName }, TLog.DEBUG, false);
+#endif
+					//	var mmf = MemoryMappedFile.CreateOrOpen(CThread.SharedName, mappedMemoryFileSize);
+					var mmf = GetMmf();
+					using (var accessor = mmf.CreateViewAccessor())
+					{
+						accessor.Read(offsetInitialized, out bool b);
+						if (b)
+						{
+							byte[] ab = new byte[guidLen];
+							accessor.ReadArray<byte>(offsetGuid, ab, 0, guidLen);
+							return new Guid(ab);
+						}
+					}
+				}
+				catch (Exception ex)
+				{
+					AddException(ex, null, false);
+				}
+				return Guid.NewGuid();
+#endif
+			}
+			set
+			{
+#if NET35
+				return;
+#else
+				// access to the shared memory
+				try
+				{
+					//var mmf = MemoryMappedFile.CreateOrOpen(CThread.SharedName, mappedMemoryFileSize);
+					var mmf = GetMmf();
+					using (var accessor = mmf.CreateViewAccessor())
+					{
+						bool b = value.HasValue && Guid.Empty != value.Value;
+						accessor.Write(offsetInitialized, b);
+						accessor.WriteArray<byte>(offsetGuid, b ? value.Value.ToByteArray() : Guid.Empty.ToByteArray(), 0, guidLen);
+					}
+				}
+				catch (Exception ex)
+				{
+					AddException(ex, null, false);
+				}
+#endif
+			}
+		}
+		public static Guid SetNewSharedGuid() { SharedGuid = Guid.NewGuid(); return (Guid)SharedGuid; }
+		/// <summary>
+		/// Specific context string to use when logging data.
+		/// This value is set per thread.
+		/// It's MAXIMUM length is 1000 bytes in UTF8.
+		/// </summary>
+		public static string SharedContext
+		{
+			get
+			{
+#if NET35
+				return string.Empty;
+#else
+				// access to the shared memory
+				try
+				{
+#if DEBUG && DEBUGLOG
+					AddEx(new List<string>() { "Context shared memory name: " + CThread.SharedName }, TLog.DEBUG, false);
+#endif
+					//var mmf = MemoryMappedFile.CreateOrOpen(CThread.SharedName, mappedMemoryFileSize);
+					var mmf = GetMmf();
+					using (var accessor = mmf.CreateViewAccessor())
+					{
+						accessor.Read(offsetContextLen, out int i);
+						if (0 != i)
+						{
+							byte[] ab = new byte[i];
+							accessor.ReadArray<byte>(offsetContext, ab, 0, i);
+							return Encoding.UTF8.GetString(ab);
+						}
+					}
+				}
+				catch (Exception ex)
+				{
+					AddException(ex, null, false);
+				}
+				return string.Empty;
+#endif
+			}
+			set
+			{
+#if NET35
+				return;
+#else
+				// access to the shared memory
+				try
+				{
+					//var mmf = MemoryMappedFile.CreateOrOpen(CThread.SharedName, mappedMemoryFileSize);
+					var mmf = GetMmf();
+					using (var accessor = mmf.CreateViewAccessor())
+					{
+						byte[] ab = Encoding.UTF8.GetBytes(value.IsNullOrEmpty() ? string.Empty : value);
+						accessor.Write(offsetContextLen, ab.Length);
+						accessor.WriteArray<byte>(offsetContext, ab, 0, ab.Length);
+					}
+				}
+				catch (Exception ex)
+				{
+					AddException(ex, null, false);
+				}
+#endif
+			}
+		}
+		#endregion
+
 		#region methods
 		public static string DEBUG(string s = default) { return Add(s, TLog.DEBUG); }
 		public static string INFORMATION(string s = default) { return Add(s, TLog.INFOR); }
@@ -223,7 +462,10 @@ namespace COMMON
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		private static bool IsTLog(TLog value) { return (TLog._begin < value && value < TLog._end); }
+		private static bool IsTLog(TLog value)
+		{
+			return (TLog._begin < value && value < TLog._end);
+		}
 		/// <summary>
 		/// Log a message to the log file
 		/// </summary>
@@ -251,8 +493,9 @@ namespace COMMON
 		/// </summary>
 		/// <param name="ex">exception to log</param>
 		/// <param name="msg">message to complete the log entry</param>
+		/// <param name="addSharedData">allows indicating whether shared data must be added to the logged message or not</param>
 		/// <returns>The string as it has been written, null if an error has occurred</returns>
-		private static string AddException(Exception ex, string msg)
+		private static string AddException(Exception ex, string msg, bool addSharedData = true)
 		{
 			string r = default;
 			if (default == ex) return r;
@@ -274,7 +517,7 @@ namespace COMMON
 					string m = string.IsNullOrEmpty(sf.GetMethod().ToString()) ? "??" : $"{sf.GetMethod()}";
 					ls.Add($"[EXCEPTION #{st.FrameCount - i + 1}] File: {f} - Method: {m} - Line Number: {sf.GetFileLineNumber()}");
 				}
-				r = AddEx(ls, TLog.EXCPT);
+				r = AddEx(ls, addSharedData ? TLog.EXCPT : TLog.DEBUG, addSharedData);
 			}
 			catch (Exception) { }
 			return r;
@@ -288,8 +531,9 @@ namespace COMMON
 		/// </summary>
 		/// <param name="ls"></param>
 		/// <param name="severity"></param>
+		/// <param name="addSharedData"></param>
 		/// <returns></returns>
-		private static string AddEx(List<string> ls, TLog severity)
+		private static string AddEx(List<string> ls, TLog severity, bool addSharedData = true)
 		{
 			if (default == ls || 0 == ls.Count) return default;
 
@@ -297,20 +541,13 @@ namespace COMMON
 			string r = default;
 			try
 			{
-				List<string> lls = StringsToLog(ls, severity, out r);
+				List<string> lls = StringsToLog(ls, severity, out r, addSharedData);
 
 				// check severity
 				if (!IsTLog(severity)) severity = TLog.INFOR;
 
 				// severity to low to be logged, do not do it but return the message to log
-
-#if DEBUG || _DEBUG
-				AlwaysLogDebug = true;
-#endif
-
-				if (SeverityToLog > severity
-					&& (TLog.DEBUG == severity && !AlwaysLogDebug)
-					&& (TLog.EXCPT != severity))
+				if (SeverityToLog > severity)
 				{
 					return r;
 				}
@@ -392,14 +629,27 @@ namespace COMMON
 		/// <param name="ls"></param>
 		/// <param name="severity"></param>
 		/// <param name="r"></param>
+		/// <param name="addSharedData"></param>
 		/// <returns></returns>
-		private static List<string> StringsToLog(List<string> ls, TLog severity, out string r)
+		private static List<string> StringsToLog(List<string> ls, TLog severity, out string r, bool addSharedData = true)
 		{
 			r = default;
 			List<string> lls = new List<string>();
 			try
 			{
-				string v = $"{CMisc.BuildDate(_dateFormat)}{Chars.TAB}{severity}{Chars.TAB}{Thread.CurrentThread.ManagedThreadId.ToString("X8")}{Chars.TAB}{Guid.NewGuid()}{Chars.TAB}";
+				Guid? guid;
+				string sc;
+				if (addSharedData)
+				{
+					guid = SharedGuid;
+					sc = SharedContext;
+				}
+				else
+				{
+					guid = Guid.NewGuid();
+					sc = null;
+				}
+				string v = $"{CMisc.BuildDate(_dateFormat)}{Chars.TAB}{severity}{Chars.TAB}{Thread.CurrentThread.ManagedThreadId.ToString("X8")}{Chars.TAB}{guid}{Chars.TAB}{(sc.IsNullOrEmpty() ? string.Empty : $"[{sc}] ")}";
 				for (int i = 0; i < ls.Count; i++)
 				{
 					string q = $"{RemoveCRLF((TLog.ERROR == severity && ErrorToUpper ? ls[i].Trim().ToUpper() : ls[i].Trim()))}";

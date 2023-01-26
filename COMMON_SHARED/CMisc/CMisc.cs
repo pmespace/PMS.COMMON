@@ -29,20 +29,6 @@ namespace COMMON
 		public const string REGEX_URL_WITH_PORT = REGEX_HEADER + REGEX_URL_CHARACTER_SET + "+" + REGEX_IPV4_PORT_NUMBER_PART + REGEX_TRAILER;
 	}
 
-	[ComVisible(false)]
-	public class CColors
-	{
-		public CColors() { Foreground = Console.ForegroundColor; Background = Console.BackgroundColor; }
-		public CColors(CColors c) { Foreground = c.Foreground; Background = c.Background; }
-		public CColors(ConsoleColor fore, ConsoleColor back) { Foreground = fore; Background = back; }
-		public ConsoleColor Foreground { get; set; }
-		public ConsoleColor Background { get; set; }
-		public void Apply() { Apply(this); }
-		public static void Apply(CColors colors) { Apply(colors.Foreground, colors.Background); }
-		public static void Apply(ConsoleColor? fore, ConsoleColor? back) { Console.ForegroundColor = fore ?? Console.ForegroundColor; Console.BackgroundColor = back ?? Console.BackgroundColor; }
-		public override string ToString() { return $"Foreground: {Foreground}; Background: {Background}"; }
-	}
-
 	/// <summary>
 	/// COMMON extensions to c#
 	/// </summary>
@@ -162,6 +148,22 @@ namespace COMMON
 		}
 	}
 
+#if COLORS
+	[ComVisible(false)]
+	public class CColors
+	{
+		public CColors() { Foreground = Console.ForegroundColor; Background = Console.BackgroundColor; }
+		public CColors(CColors c) { Foreground = c.Foreground; Background = c.Background; }
+		public CColors(ConsoleColor fore, ConsoleColor back) { Foreground = fore; Background = back; }
+		public ConsoleColor Foreground { get; set; }
+		public ConsoleColor Background { get; set; }
+		public void Apply() { Apply(this); }
+		public static void Apply(CColors colors) { Apply(colors.Foreground, colors.Background); }
+		public static void Apply(ConsoleColor? fore, ConsoleColor? back) { Console.ForegroundColor = fore ?? Console.ForegroundColor; Console.BackgroundColor = back ?? Console.BackgroundColor; }
+		public override string ToString() { return $"Foreground: {Foreground}; Background: {Background}"; }
+	}
+#endif
+
 	/// <summary>
 	/// Various tool functions
 	/// </summary>
@@ -174,6 +176,7 @@ namespace COMMON
 		public const int EIGHTBYTES = 8;
 		public const int UNKNOWN = -int.MaxValue;
 
+#if COLORS
 		/// <summary>
 		/// Saves the current colors at the time the object is created
 		/// </summary>
@@ -214,6 +217,8 @@ namespace COMMON
 			Console.ForegroundColor = DefaultColors.Foreground = fore ?? ConsoleColor.Gray;
 			Console.BackgroundColor = DefaultColors.Background = back ?? ConsoleColor.Black;
 		}
+#endif
+
 		/// <summary>
 		/// Safe string to int function
 		/// </summary>
@@ -979,12 +984,16 @@ namespace COMMON
 			string defaultA = theDefault ? syes : sno;
 			string confirm = syes + sno;
 			string answer = defaultA;
+#if COLORS
 			TextColors.Apply();
+#endif
 			Console.WriteLine();
 			Console.Write(msg + $" ({(displayYesNo ? lyes + "=" : default)}{syes}/{(displayYesNo ? lno + "=" : default)}{sno})" + (useDefault ? $" [{defaultA}]" : default) + " ? ");
 			do
 			{
+#if COLORS
 				InputColors.Apply();
+#endif
 				ConsoleKeyInfo keyInfo = Console.ReadKey(true);
 				if (useDefault && ConsoleKey.Enter == keyInfo.Key)
 				{
@@ -1001,10 +1010,14 @@ namespace COMMON
 			} while (!confirm.Contains(answer));
 			if (displayChoice)
 			{
+#if COLORS
 				CMisc.TextColors.Apply();
+#endif
 				Console.WriteLine(answer);
 			}
+#if COLORS
 			DefaultColors.Apply();
+#endif
 			return 0 == string.Compare(syes, answer, true);
 		}
 		///// <summary>
@@ -1119,22 +1132,32 @@ namespace COMMON
 		/// <returns></returns>
 		public static string Input(string msg, string defv, out bool isdef, string invite = default)
 		{
+#if COLORS
 			TextColors.Apply();
+#endif
 			Console.WriteLine();
 			Console.Write(msg + (!defv.IsNullOrEmpty() ? $" [{defv}]" : default) + ": ");
+#if COLORS
 			InputColors.Apply();
+#endif
 			string s = Console.ReadLine();
 			if (isdef = (!defv.IsNullOrEmpty() && s.IsNullOrEmpty()))
 			{
 				s = defv;
+#if COLORS
 				TextColors.Apply();
+#endif
 				Console.Write(invite);
+#if COLORS
 				InputColors.Apply();
+#endif
 				Console.WriteLine(s);
 			}
 			else if (string.IsNullOrEmpty(s))
 				s = default;
+#if COLORS
 			DefaultColors.Apply();
+#endif
 			return s;
 		}
 		/// <summary>

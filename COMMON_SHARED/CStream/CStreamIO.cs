@@ -538,7 +538,7 @@ namespace COMMON
 #else
 						sslStream.AuthenticateAsClient(Settings.ServerName);
 #endif
-						CLog.INFORMATION($"Using {sslStream.SslProtocol.ToString().ToUpper()} protocol");
+						CLog.INFORMATION($"Using {sslStream.SslProtocol.ToString().ToUpper()} secured protocol");
 					}
 					catch (Exception ex)
 					{
@@ -552,7 +552,10 @@ namespace COMMON
 					}
 				}
 				else
+				{
 					networkStream = client.GetStream();
+					CLog.INFORMATION($"Using unsecured protocol");
+				}
 			}
 			else
 				throw new Exception("Invalid client stream settings.");
@@ -575,10 +578,15 @@ namespace COMMON
 		/// <returns></returns>
 		private bool ValidateServerCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
 		{
-			CLog.INFORMATION($"Using certificate: {(certificate?.Subject ?? "not specified")}");
-			CLog.INFORMATION($"Certificate: {(certificate?.GetRawCertDataString() ?? "not specified")}");
-			for (int i = 0; chain.ChainElements.Count > i; i++)
-				CLog.INFORMATION($"Chain element {i + 1}: {(chain.ChainElements[i].Certificate?.Subject ?? "not specified")}");
+			try
+			{
+				for (int i = 0; chain.ChainElements.Count > i; i++)
+				{
+					CLog.TRACE($"Chain element {i + 1}: {(chain.ChainElements[i].Certificate?.Subject ?? "not specified")}");
+					CLog.INFORMATION($"Certificate details: {(chain.ChainElements[i].Certificate?.ToString() ?? "not specified")}");
+				}
+			}
+			catch (Exception) { }
 
 			//return true;
 			if (Settings.AllowedSslErrors == (sslPolicyErrors | Settings.AllowedSslErrors))

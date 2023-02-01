@@ -20,15 +20,15 @@ namespace COMMON
 		[DispId(1)]
 		IntPtr WindowToWarn { get; set; }
 		[DispId(2)]
-		uint StoppedMessage { get; set; }
+		int StoppedMessage { get; set; }
 		[DispId(3)]
-		uint InformationMessage { get; set; }
+		int InformationMessage { get; set; }
 		[DispId(10)]
 		bool IsValid { get; }
 		[DispId(50)]
-		uint WMThreadStopped { get; }
+		int WMThreadStopped { get; }
 		[DispId(51)]
-		uint WMThreadInformation { get; }
+		int WMThreadInformation { get; }
 #endif
 
 		[DispId(60)]
@@ -76,25 +76,25 @@ namespace COMMON
 		/// <summary>
 		/// Message sent (by PostMessage) to the caller when the thread has stopped.
 		/// </summary>
-		public uint StoppedMessage
+		public int StoppedMessage
 		{
 			get => _threadstoppedmessage;
 			set => _threadstoppedmessage = Win32.IsValidWM(value) ? value : _threadstoppedmessage;
 		}
-		private uint _threadstoppedmessage = WM_THREAD_STOPPED;
-		public const uint WM_THREAD_STOPPED = 0x666;
-		public uint WMThreadStopped { get => WM_THREAD_STOPPED; }
+		private int _threadstoppedmessage = WM_THREAD_STOPPED;
+		public const int WM_THREAD_STOPPED = 0x666;
+		public int WMThreadStopped { get => WM_THREAD_STOPPED; }
 		/// <summary>
 		/// Message sent (by PostMessage) to the caller when the thread needs to inform of a situation.
 		/// </summary>
-		public uint InformationMessage
+		public int InformationMessage
 		{
 			get => _informationmessage;
 			set => _informationmessage = Win32.IsValidWM(value) ? value : _informationmessage;
 		}
-		private uint _informationmessage = WM_THREAD_INFORMATION;
-		public const uint WM_THREAD_INFORMATION = WM_THREAD_STOPPED + 1;
-		public uint WMThreadInformation { get => WM_THREAD_INFORMATION; }
+		private int _informationmessage = WM_THREAD_INFORMATION;
+		public const int WM_THREAD_INFORMATION = WM_THREAD_STOPPED + 1;
+		public int WMThreadInformation { get => WM_THREAD_INFORMATION; }
 		/// <summary>
 		/// Handle of window to warn when the thread terminates
 		/// </summary>

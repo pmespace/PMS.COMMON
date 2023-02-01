@@ -140,10 +140,10 @@ namespace COMMON
 			}
 		}
 		private static TLog _severitytolog = TLog.TRACE;
-		/// <summary>
-		/// Indicate whether error log must be set to upper or not
-		/// </summary>
-		public static bool ErrorToUpper { get; set; } = true;
+		///// <summary>
+		///// Indicate whether error log must be set to upper or not
+		///// </summary>
+		//public static bool ErrorToUpper { get; set; } = false;
 		/// <summary>
 		/// Separator to use between multiple lines in a resulting 1 line string
 		/// </summary>
@@ -652,7 +652,8 @@ namespace COMMON
 				string v = $"{CMisc.BuildDate(_dateFormat)}{Chars.TAB}{severity}{Chars.TAB}{Thread.CurrentThread.ManagedThreadId.ToString("X8")}{Chars.TAB}{guid}{Chars.TAB}{(sc.IsNullOrEmpty() ? string.Empty : $"[{sc}] ")}";
 				for (int i = 0; i < ls.Count; i++)
 				{
-					string q = $"{RemoveCRLF((TLog.ERROR == severity && ErrorToUpper ? ls[i].Trim().ToUpper() : ls[i].Trim()))}";
+					//string q = $"{RemoveCRLF((TLog.ERROR == severity && ErrorToUpper ? ls[i].Trim().ToUpper() : ls[i].Trim()))}";
+					string q = $"{RemoveCRLF(ls[i].Trim())}";
 					lls.Add($"{v}{q}");
 					r += ls[i] + (i < ls.Count - 1 ? Chars.CRLF : default);
 				}

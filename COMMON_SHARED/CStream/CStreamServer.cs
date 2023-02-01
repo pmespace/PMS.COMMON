@@ -1,16 +1,11 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Net;
 using System.IO;
-using System;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using System.Threading;
-using System.Collections.ObjectModel;
-using COMMON;
-using Newtonsoft.Json;
-using System.Text.RegularExpressions;
 
 namespace COMMON
 {
@@ -170,7 +165,7 @@ namespace COMMON
 	public interface IStreamServer
 	{
 		[DispId(1)]
-		uint Port { get; }
+		int Port { get; }
 		[DispId(2)]
 		string Address { get; }
 		[DispId(3)]
@@ -230,7 +225,7 @@ namespace COMMON
 		/// <summary>
 		/// The port used by the server
 		/// </summary>
-		public uint Port { get => (default != listener ? (uint)((IPEndPoint)listener.LocalEndpoint).Port : 0); }
+		public int Port { get => (default != listener ? (int)((IPEndPoint)listener.LocalEndpoint).Port : 0); }
 		/// <summary>
 		/// The IP address of the server
 		/// </summary>
@@ -363,10 +358,8 @@ namespace COMMON
 		private static bool StopServer(CStreamIO stream)
 		{
 			// Send a stop message to the server on the existing channel
-			byte[] reply = CStream.SendReceive(stream,
-				STOP_SERVER_CLIENT_THREAD_REQUEST_MESSAGE,
-				true, out int replySize, out bool timeout);
-			return (!timeout && default != reply && replySize == reply.Length && ACK == reply[0]);
+			byte[] reply = CStream.SendReceive(stream, STOP_SERVER_CLIENT_THREAD_REQUEST_MESSAGE, out int replySize);
+			return (default != reply && replySize == reply.Length && ACK == reply[0]);
 		}
 		/// <summary>
 		/// Allows a server to asynchronously send a message to the caller while processing a request and before sending a reply.
@@ -395,7 +388,7 @@ namespace COMMON
 				{
 					CLog.INFORMATION($"{process} Sending notification message to {client.Tcp.Client.RemoteEndPoint}");
 					EndPoint endpoint = client.Tcp.Client.RemoteEndPoint;
-					if (client.StreamIO.Send(msg, addBufferSize))
+					if (client.StreamIO.Send(msg))
 					{
 						client.UpdateStatistics(default, msg);
 					}
@@ -506,6 +499,10 @@ namespace COMMON
 					string clientKey = client.Key;
 					try
 					{
+						// arrived here everything's in place, let's verify whether the client is accepted or not from that ip address
+						if (!(client.Connected = (default == StartSettings.OnConnect ? true : StartSettings.OnConnect(tcp, thread, StartSettings.Parameters, ref client._privateData))))
+							throw new ConnectionException();
+
 						tcp.SendTimeout = StartSettings.StreamServerSettings.SendTimeout * CStreamSettings.ONESECOND;
 						tcp.ReceiveTimeout = StartSettings.StreamServerSettings.ReceiveTimeout * CStreamSettings.ONESECOND;
 						// start the processing and receiving threads to process messages from this client
@@ -516,10 +513,6 @@ namespace COMMON
 						client.ProcessingThread.Name = "PROCESSOR";
 						if (!client.ProcessingThread.Start(StreamServerProcessorMethod, StartSettings.ThreadData, client, client.ProcessorEvents.Started))
 							throw new ReceiverProcessorException();
-
-						// arrived here everything's in place, let's verify whether the client is accepted or not from that ip address
-						if (!(client.Connected = (default == StartSettings.OnConnect ? true : StartSettings.OnConnect(tcp, thread, StartSettings.Parameters, ref client._data))))
-							throw new ConnectionException();
 
 						// log the client
 						lock (myLock)
@@ -606,7 +599,6 @@ namespace COMMON
 			{
 				try
 				{
-					bool addSizeHeader = true;
 					byte[] outgoing = default;
 					// wait for receiving a message from the client
 					byte[] incoming = client.StreamIO.Receive(out int size);
@@ -620,8 +612,7 @@ namespace COMMON
 							// acknowledge instance shutdown
 							outgoing = new byte[STOP_SERVER_ACCEPT_REPLY_MESSAGE.Length];
 							Buffer.BlockCopy(STOP_SERVER_ACCEPT_REPLY_MESSAGE, 0, outgoing, 0, STOP_SERVER_ACCEPT_REPLY_MESSAGE.Length);
-							addSizeHeader = true;
-							client.StreamIO.Send(outgoing, addSizeHeader);
+							client.StreamIO.Send(outgoing);
 							keepOnRunning = false;
 						}
 
@@ -755,7 +746,7 @@ namespace COMMON
 								if (default != reply && 0 != reply.Length)
 								{
 									CLog.TRACE($"{threadName}Sending reply of {reply.Length} bytes [{MessageToLog(client, reply, false, TextMessages)}]");
-									if (default == client.StreamIO || !client.StreamIO.Send(reply, addBufferSize))
+									if (default == client.StreamIO || !client.StreamIO.Send(reply))
 									{
 										CLog.ERROR($"{threadName}The reply was not sent to the client");
 									}
@@ -889,8 +880,8 @@ namespace COMMON
 			public int WaitBeforeAbort { get; }
 			private Mutex isStoppingMutex = new Mutex(false);
 			internal string Server = default;
-			public object Data { get => _data; set => _data = value; }
-			internal object _data = default;
+			public object Data { get => _privateData; set => _privateData = value; }
+			internal object _privateData = default;
 			#endregion
 
 			//#region IStreamServerStatistics implementation

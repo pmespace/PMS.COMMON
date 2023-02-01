@@ -30,7 +30,7 @@ namespace COMMON
 		[DispId(1007)]
 		string Localhost { get; }
 		[DispId(1008)]
-		uint DefaultServerPort { get; }
+		int DefaultServerPort { get; }
 		[DispId(1009)]
 		CStreamDelegates.ClientServerOnMessageToLog OnMessageToLog { get; set; }
 		#endregion
@@ -40,13 +40,13 @@ namespace COMMON
 	{
 		#region constructors
 		public CStreamSettings() { }
-		public CStreamSettings(int lengthBufferSize) : base(lengthBufferSize) { }
+		public CStreamSettings(CStreamBase sb) : base(sb) { }
 		#endregion
 
 		#region constants
 		public const int ONEKB = 1024;
 		public const int ONESECOND = 1000;
-		public const uint DEFAULT_PORT = 29413;
+		public const int DEFAULT_PORT = 29413;
 		public const int NO_TIMEOUT = 0;
 		#endregion
 
@@ -138,7 +138,7 @@ namespace COMMON
 		/// Default server port to use
 		/// </summary>
 		[JsonIgnore]
-		public uint DefaultServerPort { get => DEFAULT_PORT; }
+		public int DefaultServerPort { get => DEFAULT_PORT; }
 		/// <summary>
 		/// A delegate allowing to, when a message either received or about to be sent, review the content of this message before it is logged, thus allowing either to hide or alter the content TO LOG (not the content of the message), thus allowing PCI-DSS compliance
 		/// </summary>
@@ -209,7 +209,7 @@ namespace COMMON
 		[DispId(1007)]
 		string Localhost { get; }
 		[DispId(1008)]
-		uint DefaultServerPort { get; }
+		int DefaultServerPort { get; }
 		[DispId(1009)]
 		CStreamDelegates.ClientServerOnMessageToLog OnMessageToLog { get; set; }
 		[DispId(1010)]
@@ -223,9 +223,9 @@ namespace COMMON
 	{
 		#region constructors
 		public CStreamClientSettings() { SetIP(default); }
-		public CStreamClientSettings(int lengthBufferSize) : base(lengthBufferSize) { SetIP(default); }
+		//public CStreamClientSettings(int HeaderBytes) : base(HeaderBytes) { SetIP(default); }
 		public CStreamClientSettings(string ip, uint port = DEFAULT_PORT) { SetIP(ip, port); }
-		public CStreamClientSettings(int lengthBufferSize, string ip, uint port = DEFAULT_PORT) : base(lengthBufferSize) { SetIP(ip, port); }
+		//public CStreamClientSettings(int HeaderBytes, string ip, uint port = DEFAULT_PORT) : base(HeaderBytes) { SetIP(ip, port); }
 		#endregion
 
 		#region public properties
@@ -401,7 +401,7 @@ namespace COMMON
 		[DispId(1007)]
 		string Localhost { get; }
 		[DispId(1008)]
-		uint DefaultServerPort { get; }
+		int DefaultServerPort { get; }
 		[DispId(1009)]
 		CStreamDelegates.ClientServerOnMessageToLog OnMessageToLog { get; set; }
 		[DispId(1010)]
@@ -415,9 +415,9 @@ namespace COMMON
 	{
 		#region constructors
 		public CStreamServerSettings() { }
-		public CStreamServerSettings(int lengthBufferSize) : base(lengthBufferSize) { }
+		//public CStreamServerSettings(int HeaderBytes) : base(HeaderBytes) { }
 		public CStreamServerSettings(uint port) { Port = port; }
-		public CStreamServerSettings(int lengthBufferSize, uint port) : base(lengthBufferSize) { Port = port; }
+		//public CStreamServerSettings(int HeaderBytes, uint port) : base(HeaderBytes) { Port = port; }
 		#endregion
 
 		#region properties

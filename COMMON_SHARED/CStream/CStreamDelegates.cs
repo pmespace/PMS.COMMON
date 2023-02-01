@@ -85,10 +85,9 @@ namespace COMMON
 		/// </summary>
 		/// <param name="thread">Structure describing the thread</param>
 		/// <param name="reply">Reply as received</param>
-		/// <param name="error">True if an error occurred while receiving the reply</param>
 		/// <param name="parameters">Private parameters passed from the calling process to the thread</param>
 		/// <returns>True if processing was OK, False otherwise</returns>
-		public delegate bool ClientOnReplyDelegate(byte[] reply, bool error, CThread thread, object parameters);
+		public delegate bool ClientOnReplyDelegate(byte[] reply, CThread thread, object parameters);
 		#endregion
 
 		#region miscellaneous

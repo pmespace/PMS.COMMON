@@ -18,46 +18,10 @@ using System.IO;
 namespace COMMON
 {
 	[ComVisible(false)]
-	public abstract class CStreamBase
-	{
-		#region constructor
-		public CStreamBase() { LengthBufferSize = CMisc.FOURBYTES; }
-		public CStreamBase(int lengthBufferSize) { LengthBufferSize = lengthBufferSize; }
-		#endregion constructor
-
-		#region properties
-		/// <summary>
-		/// Size of buffer containg the size of a message
-		/// </summary>
-		[JsonIgnore]
-		public int LengthBufferSize
-		{
-			get => _lengthbuffersize;
-			private set
-			{
-				if (CMisc.ONEBYTE == value
-					|| CMisc.TWOBYTES == value
-					|| CMisc.FOURBYTES == value
-					|| CMisc.EIGHTBYTES == value)
-					_lengthbuffersize = value;
-			}
-		}
-		private int _lengthbuffersize = CMisc.FOURBYTES;
-		#endregion
-
-		#region methods
-		public override string ToString()
-		{
-			return $"LengthBufferSize: {LengthBufferSize}";
-		}
-		#endregion
-	}
-
-	[ComVisible(false)]
 	public abstract class CStreamIO : CStreamBase
 	{
 		#region constructors
-		public CStreamIO(TcpClient tcp, int maxlen = CMisc.FOURBYTES) : base(maxlen)
+		public CStreamIO(TcpClient tcp, CStreamBase sb) : base(sb)
 		{
 			Tcp = tcp;
 		}
@@ -151,13 +115,8 @@ namespace COMMON
 		{
 			if (data.IsNullOrEmpty()) return false;
 
-			string s = "networkStream";
 			Stream stream = networkStream;
-			if (default == stream)
-			{
-				s = "sslStream";
-				stream = sslStream;
-			}
+			if (default == stream) stream = sslStream;
 
 			try
 			{
@@ -166,7 +125,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.EXCEPT(ex, s);
+				CLog.EXCEPT(ex);
 			}
 			return false;
 		}
@@ -175,13 +134,8 @@ namespace COMMON
 		/// </summary>
 		private void Flush()
 		{
-			string s = "networkStream";
 			Stream stream = networkStream;
-			if (default == stream)
-			{
-				s = "sslStream";
-				stream = sslStream;
-			}
+			if (default == stream) stream = sslStream;
 
 			try
 			{
@@ -189,7 +143,7 @@ namespace COMMON
 			}
 			catch (Exception ex)
 			{
-				CLog.EXCEPT(ex, s);
+				CLog.EXCEPT(ex);
 			}
 		}
 		/// <summary>
@@ -202,13 +156,9 @@ namespace COMMON
 		{
 			if (data.IsNullOrEmpty() || data.Length <= offset) return 0;
 			int read = 0;
-			string s = "networkStream";
+
 			Stream stream = networkStream;
-			if (default == stream)
-			{
-				s = "sslStream";
-				stream = sslStream;
-			}
+			if (default == stream) stream = sslStream;
 
 			try
 			{
@@ -217,30 +167,59 @@ namespace COMMON
 			catch (IOException) { }
 			catch (Exception ex)
 			{
-				CLog.EXCEPT(ex, s);
+				CLog.EXCEPT(ex);
 			}
 			return read;
 		}
+		///// <summary>
+		///// Send a buffer to an outer entity
+		///// </summary>
+		///// <param name="data">The message to send</param>
+		///// <param name="headerBytes">The number of bytes to use to add a header; if not a valid value no header is added</param>
+		///// <returns>TRUE if the message has been sent, HALSE otherwise</returns>
+		//internal bool Send(byte[] data, int headerBytes)
+		//{
+		//	if (data.IsNullOrEmpty()) return false;
+
+		//	// if requested, add the size header to the message to send
+		//	int lengthSize = (IsHeaderBytes(headerBytes) && 0 != headerBytes ? headerBytes : 0);
+		//	int size = data.Length + lengthSize;
+		//	byte[] messageToSend = new byte[size];
+		//	Buffer.BlockCopy(data, 0, messageToSend, lengthSize, data.Length);
+		//	if (0 != lengthSize)
+		//	{
+		//		byte[] bs = CMisc.SetBytesFromIntegralTypeValue((int)data.Length, false);
+		//		Buffer.BlockCopy(bs, 0, messageToSend, 0, lengthSize);
+		//	}
+		//	// arrived here the message is ready to be sent
+		//	if (Write(messageToSend))
+		//	{
+		//		Flush();
+		//		return true;
+		//	}
+		//	return false;
+		//}
 		/// <summary>
-		/// Send a buffer to an outer entity
+		/// Send a buffer to an outer entity.
+		/// The buffer will always be prefixed with a header indicating the size of the message.
 		/// </summary>
 		/// <param name="data">The message to send</param>
-		/// <param name="addSizeHeader">Indicates whether to add a 4 bytes header or not (it might be already included)</param>
 		/// <returns>TRUE if the message has been sent, HALSE otherwise</returns>
-		public bool Send(byte[] data, bool addSizeHeader)
+		internal bool Send(byte[] data)
 		{
 			if (data.IsNullOrEmpty()) return false;
 			// if requested, add the size header to the message to send
-			int lengthSize = (addSizeHeader ? LengthBufferSize : 0);
-			int size = data.Length + lengthSize;
+			int lengthSize = (UseHeaderBytes ? HeaderBytes : 0);
+			int size = (int)data.Length + lengthSize;
 			byte[] messageToSend = new byte[size];
-			Buffer.BlockCopy(data, 0, messageToSend, lengthSize, data.Length);
-			if (addSizeHeader)
+			Buffer.BlockCopy(data, 0, messageToSend, (int)lengthSize, data.Length);
+			if (UseHeaderBytes)
 			{
-				byte[] bs = CMisc.SetBytesFromIntegralTypeValue(data.Length, LengthBufferSize);
-				Buffer.BlockCopy(bs, 0, messageToSend, 0, lengthSize);
+				byte[] bs = CMisc.SetBytesFromIntegralTypeValue((int)data.Length, false);
+				Buffer.BlockCopy(bs, 0, messageToSend, 0, (int)lengthSize);
 			}
 			// arrived here the message is ready to be sent
+			CLog.INFORMATION($"Trying to send message of {messageToSend.Length} bytes [{(0 == lengthSize ? "without adding any header byte" : $"after having added {lengthSize} header bytes")}]");
 			if (Write(messageToSend))
 			{
 				Flush();
@@ -249,39 +228,41 @@ namespace COMMON
 			return false;
 		}
 		/// <summary>
-		/// Send a buffer to an outer entity
+		/// Send a buffer to an outer entity.
+		/// The buffer will always be prefixed with a header indicating the size of the message.
 		/// </summary>
 		/// <param name="data">The message to send as a string</param>
 		/// <returns>TRUE if the message has been sent, HALSE otherwise</returns>
-		public bool Send(string data)
+		internal bool Send(string data)
 		{
 			byte[] bdata = (default != data ? Encoding.UTF8.GetBytes(data) : default);
-			return Send(bdata, true);
+			return Send(bdata);
 		}
 		/// <summary>
-		/// Send a buffer to an outer entity
-		/// This function prevents using any size header, using CR+LF as an EOT
+		/// Send a buffer to an outer entity.
+		/// The buffer is never prefixed with any header describing its size, it is determined by presence of the <paramref name="EOT"/> finishing the message.
 		/// </summary>
 		/// <param name="data">The message to send</param>
-		/// <param name="EOT"></param>
+		/// <param name="EOT">The end of transmission character to use to terminate the mesage (CR+LF by default)</param>
 		/// <returns>TRUE if the message has been sent, HALSE otherwise</returns>
-		public bool SendLine(string data, string EOT = CRLF)
+		internal bool SendLine(string data, string EOT = CRLF)
 		{
-			if (string.IsNullOrEmpty(EOT))
-				EOT = CRLF;
+			if (EOT.IsNullOrEmpty()) EOT = CRLF;
+
 			// verify the EOL is there, add it if necessary
-			if (!string.IsNullOrEmpty(data))
+			if (!data.IsNullOrEmpty())
 			{
 				// replace intermediate EOL
 				data = data.Replace(EOT, "");
 				// add the EOL at the end of string
 				data += EOT;
 			}
+			CLog.INFORMATION($"Text message to send is ({data.Length}) [{data}]");
 			byte[] bdata = (default != data ? Encoding.UTF8.GetBytes(data) : default);
-			return Send(bdata, false);
+			return Send(bdata);
 		}
 		/// <summary>
-		/// Receive a buffer of a specific size from the server.
+		/// Receives a buffer of a specific size from the server.
 		/// The function will allocate the buffer of the specified size to receive data.
 		/// The function will not return until the buffer has been fully received or an error has occurred (timeout,...).
 		/// 
@@ -297,6 +278,7 @@ namespace COMMON
 			byte[] buffer = new byte[bufferSize];
 			int bytesRead = 0;
 			bool doContinue;
+			CLog.INFORMATION($"Expecting to receive {buffer.Length} bytes");
 			do
 			{
 				// read stream for the specified buffer
@@ -309,14 +291,15 @@ namespace COMMON
 				}
 			}
 			while (doContinue);
+			CLog.INFORMATION($"Actually received {bytesRead} bytes");
 			// create a buffer of the real number of bytes received (which can't be higher than the expected number of bytes)
 			byte[] bufferReceived = new byte[bytesRead];
 			Buffer.BlockCopy(buffer, 0, bufferReceived, 0, bytesRead);
 			return bufferReceived;
 		}
 		/// <summary>
-		/// Receive a buffer of any size, reallocating memory to fit the buffer.
-		/// The function will constantly reallocate the buffer to receive data .
+		/// Receives a buffer of any size, reallocating memory to fit the buffer.
+		/// The function will constantly reallocate the buffer to receive data.
 		/// The function will not return until the buffer has been fully received or an error has occurred (timeout,...).
 		/// 
 		/// >> THIS FUNCTION MAY RAISE AN EXCEPTION
@@ -333,6 +316,7 @@ namespace COMMON
 			byte[] buffer = new byte[bufferToAllocate];
 			int bytesRead = 0;
 			bool doContinue;
+			CLog.INFORMATION($"Expecting to receive a buffer with no declared size");
 			do
 			{
 				// read stream for the specified buffer
@@ -353,6 +337,7 @@ namespace COMMON
 				}
 			}
 			while (doContinue);
+			CLog.INFORMATION($"Actually received {bytesRead} bytes");
 			// create a buffer of the real number of bytes received (which can't be higher than the expected number of bytes)
 			byte[] bufferReceived = new byte[bytesRead];
 			Buffer.BlockCopy(buffer, 0, bufferReceived, 0, bytesRead);
@@ -360,7 +345,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Receive a buffer of an unknown size from the server.
-		/// The buffer MUST begin with a size header of <see cref="CStreamBase.LengthBufferSize"/>
+		/// The buffer MUST begin with a size header of <see cref="CStreamBase.HeaderBytes"/>
 		/// The function will not return until the buffer has been fully received or an error has occurred (timeout,...)
 		/// The returned buffer NEVER contains the size header (which is sent back using the "size" data).
 		/// 
@@ -370,26 +355,88 @@ namespace COMMON
 		/// <param name="announcedSize">Size of the buffer as declared by the caller , therefore expected by the receiver.
 		/// If that size differs from the size of the actually received buffer then an error has occurred</param>
 		/// <returns>The received buffer WITHOUT the heaser size (whose value is indicated in announcedSize) if no error occurred, NULL if any error occured</returns>
-		public byte[] Receive(out int announcedSize)
+		internal byte[] Receive(out int announcedSize)
 		{
+			//announcedSize = 0;
+			//// get the size of the buffer to receive (HeaderBytes is inherited and MUST never be 0)
+			//CLog.INFORMATION($"Expecting {(AddHeaderBytes ? $"a header of {HeaderBytes} bytes" : "no header")}");
+			//byte[] bufferSize = ReceiveSizedBuffer((int)HeaderBytes);
+			//if (!bufferSize.IsNullOrEmpty() && HeaderBytes == bufferSize.Length)
+			//{
+			//	// get the size of the buffer to read and start reading it
+			//	CLog.INFORMATION($"Received a header of {HeaderBytes} bytes [{CMisc.AsHexString(bufferSize)}]");
+			//	if (0 != (announcedSize = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, 0, HeaderBytes)))
+			//	{
+			//		CLog.INFORMATION($"Announced size is: {announcedSize}");
+			//		byte[] buffer = ReceiveSizedBuffer(announcedSize);
+			//		if (!buffer.IsNullOrEmpty() && announcedSize == buffer.Length)
+			//			return buffer;
+			//	}
+			//	CLog.ERROR($"Announced size is null");
+			//}
+			//CLog.ERROR($"No header has been received or of the wrong size {(0 != bufferSize.Length ? $"[{bufferSize.Length}]" : string.Empty)})");
+			//return default;
+
+			//announcedSize = 0;
+
+			//// get the size of the buffer to receive (HeaderBytes is inherited and MUST never be 0)
+			//// if there was no header automatically added and the protocole itself does not contain a header we have no way to know the size of the message
+			//if (!AddHeaderBytes && !containsHeaderBytes)
+			//{
+			//	CLog.ERROR($"No header defined to carry message size, receive process can't complete");
+			//	return default;
+			//}
+
+			//// determine whether the header must be used or not and the size arrived here, either an automatic header is used or the protocol contains one, get the size of the headerto receive 
+			//int headerSize = UseHeaderBytes ? HeaderBytes : 0;
+			//CLog.INFORMATION($"Expecting a {HeaderBytes} bytes header ");
+			//byte[] bufferSize = ReceiveSizedBuffer(headerSize);
+			//if (!bufferSize.IsNullOrEmpty() && headerSize == bufferSize.Length)
+			//{
+			//	// get the size of the buffer to read and start reading it
+			//	CLog.INFORMATION($"Received a header of {headerSize} bytes [{CMisc.AsHexString(bufferSize)}]");
+			//	if (0 != (announcedSize = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, 0, headerSize)))
+			//	{
+			//		CLog.INFORMATION($"Announced size is: {announcedSize}");
+			//		byte[] buffer = ReceiveSizedBuffer(announcedSize);
+			//		if (!buffer.IsNullOrEmpty() && announcedSize == buffer.Length)
+			//		{
+			//			// if the header is part of the messag eitself reintroduce it
+			//			if (containsHeaderBytes)
+			//				return buffer;
+			//		}
+			//	}
+			//	CLog.ERROR($"Announced size is null");
+			//}
+			//CLog.ERROR($"No header has been received or of the wrong size {(0 != bufferSize.Length ? $"[{bufferSize.Length}]" : string.Empty)})");
+			//return default;
+
 			announcedSize = 0;
-			// get the size of the buffer to receive (LengthBufferSize is inherited and can never be 0)
-			byte[] bufferSize = ReceiveSizedBuffer(LengthBufferSize);
-			if (!bufferSize.IsNullOrEmpty() && LengthBufferSize == bufferSize.Length)
+
+			// determine whether the header must be used or not and the size arrived here, either an automatic header is used or the protocol contains one, get the size of the headerto receive 
+			CLog.INFORMATION($"Expecting a {HeaderBytes} bytes header ");
+			byte[] bufferSize = ReceiveSizedBuffer(HeaderBytes);
+			if (!bufferSize.IsNullOrEmpty() && HeaderBytes == bufferSize.Length)
 			{
 				// get the size of the buffer to read and start reading it
-				if (0 != (announcedSize = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, LengthBufferSize)))
+				CLog.INFORMATION($"Received a header of {HeaderBytes} bytes [{CMisc.AsHexString(bufferSize)}]");
+				if (0 != (announcedSize = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, 0, HeaderBytes)))
 				{
+					CLog.INFORMATION($"Announced size is: {announcedSize}");
 					byte[] buffer = ReceiveSizedBuffer(announcedSize);
 					if (!buffer.IsNullOrEmpty() && announcedSize == buffer.Length)
+					{
 						return buffer;
+					}
 				}
+				CLog.ERROR($"Announced size is null");
 			}
+			CLog.ERROR($"No header has been received or of the wrong size {(0 != bufferSize.Length ? $"[{bufferSize.Length}]" : string.Empty)}");
 			return default;
 		}
 		/// <summary>
 		/// Receive a string of an unknown size from the server.
-		/// The buffer MUST begin with a size header of <see cref="CStreamBase.LengthBufferSize"/>
+		/// The buffer MUST begin with a size header 
 		/// The function will not return until the string has been fully received or an error occurred (timeout).
 		/// The returned string NEVER contains the size header.
 		/// 
@@ -397,7 +444,7 @@ namespace COMMON
 		/// 
 		/// </summary>
 		/// <returns>The received buffer as a string if no error occurred, an empty string otherwise</returns>
-		public string Receive()
+		internal string Receive()
 		{
 			// receive the buffer
 			byte[] buffer = Receive(out int size);
@@ -405,7 +452,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Receive a string of an unknown size from the server.
-		/// The string does not need to begin by a size header of <see cref="CStreamBase.LengthBufferSize"/> which will be ignored.
+		/// The message never begins with a heabder.
 		/// The string MUST however finish (or at least contain) a CR+LF sequence (or contain it) marking the EOT.
 		/// The function will not return until the string has been fully received or an error occurred (timeout).
 		/// The returned string NEVER contains the size header.
@@ -415,7 +462,7 @@ namespace COMMON
 		/// </summary>
 		/// <param name="EOT">A string which if found marks the end of transmission</param>
 		/// <returns>The received buffer as a string if no error occurred, an empty string otherwise</returns>
-		public string ReceiveLine(string EOT = CRLF)
+		internal string ReceiveLine(string EOT = CRLF)
 		{
 			// receive the buffer
 			byte[] buffer = ReceiveNonSizedBuffer(EOT);
@@ -428,7 +475,7 @@ namespace COMMON
 		/// <summary>
 		/// Close the adequate Stream
 		/// </summary>
-		public void Close()
+		internal void Close()
 		{
 			if (default != sslStream)
 			{
@@ -464,8 +511,10 @@ namespace COMMON
 	{
 		#region CStreamBase
 		[DispId(1001)]
-		int LengthBufferSize { get; }
+		int HeaderBytes { get; set; }
 		[DispId(1002)]
+		bool UseHeaderBytes { get; set; }
+		[DispId(1010)]
 		string ToString();
 		#endregion
 
@@ -475,20 +524,20 @@ namespace COMMON
 		[DispId(2002)]
 		bool Connected { get; }
 
-		[DispId(2101)]
-		bool Send(byte[] data, bool addSizeHeader);
-		[DispId(2102)]
-		bool Send(string data);
-		[DispId(2103)]
-		bool SendLine(string data, string EOT = CStreamIO.CRLF);
-		[DispId(2104)]
-		byte[] Receive(out int announcedSize);
-		[DispId(2105)]
-		string Receive();
-		[DispId(2106)]
-		string ReceiveLine(string EOT = CStreamIO.CRLF);
-		[DispId(2107)]
-		void Close();
+		//[DispId(2101)]
+		//bool Send(byte[] data);
+		//[DispId(2102)]
+		//bool Send(string data);
+		//[DispId(2103)]
+		//bool SendLine(string data, string EOT = CStreamIO.CRLF);
+		//[DispId(2104)]
+		//byte[] Receive(out int announcedSize);
+		//[DispId(2105)]
+		//string Receive();
+		//[DispId(2106)]
+		//string ReceiveLine(string EOT = CStreamIO.CRLF);
+		//[DispId(2107)]
+		//void Close();
 		#endregion
 
 		#region CStreamClientIO
@@ -505,7 +554,7 @@ namespace COMMON
 		/// </summary>
 		/// <param name="client">TCP client to use to open the stream</param>
 		/// <param name="settings">Settings to use when manipulating the stream</param>
-		public CStreamClientIO(TcpClient client, CStreamClientSettings settings) : base(client, settings.LengthBufferSize)
+		public CStreamClientIO(TcpClient client, CStreamClientSettings settings) : base(client, settings)
 		{
 			if (settings.IsValid)
 			{
@@ -607,8 +656,10 @@ namespace COMMON
 	{
 		#region CStreamBase
 		[DispId(1001)]
-		int LengthBufferSize { get; }
+		int HeaderBytes { get; set; }
 		[DispId(1002)]
+		bool UseHeaderBytes { get; set; }
+		[DispId(1010)]
 		string ToString();
 		#endregion
 
@@ -618,20 +669,20 @@ namespace COMMON
 		[DispId(2002)]
 		bool Connected { get; }
 
-		[DispId(2101)]
-		bool Send(byte[] data, bool addSizeHeader);
-		[DispId(2102)]
-		bool Send(string data);
-		[DispId(2103)]
-		bool SendLine(string data, string EOT = CStreamIO.CRLF);
-		[DispId(2104)]
-		byte[] Receive(out int announcedSize);
-		[DispId(2105)]
-		string Receive();
-		[DispId(2106)]
-		string ReceiveLine(string EOT = CStreamIO.CRLF);
-		[DispId(2107)]
-		void Close();
+		//[DispId(2101)]
+		//bool Send(byte[] data);
+		//[DispId(2102)]
+		//bool Send(string data);
+		//[DispId(2103)]
+		//bool SendLine(string data, string EOT = CStreamIO.CRLF);
+		//[DispId(2104)]
+		//byte[] Receive(out int announcedSize);
+		//[DispId(2105)]
+		//string Receive();
+		//[DispId(2106)]
+		//string ReceiveLine(string EOT = CStreamIO.CRLF);
+		//[DispId(2107)]
+		//void Close();
 		#endregion
 
 		#region CStreamClientIO
@@ -650,7 +701,7 @@ namespace COMMON
 		/// </summary>
 		/// <param name="client">TCP client to use to open the stream</param>
 		/// <param name="settings">Settings to use when manipulating the stream</param>
-		public CStreamServerIO(TcpClient client, CStreamServerSettings settings) : base(client, settings.LengthBufferSize)
+		public CStreamServerIO(TcpClient client, CStreamServerSettings settings) : base(client, settings)
 		{
 			Port = settings.Port;
 			Settings = settings;

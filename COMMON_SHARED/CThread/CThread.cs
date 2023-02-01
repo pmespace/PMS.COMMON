@@ -247,7 +247,7 @@ namespace COMMON
 				if (default != ThreadMethod)
 				{
 					Result = ThreadMethod(this, ThreadParams);
-					CLog.DEBUG($"{Description} - Thread result: {Result}");
+					CLog.INFORMATION($"{Description} - Thread result: {Result}");
 				}
 				else
 					CLog.ERROR($"{Description} - No method to call for the thread");

@@ -332,7 +332,7 @@ namespace TestCore
 			CStreamClientIO clientIO = CStream.Connect(settings);
 			if (null != clientIO)
 			{
-				clientIO.Send("hello");
+				CStream.Send(clientIO, "hello");
 #if COLORS
 				CMisc.InputColors.Apply();
 #endif
@@ -354,7 +354,7 @@ namespace TestCore
 				CMisc.TextColors.Apply();
 #endif
 				Console.WriteLine($"Client connected: {clientIO.Connected}");
-				clientIO.Close();
+				CStream.Disconnect(clientIO);
 			}
 			return true;
 		}
@@ -396,7 +396,7 @@ namespace TestCore
 #endif
 			string request = Console.ReadLine();
 			string reply = null;
-			if (null != (reply = CStream.ConnectSendReceive(settings, string.IsNullOrEmpty(request) ? DateTime.Now.ToString() : request, out int size, out bool error)))
+			if (null != (reply = CStream.ConnectSendReceive(settings, string.IsNullOrEmpty(request) ? DateTime.Now.ToString() : request, out int size)))
 				Console.WriteLine("CLIENT RECEIVED: " + reply);
 			else
 				Console.WriteLine("ERROR RECEIVING DATA");

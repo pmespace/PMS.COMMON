@@ -7,11 +7,11 @@ namespace COMMON.WIN32
 	public static class Win32
 	{
 		[DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-		public static extern bool PostMessage(IntPtr hWnd, uint Msg, int wParam, int lParam);
+		public static extern bool PostMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
 		[DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-		public static extern bool SendMessage(IntPtr hWnd, uint Msg, int wParam, int lParam);
+		public static extern bool SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
 		[DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-		public static extern bool SendMessage(IntPtr hWnd, uint Msg, int wParam, IntPtr lParam);
+		public static extern bool SendMessage(IntPtr hWnd, int Msg, int wParam, IntPtr lParam);
 		[DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
 		public static extern IntPtr CreateWaitableTimer(IntPtr lpTimerAttributes, bool bManualReset, string lpTimerName);
 		[DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
@@ -59,10 +59,10 @@ namespace COMMON.WIN32
 		/// <summary>
 		/// WM_USER, starting point of user defined messages
 		/// </summary>
-		public const uint WM_USER = 0x0400;
-		public static uint WMUser { get => WM_USER; }
-		public const uint WM_USER_MAX = 0x7FFF;
-		public static uint WMUserMax { get => WM_USER_MAX; }
-		public static bool IsValidWM(uint value) { return Win32.WM_USER <= value && Win32.WM_USER_MAX >= value; }
+		public const int WM_USER = 0x0400;
+		public static int WMUser { get => WM_USER; }
+		public const int WM_USER_MAX = 0x7FFF;
+		public static int WMUserMax { get => WM_USER_MAX; }
+		public static bool IsValidWM(int value) { return Win32.WM_USER <= value && Win32.WM_USER_MAX >= value; }
 	}
 }

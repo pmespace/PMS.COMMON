@@ -112,8 +112,8 @@ namespace COMMON
 				}
 			}
 			// Append the last part to the result.
-			int @charsUntilStringEnd = str.Length - startSearchFromIndex;
-			resultStringBuilder.Append(str, startSearchFromIndex, @charsUntilStringEnd);
+			int charsUntilStringEnd = str.Length - startSearchFromIndex;
+			resultStringBuilder.Append(str, startSearchFromIndex, charsUntilStringEnd);
 
 			return resultStringBuilder.ToString();
 		}
@@ -170,10 +170,6 @@ namespace COMMON
 	[ComVisible(false)]
 	public static class CMisc
 	{
-		public const int ONEBYTE = 1;
-		public const int TWOBYTES = 2;
-		public const int FOURBYTES = 4;
-		public const int EIGHTBYTES = 8;
 		public const int UNKNOWN = -int.MaxValue;
 
 #if COLORS
@@ -247,13 +243,13 @@ namespace COMMON
 		/// <param name="value">The integral type to copy to an array of bytes</param>
 		/// <param name="optimize">If true the created buffer is optimized removing the bytes on the right set to 0, false means the buffer length is according to the length of the <paramref name="value"/> type</param>
 		/// <returns>The array of bytes created after copying the integral type</returns>
-		public static byte[] SetBytesFromIntegralTypeValue(short value, bool optimize = false)
+		public static byte[] SetBytesFromIntegralTypeValue(ushort value, bool optimize = false)
 		{
 			//byte[] bb = BitConverter.GetBytes(value);
 			//if (BitConverter.IsLittleEndian)
 			//	Array.Reverse(bb);
 			//return bb;
-			return SetBytesFromIntegralTypeValue(value, sizeof(short), optimize);
+			return SetBytesFromIntegralTypeValue(value, sizeof(ushort), optimize);
 		}
 		/// <summary>
 		/// Copy bytes from int integral type to byte[].
@@ -265,10 +261,6 @@ namespace COMMON
 		/// <returns>The array of bytes created after copying the integral type</returns>
 		public static byte[] SetBytesFromIntegralTypeValue(int value, bool optimize = false)
 		{
-			//byte[] bb = BitConverter.GetBytes(value);
-			//if (BitConverter.IsLittleEndian)
-			//	Array.Reverse(bb);
-			//return bb;
 			return SetBytesFromIntegralTypeValue(value, sizeof(int), optimize);
 		}
 		/// <summary>
@@ -281,11 +273,7 @@ namespace COMMON
 		/// <returns>The array of bytes created after copying the integral type</returns>
 		public static byte[] SetBytesFromIntegralTypeValue(long value, bool optimize = false)
 		{
-			//byte[] bb = BitConverter.GetBytes(value);
-			//if (BitConverter.IsLittleEndian)
-			//	Array.Reverse(bb);
-			//return bb;
-			return SetBytesFromIntegralTypeValue(value, sizeof(long), optimize);
+			return SetBytesFromIntegralTypeValue(value, sizeof(ulong), optimize);
 		}
 		/// <summary>
 		/// Copy bytes from long integral type to byte[].
@@ -298,7 +286,7 @@ namespace COMMON
 		/// <returns>The array of bytes created after copying the integral type</returns>
 		public static byte[] SetBytesFromIntegralTypeValue(long value, int maxsize, bool optimize)
 		{
-			if (sizeof(long) < maxsize) return new byte[0];
+			if (sizeof(ulong) < maxsize) return new byte[0];
 
 			byte[] bb = BitConverter.GetBytes(value);
 			if (BitConverter.IsLittleEndian)
@@ -306,7 +294,7 @@ namespace COMMON
 
 			byte[] bbx = new byte[maxsize];
 			// copy the buffer according to its expected maximum size (taking only the final part)
-			Buffer.BlockCopy(bb, bb.Length - maxsize, bbx, 0, bbx.Length);
+			Buffer.BlockCopy(bb, (int)(bb.Length - maxsize), bbx, 0, bbx.Length);
 			bb = bbx;
 
 			// if optimization has been requested remove all trailing bytes set to 0
@@ -333,21 +321,21 @@ namespace COMMON
 		/// <returns>The array of bytes created after copying the integral type</returns>
 		public static byte[] SetBytesFromIntegralTypeValue(long value, int maxlen)
 		{
-			if (CMisc.TWOBYTES == maxlen || CMisc.FOURBYTES == maxlen || CMisc.EIGHTBYTES == maxlen)
+			if (CStreamBase.TWOBYTES == maxlen || CStreamBase.FOURBYTES == maxlen || CStreamBase.EIGHTBYTES == maxlen)
 			{
 				switch (maxlen)
 				{
-					case CMisc.TWOBYTES:
+					case CStreamBase.TWOBYTES:
 						{
-							short t = (short)value;
+							ushort t = (ushort)value;
 							return SetBytesFromIntegralTypeValue(t);
 						}
-					case CMisc.FOURBYTES:
+					case CStreamBase.FOURBYTES:
 						{
 							int t = (int)value;
 							return SetBytesFromIntegralTypeValue(t);
 						}
-					case CMisc.EIGHTBYTES:
+					case CStreamBase.EIGHTBYTES:
 					default:
 						return SetBytesFromIntegralTypeValue(value);
 				}
@@ -383,13 +371,13 @@ namespace COMMON
 		/// <param name="start">The 0 based starting position, inside the array of bytes, to get the value</param>
 		/// <param name="maxlen">The number of bytes to use to build the integral value</param>
 		/// <returns>A long describing the value stored inside the array of bytes, 0 otherwise</returns>
-		public static long GetIntegralTypeValueFromBytes(byte[] buffer, int start, int maxlen = CMisc.FOURBYTES)
+		public static long GetIntegralTypeValueFromBytes(byte[] buffer, int start, int maxlen)
 		{
 			if (buffer.IsNullOrEmpty() || buffer.Length <= start || maxlen > sizeof(long)) return 0;
 			long l = 0;
 			maxlen = Math.Min(buffer.Length - start, maxlen);
 			byte[] ab = new byte[maxlen];
-			Buffer.BlockCopy(buffer, start, ab, 0, maxlen);
+			Buffer.BlockCopy(buffer, (int)start, ab, 0, (int)maxlen);
 			foreach (byte b in ab)
 			{
 				l += (long)b << 8 * (maxlen - 1);
@@ -630,7 +618,7 @@ namespace COMMON
 				s = f.ToString("X") + s;
 				v = (v - f) / 16;
 			}
-			if (0 != minlen && minlen > s.Length) s = new string('0', minlen - s.Length) + s;
+			if (0 != minlen && minlen > s.Length) s = new string('0', (int)(minlen - s.Length)) + s;
 			if (!oddLengthAllowed && 0 != s.Length % 2) s = "0" + s;
 			return s;
 		}

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using Newtonsoft.Json;
 using System.Linq;
+using System.Collections;
 
 namespace COMMON
 {
@@ -368,6 +369,7 @@ namespace COMMON
 		public CSafeDictionary() { }
 		public CSafeDictionary(Dictionary<K, T> l) { Dict = new Dictionary<K, T>(l); }
 		public CSafeDictionary(CSafeDictionary<K, T> l) { Dict = new Dictionary<K, T>(l.Dict); }
+		public CSafeDictionary(IEqualityComparer<K> comparer) { Dict = new Dictionary<K, T>(comparer); }
 		#endregion
 
 		#region properties
@@ -586,7 +588,7 @@ namespace COMMON
 	[Guid("36E77450-B165-4F64-9B67-280D4986FCB8")]
 	[ClassInterface(ClassInterfaceType.None)]
 	[ComVisible(true)]
-	public class CStringList : CSafeList<string>, ISafeList<string> { }
+	public class CSafeStringList : CSafeList<string>, ISafeList<string> { }
 
 	/// <summary>
 	/// base class for dictionaries of any kind with a string key
@@ -594,5 +596,11 @@ namespace COMMON
 	[Guid("629FE821-B788-4593-8B92-C5DF4B408E83")]
 	[ClassInterface(ClassInterfaceType.None)]
 	[ComVisible(true)]
-	public class CStringTDictionary<T> : CSafeDictionary<string, T>, ISafeDictionary<string, T> { }
+	public class CSafeStringTDictionary<T> : CSafeDictionary<string, T>, ISafeDictionary<string, T>
+	{
+		public CSafeStringTDictionary() { }
+		public CSafeStringTDictionary(Dictionary<string, T> l) : base(l) { }
+		public CSafeStringTDictionary(CSafeDictionary<string, T> l) : base(l) { }
+		public CSafeStringTDictionary(IEqualityComparer<string> comparer) : base(comparer) { }
+	}
 }

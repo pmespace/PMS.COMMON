@@ -39,7 +39,10 @@ namespace TestCore
 
 		#region classes
 		class MySafeList : CSafeList<string> { }
-		class MySafeDict : CSafeDictionary<string, object> { }
+		class MySafeDict : CSafeDictionary<string, object>
+		{
+			public MySafeDict() : base(StringComparer.InvariantCultureIgnoreCase) { }
+		}
 		#endregion
 
 		#region main method
@@ -75,56 +78,57 @@ namespace TestCore
 				return true;
 			};
 
+			CLog.SeverityToLog = TLog.DEBUG;
 			CLog.LogFileName = "testcore.log";
-			//CLog.SharedGuidClear();
-			CLog.SharedGuid = null;
-			for (int i = 0; i <= 5; i++) CLog.TRACE("Step1 " + i);
-			//CLog.SharedGuid(Guid.NewGuid());
-			CLog.SharedGuid = Guid.NewGuid();
-			CLog.SharedContext = "Context1";
-			for (int i = 0; i <= 5; i++) CLog.TRACE("Step2 " + i);
-			//CLog.SharedGuidClear();
-			CLog.SharedGuid = null;
-			CLog.SharedContext = "Context2";
-			for (int i = 0; i <= 5; i++) CLog.TRACE("Step3 " + i);
-			//CLog.SharedGuid(Guid.NewGuid());
-			CLog.SharedGuid = Guid.NewGuid();
-			CLog.SharedContext = default;
-			for (int i = 0; i <= 5; i++) CLog.TRACE("Step4 " + i);
+			////CLog.SharedGuidClear();
+			//CLog.SharedGuid = null;
+			//for (int i = 0; i <= 5; i++) CLog.TRACE("Step1 " + i);
+			////CLog.SharedGuid(Guid.NewGuid());
+			//CLog.SharedGuid = Guid.NewGuid();
+			//CLog.SharedContext = "Context1";
+			//for (int i = 0; i <= 5; i++) CLog.TRACE("Step2 " + i);
+			////CLog.SharedGuidClear();
+			//CLog.SharedGuid = null;
+			//CLog.SharedContext = "Context2";
+			//for (int i = 0; i <= 5; i++) CLog.TRACE("Step3 " + i);
+			////CLog.SharedGuid(Guid.NewGuid());
+			//CLog.SharedGuid = Guid.NewGuid();
+			//CLog.SharedContext = default;
+			//for (int i = 0; i <= 5; i++) CLog.TRACE("Step4 " + i);
 
 			CLogger.EXCEPT(new Exception("test except"));
 
-			for (int i = 0; i <= 5; i++) CLog.TRACE("Step5 " + i);
+			//for (int i = 0; i <= 5; i++) CLog.TRACE("Step5 " + i);
 
 			Guid? guid;
 			ConsoleKeyInfo keyInfo;
 			do
 			{
-				guid = CLog.SharedGuid;
-				ddd(default, 0);
-				guid = CLog.SharedGuid;
-				ddd("localhost", 0);
-				guid = CLog.SharedGuid;
-				ddd("localhost", 2018);
-				ddd("192.168.0.225", 0);
-				ddd("192.168.0.225", 2018);
-				ddd("192.168.0.225", 9999);
-				ddd("192.168.0.137", 0);
-				CLog.SharedGuid = null;
-				ddd("192.168.0.137", 2018);
+				//guid = CLog.SharedGuid;
+				//ddd(default, 0);
+				//guid = CLog.SharedGuid;
+				//ddd("localhost", 0);
+				//guid = CLog.SharedGuid;
+				//ddd("localhost", 2018);
+				//ddd("192.168.0.225", 0);
+				//ddd("192.168.0.225", 2018);
+				//ddd("192.168.0.225", 9999);
+				//ddd("192.168.0.137", 0);
+				//CLog.SharedGuid = null;
+				//ddd("192.168.0.137", 2018);
 
-				Console.WriteLine("Sleeping...");
-				Thread.Sleep(1000);
+				//Console.WriteLine("Sleeping...");
+				//Thread.Sleep(1000);
 
-				ddd(default, 0);
-				ddd("localhost", 0);
-				ddd("localhost", 2018);
-				CLog.SharedGuid = Guid.NewGuid();
-				ddd("192.168.0.225", 0);
-				ddd("192.168.0.225", 2018);
-				ddd("192.168.0.225", 9999);
-				ddd("192.168.0.137", 0);
-				ddd("192.168.0.137", 2018);
+				//ddd(default, 0);
+				//ddd("localhost", 0);
+				//ddd("localhost", 2018);
+				//CLog.SharedGuid = Guid.NewGuid();
+				//ddd("192.168.0.225", 0);
+				//ddd("192.168.0.225", 2018);
+				//ddd("192.168.0.225", 9999);
+				//ddd("192.168.0.137", 0);
+				//ddd("192.168.0.137", 2018);
 
 				Console.WriteLine("Press a key or ESC");
 #if COLORS
@@ -160,10 +164,15 @@ namespace TestCore
 
 
 			MySafeDict hh = new MySafeDict();
+			hh.Add("hello", new object());
+			hh.Add("HELLO", new object());
+			hh.Add("Hello", new object());
 			hh.Add("456", new object());
 			hh.Add("123", new object());
 			object o = hh["123"];
 			o = hh["789"];
+			o = hh["HELLO"];
+			o = hh["hello"];
 			string json = hh.ToJson();
 			var hhr = hh.ToArray();
 
@@ -301,8 +310,8 @@ namespace TestCore
 		/// <returns></returns>
 		bool CreateLog(char c)
 		{
-			CLog.LogFileName = $"test.core.txt";
-			CLog.Add($"Starting log with {CLog.LogFileName}");
+			//CLog.LogFileName = $"test.core.txt";
+			//CLog.Add($"Starting log with {CLog.LogFileName}");
 			return true;
 		}
 		/// <summary>

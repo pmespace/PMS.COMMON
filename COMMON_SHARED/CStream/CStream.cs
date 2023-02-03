@@ -102,14 +102,14 @@ namespace COMMON
 				TcpClient tcpclient = new TcpClient(v6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork);
 				try
 				{
-					CLog.INFORMATION($"Trying to connect to {settings.FullIP}");
+					CLog.INFORMATION($"client attempt to connect to {settings.FullIP}");
 					var result = tcpclient.BeginConnect(settings.Address, (int)settings.Port, default, default);
 					var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(settings.ConnectTimeout));
 					if (success)
 					{
 						// stream is connected
 						tcpclient.EndConnect(result);
-						CLog.INFORMATION($"Connected to {settings.FullIP}");
+						CLog.INFORMATION($"client connected to {settings.FullIP}");
 						tcpclient.SendBufferSize = (tcpclient.SendBufferSize >= settings.SendBufferSize ? tcpclient.SendBufferSize : settings.SendBufferSize + 1);
 						tcpclient.ReceiveBufferSize = (tcpclient.ReceiveBufferSize >= settings.ReceiveBufferSize ? tcpclient.SendBufferSize : settings.ReceiveBufferSize);
 						tcpclient.SendTimeout = settings.SendTimeout * CStreamSettings.ONESECOND;
@@ -118,7 +118,7 @@ namespace COMMON
 						stream = new CStreamClientIO(tcpclient, settings);
 					}
 					else
-						throw new Exception($"Connection to {settings.FullIP} has failed");
+						throw new Exception($"client failed to connect to {settings.FullIP}");
 				}
 				catch (Exception ex)
 				{
@@ -152,11 +152,15 @@ namespace COMMON
 			try
 			{
 				// Send message to the server
-				CLog.INFORMATION($"About to send message of {request.Length} bytes");
+				CLog.Add(new CLogMsgs()
+				{
+					new CLogMsg($"about to send message [{request.Length} bytes]", TLog.INFOR),
+					new CLogMsg($"data: [{CMisc.AsHexString(request)}]", TLog.DEBUG),
+				});
 				if (stream.Send(request))
 					return true;
 				// arrived here the message hasn't been sent
-				CLog.ERROR($"An error has occurred while sending the message");
+				CLog.ERROR($"send message has failed [{request.Length} bytes]");
 			}
 			catch (Exception ex)
 			{
@@ -189,10 +193,14 @@ namespace COMMON
 
 			try
 			{
-				CLog.INFORMATION($"About to send string message of {request.Length} characters");
+				var v = new CLogMsgs()
+				{
+					new CLogMsg($"about to send string message [{request.Length} characters]", TLog.INFOR),
+					new CLogMsg($"data: [{request}]", TLog.DEBUG),
+				};
 				if (stream.SendLine(request, EOT))
 					return true;
-				CLog.ERROR($"An error has occurred while sending the string message");
+				CLog.ERROR($"send string message failed [{request.Length} characters]");
 			}
 			catch (Exception ex)
 			{
@@ -209,45 +217,6 @@ namespace COMMON
 		/// <returns>An array of bytes received in response or if an error occured. In case of a client only request, the function returns the request, as no reply can be returned, if everything went right</returns>
 		public static byte[] Receive(CStreamIO stream, out int announcedSize)
 		{
-			//byte[] reply = default;
-			//announcedSize = 0;
-			//if (default == stream)
-			//	return default;
-			//try
-			//{
-			//	// Read message from the server
-			//	CLog.INFORMATION($"Starting waiting for an incoming message");
-			//	byte[] tmp = stream.Receive(out announcedSize);
-			//	if (default != tmp)
-			//	{
-			//		CLog.INFORMATION($"Received message of {(stream.AddHeaderBytes ? tmp.Length : tmp.Length - (int)stream.HeaderBytes)} actual bytes (announcing {announcedSize} bytes)");
-			//		// rebuild the buffer is required
-			//		if (!stream.AddHeaderBytes)
-			//		{
-			//			// the request natively contained a size header, meaningfull to the application, we therefore must reinsert the size header inside the received buffer
-			//			reply = new byte[tmp.Length + stream.HeaderBytes];
-			//			byte[] bb = CMisc.SetBytesFromIntegralTypeValue((int)tmp.Length, false);
-			//			Buffer.BlockCopy(bb, 0, reply, 0, (int)stream.HeaderBytes);
-			//			Buffer.BlockCopy(tmp, 0, reply, (int)stream.HeaderBytes, tmp.Length);
-			//		}
-			//		else
-			//			reply = tmp;
-			//	}
-			//	else if (0 != announcedSize)
-			//	{
-			//		CLog.ERROR($"No data has been received though expecting some (invalid announced length,...)");
-			//	}
-			//	else
-			//	{
-			//		CLog.INFORMATION($"No data has been received");
-			//	}
-			//}
-			//catch (Exception ex)
-			//{
-			//	CLog.EXCEPT(ex);
-			//}
-			//return reply;
-
 			byte[] reply = default;
 			announcedSize = 0;
 			if (default == stream) return default;
@@ -255,12 +224,12 @@ namespace COMMON
 			try
 			{
 				// Read message from the server
-				CLog.INFORMATION($"Starting waiting for an incoming message");
+				CLog.INFORMATION($"waiting to recv a message");
 				byte[] tmp = stream.Receive(out announcedSize);
 				if (default != tmp)
 				{
 					//CLog.INFORMATION($"Received message of {(stream.AddHeaderBytes ? tmp.Length : tmp.Length - (int)stream.HeaderBytes)} actual bytes (announcing {announcedSize} bytes)");
-					CLog.INFORMATION($"Received message of {tmp.Length} bytes (announcing {announcedSize} bytes)");
+					CLog.INFORMATION($"recv message [{tmp.Length} bytes - announcing {announcedSize} bytes]");
 					// rebuild the buffer is required
 					if (!stream.UseHeaderBytes)
 					{
@@ -276,11 +245,11 @@ namespace COMMON
 				}
 				else if (0 != announcedSize)
 				{
-					CLog.ERROR($"No data has been received though expecting some (invalid announced length,...)");
+					CLog.ERROR($"recv no data, expected {announcedSize} bytes");
 				}
 				else
 				{
-					CLog.INFORMATION($"No data has been received");
+					CLog.INFORMATION($"recv no data");
 				}
 			}
 			catch (Exception ex)
@@ -315,7 +284,7 @@ namespace COMMON
 			try
 			{
 				string s = stream.ReceiveLine(EOT);
-				CLog.INFORMATION($"Received string message of {(string.IsNullOrEmpty(s) ? 0 : s.Length)} characters");
+				CLog.INFORMATION($"revc string message [{(s.IsNullOrEmpty() ? 0 : s.Length)} characters]");
 				return s;
 			}
 			catch (Exception ex)

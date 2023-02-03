@@ -350,14 +350,12 @@ namespace COMMON
 						EndPoint = new IPEndPoint(Address, (int)port);
 						return true;
 					}
-					catch (Exception ex)
-					{
-					}
+					catch (Exception ex) { }
 					return false;
 				}
 				catch (Exception ex)
 				{
-					CLog.EXCEPT(new Exception("Invalid IP address: " + ip + (0 < port ? $":{port}" : string.Empty), ex));
+					CLog.EXCEPT(ex, $"invalid IP address: {ip}:{port}");
 					Address = default;
 					EndPoint = default;
 				}

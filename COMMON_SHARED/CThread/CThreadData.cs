@@ -120,10 +120,6 @@ namespace COMMON
 		/// This is the last action inside the thread
 		/// </summary>
 		public ThreadTerminates OnTerminates { get; set; }
-		///// <summary>
-		///// Parameters to pass to the thread
-		///// </summary>
-		//public object Parameters { get; set; }
 		#endregion
 
 		#region methods

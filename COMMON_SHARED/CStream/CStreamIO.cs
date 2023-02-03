@@ -14,6 +14,7 @@ using System.Linq;
 using System.Net;
 using Newtonsoft.Json;
 using System.IO;
+using System.Collections.Generic;
 
 namespace COMMON
 {
@@ -117,6 +118,7 @@ namespace COMMON
 
 			Stream stream = networkStream;
 			if (default == stream) stream = sslStream;
+			if (default == stream) return false;
 
 			try
 			{
@@ -136,6 +138,7 @@ namespace COMMON
 		{
 			Stream stream = networkStream;
 			if (default == stream) stream = sslStream;
+			if (default == stream) return;
 
 			try
 			{
@@ -152,13 +155,14 @@ namespace COMMON
 		/// <param name="data">Buffer where read data will be put</param>
 		/// <param name="offset">Offset at which to put data inside the buffer</param>
 		/// <returns>The number of bytes read</returns>
-		private int Read(byte[] data, int offset)//, int count)
+		private int Read(byte[] data, int offset)
 		{
 			if (data.IsNullOrEmpty() || data.Length <= offset) return 0;
 			int read = 0;
 
 			Stream stream = networkStream;
 			if (default == stream) stream = sslStream;
+			if (default == stream) return 0;
 
 			try
 			{
@@ -171,34 +175,6 @@ namespace COMMON
 			}
 			return read;
 		}
-		///// <summary>
-		///// Send a buffer to an outer entity
-		///// </summary>
-		///// <param name="data">The message to send</param>
-		///// <param name="headerBytes">The number of bytes to use to add a header; if not a valid value no header is added</param>
-		///// <returns>TRUE if the message has been sent, HALSE otherwise</returns>
-		//internal bool Send(byte[] data, int headerBytes)
-		//{
-		//	if (data.IsNullOrEmpty()) return false;
-
-		//	// if requested, add the size header to the message to send
-		//	int lengthSize = (IsHeaderBytes(headerBytes) && 0 != headerBytes ? headerBytes : 0);
-		//	int size = data.Length + lengthSize;
-		//	byte[] messageToSend = new byte[size];
-		//	Buffer.BlockCopy(data, 0, messageToSend, lengthSize, data.Length);
-		//	if (0 != lengthSize)
-		//	{
-		//		byte[] bs = CMisc.SetBytesFromIntegralTypeValue((int)data.Length, false);
-		//		Buffer.BlockCopy(bs, 0, messageToSend, 0, lengthSize);
-		//	}
-		//	// arrived here the message is ready to be sent
-		//	if (Write(messageToSend))
-		//	{
-		//		Flush();
-		//		return true;
-		//	}
-		//	return false;
-		//}
 		/// <summary>
 		/// Send a buffer to an outer entity.
 		/// The buffer will always be prefixed with a header indicating the size of the message.
@@ -219,12 +195,17 @@ namespace COMMON
 				Buffer.BlockCopy(bs, 0, messageToSend, 0, (int)lengthSize);
 			}
 			// arrived here the message is ready to be sent
-			CLog.INFORMATION($"Trying to send message of {messageToSend.Length} bytes [{(0 == lengthSize ? "without adding any header byte" : $"after having added {lengthSize} header bytes")}]");
+			CLog.Add(new CLogMsgs()
+			{
+				new CLogMsg($"send message [{messageToSend.Length} bytes - {(0 == lengthSize ? "without adding any header" : $"after having added {lengthSize} bytes header")}]", TLog.INFOR ),
+				new CLogMsg($"send data: [{CMisc.AsHexString(messageToSend)}]", TLog.DEBUG ),
+			});
 			if (Write(messageToSend))
 			{
 				Flush();
 				return true;
 			}
+			CLog.ERROR($"send message has failed [{messageToSend.Length} bytes - {(0 == lengthSize ? "without adding any header" : $"after having added {lengthSize} bytes header")}]");
 			return false;
 		}
 		/// <summary>
@@ -257,7 +238,11 @@ namespace COMMON
 				// add the EOL at the end of string
 				data += EOT;
 			}
-			CLog.INFORMATION($"Text message to send is ({data.Length}) [{data}]");
+			CLog.Add(new CLogMsgs()
+			{
+				new CLogMsg($"send text message [{data.Length} characters]", TLog.INFOR ),
+				new CLogMsg($"send data: [{data}]", TLog.DEBUG ),
+			});
 			byte[] bdata = (default != data ? Encoding.UTF8.GetBytes(data) : default);
 			return Send(bdata);
 		}
@@ -278,7 +263,7 @@ namespace COMMON
 			byte[] buffer = new byte[bufferSize];
 			int bytesRead = 0;
 			bool doContinue;
-			CLog.INFORMATION($"Expecting to receive {buffer.Length} bytes");
+			CLog.DEBUG($"recv waiting {buffer.Length} bytes");
 			do
 			{
 				// read stream for the specified buffer
@@ -291,10 +276,14 @@ namespace COMMON
 				}
 			}
 			while (doContinue);
-			CLog.INFORMATION($"Actually received {bytesRead} bytes");
 			// create a buffer of the real number of bytes received (which can't be higher than the expected number of bytes)
 			byte[] bufferReceived = new byte[bytesRead];
 			Buffer.BlockCopy(buffer, 0, bufferReceived, 0, bytesRead);
+			CLog.DEBUG(new List<string>()
+			{
+				$"recv {bytesRead} bytes",
+				$"recv data: [{CMisc.AsHexString(bufferReceived)}]",
+			});
 			return bufferReceived;
 		}
 		/// <summary>
@@ -316,7 +305,7 @@ namespace COMMON
 			byte[] buffer = new byte[bufferToAllocate];
 			int bytesRead = 0;
 			bool doContinue;
-			CLog.INFORMATION($"Expecting to receive a buffer with no declared size");
+			CLog.DEBUG($"recv waiting buffer with no declared size");
 			do
 			{
 				// read stream for the specified buffer
@@ -337,10 +326,14 @@ namespace COMMON
 				}
 			}
 			while (doContinue);
-			CLog.INFORMATION($"Actually received {bytesRead} bytes");
 			// create a buffer of the real number of bytes received (which can't be higher than the expected number of bytes)
 			byte[] bufferReceived = new byte[bytesRead];
 			Buffer.BlockCopy(buffer, 0, bufferReceived, 0, bytesRead);
+			CLog.DEBUG(new List<string>()
+			{
+				$"recv {bytesRead} bytes",
+				$"recv data: [{CMisc.AsHexString(bufferReceived)}]",
+			});
 			return bufferReceived;
 		}
 		/// <summary>
@@ -357,81 +350,34 @@ namespace COMMON
 		/// <returns>The received buffer WITHOUT the heaser size (whose value is indicated in announcedSize) if no error occurred, NULL if any error occured</returns>
 		internal byte[] Receive(out int announcedSize)
 		{
-			//announcedSize = 0;
-			//// get the size of the buffer to receive (HeaderBytes is inherited and MUST never be 0)
-			//CLog.INFORMATION($"Expecting {(AddHeaderBytes ? $"a header of {HeaderBytes} bytes" : "no header")}");
-			//byte[] bufferSize = ReceiveSizedBuffer((int)HeaderBytes);
-			//if (!bufferSize.IsNullOrEmpty() && HeaderBytes == bufferSize.Length)
-			//{
-			//	// get the size of the buffer to read and start reading it
-			//	CLog.INFORMATION($"Received a header of {HeaderBytes} bytes [{CMisc.AsHexString(bufferSize)}]");
-			//	if (0 != (announcedSize = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, 0, HeaderBytes)))
-			//	{
-			//		CLog.INFORMATION($"Announced size is: {announcedSize}");
-			//		byte[] buffer = ReceiveSizedBuffer(announcedSize);
-			//		if (!buffer.IsNullOrEmpty() && announcedSize == buffer.Length)
-			//			return buffer;
-			//	}
-			//	CLog.ERROR($"Announced size is null");
-			//}
-			//CLog.ERROR($"No header has been received or of the wrong size {(0 != bufferSize.Length ? $"[{bufferSize.Length}]" : string.Empty)})");
-			//return default;
-
-			//announcedSize = 0;
-
-			//// get the size of the buffer to receive (HeaderBytes is inherited and MUST never be 0)
-			//// if there was no header automatically added and the protocole itself does not contain a header we have no way to know the size of the message
-			//if (!AddHeaderBytes && !containsHeaderBytes)
-			//{
-			//	CLog.ERROR($"No header defined to carry message size, receive process can't complete");
-			//	return default;
-			//}
-
-			//// determine whether the header must be used or not and the size arrived here, either an automatic header is used or the protocol contains one, get the size of the headerto receive 
-			//int headerSize = UseHeaderBytes ? HeaderBytes : 0;
-			//CLog.INFORMATION($"Expecting a {HeaderBytes} bytes header ");
-			//byte[] bufferSize = ReceiveSizedBuffer(headerSize);
-			//if (!bufferSize.IsNullOrEmpty() && headerSize == bufferSize.Length)
-			//{
-			//	// get the size of the buffer to read and start reading it
-			//	CLog.INFORMATION($"Received a header of {headerSize} bytes [{CMisc.AsHexString(bufferSize)}]");
-			//	if (0 != (announcedSize = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, 0, headerSize)))
-			//	{
-			//		CLog.INFORMATION($"Announced size is: {announcedSize}");
-			//		byte[] buffer = ReceiveSizedBuffer(announcedSize);
-			//		if (!buffer.IsNullOrEmpty() && announcedSize == buffer.Length)
-			//		{
-			//			// if the header is part of the messag eitself reintroduce it
-			//			if (containsHeaderBytes)
-			//				return buffer;
-			//		}
-			//	}
-			//	CLog.ERROR($"Announced size is null");
-			//}
-			//CLog.ERROR($"No header has been received or of the wrong size {(0 != bufferSize.Length ? $"[{bufferSize.Length}]" : string.Empty)})");
-			//return default;
-
 			announcedSize = 0;
 
 			// determine whether the header must be used or not and the size arrived here, either an automatic header is used or the protocol contains one, get the size of the headerto receive 
-			CLog.INFORMATION($"Expecting a {HeaderBytes} bytes header ");
+			CLog.DEBUG($"recv {HeaderBytes} bytes header");
 			byte[] bufferSize = ReceiveSizedBuffer(HeaderBytes);
 			if (!bufferSize.IsNullOrEmpty() && HeaderBytes == bufferSize.Length)
 			{
 				// get the size of the buffer to read and start reading it
-				CLog.INFORMATION($"Received a header of {HeaderBytes} bytes [{CMisc.AsHexString(bufferSize)}]");
+				CLog.DEBUG($"recv data: [{CMisc.AsHexString(bufferSize)}]");
 				if (0 != (announcedSize = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, 0, HeaderBytes)))
 				{
-					CLog.INFORMATION($"Announced size is: {announcedSize}");
+					CLog.DEBUG($"recv announced size is: {announcedSize}");
 					byte[] buffer = ReceiveSizedBuffer(announcedSize);
 					if (!buffer.IsNullOrEmpty() && announcedSize == buffer.Length)
 					{
+						CLog.DEBUG(new List<string>()
+						{
+							$"recv {announcedSize} bytes",
+							$"recv data: [{CMisc.AsHexString(buffer)}]",
+						});
 						return buffer;
 					}
+					else
+						CLog.ERROR($"recv no data or of invalid length ({buffer.Length})");
 				}
-				CLog.ERROR($"Announced size is null");
+				CLog.ERROR($"recv announced size is null");
 			}
-			CLog.ERROR($"No header has been received or of the wrong size {(0 != bufferSize.Length ? $"[{bufferSize.Length}]" : string.Empty)}");
+			CLog.ERROR($"recv no header or of invalid size ({bufferSize.Length})");
 			return default;
 		}
 		/// <summary>
@@ -477,27 +423,17 @@ namespace COMMON
 		/// </summary>
 		internal void Close()
 		{
-			if (default != sslStream)
+			Stream stream = networkStream;
+			if (default == stream) stream = sslStream;
+			if (default == stream) return;
+
+			try
 			{
-				try
-				{
-					sslStream.Close();
-				}
-				catch (Exception ex)
-				{
-					CLog.EXCEPT(ex, "sslStream");
-				}
+				stream.Close();
 			}
-			else if (default != networkStream)
+			catch (Exception ex)
 			{
-				try
-				{
-					networkStream.Close();
-				}
-				catch (Exception ex)
-				{
-					CLog.EXCEPT(ex, "networkStream");
-				}
+				CLog.EXCEPT(ex);
 			}
 			Tcp = default;
 		}
@@ -579,7 +515,7 @@ namespace COMMON
 							useTLS = (default != value && 1 <= (int)value);
 						}
 						catch (Exception ex) { }
-						CLog.Add($".NET 3.5 {(useTLS ? "using TLS 1.2" : "not using TLS")}", TLog.INFOR);
+						CLog.INFORMATION($".NET 3.5 {(useTLS ? "using TLS 1.2" : "not using TLS")}");
 						if (useTLS)
 							sslStream.AuthenticateAsClient(Settings.ServerName, default, (System.Security.Authentication.SslProtocols)3072, false);
 						else
@@ -587,7 +523,7 @@ namespace COMMON
 #else
 						sslStream.AuthenticateAsClient(Settings.ServerName);
 #endif
-						CLog.INFORMATION($"Using {sslStream.SslProtocol.ToString().ToUpper()} secured protocol");
+						CLog.INFORMATION($"using {sslStream.SslProtocol.ToString().ToUpper()} secured protocol");
 					}
 					catch (Exception ex)
 					{
@@ -603,11 +539,11 @@ namespace COMMON
 				else
 				{
 					networkStream = client.GetStream();
-					CLog.INFORMATION($"Using unsecured protocol");
+					CLog.INFORMATION($"using unsecured protocol");
 				}
 			}
 			else
-				throw new Exception("Invalid client stream settings.");
+				throw new Exception("invalid client stream settings");
 		}
 		#endregion
 
@@ -631,7 +567,7 @@ namespace COMMON
 			{
 				for (int i = 0; chain.ChainElements.Count > i; i++)
 				{
-					CLog.TRACE($"Chain element {i + 1}: {(chain.ChainElements[i].Certificate?.Subject ?? "not specified")}");
+					CLog.INFORMATION($"Chain element {i + 1}: {(chain.ChainElements[i].Certificate?.Subject ?? "not specified")}");
 					CLog.INFORMATION($"Certificate details: {(chain.ChainElements[i].Certificate?.ToString() ?? "not specified")}");
 				}
 			}

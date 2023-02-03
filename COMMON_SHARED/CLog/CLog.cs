@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Runtime.CompilerServices;
 
 namespace COMMON
 {
@@ -53,6 +54,95 @@ namespace COMMON
 		ERROR,
 		EXCPT,
 		_end
+	}
+
+	public class CLogMsg
+	{
+		public CLogMsg() { Msg = string.Empty; Severity = TLog.TRACE; }
+		public CLogMsg(string msg, TLog severity) { Msg = msg; Severity = severity; }
+		public string Msg { get; set; }
+		public TLog Severity { get => _severity; set => _severity = (CLog.IsTLog(value) ? value : _severity); }
+		TLog _severity;
+		protected virtual string ToStringPrefix()
+		{
+			return $"{CMisc.BuildDate(CMisc.DateFormat.YYYYMMDDhhmmssfffEx)}{Chars.TAB}{Severity}{Chars.TAB}{Thread.CurrentThread.ManagedThreadId.ToString("X8")}{Chars.TAB}";
+		}
+		protected virtual string ToStringSC(bool addSharedData = true)
+		{
+			Guid? guid;
+			string sc;
+			if (addSharedData)
+			{
+				guid = CLog.SharedGuid;
+				sc = CLog.SharedContext;
+			}
+			else
+			{
+				guid = Guid.NewGuid();
+				sc = null;
+			}
+			return $"{guid}{Chars.TAB}{(sc.IsNullOrEmpty() ? string.Empty : $"[{sc}] ")}";
+		}
+		public override string ToString() { return $"{CLog.RemoveCRLF(Msg.Trim())}"; }
+		public string ToString(bool addSharedData)
+		{
+			try
+			{
+				return CLog.SeverityToLog <= Severity && !Msg.IsNullOrEmpty() ? ToStringPrefix() + ToStringSC(addSharedData) + ToString() : string.Empty;
+			}
+			catch (Exception) { }
+			return string.Empty;
+		}
+	}
+	class CLogMsgEx : CLogMsg
+	{
+		protected override string ToStringPrefix() { return string.Empty; }
+		protected override string ToStringSC(bool addSharedData = true) { return string.Empty; }
+	}
+	public class CLogMsgs : List<CLogMsg>
+	{
+		public CLogMsgs() { }
+		public CLogMsgs(CLogMsg lm) { if (default != lm) Add(lm); }
+		public CLogMsgs(List<string> ls, TLog severity = TLog.TRACE)
+		{
+			if (default == ls || 0 == ls.Count) return;
+			for (int i = 0; i < ls.Count; i++)
+				if (!ls[i].IsNullOrEmpty())
+					Add(new CLogMsg() { Msg = ls[i], Severity = severity });
+		}
+		internal CLogMsgs(List<string> ls)
+		{
+			if (default == ls || 0 == ls.Count) return;
+			for (int i = 0; i < ls.Count; i++)
+				if (!ls[i].IsNullOrEmpty())
+					Add(new CLogMsgEx() { Msg = ls[i], Severity = TLog.INFOR });
+		}
+		public override string ToString()
+		{
+			string r = string.Empty;
+			try
+			{
+				for (int i = 0; i < Count; i++)
+				{
+					r += (r.IsNullOrEmpty() ? string.Empty : Chars.CRLF) + this[i].ToString();
+				}
+			}
+			catch (Exception) { }
+			return r;
+		}
+		public string ToString(bool addSharedData)
+		{
+			string r = string.Empty;
+			try
+			{
+				for (int i = 0; i < Count; i++)
+				{
+					r += (r.IsNullOrEmpty() ? string.Empty : Chars.CRLF) + this[i].ToString(addSharedData);
+				}
+			}
+			catch (Exception) { }
+			return r;
+		}
 	}
 
 	/// <summary>
@@ -181,7 +271,7 @@ namespace COMMON
 			}
 		}
 		private static bool _uselocal = false;
-		private static CMisc.DateFormat _dateFormat = CMisc.DateFormat.YYYYMMDDhhmmssfffEx;
+		internal static CMisc.DateFormat _dateFormat = CMisc.DateFormat.YYYYMMDDhhmmssfffEx;
 		#endregion
 
 		#region privates
@@ -212,63 +302,6 @@ namespace COMMON
 		#endregion
 
 		#region per thread shared memory management
-		//public struct CLogObject
-		//{
-		//	public string Name { get; set; }
-		//	public int Offset { get; set; }
-		//	public int Length { get; set; }
-		//}
-		//abstract class CLogSharedMemory
-		//{
-		//	public CLogSharedMemory()
-		//	{
-		//		Mmf = MemoryMappedFile.CreateOrOpen(Name, mappedMemoryFileSize);
-		//	}
-		//	public MemoryMappedFile Mmf { get; private set; }
-		//	public string Name { get => CThread.SharedName; }
-
-		//	public object Get(CLogObject o)
-		//	{
-		//		try
-		//		{
-		//			using (var accessor = Mmf.CreateViewAccessor())
-		//			{
-		//				return GetObject(accessor, o);
-		//			}
-		//		}
-		//		catch (Exception ex)
-		//		{
-		//			AddException(ex, null, false);
-		//		}
-		//		return null;
-		//	}
-		//	public void Set(CLogObject o, object value)
-		//	{
-		//		try
-		//		{
-		//			using (var accessor = Mmf.CreateViewAccessor())
-		//			{
-		//				SetObject(accessor, o, value);
-		//			}
-		//		}
-		//		catch (Exception ex)
-		//		{
-		//			AddException(ex, null, false);
-		//		}
-		//		return;
-		//	}
-		//	protected abstract object GetObject(MemoryMappedViewAccessor mmva, CLogObject o);
-		//	protected abstract void SetObject(MemoryMappedViewAccessor mmva, CLogObject o, object value);
-		//}
-		//public static class 
-		//public static class CLogDDD
-		//{
-		//	public CLogDDD()
-		//	{
-
-		//	}
-		//	public Guid? UID { }
-		//}
 
 #if !NET35
 		/// <summary>
@@ -288,7 +321,7 @@ namespace COMMON
 		/// <returns></returns>
 		static MemoryMappedFile GetMmf()
 		{
-			MemoryMappedFile mmf;
+			MemoryMappedFile mmf = null;
 			try
 			{
 				lock (mylock)
@@ -451,43 +484,43 @@ namespace COMMON
 		#endregion
 
 		#region methods
-		public static string DEBUG(string s = default) { return Add(s, TLog.DEBUG); }
-		public static string INFORMATION(string s = default) { return Add(s, TLog.INFOR); }
-		public static string TRACE(string s = default) { return Add(s, TLog.TRACE); }
-		public static string WARNING(string s = default) { return Add(s, TLog.WARNG); }
-		public static string ERROR(string s = default) { return Add(s, TLog.ERROR); }
+		public static string DEBUG(string s) { return Add(s, TLog.DEBUG); }
+		public static string DEBUG(List<string> ls) { return Add(ls, TLog.DEBUG); }
+		public static string INFORMATION(string s) { return Add(s, TLog.INFOR); }
+		public static string INFORMATION(List<string> ls) { return Add(ls, TLog.INFOR); }
+		public static string TRACE(string s) { return Add(s, TLog.TRACE); }
+		public static string TRACE(List<string> ls) { return Add(ls, TLog.TRACE); }
+		public static string WARNING(string s) { return Add(s, TLog.WARNG); }
+		public static string WARNING(List<string> ls) { return Add(ls, TLog.WARNG); }
+		public static string ERROR(string s) { return Add(s, TLog.ERROR); }
+		public static string ERROR(List<string> ls) { return Add(ls, TLog.ERROR); }
 		public static string EXCEPT(Exception ex, string s = default) { return AddException(ex, s); }
 		/// <summary>
 		/// Test if a severity is within bounds
 		/// </summary>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		private static bool IsTLog(TLog value)
-		{
-			return (TLog._begin < value && value < TLog._end);
-		}
-		/// <summary>
-		/// Log a message to the log file
-		/// </summary>
-		/// <param name="ls">A list of message to log</param>
-		/// <param name="severity">severity level</param>
-		/// <returns>The string as it has been written, null if an error has occurred</returns>
-		public static string Add(List<string> ls, TLog severity = TLog.TRACE)
-		{
-			// arrived here the file is ready for write, write what was meant to be written
-			return AddEx(ls, severity);
-		}
+		public static bool IsTLog(TLog value) { return (TLog._begin < value && value < TLog._end); }
 		/// <summary>
 		/// Log a message to the log file
 		/// </summary>
 		/// <param name="s">Message to log</param>
 		/// <param name="severity">severity level</param>
 		/// <returns>The string as it has been written, null if an error has occurred</returns>
-		public static string Add(string s, TLog severity = TLog.TRACE)
-		{
-			// arrived here the file is ready for write, write what was meant to be written
-			return AddEx(new List<string>() { s }, severity);
-		}
+		public static string Add(string s, TLog severity = TLog.TRACE) { return AddEx(new List<string>() { s }, severity); }
+		/// <summary>
+		/// Log a message to the log file
+		/// </summary>
+		/// <param name="ls">A list of message to log</param>
+		/// <param name="severity">severity level</param>
+		/// <returns>The string as it has been written, null if an error has occurred</returns>
+		public static string Add(List<string> ls, TLog severity = TLog.TRACE) { return Add(new CLogMsgs(ls, severity)); }
+		/// <summary>
+		/// Log a list of messages to the log file
+		/// </summary>
+		/// <param name="ls">A list of <see cref="CLogMsg"/> to log</param>
+		/// <returns>The string as it has been written, null if an error has occurred</returns>
+		public static string Add(CLogMsgs ls) { return AddEx(ls); }
 		/// <summary>
 		/// Log an exception to the log file (the whole exception tree is written)
 		/// </summary>
@@ -515,16 +548,42 @@ namespace COMMON
 					StackFrame sf = st.GetFrame(i - 1);
 					string f = string.IsNullOrEmpty(sf.GetFileName()) ? "??" : sf.GetFileName();
 					string m = string.IsNullOrEmpty(sf.GetMethod().ToString()) ? "??" : $"{sf.GetMethod()}";
-					ls.Add($"[EXCEPTION #{st.FrameCount - i + 1}] File: {f} - Method: {m} - Line Number: {sf.GetFileLineNumber()}");
+					ls.Add($"[EXCEPTION #{st.FrameCount - i + 1}] file: {f}; method: {m}; #line: {sf.GetFileLineNumber()}");
 				}
 				r = AddEx(ls, addSharedData ? TLog.EXCPT : TLog.DEBUG, addSharedData);
 			}
 			catch (Exception) { }
 			return r;
 		}
-		public static string AddException(string dummy, Exception ex, string msg = "")
+		/// <summary>
+		/// Add the string(s) to the log file
+		/// </summary>
+		/// <param name="ls"></param>
+		/// <param name="addSharedData"></param>
+		/// <returns></returns>
+		private static string AddEx(CLogMsgs ls, bool addSharedData = true)
 		{
-			return AddException(ex, msg);
+			if (default == ls || 0 == ls.Count) return default;
+
+			// create the string to log
+			string r = default;
+			try
+			{
+				// get the string to log
+				r = ls.ToString();
+				if (!r.IsNullOrEmpty())
+				{
+					// check whether need to open a new file
+					if (DateTime.Now.Date != CreatedOn.Date)
+						// re-open a new file with the same name but different timestamp
+						OpenLogFile(originalFName);
+
+					// arrived here the file is ready for write, write what was meant to be written
+					AddToLog(ls.ToString(addSharedData));
+				}
+			}
+			catch (Exception) { }
+			return r;
 		}
 		/// <summary>
 		/// Add the string(s) tothe log file
@@ -535,40 +594,14 @@ namespace COMMON
 		/// <returns></returns>
 		private static string AddEx(List<string> ls, TLog severity, bool addSharedData = true)
 		{
-			if (default == ls || 0 == ls.Count) return default;
-
-			// create the string to log
-			string r = default;
-			try
-			{
-				List<string> lls = StringsToLog(ls, severity, out r, addSharedData);
-
-				// check severity
-				if (!IsTLog(severity)) severity = TLog.INFOR;
-
-				// severity to low to be logged, do not do it but return the message to log
-				if (SeverityToLog > severity)
-				{
-					return r;
-				}
-
-				// check whether in need to open a new file or not
-				if (DateTime.Now.Date != CreatedOn.Date)
-					// re-open a new file with the same name but different timestamp
-					OpenLogFile(originalFName);
-
-				// arrived here the file is ready for write, write what was meant to be written
-				AddToLog(lls, severity);
-			}
-			catch (Exception) { }
-			return r;
+			return AddEx(new CLogMsgs(ls, severity), addSharedData);
 		}
 		/// <summary>
 		/// Remove unwanted chars (CR, LF, TAB) from a string
 		/// </summary>
 		/// <param name="s"></param>
 		/// <returns></returns>
-		private static string RemoveCRLF(string s)
+		public static string RemoveCRLF(string s)
 		{
 			if (!KeepCRLF)
 			{
@@ -585,86 +618,34 @@ namespace COMMON
 			return s;
 		}
 		/// <summary>
-		/// Actually write message to the log file
+		/// Write safely to the log file
 		/// </summary>
-		/// <param name="ls"></param>
-		/// <param name="severity">severity level</param>
-		private static void AddToLog(List<string> ls, TLog severity)
+		/// <param name="s">The message to write, it can be multiline</param>
+		private static void AddToLog(string s)
 		{
-			if (default == ls || 0 == ls.Count) return;
+			if (s.IsNullOrEmpty()) return;
 			try
 			{
 				lock (mylock)
 				{
-					AddToLogUnsafe(ls, severity);
+					AddToLogUnsafe(s);
 				}
 			}
 			catch (Exception) { }
 		}
-		private static void AddToLog(string s, TLog severity)
-		{
-			if (!string.IsNullOrEmpty(s)) AddToLog(new List<string>() { s }, severity);
-		}
 		/// <summary>
-		/// Actually write message to the log file
+		/// Unsafely write to the log file
 		/// </summary>
-		/// <param name="ls"></param>
-		/// <param name="severity">severity level</param>
-		private static void AddToLogUnsafe(List<string> ls, TLog severity)
+		/// <param name="s">The message to write, it can be multiline</param>
+		private static void AddToLogUnsafe(string s)
 		{
 			try
 			{
-				foreach (string s in ls)
-					streamWriter?.WriteLine(s);
+				streamWriter?.WriteLine(s);
 			}
 			catch (Exception) { }
 		}
-		private static void AddToLogUnsafe(string s, TLog severity)
-		{
-			AddToLogUnsafe(new List<string>() { s }, severity);
-		}
-		/// <summary>
-		/// Create the complete kist of strings to log
-		/// </summary>
-		/// <param name="ls"></param>
-		/// <param name="severity"></param>
-		/// <param name="r"></param>
-		/// <param name="addSharedData"></param>
-		/// <returns></returns>
-		private static List<string> StringsToLog(List<string> ls, TLog severity, out string r, bool addSharedData = true)
-		{
-			r = default;
-			List<string> lls = new List<string>();
-			try
-			{
-				Guid? guid;
-				string sc;
-				if (addSharedData)
-				{
-					guid = SharedGuid;
-					sc = SharedContext;
-				}
-				else
-				{
-					guid = Guid.NewGuid();
-					sc = null;
-				}
-				string v = $"{CMisc.BuildDate(_dateFormat)}{Chars.TAB}{severity}{Chars.TAB}{Thread.CurrentThread.ManagedThreadId.ToString("X8")}{Chars.TAB}{guid}{Chars.TAB}{(sc.IsNullOrEmpty() ? string.Empty : $"[{sc}] ")}";
-				for (int i = 0; i < ls.Count; i++)
-				{
-					//string q = $"{RemoveCRLF((TLog.ERROR == severity && ErrorToUpper ? ls[i].Trim().ToUpper() : ls[i].Trim()))}";
-					string q = $"{RemoveCRLF(ls[i].Trim())}";
-					lls.Add($"{v}{q}");
-					r += ls[i] + (i < ls.Count - 1 ? Chars.CRLF : default);
-				}
-			}
-			catch (Exception) { }
-			return lls;
-		}
-		private static List<string> StringsToLog(string s, TLog severity, out string r)
-		{
-			return StringsToLog(new List<string>() { s }, severity, out r);
-		}
+		#endregion
 
 		#region log file management
 		/// <summary>
@@ -685,9 +666,14 @@ namespace COMMON
 						_logfilename = BuildLogFileName(fileName);
 						streamWriter = new StreamWriter(_logfilename, true, Encoding.UTF8);
 						streamWriter.AutoFlush = true;
-						AddToLogUnsafe($"+++++", TLog.INFOR);
-						AddToLogUnsafe($"+++++ {LogFileName.ToUpper()} OPENED: {CMisc.BuildDate(_dateFormat, CreatedOn)} (VERSION: {CMisc.Version(CMisc.VersionType.assembly)}-{CMisc.Version(CMisc.VersionType.assemblyFile)}-{CMisc.Version(CMisc.VersionType.assemblyInfo)})", TLog.INFOR);
-						AddToLogUnsafe($"+++++", TLog.INFOR);
+						var ls = new CLogMsgs(
+							 new List<string>
+							 {
+								 $"+++++",
+								 $"+++++ {LogFileName.ToUpper()} OPENED: {CMisc.BuildDate(_dateFormat, CreatedOn)} (VERSION: {CMisc.Version(CMisc.VersionType.assembly)}-{CMisc.Version(CMisc.VersionType.assemblyFile)}-{CMisc.Version(CMisc.VersionType.assemblyInfo)})",
+								 $"+++++",
+							 });
+						AddToLog(ls.ToString(false));
 						try
 						{
 							if (AutoPurgeLogFiles)
@@ -737,9 +723,14 @@ namespace COMMON
 					if (default != streamWriter)
 					{
 						// close current log file
-						AddToLogUnsafe($"-----", TLog.INFOR);
-						AddToLogUnsafe($"----- {LogFileName.ToUpper()} CLOSED: {CMisc.BuildDate(_dateFormat)}", TLog.INFOR);
-						AddToLogUnsafe($"-----", TLog.INFOR);
+						var ls = new CLogMsgs(
+							new List<string>
+							{
+								$"-----",
+								$"----- {LogFileName.ToUpper()} CLOSED: {CMisc.BuildDate(_dateFormat)}",
+								$"-----"
+							});
+						AddToLog(ls.ToString(false));
 					}
 				}
 				catch (Exception) { }
@@ -785,8 +776,6 @@ namespace COMMON
 				finally { }
 			}
 		}
-		#endregion
-
 		#endregion
 	}
 }

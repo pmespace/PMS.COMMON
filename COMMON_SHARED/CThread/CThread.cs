@@ -39,8 +39,8 @@ namespace COMMON
 		int FinalDelayWhenThreadTerminates { get; set; }
 		[DispId(5007)]
 		Thread Thread { get; }
-		[DispId(5008)]
-		int ID { get; set; }
+		//[DispId(5008)]
+		//int ID { get; set; }
 		[DispId(5009)]
 		string Name { get; set; }
 		[DispId(5010)]
@@ -150,7 +150,7 @@ namespace COMMON
 		/// <summary>
 		/// Description of the thread
 		/// </summary>
-		public string Description { get => $"{(Name.IsNullOrEmpty() ? string.Empty : $"[{Name}{(0 != ID ? $" (ID: {ID})" : string.Empty)}] ")}"; }
+		public string Description { get => $"[{(_name.IsNullOrEmpty() ? $"thread {UniqueID}" : Name)}]"; }
 		/// <summary>
 		/// Indicate whether the thread has already been started
 		/// </summary>
@@ -167,15 +167,15 @@ namespace COMMON
 		/// <summary>
 		/// Events to use to know if the thread is started or stopped
 		/// </summary>
-		private CThreadEvents Events = new CThreadEvents();
+		CThreadEvents Events = new CThreadEvents();
 		/// <summary>
 		/// The function to call inside the caller's environement to create the thread
 		/// </summary>
-		private ThreadFunction ThreadMethod { get; set; }
+		ThreadFunction ThreadMethod { get; set; }
 		/// <summary>
 		/// Parameters passed to the thread
 		/// </summary>
-		private object ThreadParams { get; set; }
+		object ThreadParams { get; set; }
 		#endregion
 
 		#region public methods
@@ -247,10 +247,10 @@ namespace COMMON
 				if (default != ThreadMethod)
 				{
 					Result = ThreadMethod(this, ThreadParams);
-					CLog.INFORMATION($"{Description} - Thread result: {Result}");
+					CLog.INFORMATION($"{Description} thread result: {Result}");
 				}
 				else
-					CLog.ERROR($"{Description} - No method to call for the thread");
+					CLog.ERROR($"{Description} no method to call for the thread");
 			}
 			catch (Exception ex)
 			{

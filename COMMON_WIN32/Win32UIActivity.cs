@@ -79,7 +79,7 @@ namespace COMMON.WIN32
 		/// <returns></returns>
 		public override string ToString()
 		{
-			return $"UIActivity = Control: {Ctrl} - Event: {Evt} - Message: {Message} - Value: {Value}";
+			return $"UIActivity = control: {Ctrl}; event: {Evt}; message: {Message}; value: {Value}";
 		}
 	}
 
@@ -115,7 +115,7 @@ namespace COMMON.WIN32
 			}
 			catch (Exception ex)
 			{
-				CLog.EXCEPT(ex, $"Exception while processing {activity}");
+				CLog.EXCEPT(ex, $"while processing {activity}");
 			}
 		}
 		#endregion

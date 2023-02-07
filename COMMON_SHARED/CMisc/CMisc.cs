@@ -146,6 +146,29 @@ namespace COMMON
 		{
 			return 0 == string.Compare(s, value, ignoreCase);
 		}
+		/// <summary>
+		/// Returns an hexadecimal string of an array of bytes
+		/// </summary>
+		/// <param name="ab">the array of bytes to convert</param>
+		/// <returns>
+		/// A string containing each byte as a 2 hexadecima representation if successful, null otherwise
+		/// </returns>
+		public static string AsHexString(this byte[] ab)
+		{
+			return CMisc.AsHexString(ab);
+		}
+		/// <summary>
+		/// Returns the string inside an array of bytes
+		/// </summary>
+		/// <param name="ab">the array of bytes to convert</param>
+		/// <param name="asUtf8">true if UTF-8 must be used, otherwise ASCII will be used</param>
+		/// <returns>
+		/// The string contained inside the array of bytes or an empty string
+		/// </returns>
+		public static string AsString(this byte[] ab, bool asUtf8 = true)
+		{
+			return CMisc.AsString(ab);
+		}
 	}
 
 #if COLORS

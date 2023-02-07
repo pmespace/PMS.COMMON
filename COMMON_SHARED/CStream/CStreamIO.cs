@@ -199,17 +199,18 @@ namespace COMMON
 				Buffer.BlockCopy(bs, 0, messageToSend, 0, (int)lengthSize);
 			}
 			// arrived here the message is ready to be sent
+			string s1 = "(no header requested)", s2 = $"({lengthSize} bytes header)";
 			CLog.Add(new CLogMsgs()
 			{
-				new CLogMsg($"sending message {messageToSend.Length} bytes - {(0 == lengthSize ? "without adding any header" : $"after having added {lengthSize} bytes header")}", TLog.INFOR),
-				new CLogMsg($"data [{CMisc.AsHexString(messageToSend)}]", TLog.DEBUG),
+				new CLogMsg($"sending message {messageToSend.Length} bytes {(0 == lengthSize ? s1 : s2)}", TLog.INFOR),
+				new CLogMsg($"data [{messageToSend.AsHexString()}]", TLog.DEBUG),
 			});
 			if (Write(messageToSend))
 			{
 				Flush();
 				return true;
 			}
-			CLog.ERROR($"failed sending message {messageToSend.Length} bytes - {(0 == lengthSize ? "without adding any header" : $"after having added {lengthSize} bytes header")}");
+			CLog.ERROR($"failed sending message {messageToSend.Length} bytes {(0 == lengthSize ? s1 : s2)}");
 			return false;
 		}
 		/// <summary>
@@ -296,13 +297,13 @@ namespace COMMON
 				CLog.Add(new CLogMsgs()
 				{
 					new CLogMsg($"received {bytesRead} bytes, expecting {bufferSize}", TLog.ERROR),
-					new CLogMsg($"data [{CMisc.AsHexString(bufferReceived)}]", TLog.DEBUG),
+					new CLogMsg($"data [{bufferReceived.AsHexString()}]", TLog.DEBUG),
 				});
 			else
 				CLog.Add(new CLogMsgs()
 				{
 					new CLogMsg($"received {bytesRead} bytes", TLog.DEBUG),
-					new CLogMsg($"data [{CMisc.AsHexString(bufferReceived)}]",TLog.DEBUG),
+					new CLogMsg($"data [{bufferReceived.AsHexString()}]",TLog.DEBUG),
 				});
 			return bufferReceived;
 		}
@@ -352,7 +353,7 @@ namespace COMMON
 			CLog.Add(new CLogMsgs()
 			{
 				new CLogMsg($"received {bytesRead} bytes", TLog.INFOR),
-				new CLogMsg($"data [{CMisc.AsHexString(bufferReceived)}]", TLog.DEBUG),
+				new CLogMsg($"data [{bufferReceived.AsHexString()}]", TLog.DEBUG),
 			});
 			return bufferReceived;
 		}

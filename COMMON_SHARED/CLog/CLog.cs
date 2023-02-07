@@ -47,6 +47,7 @@ namespace COMMON
 	[ComVisible(true)]
 	public enum TLog
 	{
+		FMNGT = -2,
 		_begin = -1,
 		DEBUG,
 		INFOR,
@@ -54,7 +55,8 @@ namespace COMMON
 		WARNG,
 		ERROR,
 		EXCPT,
-		_end
+		_end,
+		_none
 	}
 
 	public class CLogMsg
@@ -62,12 +64,8 @@ namespace COMMON
 		public CLogMsg() { Msg = string.Empty; Severity = TLog.TRACE; }
 		public CLogMsg(string msg, TLog severity) { Msg = msg; Severity = severity; }
 		public string Msg { get; set; }
-		public TLog Severity { get => _severity; set => _severity = (CLog.IsTLog(value) ? value : _severity); }
-		TLog _severity;
-		protected virtual string ToStringPrefix()
-		{
-			return $"{CMisc.BuildDate(CMisc.DateFormat.YYYYMMDDhhmmssfffEx)}{Chars.TAB}{Severity}{Chars.TAB}{Thread.CurrentThread.ManagedThreadId.ToString("X8")}{Chars.TAB}";
-		}
+		public virtual TLog Severity { get => _severity; set => _severity = (CLog.IsTLog(value) ? value : _severity); }
+		protected TLog _severity;
 		protected virtual string ToStringSC(bool addSharedData = true)
 		{
 			Guid? guid;
@@ -84,12 +82,16 @@ namespace COMMON
 			}
 			return $"{guid}{Chars.TAB}{(sc.IsNullOrEmpty() ? string.Empty : $"[{sc}] ")}";
 		}
+		protected string ToStringPrefix()
+		{
+			return $"{CMisc.BuildDate(CMisc.DateFormat.YYYYMMDDhhmmssfffEx)}{Chars.TAB}{Severity}{Chars.TAB}{Thread.CurrentThread.ManagedThreadId.ToString("X8")}{Chars.TAB}";
+		}
 		public override string ToString() { return $"{CLog.RemoveCRLF(Msg.Trim())}"; }
 		internal virtual string ToString(bool addSharedData)
 		{
 			try
 			{
-				return CLog.SeverityToLog <= Severity && !Msg.IsNullOrEmpty() ? ToStringPrefix() + ToStringSC(addSharedData) + ToString() : string.Empty;
+				return (CLog.SeverityToLog <= Severity && !Msg.IsNullOrEmpty()) || TLog.FMNGT == Severity ? ToStringPrefix() + ToStringSC(addSharedData) + ToString() : string.Empty;
 			}
 			catch (Exception) { }
 			return string.Empty;
@@ -97,8 +99,8 @@ namespace COMMON
 	}
 	class CLogMsgEx : CLogMsg
 	{
-		protected override string ToStringPrefix() { return string.Empty; }
-		protected override string ToStringSC(bool addSharedData = true) { return string.Empty; }
+		public override TLog Severity { get => _severity; set => _severity = (CLog.IsTLog(value) || TLog.FMNGT == value ? value : _severity); }
+		protected override string ToStringSC(bool addSharedData = true) { return Guid.Empty.ToString() + Chars.TAB; }
 		internal override string ToString(bool addSharedData)
 		{
 			try
@@ -125,7 +127,7 @@ namespace COMMON
 			if (default == ls || 0 == ls.Count) return;
 			for (int i = 0; i < ls.Count; i++)
 				if (!ls[i].IsNullOrEmpty())
-					Add(new CLogMsgEx() { Msg = ls[i], Severity = TLog.INFOR });
+					Add(new CLogMsgEx() { Msg = ls[i], Severity = TLog.FMNGT });
 		}
 		public override string ToString()
 		{
@@ -250,7 +252,7 @@ namespace COMMON
 			{
 				lock (mylock)
 				{
-					_severitytolog = IsTLog(value) ? value : _severitytolog;
+					_severitytolog = IsTLog(value) || TLog.FMNGT == value ? value : _severitytolog;
 				}
 			}
 		}

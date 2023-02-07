@@ -65,8 +65,8 @@ namespace COMMON
 		#region public methods
 		public override string ToString()
 		{
-			string s = $"Client: {(default == EndPoint ? "<unknown>" : EndPoint.Address.ToString())}; Connect: {ConnectTimestamp.ToString(Chars.DATETIMEEX)}; ";
-			s += $"Received: {ReceivedMessages} messages [{ReceivedBytes} bytes]; Sent: {SentMessages} messages [{SentBytes} bytes]";
+			string s = $"client: {(default == EndPoint ? "<unknown>" : EndPoint.Address.ToString())}; connect: {ConnectTimestamp.ToString(Chars.DATETIMEEX)}; ";
+			s += $"received: {ReceivedMessages} messages for {ReceivedBytes} bytes; sent: {SentMessages} messages for {SentBytes} bytes";
 			return s;
 		}
 		#endregion
@@ -309,14 +309,14 @@ namespace COMMON
 
 				if (!ok)
 				{
-					CLog.ERROR($"srvr not allowed to start");
+					CLog.ERROR($"server not allowed to start");
 					return false;
 				}
 
 				// create a TCP/IP socket and start listenning for incoming connections
 				listener = new TcpListener(IPAddress.Any, (int)settings.StreamServerSettings.Port);
 				listener.Start();
-				CLog.INFORMATION($"srvr listener created reading port {settings.StreamServerSettings.Port}");
+				CLog.INFORMATION($"server listener created reading port {settings.StreamServerSettings.Port}");
 
 				// start the thread and sleep to allow him to actually run
 				mainThread.Name = "LISTENER";
@@ -326,14 +326,14 @@ namespace COMMON
 				}
 				else
 				{
-					CLog.ERROR($"srvr failed to start {mainThread.Name}");
+					CLog.ERROR($"server failed to start {mainThread.Name}");
 				}
 				listener.Stop();
 				listener = default;
 			}
 			catch (Exception ex)
 			{
-				CLog.EXCEPT(ex, "srvr is not running");
+				CLog.EXCEPT(ex, "server is not running");
 			}
 			return false;
 		}
@@ -348,7 +348,7 @@ namespace COMMON
 				// clean up and synchronize thread termination
 				Cleanup();
 				mainThread.Wait();
-				CLog.INFORMATION($"srvr has been stopped");
+				CLog.INFORMATION($"server has been stopped");
 			}
 		}
 		/// <summary>
@@ -359,8 +359,8 @@ namespace COMMON
 		private static bool StopServer(CStreamIO stream)
 		{
 			// Send a stop message to the server on the existing channel
-			byte[] reply = CStream.SendReceive(stream, STOP_SERVER_CLIENT_THREAD_REQUEST_MESSAGE, out int replySize);
-			return (default != reply && replySize == reply.Length && ACK == reply[0]);
+			byte[] reply = CStream.SendReceive(stream, STOP_SERVER_CLIENT_THREAD_REQUEST_MESSAGE);
+			return (default != reply && ACK == reply[0]);
 		}
 		/// <summary>
 		/// Allows a server to asynchronously send a message to the caller while processing a request and before sending a reply.
@@ -614,7 +614,7 @@ namespace COMMON
 
 						if (clientShutdown = ArraysAreEqual(STOP_SERVER_CLIENT_THREAD_REQUEST_MESSAGE, incoming))
 						{
-							CLog.INFORMATION($"{thread.Description} recv stop order");
+							CLog.INFORMATION($"{thread.Description} received stop order");
 							// acknowledge instance shutdown
 							outgoing = new byte[STOP_SERVER_ACCEPT_REPLY_MESSAGE.Length];
 							Buffer.BlockCopy(STOP_SERVER_ACCEPT_REPLY_MESSAGE, 0, outgoing, 0, STOP_SERVER_ACCEPT_REPLY_MESSAGE.Length);
@@ -639,7 +639,7 @@ namespace COMMON
 					else
 					{
 						// no message received, might be an exception because the socket was closed
-						CLog.INFORMATION($"{thread.Description} recv an empty message, probably client disconnection, shutting down");
+						CLog.INFORMATION($"{thread.Description} received an empty message, probably client disconnection, shutting down");
 						//res = (int)StreamServerResult.clientReceivedInvalidMessage;
 						keepOnRunning = false;
 					}
@@ -747,8 +747,8 @@ namespace COMMON
 								// check whether the messge must be hidden or not
 								CLog.Add(new CLogMsgs()
 								{
-									new CLogMsg($"{thread.Description} start processing request [{request.Length} bytes]" , TLog.TRACE),
-									new CLogMsg($"{thread.Description} data: [{MessageToLog(client, request, true, TextMessages)}]", TLog.INFOR),
+									new CLogMsg($"{thread.Description} start processing request of {request.Length} bytes" , TLog.TRACE),
+									new CLogMsg($"{thread.Description} data [{MessageToLog(client, request, true, TextMessages)}]", TLog.INFOR),
 								});
 								// forward request for processing
 								byte[] reply = StartSettings.OnMessage(client.Tcp, request, out bool addBufferSize, thread, StartSettings.Parameters, client.Data, client);
@@ -756,8 +756,8 @@ namespace COMMON
 								{
 									CLog.Add(new CLogMsgs()
 									{
-										new CLogMsg($"{thread.Description} send reply [{request.Length} bytes]" , TLog.TRACE),
-										new CLogMsg($"{thread.Description} data: [{MessageToLog(client, reply, true, TextMessages)}]", TLog.INFOR),
+										new CLogMsg($"{thread.Description} send reply of {request.Length} bytes" , TLog.TRACE),
+										new CLogMsg($"{thread.Description} data [{MessageToLog(client, reply, true, TextMessages)}]", TLog.INFOR),
 									});
 									if (default == client.StreamIO || !client.StreamIO.Send(reply))
 									{

@@ -7,6 +7,7 @@
 - Updated CStreamSettings to be faster when creating an object
 - Added a CLogger class to write both inside the log file and on the console
 - Added 2 shared variables (GUID and Context string) to CLog that can be used to set specific information for logging; these variables are per thread accessible
+- Log messages can also now be added by group of messages with different severities
 
 6.3.3
 - Added 2 functions to work with enums (EnumGetName and EnumGetValue) in CMisc; they are only a revamping of the name of the old ones (GetEnumName and GetEnumValue)

@@ -160,7 +160,7 @@ namespace COMMON
 		public void Apply() { Apply(this); }
 		public static void Apply(CColors colors) { Apply(colors.Foreground, colors.Background); }
 		public static void Apply(ConsoleColor? fore, ConsoleColor? back) { Console.ForegroundColor = fore ?? Console.ForegroundColor; Console.BackgroundColor = back ?? Console.BackgroundColor; }
-		public override string ToString() { return $"Foreground: {Foreground}; Background: {Background}"; }
+		public override string ToString() { return $"foreground: {Foreground}; background: {Background}"; }
 	}
 #endif
 
@@ -452,7 +452,7 @@ namespace COMMON
 		{
 			AdjustMinMax1N(ref minlen, ref maxlen);
 			if (value.Length < minlen || value.Length > maxlen)
-				throw new Exception("Invalid length - Min length: " + minlen.ToString() + " ; Max length: " + maxlen.ToString() + " ; Actual length: " + value.Length.ToString());
+				throw new Exception("invalid length - min length: " + minlen.ToString() + "; max length: " + maxlen.ToString() + "; length: " + value.Length.ToString());
 		}
 		/// <summary>
 		/// Adjust min and max value (inverting them if necessary).
@@ -465,7 +465,7 @@ namespace COMMON
 		{
 			AdjustMinMax1N(ref minlen, ref maxlen);
 			if (value.Length < minlen || value.Length > maxlen)
-				throw new Exception("Invalid length - Value: " + value + " - Min length: " + minlen.ToString() + " ; Max length: " + maxlen.ToString() + " ; Actual length: " + value.Length.ToString());
+				throw new Exception("invalid length - value: " + value + "; min length: " + minlen.ToString() + "; max length: " + maxlen.ToString() + "; length: " + value.Length.ToString());
 		}
 		/// <summary>
 		/// Help deciding the length to use when manipulating an array of bytes, according to the min and max considered.
@@ -502,7 +502,7 @@ namespace COMMON
 			else if (string.IsNullOrEmpty(value))
 				return false;
 			pattern = AsString(pattern);
-			CLog.DEBUG($"{(confidential ? "<VALUE HIDDEN>" : $"Input data: {value}")} - Pattern: {pattern}");
+			CLog.DEBUG($"{(confidential ? "<value hidden>" : $"input data: {value}")}; pattern: {pattern}");
 			Match match = Regex.Match(value, pattern);
 			return match.Success;
 		}
@@ -527,7 +527,7 @@ namespace COMMON
 			// build regular expression to check against
 			string count = "{" + (minlen == maxlen ? minlen.ToString() + "}" : minlen.ToString() + "," + maxlen.ToString() + "}");
 			string pattern = $"^{characterSet}{count}$";
-			CLog.DEBUG($"{(confidential ? "<VALUE HIDDEN>" : $"Input data: {value}")} - Pattern: {pattern}");
+			CLog.DEBUG($"{(confidential ? "<value hidden>" : $"input data: {value}")}; pattern: {pattern}");
 			Match match = Regex.Match(value, pattern);
 			return match.Success;
 		}
@@ -559,7 +559,7 @@ namespace COMMON
 		{
 			if (string.IsNullOrEmpty(s)) return 0;
 			if (2 > s.Length)
-				throw new EInvalidFormat($"Invalid length");
+				throw new EInvalidFormat($"invalid length");
 			// convert hex value (on 2 positions) to byte
 			try
 			{
@@ -824,25 +824,33 @@ namespace COMMON
 		/// Get the different versions included inside the module
 		/// </summary>
 		/// <param name="type"></param>
+		/// <param name="assembly"></param>
 		/// <returns></returns>
-		public static string Version(VersionType type = VersionType.assemblyInfo)
+		public static string Version(VersionType type = VersionType.executable, Assembly assembly = default)
 		{
 			switch (type)
 			{
-				case VersionType.assemblyFile:
-					return System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
-				case VersionType.assembly:
-					return Assembly.GetExecutingAssembly().GetName().Version.ToString();
-				case VersionType.assemblyInfo:
+				case VersionType.assembly: // <Version>7.0.1</Version>
+					if (default != assembly)
+						return System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
+					// exe version (similar to VersionType.executable)
+					return System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).ProductVersion;
+				case VersionType.assemblyFile: // <FileVersion>7.0.2</FileVersion>
+					if (default != assembly)
+						return System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion;
+					// exe file version
+					return System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).FileVersion;
+				case VersionType.executable:
 				default:
-					return System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
+					// exe version
+					return System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).ProductVersion;
 			}
 		}
 		public enum VersionType
 		{
+			executable,
 			assembly,
 			assemblyFile,
-			assemblyInfo,
 		}
 		/// <summary>
 		/// Allows verifying a folder exists, eventually with write privileges if required

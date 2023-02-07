@@ -159,7 +159,7 @@ namespace COMMON
 		#region methods
 		public override string ToString()
 		{
-			return $"ReceiveTimeout: {ReceiveTimeout}; SendTimeout: {SendTimeout}; ReceiveBufferSize: {ReceiveBufferSize}; SendBufferSize: {SendBufferSize}; UseSsl: {UseSsl}; Valid: {IsValid}; " + base.ToString();
+			return $"valid: {IsValid}; ssl: {UseSsl}; receive timeout: {ReceiveTimeout}; receive buffer: {ReceiveBufferSize}; send timeout: {SendTimeout}; send buffer: {SendBufferSize}; " + base.ToString();
 		}
 		#endregion
 	}
@@ -308,7 +308,7 @@ namespace COMMON
 		#region methods
 		public override string ToString()
 		{
-			return $"Endpoint: {EndPoint}, Servername: {ServerName}, AllowedSslErrors: {AllowedSslErrors}, " + base.ToString();
+			return $"endpoint: {EndPoint}; servername: {ServerName}; allowed errors: {AllowedSslErrors}, " + base.ToString();
 		}
 		/// <summary>
 		/// Tells whether an IP is found on DNS or not

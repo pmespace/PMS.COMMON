@@ -147,20 +147,17 @@ namespace COMMON
 		/// </returns>
 		public static bool Send(CStreamIO stream, byte[] request)
 		{
-			if (default == stream || request.IsNullOrEmpty()) return false;
+			if (default == stream)
+			{
+				CLog.ERROR("no stream to send data");
+				return false;
+			}
 
 			try
 			{
 				// Send message to the server
-				CLog.Add(new CLogMsgs()
-				{
-					new CLogMsg($"about to send message [{request.Length} bytes]", TLog.INFOR),
-					new CLogMsg($"data: [{CMisc.AsHexString(request)}]", TLog.DEBUG),
-				});
 				if (stream.Send(request))
 					return true;
-				// arrived here the message hasn't been sent
-				CLog.ERROR($"send message has failed [{request.Length} bytes]");
 			}
 			catch (Exception ex)
 			{
@@ -189,18 +186,16 @@ namespace COMMON
 		/// <returns></returns>
 		public static bool SendLine(CStreamIO stream, string request, string EOT = CStreamIO.CRLF)
 		{
-			if (default == stream || string.IsNullOrEmpty(request)) return false;
+			if (default == stream)
+			{
+				CLog.ERROR("no stream to send data");
+				return false;
+			}
 
 			try
 			{
-				var v = new CLogMsgs()
-				{
-					new CLogMsg($"about to send string message [{request.Length} characters]", TLog.INFOR),
-					new CLogMsg($"data: [{request}]", TLog.DEBUG),
-				};
 				if (stream.SendLine(request, EOT))
 					return true;
-				CLog.ERROR($"send string message failed [{request.Length} characters]");
 			}
 			catch (Exception ex)
 			{
@@ -208,28 +203,81 @@ namespace COMMON
 			}
 			return false;
 		}
+		///// <summary>
+		///// Receive data on the indicated stream.
+		///// The buffer MUST begin with a size header of <see cref="CStreamBase.HeaderBytes"/> bytes
+		///// </summary>
+		///// <param name="stream">The connected stream</param>
+		///// <param name="announcedSize">The size of the reply as announced by the sender</param>
+		///// <returns>An array of bytes received in response or if an error occured. In case of a client only request, the function returns the request, as no reply can be returned, if everything went right</returns>
+		//public static byte[] Receive(CStreamIO stream, out int announcedSize)
+		//{
+		//	byte[] reply = default;
+		//	announcedSize = 0;
+		//	if (default == stream)
+		//	{
+		//		CLog.ERROR("no stream to receive data");
+		//		return default;
+		//	}
+
+		//	try
+		//	{
+		//		// Read message from the server
+		//		CLog.INFORMATION($"waiting to receive a message");
+		//		byte[] tmp = stream.Receive(out announcedSize);
+		//		if (default != tmp)
+		//		{
+		//			// rebuild the buffer is required
+		//			if (!stream.UseHeaderBytes)
+		//			{
+		//				// the request natively contained a size header, meaningfull to the application, we therefore must reinsert the size header inside the received buffer
+		//				reply = new byte[tmp.Length + stream.HeaderBytes];
+		//				byte[] bb = CMisc.SetBytesFromIntegralTypeValue((int)tmp.Length, false);
+		//				Buffer.BlockCopy(bb, 0, reply, 0, (int)stream.HeaderBytes);
+		//				Buffer.BlockCopy(tmp, 0, reply, (int)stream.HeaderBytes, tmp.Length);
+		//			}
+		//			else
+		//				reply = tmp;
+
+		//		}
+		//		else if (0 != announcedSize)
+		//		{
+		//			CLog.ERROR($"received no data, expected {announcedSize} bytes");
+		//		}
+		//		else
+		//		{
+		//			CLog.INFORMATION($"received no data");
+		//		}
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		CLog.EXCEPT(ex);
+		//	}
+		//	return reply;
+		//}
 		/// <summary>
 		/// Receive data on the indicated stream.
 		/// The buffer MUST begin with a size header of <see cref="CStreamBase.HeaderBytes"/> bytes
 		/// </summary>
 		/// <param name="stream">The connected stream</param>
-		/// <param name="announcedSize">The size of the reply as announced by the sender</param>
 		/// <returns>An array of bytes received in response or if an error occured. In case of a client only request, the function returns the request, as no reply can be returned, if everything went right</returns>
-		public static byte[] Receive(CStreamIO stream, out int announcedSize)
+		public static byte[] Receive(CStreamIO stream)
 		{
 			byte[] reply = default;
-			announcedSize = 0;
-			if (default == stream) return default;
+			int announcedSize = 0;
+			if (default == stream)
+			{
+				CLog.ERROR("no stream to receive data");
+				return default;
+			}
 
 			try
 			{
 				// Read message from the server
-				CLog.INFORMATION($"waiting to recv a message");
+				CLog.INFORMATION($"waiting to receive a message");
 				byte[] tmp = stream.Receive(out announcedSize);
 				if (default != tmp)
 				{
-					//CLog.INFORMATION($"Received message of {(stream.AddHeaderBytes ? tmp.Length : tmp.Length - (int)stream.HeaderBytes)} actual bytes (announcing {announcedSize} bytes)");
-					CLog.INFORMATION($"recv message [{tmp.Length} bytes - announcing {announcedSize} bytes]");
 					// rebuild the buffer is required
 					if (!stream.UseHeaderBytes)
 					{
@@ -241,16 +289,15 @@ namespace COMMON
 					}
 					else
 						reply = tmp;
-
 				}
-				else if (0 != announcedSize)
-				{
-					CLog.ERROR($"recv no data, expected {announcedSize} bytes");
-				}
-				else
-				{
-					CLog.INFORMATION($"recv no data");
-				}
+				//else if (0 != announcedSize)
+				//{
+				//	CLog.ERROR($"received no data, expected {announcedSize} bytes");
+				//}
+				//else
+				//{
+				//	CLog.INFORMATION($"received no data");
+				//}
 			}
 			catch (Exception ex)
 			{
@@ -258,17 +305,6 @@ namespace COMMON
 			}
 			return reply;
 		}
-		///// <summary>
-		///// Refer to <see cref="Receive(CStreamIO, out int)"/>
-		///// </summary>
-		///// <param name="stream"></param>
-		///// <param name="announcedSize"></param>
-		///// <returns></returns>
-		//public static string ReceiveString(CStreamIO stream, out int announcedSize)
-		//{
-		//	byte[] reply = Receive(stream, out announcedSize);
-		//	return (default != reply ? Encoding.UTF8.GetString(reply) : default);
-		//}
 		/// <summary>
 		/// Refer to <see cref="CStreamIO.ReceiveLine(string)"/>
 		/// The string does not need to begin by a size header of <see cref="CStreamBase.HeaderBytes"/> which will be ignored.
@@ -284,7 +320,7 @@ namespace COMMON
 			try
 			{
 				string s = stream.ReceiveLine(EOT);
-				CLog.INFORMATION($"revc string message [{(s.IsNullOrEmpty() ? 0 : s.Length)} characters]");
+				CLog.INFORMATION($"received string message {(s.IsNullOrEmpty() ? 0 : s.Length)} characters");
 				return s;
 			}
 			catch (Exception ex)
@@ -295,30 +331,27 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Send (<see cref="Send(CStreamIO, byte[])"/> and <see cref="Send(CStreamIO, string)"/>),
-		/// then receive data (<see cref="Receive(CStreamIO, out int)"/>.
+		/// then receive data (<see cref="Receive(CStreamIO)"/>.
 		/// The stream must pre-exist
 		/// </summary>
 		/// <param name="stream">The connected stream</param>
 		/// <param name="request">A array of bytes to send</param>
-		/// <param name="announcedSize">The size of the reply as announced by the sender</param>
 		/// <returns></returns>
-		public static byte[] SendReceive(CStreamIO stream, byte[] request, out int announcedSize)
+		public static byte[] SendReceive(CStreamIO stream, byte[] request)
 		{
-			announcedSize = 0;
 			if (Send(stream, request))
-				return Receive(stream, out announcedSize);
+				return Receive(stream);
 			return default;
 		}
 		/// <summary>
-		/// Refer to <see cref="SendReceive(CStreamIO, byte[], out int)"/>
+		/// Refer to <see cref="SendReceive(CStreamIO, byte[])"/>
 		/// </summary>
 		/// <param name="stream"></param>
 		/// <param name="request"></param>
-		/// <param name="announcedSize"></param>
 		/// <returns></returns>
-		public static string SendReceive(CStreamIO stream, string request, out int announcedSize)
+		public static string SendReceive(CStreamIO stream, string request)
 		{
-			byte[] reply = SendReceive(stream, default != request ? Encoding.UTF8.GetBytes(request) : default, out announcedSize);
+			byte[] reply = SendReceive(stream, default != request ? Encoding.UTF8.GetBytes(request) : default);
 			return (default != reply ? Encoding.UTF8.GetString(reply) : default);
 		}
 		/// <summary>
@@ -398,37 +431,34 @@ namespace COMMON
 			return Connect(settings);
 		}
 		/// <summary>
-		/// Connect (<see cref="Connect(CStreamClientSettings)"/>), send (<see cref="Send(CStreamIO, byte[])"/> and <see cref="Send(CStreamIO, string)"/>) and receive (<see cref="Receive(CStreamIO, out int)"/> and <see cref="Receive(CStreamIO, out int)"/>) data.
+		/// Connect (<see cref="Connect(CStreamClientSettings)"/>), send (<see cref="Send(CStreamIO, byte[])"/> and <see cref="Send(CStreamIO, string)"/>) and receive (<see cref="Receive(CStreamIO)"/> and <see cref="Receive(CStreamIO)"/>) data.
 		/// </summary>
 		/// <param name="settings">The settings to use for sending data</param>
 		/// <param name="request">A array of bytes to send</param>
-		/// <param name="announcedSize">The size of the reply as announced by the sender</param>
 		/// <returns>An arry of bytes received in response or if an error occured. In case of a client only request, the function returns the request, as no reply can be returned, if everything went right</returns>
-		public static byte[] ConnectSendReceive(CStreamClientSettings settings, byte[] request, out int announcedSize)
+		public static byte[] ConnectSendReceive(CStreamClientSettings settings, byte[] request)
 		{
 			byte[] reply = default;
-			announcedSize = 0;
 			if (default == request || 0 == request.Length)
 				return default;
 			CStreamClientIO stream = ConnectToSend(settings, request);
 			if (default != stream)
 			{
 				if (Send(stream, request))
-					reply = Receive(stream, out announcedSize);
+					reply = Receive(stream);
 				Disconnect(stream);
 			}
 			return reply;
 		}
 		/// <summary>
-		/// Refer to <see cref="ConnectSendReceive(CStreamClientSettings, byte[], out int)"/>
+		/// Refer to <see cref="ConnectSendReceive(CStreamClientSettings, byte[])"/>
 		/// </summary>
 		/// <param name="settings"></param>
 		/// <param name="request"></param>
-		/// <param name="announcedSize"></param>
 		/// <returns></returns>
-		public static string ConnectSendReceive(CStreamClientSettings settings, string request, out int announcedSize)
+		public static string ConnectSendReceive(CStreamClientSettings settings, string request)
 		{
-			byte[] reply = ConnectSendReceive(settings, Encoding.UTF8.GetBytes(request), out announcedSize);
+			byte[] reply = ConnectSendReceive(settings, Encoding.UTF8.GetBytes(request));
 			return (default != reply ? Encoding.UTF8.GetString(reply) : default);
 		}
 		/// <summary>
@@ -572,14 +602,10 @@ namespace COMMON
 				}
 				else
 				{
-					byte[] reply = ConnectSendReceive(threadParams.SendAsync.Settings, threadParams.Request, out int announcedSize);
+					byte[] reply = ConnectSendReceive(threadParams.SendAsync.Settings, threadParams.Request);
 					if (default == reply || 0 == reply.Length)
 					{
 						res = SendAsyncEnum.NoData;
-					}
-					else if (reply.Length != announcedSize)
-					{
-						res = SendAsyncEnum.ReceiveError;
 					}
 					else
 					{

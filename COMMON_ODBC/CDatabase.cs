@@ -47,7 +47,7 @@ namespace COMMON.ODBC
 					}
 					catch (Exception ex)
 					{
-						CLog.EXCEPT(ex, $"Connection string: {ConnectionString}");
+						CLog.EXCEPT(ex, $"connection string: {ConnectionString}");
 					}
 				}
 			}
@@ -86,7 +86,7 @@ namespace COMMON.ODBC
 					}
 					catch (Exception ex)
 					{
-						CLog.EXCEPT(ex, $"Connection string: {ConnectionString}");
+						CLog.EXCEPT(ex, $"connection string: {ConnectionString}");
 					}
 				}
 			}
@@ -491,7 +491,7 @@ namespace COMMON.ODBC
 			}
 			catch (Exception ex)
 			{
-				CLog.EXCEPT(ex, $"Column name: {columnName}");
+				CLog.EXCEPT(ex, $"column name: {columnName}");
 			}
 			return false;
 		}
@@ -514,7 +514,7 @@ namespace COMMON.ODBC
 			}
 			catch (Exception ex)
 			{
-				CLog.EXCEPT(ex, $"Column name: {columnName}");
+				CLog.EXCEPT(ex, $"column name: {columnName}");
 				throw;
 			}
 		}
@@ -565,7 +565,7 @@ namespace COMMON.ODBC
 				}
 				catch (Exception ex)
 				{
-					CLog.EXCEPT(ex, $"Connection string: {ConnectionString}");
+					CLog.EXCEPT(ex, $"connection string: {ConnectionString}");
 				}
 			}
 			return null;

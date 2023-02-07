@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 #if !NET35
 using System.IO.MemoryMappedFiles;
 #endif
+using System.Reflection;
 using System.Diagnostics;
 using System.IO;
 using System;
@@ -84,7 +85,7 @@ namespace COMMON
 			return $"{guid}{Chars.TAB}{(sc.IsNullOrEmpty() ? string.Empty : $"[{sc}] ")}";
 		}
 		public override string ToString() { return $"{CLog.RemoveCRLF(Msg.Trim())}"; }
-		public string ToString(bool addSharedData)
+		internal virtual string ToString(bool addSharedData)
 		{
 			try
 			{
@@ -98,6 +99,15 @@ namespace COMMON
 	{
 		protected override string ToStringPrefix() { return string.Empty; }
 		protected override string ToStringSC(bool addSharedData = true) { return string.Empty; }
+		internal override string ToString(bool addSharedData)
+		{
+			try
+			{
+				return ToStringPrefix() + ToStringSC(addSharedData) + ToString();
+			}
+			catch (Exception) { }
+			return string.Empty;
+		}
 	}
 	public class CLogMsgs : List<CLogMsg>
 	{
@@ -124,7 +134,8 @@ namespace COMMON
 			{
 				for (int i = 0; i < Count; i++)
 				{
-					r += (r.IsNullOrEmpty() ? string.Empty : Chars.CRLF) + this[i].ToString();
+					string s = this[i].ToString();
+					r += (s.IsNullOrEmpty() ? string.Empty : 0 == i ? s : Chars.CRLF + s);
 				}
 			}
 			catch (Exception) { }
@@ -137,12 +148,26 @@ namespace COMMON
 			{
 				for (int i = 0; i < Count; i++)
 				{
-					r += (r.IsNullOrEmpty() ? string.Empty : Chars.CRLF) + this[i].ToString(addSharedData);
+					string s = this[i].ToString(addSharedData);
+					r += (s.IsNullOrEmpty() ? string.Empty : 0 == i ? s : Chars.CRLF + this[i].ToString(addSharedData));
 				}
 			}
 			catch (Exception) { }
-			return r;
+			return r.Trim();
 		}
+		//internal string ToStringEx()
+		//{
+		//	string r = string.Empty;
+		//	try
+		//	{
+		//		for (int i = 0; i < Count; i++)
+		//		{
+		//			r += (r.IsNullOrEmpty() ? string.Empty : Chars.CRLF) + this[i].ToString(addSharedData);
+		//		}
+		//	}
+		//	catch (Exception) { }
+		//	return r.Trim();
+		//}
 	}
 
 	/// <summary>
@@ -645,6 +670,17 @@ namespace COMMON
 			}
 			catch (Exception) { }
 		}
+		/// <summary>
+		/// Convert a list of string to a string
+		/// </summary>
+		/// <param name="l"></param>
+		/// <returns></returns>
+		public static string StringListToString(List<string> l)
+		{
+			string s = string.Empty;
+			for (int i = 1; i <= l.Count; i++) s += l[i - 1] + (l.Count == i ? string.Empty : LinesSeparator);
+			return s;
+		}
 		#endregion
 
 		#region log file management
@@ -670,7 +706,7 @@ namespace COMMON
 							 new List<string>
 							 {
 								 $"+++++",
-								 $"+++++ {LogFileName.ToUpper()} OPENED: {CMisc.BuildDate(_dateFormat, CreatedOn)} (VERSION: {CMisc.Version(CMisc.VersionType.assembly)}-{CMisc.Version(CMisc.VersionType.assemblyFile)}-{CMisc.Version(CMisc.VersionType.assemblyInfo)})",
+								 $"+++++ {LogFileName.ToUpper()} OPENED: {CMisc.BuildDate(_dateFormat, CreatedOn)} (EXE VERSION: {CMisc.Version(CMisc.VersionType.executable)}/{CMisc.Version(CMisc.VersionType.assemblyFile)} - COMMON VERSION: {CMisc.Version(CMisc.VersionType.assembly, Assembly.GetExecutingAssembly())}/{CMisc.Version(CMisc.VersionType.assemblyFile, Assembly.GetExecutingAssembly())})",
 								 $"+++++",
 							 });
 						AddToLog(ls.ToString(false));

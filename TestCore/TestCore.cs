@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Sockets;
 using System.Net.Security;
@@ -78,8 +79,30 @@ namespace TestCore
 				return true;
 			};
 
-			CLog.SeverityToLog = TLog.DEBUG;
+			CLog.SeverityToLog = TLog.TRACE;
 			CLog.LogFileName = "testcore.log";
+
+			CLog.Add(new CLogMsgs()
+			{
+				new CLogMsg("1", TLog.TRACE),
+				new CLogMsg("2", TLog.DEBUG),
+				new CLogMsg("3", TLog.ERROR),
+				new CLogMsg("4", TLog.INFOR),
+			}
+				);
+
+			string qq = System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).ProductVersion;// FileVersion;
+			 qq = System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).FileVersion;// FileVersion;
+
+			CLog.TRACE(CMisc.Version(CMisc.VersionType.executable));
+			CLog.TRACE(CMisc.Version(CMisc.VersionType.executable, Assembly.GetExecutingAssembly()));
+			CLog.TRACE(CMisc.Version(CMisc.VersionType.assembly));
+			CLog.TRACE(CMisc.Version(CMisc.VersionType.assembly, Assembly.GetExecutingAssembly()));
+			//CLog.TRACE(CMisc.Version(CMisc.VersionType.assemblyInfo));
+			//CLog.TRACE(CMisc.Version(CMisc.VersionType.assemblyInfo, Assembly.GetExecutingAssembly()));
+			CLog.TRACE(CMisc.Version(CMisc.VersionType.assemblyFile));
+			CLog.TRACE(CMisc.Version(CMisc.VersionType.assemblyFile, Assembly.GetExecutingAssembly()));
+
 			////CLog.SharedGuidClear();
 			//CLog.SharedGuid = null;
 			//for (int i = 0; i <= 5; i++) CLog.TRACE("Step1 " + i);
@@ -405,7 +428,7 @@ namespace TestCore
 #endif
 			string request = Console.ReadLine();
 			string reply = null;
-			if (null != (reply = CStream.ConnectSendReceive(settings, string.IsNullOrEmpty(request) ? DateTime.Now.ToString() : request, out int size)))
+			if (null != (reply = CStream.ConnectSendReceive(settings, string.IsNullOrEmpty(request) ? DateTime.Now.ToString() : request)))
 				Console.WriteLine("CLIENT RECEIVED: " + reply);
 			else
 				Console.WriteLine("ERROR RECEIVING DATA");

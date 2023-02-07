@@ -45,7 +45,7 @@ namespace COMMON
 		#region methods
 		public override string ToString()
 		{
-			return $"Header bytes: {HeaderBytes} bytes; Use header: {UseHeaderBytes}";
+			return $"header: {HeaderBytes} bytes; use header: {UseHeaderBytes}";
 		}
 		public static bool IsHeaderBytes(int value) { return (/*ZEROBYTE == value ||*/ ONEBYTE == value || TWOBYTES == value || FOURBYTES == value || EIGHTBYTES == value); }
 		#endregion

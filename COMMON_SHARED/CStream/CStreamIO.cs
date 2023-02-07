@@ -104,7 +104,7 @@ namespace COMMON
 		public override string ToString()
 		{
 			if (default != Tcp)
-				return $"StreamIO - Connected: {Tcp.Connected}; Remote end point: {Tcp.Client.RemoteEndPoint}; Receive buffer size: {Tcp.ReceiveBufferSize}; Receive timeout: {Tcp.ReceiveTimeout}";
+				return $"streamIO => connected: {Tcp.Connected}; remote end point: {Tcp.Client.RemoteEndPoint}; receive buffer size: {Tcp.ReceiveBufferSize}; receive timeout: {Tcp.ReceiveTimeout}";
 			return default;
 		}
 		/// <summary>
@@ -183,7 +183,11 @@ namespace COMMON
 		/// <returns>TRUE if the message has been sent, HALSE otherwise</returns>
 		internal bool Send(byte[] data)
 		{
-			if (data.IsNullOrEmpty()) return false;
+			if (data.IsNullOrEmpty())
+			{
+				CLog.INFORMATION("no data to send");
+				return false;
+			}
 			// if requested, add the size header to the message to send
 			int lengthSize = (UseHeaderBytes ? HeaderBytes : 0);
 			int size = (int)data.Length + lengthSize;
@@ -197,15 +201,15 @@ namespace COMMON
 			// arrived here the message is ready to be sent
 			CLog.Add(new CLogMsgs()
 			{
-				new CLogMsg($"send message [{messageToSend.Length} bytes - {(0 == lengthSize ? "without adding any header" : $"after having added {lengthSize} bytes header")}]", TLog.INFOR ),
-				new CLogMsg($"send data: [{CMisc.AsHexString(messageToSend)}]", TLog.DEBUG ),
+				new CLogMsg($"sending message {messageToSend.Length} bytes - {(0 == lengthSize ? "without adding any header" : $"after having added {lengthSize} bytes header")}", TLog.INFOR),
+				new CLogMsg($"data [{CMisc.AsHexString(messageToSend)}]", TLog.DEBUG),
 			});
 			if (Write(messageToSend))
 			{
 				Flush();
 				return true;
 			}
-			CLog.ERROR($"send message has failed [{messageToSend.Length} bytes - {(0 == lengthSize ? "without adding any header" : $"after having added {lengthSize} bytes header")}]");
+			CLog.ERROR($"failed sending message {messageToSend.Length} bytes - {(0 == lengthSize ? "without adding any header" : $"after having added {lengthSize} bytes header")}");
 			return false;
 		}
 		/// <summary>
@@ -240,11 +244,14 @@ namespace COMMON
 			}
 			CLog.Add(new CLogMsgs()
 			{
-				new CLogMsg($"send text message [{data.Length} characters]", TLog.INFOR ),
-				new CLogMsg($"send data: [{data}]", TLog.DEBUG ),
+				new CLogMsg($"sending text message {data.Length} characters", TLog.INFOR),
+				new CLogMsg($"data [{data}]", TLog.DEBUG),
 			});
 			byte[] bdata = (default != data ? Encoding.UTF8.GetBytes(data) : default);
-			return Send(bdata);
+			bool ok = Send(bdata);
+			if (!ok)
+				CLog.ERROR($"failed sending {data.Length} characters text message");
+			return ok;
 		}
 		/// <summary>
 		/// Receives a buffer of a specific size from the server.
@@ -259,11 +266,15 @@ namespace COMMON
 		private byte[] ReceiveSizedBuffer(int bufferSize)
 		{
 			// allocate buffer to receive
-			if (0 == bufferSize) return default;
+			if (0 == bufferSize)
+			{
+				CLog.ERROR("no size buffer specified");
+				return default;
+			}
 			byte[] buffer = new byte[bufferSize];
 			int bytesRead = 0;
 			bool doContinue;
-			CLog.DEBUG($"recv waiting {buffer.Length} bytes");
+			CLog.DEBUG($"waiting to receive fixed buffer of {buffer.Length} bytes");
 			do
 			{
 				// read stream for the specified buffer
@@ -279,11 +290,20 @@ namespace COMMON
 			// create a buffer of the real number of bytes received (which can't be higher than the expected number of bytes)
 			byte[] bufferReceived = new byte[bytesRead];
 			Buffer.BlockCopy(buffer, 0, bufferReceived, 0, bytesRead);
-			CLog.DEBUG(new List<string>()
-			{
-				$"recv {bytesRead} bytes",
-				$"recv data: [{CMisc.AsHexString(bufferReceived)}]",
-			});
+			if (0 == bytesRead)
+				CLog.ERROR($"received no data");
+			else if (bytesRead != bufferSize)
+				CLog.Add(new CLogMsgs()
+				{
+					new CLogMsg($"received {bytesRead} bytes, expecting {bufferSize}", TLog.ERROR),
+					new CLogMsg($"data [{CMisc.AsHexString(bufferReceived)}]", TLog.DEBUG),
+				});
+			else
+				CLog.Add(new CLogMsgs()
+				{
+					new CLogMsg($"received {bytesRead} bytes", TLog.INFOR),
+					new CLogMsg($"data [{CMisc.AsHexString(bufferReceived)}]",TLog.DEBUG),
+				});
 			return bufferReceived;
 		}
 		/// <summary>
@@ -305,7 +325,7 @@ namespace COMMON
 			byte[] buffer = new byte[bufferToAllocate];
 			int bytesRead = 0;
 			bool doContinue;
-			CLog.DEBUG($"recv waiting buffer with no declared size");
+			CLog.DEBUG($"waiting to receive buffer with no specific size");
 			do
 			{
 				// read stream for the specified buffer
@@ -329,10 +349,10 @@ namespace COMMON
 			// create a buffer of the real number of bytes received (which can't be higher than the expected number of bytes)
 			byte[] bufferReceived = new byte[bytesRead];
 			Buffer.BlockCopy(buffer, 0, bufferReceived, 0, bytesRead);
-			CLog.DEBUG(new List<string>()
+			CLog.Add(new CLogMsgs()
 			{
-				$"recv {bytesRead} bytes",
-				$"recv data: [{CMisc.AsHexString(bufferReceived)}]",
+				new CLogMsg($"received {bytesRead} bytes", TLog.INFOR),
+				new CLogMsg($"data [{CMisc.AsHexString(bufferReceived)}]", TLog.DEBUG),
 			});
 			return bufferReceived;
 		}
@@ -353,31 +373,21 @@ namespace COMMON
 			announcedSize = 0;
 
 			// determine whether the header must be used or not and the size arrived here, either an automatic header is used or the protocol contains one, get the size of the headerto receive 
-			CLog.DEBUG($"recv {HeaderBytes} bytes header");
 			byte[] bufferSize = ReceiveSizedBuffer(HeaderBytes);
 			if (!bufferSize.IsNullOrEmpty() && HeaderBytes == bufferSize.Length)
 			{
 				// get the size of the buffer to read and start reading it
-				CLog.DEBUG($"recv data: [{CMisc.AsHexString(bufferSize)}]");
 				if (0 != (announcedSize = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, 0, HeaderBytes)))
 				{
-					CLog.DEBUG($"recv announced size is: {announcedSize}");
+					CLog.DEBUG($"received announce of {announcedSize} bytes");
 					byte[] buffer = ReceiveSizedBuffer(announcedSize);
 					if (!buffer.IsNullOrEmpty() && announcedSize == buffer.Length)
 					{
-						CLog.DEBUG(new List<string>()
-						{
-							$"recv {announcedSize} bytes",
-							$"recv data: [{CMisc.AsHexString(buffer)}]",
-						});
 						return buffer;
 					}
-					else
-						CLog.ERROR($"recv no data or of invalid length ({buffer.Length})");
 				}
-				CLog.ERROR($"recv announced size is null");
+				CLog.ERROR($"received announce of 0 byte");
 			}
-			CLog.ERROR($"recv no header or of invalid size ({bufferSize.Length})");
 			return default;
 		}
 		/// <summary>
@@ -416,6 +426,7 @@ namespace COMMON
 			// remove EOT if necessary
 			if (!string.IsNullOrEmpty(s))
 				s = s.Replace(EOT, "");
+			CLog.DEBUG($"data as string [{s}]");
 			return s;
 		}
 		/// <summary>
@@ -568,7 +579,7 @@ namespace COMMON
 				for (int i = 0; chain.ChainElements.Count > i; i++)
 				{
 					CLog.INFORMATION($"Chain element {i + 1}: {(chain.ChainElements[i].Certificate?.Subject ?? "not specified")}");
-					CLog.INFORMATION($"Certificate details: {(chain.ChainElements[i].Certificate?.ToString() ?? "not specified")}");
+					//CLog.INFORMATION($"Certificate details: {(chain.ChainElements[i].Certificate?.ToString() ?? "not specified")}");
 				}
 			}
 			catch (Exception) { }

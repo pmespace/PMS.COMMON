@@ -301,7 +301,7 @@ namespace COMMON
 			else
 				CLog.Add(new CLogMsgs()
 				{
-					new CLogMsg($"received {bytesRead} bytes", TLog.INFOR),
+					new CLogMsg($"received {bytesRead} bytes", TLog.DEBUG),
 					new CLogMsg($"data [{CMisc.AsHexString(bufferReceived)}]",TLog.DEBUG),
 				});
 			return bufferReceived;

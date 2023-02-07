@@ -149,7 +149,7 @@ namespace COMMON
 				for (int i = 0; i < Count; i++)
 				{
 					string s = this[i].ToString(addSharedData);
-					r += (s.IsNullOrEmpty() ? string.Empty : 0 == i ? s : Chars.CRLF + this[i].ToString(addSharedData));
+					r += (s.IsNullOrEmpty() ? string.Empty : 0 == i ? s : Chars.CRLF + s);
 				}
 			}
 			catch (Exception) { }

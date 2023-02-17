@@ -203,7 +203,7 @@ namespace COMMON
 			CLog.Add(new CLogMsgs()
 			{
 				new CLogMsg($"sending message {messageToSend.Length} bytes {(0 == lengthSize ? s1 : s2)}", TLog.INFOR),
-				new CLogMsg($"data [{CMisc.AsHexString(messageToSend)}]", TLog.DEBUG),
+				new CLogMsg($"data [{CMisc.AsHexString(messageToSend, true)}]", TLog.DEBUG),
 			});
 			if (Write(messageToSend))
 			{
@@ -297,13 +297,13 @@ namespace COMMON
 				CLog.Add(new CLogMsgs()
 				{
 					new CLogMsg($"received {bytesRead} bytes, expecting {bufferSize}", TLog.ERROR),
-					new CLogMsg($"data [{CMisc.AsHexString(bufferReceived)}]", TLog.DEBUG),
+					new CLogMsg($"data [{CMisc.AsHexString(bufferReceived, true)}]", TLog.DEBUG),
 				});
 			else
 				CLog.Add(new CLogMsgs()
 				{
 					new CLogMsg($"received {bytesRead} bytes", TLog.DEBUG),
-					new CLogMsg($"data [{CMisc.AsHexString(bufferReceived)}]",TLog.DEBUG),
+					new CLogMsg($"data [{CMisc.AsHexString(bufferReceived, true)}]",TLog.DEBUG),
 				});
 			return bufferReceived;
 		}
@@ -353,7 +353,7 @@ namespace COMMON
 			CLog.Add(new CLogMsgs()
 			{
 				new CLogMsg($"received {bytesRead} bytes", TLog.INFOR),
-				new CLogMsg($"data [{CMisc.AsHexString(bufferReceived)}]", TLog.DEBUG),
+				new CLogMsg($"data [{CMisc.AsHexString(bufferReceived, true)}]", TLog.DEBUG),
 			});
 			return bufferReceived;
 		}

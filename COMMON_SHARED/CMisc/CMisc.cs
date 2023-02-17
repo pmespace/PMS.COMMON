@@ -837,7 +837,7 @@ namespace COMMON
 		/// <param name="buffer">The array of bytes to convert</param>
 		/// <param name="limitOutput">If true and length of array of bytes is over <see cref="MaxBytesAsString"/> long, the whole array is not translated, if false the whole array is translated</param>
 		/// <returns>The converted array into a string if successful, an empty string if any error occured</returns>
-		public static string AsHexString(byte[] buffer, bool limitOutput = true)
+		public static string AsHexString(byte[] buffer, bool limitOutput = false)
 		{
 			if (buffer.IsNullOrEmpty()) return default;
 			int lengthToUse = (MaxBytesAsString <= buffer.Length && limitOutput ? MaxBytesAsString : buffer.Length);

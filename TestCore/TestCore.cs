@@ -62,8 +62,8 @@ namespace TestCore
 
 			byte[] j = new byte[CMisc.MaxBytesAsString * 2];
 			for (int i = 0; i < j.Length; i++) j[i] = (byte)(i % 10);
-			string qs = CMisc.AsHexString(j);
-			qs = CMisc.AsHexString(j, false);
+			string qs = CMisc.AsHexString(j, true);
+			qs = CMisc.AsHexString(j);
 
 			Func<string, uint, bool> ddd = (string _addr_, uint _port_) =>
 			{
@@ -164,7 +164,7 @@ namespace TestCore
 				keyInfo = Console.ReadKey(true);
 			} while (keyInfo.Key != ConsoleKey.Escape);
 
-		
+
 
 			string unique = default;
 			string tmpf = CMisc.GetTempFileName(out string path, out string fname, ref unique, null, null, "json");

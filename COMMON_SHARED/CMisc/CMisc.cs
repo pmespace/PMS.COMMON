@@ -155,7 +155,7 @@ namespace COMMON
 		/// </returns>
 		public static string AsHexString(this byte[] ab)
 		{
-			return CMisc.AsHexString(ab);
+			return CMisc.AsHexString(ab, false);
 		}
 		/// <summary>
 		/// Returns the string inside an array of bytes

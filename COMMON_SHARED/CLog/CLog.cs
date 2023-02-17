@@ -219,7 +219,7 @@ namespace COMMON
 				}
 			}
 		}
-		private static string _logfilename = default;
+		private static volatile string _logfilename = default;
 		/// <summary>
 		/// Path of the log file, without the log file name.
 		/// It always ends with "\" (or any other platform folder separator)
@@ -229,7 +229,7 @@ namespace COMMON
 			get => _logfilepath;
 			private set => _logfilepath = (value.IsNullOrEmpty() ? default : value + (Path.DirectorySeparatorChar != value[value.Length - 1] ? new string(Path.DirectorySeparatorChar, 1) : default));
 		}
-		private static string _logfilepath = default;
+		private static volatile string _logfilepath = default;
 		/// <summary>
 		/// Indicates whether autopurge previous log file when opening a new one
 		/// </summary>
@@ -237,11 +237,11 @@ namespace COMMON
 		/// <summary>
 		/// Indicates the number of files to keep if <see cref="AutoPurgeLogFiles"/> is set to true
 		/// </summary>
-		public static int NumberOfFilesToKeep { get; set; } = KEEP_ALL_FILES;
+		public static volatile int NumberOfFilesToKeep = KEEP_ALL_FILES;
 		/// <summary>
 		/// Indicates whether CR, LF and other special characters are kept when logging into file
 		/// </summary>
-		public static bool KeepCRLF { get; set; } = false;
+		public static volatile bool KeepCRLF = false;
 		/// <summary>
 		/// The level of severity to log
 		/// </summary>
@@ -256,7 +256,7 @@ namespace COMMON
 				}
 			}
 		}
-		private static TLog _severitytolog = TLog.TRACE;
+		private static volatile TLog _severitytolog = TLog.TRACE;
 		///// <summary>
 		///// Indicate whether error log must be set to upper or not
 		///// </summary>
@@ -281,7 +281,7 @@ namespace COMMON
 					_dateFormat = UseLocal ? CMisc.DateFormat.Local : CMisc.DateFormat.YYYYMMDDhhmmssfffEx;
 			}
 		}
-		private static bool _usegmt = false;
+		private static volatile bool _usegmt = false;
 		/// <summary>
 		/// Allows using GMT time inside the log file instead of local time
 		/// </summary>
@@ -297,7 +297,7 @@ namespace COMMON
 				}
 			}
 		}
-		private static bool _uselocal = false;
+		private static volatile bool _uselocal = false;
 		internal static CMisc.DateFormat _dateFormat = CMisc.DateFormat.YYYYMMDDhhmmssfffEx;
 		#endregion
 

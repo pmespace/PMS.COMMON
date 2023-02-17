@@ -60,6 +60,10 @@ namespace TestCore
 			CMisc.YesNo("hello", true, true, true);
 #endif
 
+			byte[] j = new byte[CMisc.MaxBytesAsString * 2];
+			for (int i = 0; i < j.Length; i++) j[i] = (byte)(i % 10);
+			string qs = CMisc.AsHexString(j);
+			qs = CMisc.AsHexString(j, false);
 
 			Func<string, uint, bool> ddd = (string _addr_, uint _port_) =>
 			{
@@ -92,7 +96,7 @@ namespace TestCore
 				);
 
 			string qq = System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).ProductVersion;// FileVersion;
-			 qq = System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).FileVersion;// FileVersion;
+			qq = System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).FileVersion;// FileVersion;
 
 			CLog.TRACE(CMisc.Version(CMisc.VersionType.executable));
 			CLog.TRACE(CMisc.Version(CMisc.VersionType.executable, Assembly.GetExecutingAssembly()));
@@ -160,6 +164,7 @@ namespace TestCore
 				keyInfo = Console.ReadKey(true);
 			} while (keyInfo.Key != ConsoleKey.Escape);
 
+		
 
 			string unique = default;
 			string tmpf = CMisc.GetTempFileName(out string path, out string fname, ref unique, null, null, "json");

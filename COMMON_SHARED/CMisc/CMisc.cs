@@ -199,6 +199,8 @@ namespace COMMON
 		/// Maxdimum numbe rof bytes to translate to hexadecimal representation
 		/// </summary>
 		public static volatile int MaxBytesAsString = 1024 * 5;
+		public static void SetMaxBytesAsString(int value) { MaxBytesAsString = value; }
+		public static int GetMaxBytesAsString() { return MaxBytesAsString; }
 
 #if COLORS
 		/// <summary>

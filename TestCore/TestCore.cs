@@ -63,6 +63,7 @@ namespace TestCore
 			byte[] j = new byte[CMisc.MaxBytesAsString * 2];
 			for (int i = 0; i < j.Length; i++) j[i] = (byte)(i % 10);
 			string qs = CMisc.AsHexString(j, true);
+			CMisc.MaxBytesAsString = 1000;
 			qs = CMisc.AsHexString(j);
 
 			Func<string, uint, bool> ddd = (string _addr_, uint _port_) =>

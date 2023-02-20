@@ -307,8 +307,7 @@ namespace COMMON
 		{
 			if (default != threadData
 				&& IntPtr.Zero != threadData.WindowToWarn)
-				//Win32.PostMessage(threadData.WindowToWarn, stopped ? threadData.StoppedMessage : threadData.InformationMessage, id, value);
-				Win32.SendMessage(threadData.WindowToWarn, stopped ? threadData.StoppedMessage : threadData.InformationMessage, id, value);
+				Win32.PostMessage(threadData.WindowToWarn, stopped ? threadData.StoppedMessage : threadData.InformationMessage, id, value);
 		}
 #endif
 

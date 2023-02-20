@@ -567,7 +567,9 @@ namespace COMMON
 		///  - The character is not a valid hexadecimal one
 		/// </summary>
 		/// <param name="c">The char to convert</param>
-		/// <returns>The binary value, an exception if the char is not hexadecimal compatible</returns>
+		/// <returns>
+		/// The binary value of the passed byte if compatible with a hexadecimal value, a <see cref="EInvalidFormat"/> exception if an error has occurred
+		/// </returns>
 		public static byte OneHexToBin(char c)
 		{
 			int i = HEXCHARS.IndexOf(c.ToString().ToUpper());
@@ -584,7 +586,9 @@ namespace COMMON
 		///  - The string contains invalid characters
 		/// </summary>
 		/// <param name="s">The string to convert</param>
-		/// <returns>The binary value of valid chars composing the 2 chars string, 0 if the string char is not hexadecimal compatible</returns>
+		/// <returns>
+		/// The binary value of valid chars composing the 2 chars string, 0 if the string char is null, a <see cref="EInvalidFormat"/> exception if an error has occurred
+		/// </returns>
 		public static byte TwoHexToBin(string s)
 		{
 			if (string.IsNullOrEmpty(s)) return 0;
@@ -608,12 +612,17 @@ namespace COMMON
 		private const string HEXCHARS = "0123456789ABCDEF";
 		/// <summary>
 		/// Converts a string representing an hexadecimal value to an array of bytes
-		/// If the string length is odd ot is padded with a 0 at the beginning or the end of the string, according to <paramref name="padRight"/>
+		/// If the string length is odd it is padded with a 0 at the beginning or the end of the string, according to <paramref name="padRight"/>
+		/// A <see cref="EInvalidFormat"/> Exception is raised if:
+		///  - The string is less than 2 characters
+		///  - The string contains invalid characters
 		/// </summary>
 		/// <param name="s">Hexadecimal string to convert</param>
 		/// <param name="padded">[OUT] true if a padding was made (according to <paramref name="padRight"/>), false otherwise</param>
 		/// <param name="padRight">True is padding should be made on the right of the passed string (<paramref name="s"/>), false if it must be made on the left</param>
-		/// <returns></returns>
+		/// <returns>
+		/// An array of bytes containing the hexadecimal value, a <see cref="EInvalidFormat"/> exception if an error has occurred
+		/// </returns>
 		public static byte[] HexToBin(string s, out bool padded, bool padRight = true)
 		{
 			padded = false;
@@ -638,7 +647,9 @@ namespace COMMON
 		/// <param name="v">Value to convert</param>
 		/// <param name="minlen">The minimum number of characters inside the string (completed with 0 on the left if necessary), 0 means no minimum length</param>
 		/// <param name="oddLengthAllowed">True if an odd number of characters can represent the hexadecimal string, false otherwise (default)</param>
-		/// <returns>A string with the hexadecimal representation of the passed value or an exception if an error occurs</returns>
+		/// <returns>
+		/// A string with the hexadecimal representation of the passed value or an exception if an error occurs
+		/// </returns>
 		public static string ValueToHex(decimal v, int minlen = 0, bool oddLengthAllowed = false)
 		{
 			string s = default;

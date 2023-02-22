@@ -311,8 +311,10 @@ namespace COMMON
 			byte[] bufferReceived = new byte[bytesRead];
 			Buffer.BlockCopy(buffer, 0, bufferReceived, 0, bytesRead);
 			// log a message only if not closing the stream
-			if (0 == bytesRead && !ioexcept)
-				CLog.ERROR($"unexpectedly received no data");
+			if (0 == bytesRead)
+			{
+				if (!ioexcept) CLog.ERROR($"unexpectedly received no data");
+			}
 
 			else if (bytesRead != bufferSize)
 				CLog.Add(new CLogMsgs()

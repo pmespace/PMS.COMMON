@@ -168,17 +168,23 @@ namespace COMMON
 			int read = 0;
 
 			Stream stream = networkStream;
-			if (default == stream) stream = sslStream;
-			if (default == stream) return 0;
+			if (default == stream)
+				stream = sslStream;
+			if (default == stream)
+				return 0;
 
 			try
 			{
 				read = stream.Read(data, offset, data.Length - offset);
 			}
-			catch (IOException)
-			{
-				ioexcept = true;
-			}
+			//catch (ObjectDisposedException)
+			//{
+			//	ioexcept = true;
+			//}
+			//catch (IOException)
+			//{
+			//	ioexcept = true;
+			//}
 			catch (Exception ex)
 			{
 				CLog.EXCEPT(ex);
@@ -312,10 +318,10 @@ namespace COMMON
 				// log a message only if not closing the stream
 				if (0 == bytesRead)
 				{
-					if (!ioexcept)
-						CLog.ERROR($"unexpectedly received no data");
-					else
-						CLog.INFORMATION($"client has been disconnected");
+					//if (!ioexcept)
+					//	CLog.ERROR($"unexpectedly received no data");
+					//else
+					//	CLog.INFORMATION($"client has been disconnected");
 				}
 
 				else if (bytesRead != bufferSize)

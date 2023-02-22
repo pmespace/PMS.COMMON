@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Threading;
+using COMMON;
 
 namespace COMMON
 {
@@ -389,7 +390,7 @@ namespace COMMON
 				{
 					CLog.INFORMATION($"send notification to {client.Tcp.Client.RemoteEndPoint}{(process.IsNullOrEmpty() ? string.Empty : $" from {process}")}");
 					EndPoint endpoint = client.Tcp.Client.RemoteEndPoint;
-					if (client.StreamIO.Send(msg))
+					if (CStream.Send(client.StreamIO, msg))
 					{
 						client.UpdateStatistics(default, msg);
 					}
@@ -607,8 +608,8 @@ namespace COMMON
 				{
 					byte[] outgoing = default;
 					// wait for receiving a message from the client
-					byte[] incoming = client.StreamIO.Receive(out int size);
-					if (default != incoming && 0 != incoming.Length)
+					byte[] incoming = CStream.Receive(client.StreamIO);
+					if (!incoming.IsNullOrEmpty())
 					{
 						// a message has been received and needs to be processed
 
@@ -618,7 +619,7 @@ namespace COMMON
 							// acknowledge instance shutdown
 							outgoing = new byte[STOP_SERVER_ACCEPT_REPLY_MESSAGE.Length];
 							Buffer.BlockCopy(STOP_SERVER_ACCEPT_REPLY_MESSAGE, 0, outgoing, 0, STOP_SERVER_ACCEPT_REPLY_MESSAGE.Length);
-							client.StreamIO.Send(outgoing);
+							CStream.Send(client.StreamIO, outgoing);
 							keepOnRunning = false;
 						}
 
@@ -758,7 +759,7 @@ namespace COMMON
 										new CLogMsg($"{thread.Description} send reply of {request.Length} bytes" , TLog.TRACE),
 										new CLogMsg($"{thread.Description} data [{MessageToLog(client, reply, true, TextMessages)}]", TLog.INFOR),
 									});
-									if (default == client.StreamIO || !client.StreamIO.Send(reply))
+									if (!CStream.Send(client.StreamIO, reply))
 									{
 										CLog.ERROR($"{thread.Description} send failed");
 									}
@@ -935,7 +936,7 @@ namespace COMMON
 				if (default != StreamIO && ReceivingThread.IsRunning)
 				{
 					// close communication stream
-					StreamIO.Close();
+					CStream.Disconnect(StreamIO);
 					// wait for the thread to actually stop
 					ReceiverEvents.WaitStopped();
 					StreamIO = default;
@@ -959,7 +960,7 @@ namespace COMMON
 					StopReceivingThread();
 					StopProcessingThread();
 					if (default != StreamIO)
-						StreamIO.Close();
+						CStream.Disconnect(StreamIO);
 					isStoppingMutex.ReleaseMutex();
 				}
 			}

@@ -108,10 +108,12 @@ namespace COMMON
 			return default;
 		}
 		/// <summary>
-		/// Write to the adequate stream
+		/// Writes to the adequate stream
 		/// </summary>
 		/// <param name="data">buffer to write</param>
-		/// <returns>TRUE if write operation has been made, FALSE otherwise</returns>
+		/// <returns>
+		/// True if write operation has been made, false otherwise
+		/// </returns>
 		private bool Write(byte[] data)
 		{
 			if (data.IsNullOrEmpty()) return false;
@@ -150,11 +152,13 @@ namespace COMMON
 			}
 		}
 		/// <summary>
-		/// Read the adequate stream
+		/// Reads the adequate stream
 		/// </summary>
-		/// <param name="data">Buffer where read data will be put</param>
-		/// <param name="offset">Offset at which to put data inside the buffer</param>
-		/// <returns>The number of bytes read</returns>
+		/// <param name="data">buffer to feed with read data</param>
+		/// <param name="offset">offset at which to put data inside the buffer</param>
+		/// <returns>
+		/// The number of bytes read, 0 if no bytes read
+		/// </returns>
 		private int Read(byte[] data, int offset)
 		{
 			if (data.IsNullOrEmpty() || data.Length <= offset) return 0;
@@ -176,11 +180,13 @@ namespace COMMON
 			return read;
 		}
 		/// <summary>
-		/// Send a buffer to an outer entity.
-		/// The buffer will always be prefixed with a header indicating the size of the message.
+		/// Sends a buffer to an outer entity.
+		/// If requested with <see cref="CStreamBase.UseHeaderBytes"/> a size header of length <see cref="CStreamBase.HeaderBytes"/> is added at the beginning of the message.
 		/// </summary>
-		/// <param name="data">The message to send</param>
-		/// <returns>TRUE if the message has been sent, HALSE otherwise</returns>
+		/// <param name="data">the message to send</param>
+		/// <returns>
+		/// True if the message has been sent, false otherwise
+		/// </returns>
 		internal bool Send(byte[] data)
 		{
 			if (data.IsNullOrEmpty())
@@ -199,7 +205,7 @@ namespace COMMON
 				Buffer.BlockCopy(bs, 0, messageToSend, 0, (int)lengthSize);
 			}
 			// arrived here the message is ready to be sent
-			string s1 = "(no header requested)", s2 = $"({lengthSize} bytes header)";
+			string s1 = "(no header requested)", s2 = $"({lengthSize} size header)";
 			CLog.Add(new CLogMsgs()
 			{
 				new CLogMsg($"sending message {messageToSend.Length} bytes {(0 == lengthSize ? s1 : s2)}", TLog.INFOR),
@@ -214,23 +220,27 @@ namespace COMMON
 			return false;
 		}
 		/// <summary>
-		/// Send a buffer to an outer entity.
-		/// The buffer will always be prefixed with a header indicating the size of the message.
+		/// Sends a buffer to an outer entity.
+		/// If requested with <see cref="CStreamBase.UseHeaderBytes"/> a size header of length <see cref="CStreamBase.HeaderBytes"/> is added at the beginning of the message.
 		/// </summary>
-		/// <param name="data">The message to send as a string</param>
-		/// <returns>TRUE if the message has been sent, HALSE otherwise</returns>
+		/// <param name="data">the message to send as a string</param>
+		/// <returns>
+		/// true if the message has been sent, false otherwise
+		/// </returns>
 		internal bool Send(string data)
 		{
 			byte[] bdata = (default != data ? Encoding.UTF8.GetBytes(data) : default);
 			return Send(bdata);
 		}
 		/// <summary>
-		/// Send a buffer to an outer entity.
-		/// The buffer is never prefixed with any header describing its size, it is determined by presence of the <paramref name="EOT"/> finishing the message.
+		/// Sends a buffer to an outer entity.
+		/// A size header is never added to the message itself, size of buffer to send is determined by presence of the <paramref name="EOT"/> finishing the message.
 		/// </summary>
-		/// <param name="data">The message to send</param>
-		/// <param name="EOT">The end of transmission character to use to terminate the mesage (CR+LF by default)</param>
-		/// <returns>TRUE if the message has been sent, HALSE otherwise</returns>
+		/// <param name="data">the message to send</param>
+		/// <param name="EOT">the  end of transmission character to use to terminate the mesage (CR+LF by default)</param>
+		/// <returns>
+		/// true if the message has been sent, false otherwise
+		/// </returns>
 		internal bool SendLine(string data, string EOT = CRLF)
 		{
 			if (EOT.IsNullOrEmpty()) EOT = CRLF;
@@ -262,16 +272,16 @@ namespace COMMON
 		/// >> THIS FUNCTION MAY RAISE AN EXCEPTION
 		/// 
 		/// </summary>
-		/// <param name="bufferSize">Size of the buffer to receive</param>
-		/// <returns>The received buffer, with a 0 length if no data has been received</returns>
-		private byte[] ReceiveSizedBuffer(int bufferSize)
+		/// <param name="bufferSize">size of the buffer to receive</param>
+		/// <returns>
+		/// the received buffer if successful (eventually with a 0 length if no data has been received), <see cref="ArgumentException"/> or any other exception otherwise
+		/// </returns>
+		byte[] ReceiveSizedBuffer(int bufferSize)
 		{
 			// allocate buffer to receive
 			if (0 == bufferSize)
-			{
-				CLog.ERROR("no size buffer specified");
-				return default;
-			}
+				throw new ArgumentException("0 length buffer size indicated, receiving a message can't be achieved");
+
 			byte[] buffer = new byte[bufferSize];
 			int bytesRead = 0;
 			bool doContinue;
@@ -310,18 +320,19 @@ namespace COMMON
 		/// <summary>
 		/// Receives a buffer of any size, reallocating memory to fit the buffer.
 		/// The function will constantly reallocate the buffer to receive data.
-		/// The function will not return until the buffer has been fully received or an error has occurred (timeout,...).
+		/// The function will not return until the buffer has been fully received (the stream is empty) or <paramref name="EOT"/> has been found in the received buffer indicating the end of the message.
 		/// 
 		/// >> THIS FUNCTION MAY RAISE AN EXCEPTION
 		/// 
 		/// </summary>
-		/// <param name="EOT">A string which if found marks the end of transmission</param>
-		/// <param name="bufferToAllocate">Size of buffer to allocate to read the incoming data (default is 1 Kb)</param>
-		/// <returns>The received buffer, with a 0 length if no data has been received</returns>
-		private byte[] ReceiveNonSizedBuffer(string EOT, int bufferToAllocate = CStreamSettings.ONEKB)
+		/// <param name="EOT">a string which if found marks the end of transmission</param>
+		/// <param name="bufferToAllocate">size of buffer to allocate to read the incoming data (default is 1 Kb)</param>
+		/// <returns>
+		/// the received buffer if successful (eventually with a 0 length if no data has been received), any exception otherwise
+		/// </returns>
+		byte[] ReceiveNonSizedBuffer(string EOT, int bufferToAllocate = CStreamSettings.ONEKB)
 		{
-			if (string.IsNullOrEmpty(EOT))
-				EOT = CRLF;
+			if (string.IsNullOrEmpty(EOT)) EOT = CRLF;
 			// allocate buffer to receive
 			byte[] buffer = new byte[bufferToAllocate];
 			int bytesRead = 0;
@@ -358,17 +369,19 @@ namespace COMMON
 			return bufferReceived;
 		}
 		/// <summary>
-		/// Receive a buffer of an unknown size from the server.
-		/// The buffer MUST begin with a size header of <see cref="CStreamBase.HeaderBytes"/>
+		/// Receives a buffer of an unknown size from the server.
+		/// The buffer MUST begin with a size header of <see cref="CStreamBase.HeaderBytes"/> bytes
 		/// The function will not return until the buffer has been fully received or an error has occurred (timeout,...)
-		/// The returned buffer NEVER contains the size header (which is sent back using the "size" data).
+		/// The returned buffer is ALWAYS stripped of the size header (whose value is returned in <paramref name="announcedSize"/>).
 		/// 
 		/// >> THIS FUNCTION MAY RAISE AN EXCEPTION
 		/// 
 		/// </summary>
-		/// <param name="announcedSize">Size of the buffer as declared by the caller , therefore expected by the receiver.
+		/// <param name="announcedSize">size of the buffer as declared by the caller , therefore expected by the receiver.
 		/// If that size differs from the size of the actually received buffer then an error has occurred</param>
-		/// <returns>The received buffer WITHOUT the heaser size (whose value is indicated in announcedSize) if no error occurred, NULL if any error occured</returns>
+		/// <returns>
+		/// the  received buffer stripped of the size header (whose value is indicated in announcedSize) if successful, null otherwise
+		/// </returns>
 		internal byte[] Receive(out int announcedSize)
 		{
 			announcedSize = 0;
@@ -392,15 +405,31 @@ namespace COMMON
 			return default;
 		}
 		/// <summary>
-		/// Receive a string of an unknown size from the server.
-		/// The buffer MUST begin with a size header 
-		/// The function will not return until the string has been fully received or an error occurred (timeout).
-		/// The returned string NEVER contains the size header.
+		/// Receives a buffer of a known size from the server.
+		/// The buffer does not need to begin with a size header as reading will be made on a fixed size.
+		/// The function will not return until the buffer has been fully received or an error has occurred (timeout,...).
 		/// 
 		/// >> THIS FUNCTION MAY RAISE AN EXCEPTION
 		/// 
 		/// </summary>
-		/// <returns>The received buffer as a string if no error occurred, an empty string otherwise</returns>
+		/// <param name="size">size of the buffer to receive.</param>
+		/// <returns>
+		/// the received buffer if successful (eventually with a 0 length if no data has been received), <see cref="ArgumentException"/> or any other exception otherwise
+		/// </returns>
+		internal byte[] Receive(int size)
+		{
+			return ReceiveSizedBuffer(size);
+		}
+		/// <summary>
+		/// Receive a string of an unknown size from the server.
+		/// The buffer MUST begin with a size header of <see cref="CStreamBase.HeaderBytes"/> bytes
+		/// The function will not return until the buffer has been fully received or an error has occurred (timeout,...)
+		/// The returned buffer is ALWAYS stripped of the size header.
+		/// 
+		/// >> THIS FUNCTION MAY RAISE AN EXCEPTION
+		/// 
+		/// </summary>
+		/// <returns>the  received buffer as a string if no error occurred, an empty string otherwise</returns>
 		internal string Receive()
 		{
 			// receive the buffer
@@ -409,16 +438,17 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Receive a string of an unknown size from the server.
-		/// The message never begins with a heabder.
-		/// The string MUST however finish (or at least contain) a CR+LF sequence (or contain it) marking the EOT.
+		/// The buffer does not need to begin with a size header as reading will be made on a fixed size.
+		/// The string MUST however finish (or at least contain) a <paramref name="EOT"/> string marking the end of message.
 		/// The function will not return until the string has been fully received or an error occurred (timeout).
 		/// The returned string NEVER contains the size header.
 		/// 
 		/// >> THIS FUNCTION MAY RAISE AN EXCEPTION
 		/// 
 		/// </summary>
-		/// <param name="EOT">A string which if found marks the end of transmission</param>
-		/// <returns>The received buffer as a string if no error occurred, an empty string otherwise</returns>
+		/// <param name="EOT">a string which if found marks the end of transmission</param>
+		/// <returns>
+		/// the  received buffer as a string if successful, null otherwise</returns>
 		internal string ReceiveLine(string EOT = CRLF)
 		{
 			// receive the buffer

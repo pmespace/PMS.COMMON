@@ -274,124 +274,138 @@ namespace COMMON
 		/// Receives a buffer of a specific size from the server.
 		/// The function will allocate the buffer of the specified size to receive data.
 		/// The function will not return until the buffer has been fully received or an error has occurred (timeout,...).
-		/// 
-		/// >> THIS FUNCTION MAY RAISE AN EXCEPTION
-		/// 
 		/// </summary>
 		/// <param name="bufferSize">size of the buffer to receive</param>
 		/// <returns>
-		/// the received buffer if successful (eventually with a 0 length if no data has been received), <see cref="ArgumentException"/> or any other exception otherwise
+		/// the received buffer if successful (eventually with a 0 length if no data has been received), null otherwise
 		/// </returns>
 		byte[] ReceiveSizedBuffer(int bufferSize)
 		{
-			// allocate buffer to receive
-			if (0 == bufferSize)
-				throw new ArgumentException("0 length buffer size indicated, receiving a message can't be achieved");
-
-			byte[] buffer = new byte[bufferSize];
-			int bytesRead = 0;
-			bool doContinue;
-			CLog.DEBUG($"waiting to receive fixed buffer of {buffer.Length} bytes");
-
-			bool ioexcept;
-			do
+			try
 			{
-				// read stream for the specified buffer
-				int nbBytes = Read(buffer, bytesRead, out ioexcept);
-				if (doContinue = (0 != nbBytes))
+				// allocate buffer to receive
+				if (0 == bufferSize)
+					throw new ArgumentException("0 length buffer size indicated, receiving a message can't be achieved");
+
+				byte[] buffer = new byte[bufferSize];
+				int bytesRead = 0;
+				bool doContinue;
+				CLog.DEBUG($"waiting to receive fixed buffer of {buffer.Length} bytes");
+
+				bool ioexcept;
+				do
 				{
-					bytesRead += nbBytes;
-					// we continue until we've filled up the buffer
-					doContinue = bytesRead < bufferSize;
+					// read stream for the specified buffer
+					int nbBytes = Read(buffer, bytesRead, out ioexcept);
+					if (doContinue = (0 != nbBytes))
+					{
+						bytesRead += nbBytes;
+						// we continue until we've filled up the buffer
+						doContinue = bytesRead < bufferSize;
+					}
 				}
-			}
-			while (doContinue);
+				while (doContinue);
 
-			// create a buffer of the real number of bytes received (which can't be higher than the expected number of bytes)
-			byte[] bufferReceived = new byte[bytesRead];
-			Buffer.BlockCopy(buffer, 0, bufferReceived, 0, bytesRead);
-			// log a message only if not closing the stream
-			if (0 == bytesRead)
+				// create a buffer of the real number of bytes received (which can't be higher than the expected number of bytes)
+				byte[] bufferReceived = new byte[bytesRead];
+				Buffer.BlockCopy(buffer, 0, bufferReceived, 0, bytesRead);
+				// log a message only if not closing the stream
+				if (0 == bytesRead)
+				{
+					if (!ioexcept)
+						CLog.ERROR($"unexpectedly received no data");
+					else
+						CLog.INFORMATION($"client has been disconnected");
+				}
+
+				else if (bytesRead != bufferSize)
+					CLog.Add(new CLogMsgs()
+					{
+						new CLogMsg($"received {bytesRead} bytes, expecting {bufferSize}", TLog.ERROR),
+						new CLogMsg($"data [{CMisc.AsHexString(bufferReceived, true)}]", TLog.DEBUG),
+					});
+
+				else
+					CLog.Add(new CLogMsgs()
+					{
+						new CLogMsg($"received {bytesRead} bytes", TLog.DEBUG),
+						new CLogMsg($"data [{CMisc.AsHexString(bufferReceived, true)}]",TLog.DEBUG),
+					});
+				return bufferReceived;
+			}
+			catch (Exception ex)
 			{
-				if (!ioexcept) CLog.ERROR($"unexpectedly received no data");
+				CLog.EXCEPT(ex);
 			}
-
-			else if (bytesRead != bufferSize)
-				CLog.Add(new CLogMsgs()
-				{
-					new CLogMsg($"received {bytesRead} bytes, expecting {bufferSize}", TLog.ERROR),
-					new CLogMsg($"data [{CMisc.AsHexString(bufferReceived, true)}]", TLog.DEBUG),
-				});
-
-			else
-				CLog.Add(new CLogMsgs()
-				{
-					new CLogMsg($"received {bytesRead} bytes", TLog.DEBUG),
-					new CLogMsg($"data [{CMisc.AsHexString(bufferReceived, true)}]",TLog.DEBUG),
-				});
-			return bufferReceived;
+			return default;
 		}
 		/// <summary>
 		/// Receives a buffer of any size, reallocating memory to fit the buffer.
 		/// The function will constantly reallocate the buffer to receive data.
 		/// The function will not return until the buffer has been fully received (the stream is empty) or <paramref name="EOT"/> has been found in the received buffer indicating the end of the message.
-		/// 
-		/// >> THIS FUNCTION MAY RAISE AN EXCEPTION
-		/// 
 		/// </summary>
 		/// <param name="EOT">a string which if found marks the end of transmission</param>
 		/// <param name="bufferToAllocate">size of buffer to allocate to read the incoming data (default is 1 Kb)</param>
 		/// <returns>
-		/// the received buffer if successful (eventually with a 0 length if no data has been received), any exception otherwise
+		/// the received buffer if successful (eventually with a 0 length if no data has been received), null otherwise
 		/// </returns>
 		byte[] ReceiveNonSizedBuffer(string EOT, int bufferToAllocate = CStreamSettings.ONEKB)
 		{
-			if (string.IsNullOrEmpty(EOT)) EOT = CRLF;
-			// allocate buffer to receive
-			byte[] buffer = new byte[bufferToAllocate];
-			int bytesRead = 0;
-			bool doContinue;
-			CLog.DEBUG($"waiting to receive buffer with no specific size");
+			try
+			{
+				if (string.IsNullOrEmpty(EOT)) EOT = CRLF;
+				// allocate buffer to receive
+				byte[] buffer = new byte[bufferToAllocate];
+				int bytesRead = 0;
+				bool doContinue;
+				CLog.DEBUG($"waiting to receive buffer with no specific size");
 
-			bool ioexcept;
-			do
-			{
-				// read stream for the specified buffer
-				int nbBytes = Read(buffer, bytesRead, out ioexcept);
-				if (doContinue = (0 != nbBytes))
+				bool ioexcept;
+				do
 				{
-					bytesRead += nbBytes;
-					// allocate more memory if the buffer is full
-					if (bytesRead == buffer.Length)
+					// read stream for the specified buffer
+					int nbBytes = Read(buffer, bytesRead, out ioexcept);
+					if (doContinue = (0 != nbBytes))
 					{
-						byte[] newbuffer = new byte[bytesRead + bufferToAllocate];
-						Buffer.BlockCopy(buffer, 0, newbuffer, 0, bytesRead);
-						buffer = newbuffer;
+						bytesRead += nbBytes;
+						// allocate more memory if the buffer is full
+						if (bytesRead == buffer.Length)
+						{
+							byte[] newbuffer = new byte[bytesRead + bufferToAllocate];
+							Buffer.BlockCopy(buffer, 0, newbuffer, 0, bytesRead);
+							buffer = newbuffer;
+						}
+						// if the EOT is found stop reading
+						if (!string.IsNullOrEmpty(EOT))
+							doContinue = !Encoding.UTF8.GetString(buffer).Contains(EOT);
 					}
-					// if the EOT is found stop reading
-					if (!string.IsNullOrEmpty(EOT))
-						doContinue = !Encoding.UTF8.GetString(buffer).Contains(EOT);
+					else if (ioexcept)
+					{
+						CLog.INFORMATION($"client has been disconnected");
+					}
 				}
+				while (doContinue);
+				// create a buffer of the real number of bytes received (which can't be higher than the expected number of bytes)
+				byte[] bufferReceived = new byte[bytesRead];
+				Buffer.BlockCopy(buffer, 0, bufferReceived, 0, bytesRead);
+				CLog.Add(new CLogMsgs()
+				{
+					new CLogMsg($"received {bytesRead} bytes", TLog.INFOR),
+					new CLogMsg($"data [{CMisc.AsHexString(bufferReceived, true)}]", TLog.DEBUG),
+				});
+				return bufferReceived;
 			}
-			while (doContinue);
-			// create a buffer of the real number of bytes received (which can't be higher than the expected number of bytes)
-			byte[] bufferReceived = new byte[bytesRead];
-			Buffer.BlockCopy(buffer, 0, bufferReceived, 0, bytesRead);
-			CLog.Add(new CLogMsgs()
+			catch (Exception ex)
 			{
-				new CLogMsg($"received {bytesRead} bytes", TLog.INFOR),
-				new CLogMsg($"data [{CMisc.AsHexString(bufferReceived, true)}]", TLog.DEBUG),
-			});
-			return bufferReceived;
+				CLog.EXCEPT(ex);
+			}
+			return default;
 		}
 		/// <summary>
 		/// Receives a buffer of an unknown size from the server.
 		/// The buffer MUST begin with a size header of <see cref="CStreamBase.HeaderBytes"/> bytes
 		/// The function will not return until the buffer has been fully received or an error has occurred (timeout,...)
 		/// The returned buffer is ALWAYS stripped of the size header (whose value is returned in <paramref name="announcedSize"/>).
-		/// 
-		/// >> THIS FUNCTION MAY RAISE AN EXCEPTION
-		/// 
 		/// </summary>
 		/// <param name="announcedSize">size of the buffer as declared by the caller , therefore expected by the receiver.
 		/// If that size differs from the size of the actually received buffer then an error has occurred</param>
@@ -401,22 +415,28 @@ namespace COMMON
 		internal byte[] Receive(out int announcedSize)
 		{
 			announcedSize = 0;
-
-			// determine whether the header must be used or not and the size arrived here, either an automatic header is used or the protocol contains one, get the size of the headerto receive 
-			byte[] bufferSize = ReceiveSizedBuffer(HeaderBytes);
-			if (!bufferSize.IsNullOrEmpty() && HeaderBytes == bufferSize.Length)
+			try
 			{
-				// get the size of the buffer to read and start reading it
-				if (0 != (announcedSize = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, 0, HeaderBytes)))
+				// determine whether the header must be used or not and the size arrived here, either an automatic header is used or the protocol contains one, get the size of the headerto receive 
+				byte[] bufferSize = ReceiveSizedBuffer(HeaderBytes);
+				if (!bufferSize.IsNullOrEmpty() && HeaderBytes == bufferSize.Length)
 				{
-					CLog.DEBUG($"received announce of {announcedSize} bytes");
-					byte[] buffer = ReceiveSizedBuffer(announcedSize);
-					if (!buffer.IsNullOrEmpty() && announcedSize == buffer.Length)
+					// get the size of the buffer to read and start reading it
+					if (0 != (announcedSize = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, 0, HeaderBytes)))
 					{
-						return buffer;
+						CLog.DEBUG($"received announce of {announcedSize} bytes");
+						byte[] buffer = ReceiveSizedBuffer(announcedSize);
+						if (!buffer.IsNullOrEmpty() && announcedSize == buffer.Length)
+						{
+							return buffer;
+						}
 					}
+					CLog.ERROR($"received announce of 0 byte");
 				}
-				CLog.ERROR($"received announce of 0 byte");
+			}
+			catch (Exception ex)
+			{
+				CLog.EXCEPT(ex);
 			}
 			return default;
 		}
@@ -458,23 +478,29 @@ namespace COMMON
 		/// The string MUST however finish (or at least contain) a <paramref name="EOT"/> string marking the end of message.
 		/// The function will not return until the string has been fully received or an error occurred (timeout).
 		/// The returned string NEVER contains the size header.
-		/// 
-		/// >> THIS FUNCTION MAY RAISE AN EXCEPTION
-		/// 
 		/// </summary>
 		/// <param name="EOT">a string which if found marks the end of transmission</param>
 		/// <returns>
-		/// the  received buffer as a string if successful, null otherwise</returns>
+		/// the  received buffer as a string if successful, null otherwise
+		/// </returns>
 		internal string ReceiveLine(string EOT = CRLF)
 		{
-			// receive the buffer
-			byte[] buffer = ReceiveNonSizedBuffer(EOT);
-			string s = (default != buffer ? Encoding.UTF8.GetString(buffer) : default);
-			// remove EOT if necessary
-			if (!string.IsNullOrEmpty(s))
-				s = s.Replace(EOT, "");
-			CLog.DEBUG($"data as string [{s}]");
-			return s;
+			try
+			{
+				// receive the buffer
+				byte[] buffer = ReceiveNonSizedBuffer(EOT);
+				string s = (default != buffer ? Encoding.UTF8.GetString(buffer) : default);
+				// remove EOT if necessary
+				if (!string.IsNullOrEmpty(s))
+					s = s.Replace(EOT, "");
+				CLog.DEBUG($"data as string [{s}]");
+				return s;
+			}
+			catch (Exception ex)
+			{
+				CLog.EXCEPT(ex);
+			}
+			return default;
 		}
 		/// <summary>
 		/// Close the adequate Stream

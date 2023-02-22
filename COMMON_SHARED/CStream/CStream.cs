@@ -500,12 +500,12 @@ namespace COMMON
 		/// </summary>
 		/// <param name="sendAsync">settings to start the thread</param>
 		/// <param name="request">an array of bytes to send</param>
-		/// <param name="lineExchanges">if true the buffer is sent using <see cref="SendLine(CStreamIO, string, string)"/>, if false it will be sent using <see cref="Send(CStreamIO, byte[])"/></param>
-		/// <param name="EOT">the string marking the end of the message (only if <paramref name="lineExchanges"/> is true)</param>
+		/// <param name="asstring">if true the buffer is sent using <see cref="SendLine(CStreamIO, string, string)"/>, if false it will be sent using <see cref="Send(CStreamIO, byte[])"/></param>
+		/// <param name="EOT">the string marking the end of the message (only if <paramref name="asstring"/> is true)</param>
 		/// <returns>
 		/// a <see cref="CThread"/> object if successful, null otherwise
 		/// </returns>
-		public static CThread SendAsync(SendAsyncType sendAsync, byte[] request, bool lineExchanges = false, string EOT = CStreamIO.CRLF)
+		static CThread SendAsync(SendAsyncType sendAsync, byte[] request, bool asstring, string EOT = CStreamIO.CRLF)
 		{
 			if (default == sendAsync
 				|| default == sendAsync.Settings
@@ -521,7 +521,7 @@ namespace COMMON
 					SendAsync = sendAsync,
 					Request = request,
 					ClientOnly = default == sendAsync.OnReply,
-					LineExchanges = lineExchanges,
+					AsString = asstring,
 					EOT = EOT,
 				};
 				// prepare the thread object
@@ -546,9 +546,22 @@ namespace COMMON
 		/// <returns>
 		/// a <see cref="CThread"/> object if successful, null otherwise
 		/// </returns>
+		public static CThread SendAsync(SendAsyncType sendAsync, byte[] request)
+		{
+			return SendAsync(sendAsync, request, false);
+		}
+		/// <summary>
+		/// Start a client thread to send and receive data.
+		/// The message is sent using <see cref="Send(CStreamIO, byte[])"/>
+		/// </summary>
+		/// <param name="sendAsync">settings to start the thread</param>
+		/// <param name="request">a string to send</param>
+		/// <returns>
+		/// a <see cref="CThread"/> object if successful, null otherwise
+		/// </returns>
 		public static CThread SendAsync(SendAsyncType sendAsync, string request)
 		{
-			return SendAsync(sendAsync, Encoding.UTF8.GetBytes(request), true);
+			return SendAsync(sendAsync, Encoding.UTF8.GetBytes(request), false);
 		}
 		/// <summary>
 		/// Refer to <see cref="SendAsync(SendAsyncType, byte[], bool, string)"/>
@@ -594,7 +607,7 @@ namespace COMMON
 		/// <param name="o"></param>
 		/// <returns></returns>
 		[ComVisible(false)]
-		private static int SendAsyncThreadMethod(CThread thread, object o)
+		static int SendAsyncThreadMethod(CThread thread, object o)
 		{
 			SendAsyncEnum res = SendAsyncEnum.KO;
 			ClientThreadType threadParams = (ClientThreadType)o;
@@ -602,7 +615,7 @@ namespace COMMON
 			{
 
 				// send & receive 
-				if (threadParams.LineExchanges)
+				if (threadParams.AsString)
 				{
 					string reply = ConnectSendReceiveLine(threadParams.SendAsync.Settings, Encoding.UTF8.GetString(threadParams.Request), threadParams.EOT);
 					if (string.IsNullOrEmpty(reply))
@@ -638,7 +651,7 @@ namespace COMMON
 			else
 			{
 				// send only
-				if (threadParams.LineExchanges)
+				if (threadParams.AsString)
 				{
 					if (ConnectSendLine(threadParams.SendAsync.Settings, Encoding.UTF8.GetString(threadParams.Request), threadParams.EOT))
 						res = SendAsyncEnum.OK;
@@ -660,7 +673,7 @@ namespace COMMON
 			public SendAsyncType SendAsync { get; set; }
 			public byte[] Request { get; set; } = default;
 			public bool ClientOnly { get; set; } = false;
-			public bool LineExchanges { get; set; } = false;
+			public bool AsString { get; set; } = false;
 			public string EOT { get; set; } = CStreamIO.CRLF;
 		}
 		#endregion

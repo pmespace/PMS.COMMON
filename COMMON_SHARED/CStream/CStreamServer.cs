@@ -638,9 +638,8 @@ namespace COMMON
 					}
 					else
 					{
-						// no message received, might be an exception because the socket was closed
-						CLog.INFORMATION($"{thread.Description} received an empty message, probably client disconnection, shutting down");
-						//res = (int)StreamServerResult.clientReceivedInvalidMessage;
+						//// no message received, might be an exception because the socket was closed
+						//CLog.INFORMATION($"{thread.Description} received an empty message, probably client disconnection, shutting down");
 						keepOnRunning = false;
 					}
 				}

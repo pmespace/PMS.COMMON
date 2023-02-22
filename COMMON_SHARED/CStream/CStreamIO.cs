@@ -156,11 +156,14 @@ namespace COMMON
 		/// </summary>
 		/// <param name="data">buffer to feed with read data</param>
 		/// <param name="offset">offset at which to put data inside the buffer</param>
+		/// <param name="ioexcept">the exception which stopped the read process</param>
 		/// <returns>
 		/// The number of bytes read, 0 if no bytes read
 		/// </returns>
-		private int Read(byte[] data, int offset)
+		private int Read(byte[] data, int offset, out bool ioexcept)
 		{
+			ioexcept = false;
+
 			if (data.IsNullOrEmpty() || data.Length <= offset) return 0;
 			int read = 0;
 
@@ -172,7 +175,10 @@ namespace COMMON
 			{
 				read = stream.Read(data, offset, data.Length - offset);
 			}
-			catch (IOException) { }
+			catch (IOException)
+			{
+				ioexcept = true;
+			}
 			catch (Exception ex)
 			{
 				CLog.EXCEPT(ex);
@@ -286,10 +292,12 @@ namespace COMMON
 			int bytesRead = 0;
 			bool doContinue;
 			CLog.DEBUG($"waiting to receive fixed buffer of {buffer.Length} bytes");
+
+			bool ioexcept;
 			do
 			{
 				// read stream for the specified buffer
-				int nbBytes = Read(buffer, bytesRead);
+				int nbBytes = Read(buffer, bytesRead, out ioexcept);
 				if (doContinue = (0 != nbBytes))
 				{
 					bytesRead += nbBytes;
@@ -298,17 +306,21 @@ namespace COMMON
 				}
 			}
 			while (doContinue);
+
 			// create a buffer of the real number of bytes received (which can't be higher than the expected number of bytes)
 			byte[] bufferReceived = new byte[bytesRead];
 			Buffer.BlockCopy(buffer, 0, bufferReceived, 0, bytesRead);
-			if (0 == bytesRead)
-				CLog.ERROR($"received no data");
+			// log a message only if not closing the stream
+			if (0 == bytesRead && !ioexcept)
+				CLog.ERROR($"unexpectedly received no data");
+
 			else if (bytesRead != bufferSize)
 				CLog.Add(new CLogMsgs()
 				{
 					new CLogMsg($"received {bytesRead} bytes, expecting {bufferSize}", TLog.ERROR),
 					new CLogMsg($"data [{CMisc.AsHexString(bufferReceived, true)}]", TLog.DEBUG),
 				});
+
 			else
 				CLog.Add(new CLogMsgs()
 				{
@@ -338,10 +350,12 @@ namespace COMMON
 			int bytesRead = 0;
 			bool doContinue;
 			CLog.DEBUG($"waiting to receive buffer with no specific size");
+
+			bool ioexcept;
 			do
 			{
 				// read stream for the specified buffer
-				int nbBytes = Read(buffer, bytesRead);//, buffer.Length - bytesRead);
+				int nbBytes = Read(buffer, bytesRead, out ioexcept);
 				if (doContinue = (0 != nbBytes))
 				{
 					bytesRead += nbBytes;

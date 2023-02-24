@@ -223,9 +223,9 @@ namespace COMMON
 	{
 		#region constructors
 		public CStreamClientSettings() { SetIP(default); }
-		//public CStreamClientSettings(int HeaderBytes) : base(HeaderBytes) { SetIP(default); }
+		//public CStreamClientSettings(int SizeHeader) : base(SizeHeader) { SetIP(default); }
 		public CStreamClientSettings(string ip, uint port = DEFAULT_PORT) { SetIP(ip, port); }
-		//public CStreamClientSettings(int HeaderBytes, string ip, uint port = DEFAULT_PORT) : base(HeaderBytes) { SetIP(ip, port); }
+		//public CStreamClientSettings(int SizeHeader, string ip, uint port = DEFAULT_PORT) : base(SizeHeader) { SetIP(ip, port); }
 		#endregion
 
 		#region public properties
@@ -413,9 +413,9 @@ namespace COMMON
 	{
 		#region constructors
 		public CStreamServerSettings() { }
-		//public CStreamServerSettings(int HeaderBytes) : base(HeaderBytes) { }
+		//public CStreamServerSettings(int SizeHeader) : base(SizeHeader) { }
 		public CStreamServerSettings(uint port) { Port = port; }
-		//public CStreamServerSettings(int HeaderBytes, uint port) : base(HeaderBytes) { Port = port; }
+		//public CStreamServerSettings(int SizeHeader, uint port) : base(SizeHeader) { Port = port; }
 		#endregion
 
 		#region properties

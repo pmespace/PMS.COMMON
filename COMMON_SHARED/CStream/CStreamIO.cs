@@ -193,7 +193,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Sends a buffer to an outer entity.
-		/// If requested with <see cref="CStreamBase.UseSizeHeader"/> a size header of length <see cref="CStreamBase.HeaderBytes"/> is added at the beginning of the message.
+		/// If requested with <see cref="CStreamBase.UseSizeHeader"/> a size header of length <see cref="CStreamBase.SizeHeader"/> is added at the beginning of the message.
 		/// </summary>
 		/// <param name="data">the message to send</param>
 		/// <returns>
@@ -207,7 +207,7 @@ namespace COMMON
 				return false;
 			}
 			// if requested, add the size header to the message to send
-			int lengthSize = (UseSizeHeader ? HeaderBytes : 0);
+			int lengthSize = (UseSizeHeader ? SizeHeader : 0);
 			int size = (int)data.Length + lengthSize;
 			byte[] messageToSend = new byte[size];
 			Buffer.BlockCopy(data, 0, messageToSend, (int)lengthSize, data.Length);
@@ -233,7 +233,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Sends a buffer to an outer entity.
-		/// If requested with <see cref="CStreamBase.UseSizeHeader"/> a size header of length <see cref="CStreamBase.HeaderBytes"/> is added at the beginning of the message.
+		/// If requested with <see cref="CStreamBase.UseSizeHeader"/> a size header of length <see cref="CStreamBase.SizeHeader"/> is added at the beginning of the message.
 		/// </summary>
 		/// <param name="data">the message to send as a string</param>
 		/// <returns>
@@ -409,7 +409,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Receives a buffer of an unknown size from the server.
-		/// The buffer MUST begin with a size header of <see cref="CStreamBase.HeaderBytes"/> bytes
+		/// The buffer MUST begin with a size header of <see cref="CStreamBase.SizeHeader"/> bytes
 		/// The function will not return until the buffer has been fully received or an error has occurred (timeout,...)
 		/// The returned buffer is ALWAYS stripped of the size header (whose value is returned in <paramref name="announcedSize"/>).
 		/// </summary>
@@ -424,11 +424,11 @@ namespace COMMON
 			try
 			{
 				// determine whether the header must be used or not and the size arrived here, either an automatic header is used or the protocol contains one, get the size of the headerto receive 
-				byte[] bufferSize = ReceiveSizedBuffer(HeaderBytes);
-				if (!bufferSize.IsNullOrEmpty() && HeaderBytes == bufferSize.Length)
+				byte[] bufferSize = ReceiveSizedBuffer(SizeHeader);
+				if (!bufferSize.IsNullOrEmpty() && SizeHeader == bufferSize.Length)
 				{
 					// get the size of the buffer to read and start reading it
-					if (0 != (announcedSize = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, 0, HeaderBytes)))
+					if (0 != (announcedSize = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, 0, SizeHeader)))
 					{
 						CLog.DEBUG($"received announce of {announcedSize} bytes");
 						byte[] buffer = ReceiveSizedBuffer(announcedSize);
@@ -464,7 +464,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Receive a string of an unknown size from the server.
-		/// The buffer MUST begin with a size header of <see cref="CStreamBase.HeaderBytes"/> bytes
+		/// The buffer MUST begin with a size header of <see cref="CStreamBase.SizeHeader"/> bytes
 		/// The function will not return until the buffer has been fully received or an error has occurred (timeout,...)
 		/// The returned buffer is ALWAYS stripped of the size header.
 		/// 
@@ -537,7 +537,7 @@ namespace COMMON
 	{
 		#region CStreamBase
 		[DispId(1001)]
-		int HeaderBytes { get; set; }
+		int SizeHeader { get; set; }
 		[DispId(1002)]
 		bool UseSizeHeader { get; set; }
 		[DispId(1010)]
@@ -682,7 +682,7 @@ namespace COMMON
 	{
 		#region CStreamBase
 		[DispId(1001)]
-		int HeaderBytes { get; set; }
+		int SizeHeader { get; set; }
 		[DispId(1002)]
 		bool UseSizeHeader { get; set; }
 		[DispId(1010)]

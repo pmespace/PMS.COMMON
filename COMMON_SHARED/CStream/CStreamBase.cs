@@ -18,14 +18,14 @@ namespace COMMON
 
 		#region constructor
 		public CStreamBase() { }
-		public CStreamBase(CStreamBase sb) { HeaderBytes = sb.HeaderBytes; UseSizeHeader = sb.UseSizeHeader; }
+		public CStreamBase(CStreamBase sb) { SizeHeader = sb.SizeHeader; UseSizeHeader = sb.UseSizeHeader; }
 		#endregion constructor
 
 		#region properties
 		/// <summary>
 		/// Size of buffer containg the size of a message
 		/// </summary>
-		public int HeaderBytes
+		public int SizeHeader
 		{
 			get => _lengthbuffersize;
 			set
@@ -36,7 +36,7 @@ namespace COMMON
 		}
 		private int _lengthbuffersize = FOURBYTES;
 		/// <summary>
-		/// Indicates whether a header bytes of size <see cref="CStreamBase.HeaderBytes"/> must be added when sending a message or not
+		/// Indicates whether a header bytes of size <see cref="CStreamBase.SizeHeader"/> must be added when sending a message or not
 		/// </summary>
 		public bool UseSizeHeader { get => _addheaderbytes; set => _addheaderbytes = value; }
 		bool _addheaderbytes = true;
@@ -45,7 +45,7 @@ namespace COMMON
 		#region methods
 		public override string ToString()
 		{
-			return $"header: {HeaderBytes} bytes; use header: {UseSizeHeader}";
+			return $"header: {SizeHeader} bytes; use header: {UseSizeHeader}";
 		}
 		public static bool IsHeaderBytes(int value) { return (/*ZEROBYTE == value ||*/ ONEBYTE == value || TWOBYTES == value || FOURBYTES == value || EIGHTBYTES == value); }
 		#endregion

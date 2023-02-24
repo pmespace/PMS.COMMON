@@ -147,7 +147,7 @@ namespace COMMON
 		public static void Disconnect(CStreamIO stream) { stream?.Close(); }
 		/// <summary>
 		/// Sends data using the given stream.
-		/// A size header of <see cref="CStreamBase.HeaderBytes"/> bytes is added if <see cref="CStreamBase.UseSizeHeader"/> is true.
+		/// A size header of <see cref="CStreamBase.SizeHeader"/> bytes is added if <see cref="CStreamBase.UseSizeHeader"/> is true.
 		/// </summary>
 		/// <param name="stream">the connected stream</param>
 		/// <param name="buffer">an array of bytes to send</param>
@@ -171,7 +171,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Sends data using the given stream.
-		/// A size header of <see cref="CStreamBase.HeaderBytes"/> bytes is added if <see cref="CStreamBase.UseSizeHeader"/> is true.
+		/// A size header of <see cref="CStreamBase.SizeHeader"/> bytes is added if <see cref="CStreamBase.UseSizeHeader"/> is true.
 		/// </summary>
 		/// <param name="stream">the connected stream</param>
 		/// <param name="buffer">a string to send</param>
@@ -210,7 +210,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Receives data on the indicated stream.
-		/// The buffer MUST begin with a size header of <see cref="CStreamBase.HeaderBytes"/> bytes
+		/// The buffer MUST begin with a size header of <see cref="CStreamBase.SizeHeader"/> bytes
 		/// </summary>
 		/// <param name="stream">the connected stream</param>
 		/// <returns>
@@ -233,10 +233,10 @@ namespace COMMON
 					if (!stream.UseSizeHeader)
 					{
 						// the request natively contained a size header, meaningfull to the application, we therefore must reinsert the size header inside the received buffer
-						reply = new byte[tmp.Length + stream.HeaderBytes];
+						reply = new byte[tmp.Length + stream.SizeHeader];
 						byte[] bb = CMisc.SetBytesFromIntegralTypeValue((int)tmp.Length, false);
-						Buffer.BlockCopy(bb, 0, reply, 0, (int)stream.HeaderBytes);
-						Buffer.BlockCopy(tmp, 0, reply, (int)stream.HeaderBytes, tmp.Length);
+						Buffer.BlockCopy(bb, 0, reply, 0, (int)stream.SizeHeader);
+						Buffer.BlockCopy(tmp, 0, reply, (int)stream.SizeHeader, tmp.Length);
 					}
 					else
 						reply = tmp;
@@ -250,7 +250,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Receives data on the indicated stream.
-		/// The buffer MUST begin with a size header of <see cref="CStreamBase.HeaderBytes"/> bytes.
+		/// The buffer MUST begin with a size header of <see cref="CStreamBase.SizeHeader"/> bytes.
 		/// The buffer is converted to a string after reception and must support this conversion.
 		/// </summary>
 		/// <param name="stream">the connected stream</param>
@@ -315,8 +315,8 @@ namespace COMMON
 		/// <summary>
 		/// Sends a request message and receives the response.
 		/// The stream must be opened and will remain so.
-		/// A size header of <see cref="CStreamBase.HeaderBytes"/> bytes is added to <paramref name="request"/> if <see cref="CStreamBase.UseSizeHeader"/> is true.
-		/// The response MUST begin with a size header of <see cref="CStreamBase.HeaderBytes"/> bytes which will be stripped.
+		/// A size header of <see cref="CStreamBase.SizeHeader"/> bytes is added to <paramref name="request"/> if <see cref="CStreamBase.UseSizeHeader"/> is true.
+		/// The response MUST begin with a size header of <see cref="CStreamBase.SizeHeader"/> bytes which will be stripped.
 		/// </summary>
 		/// <param name="stream">the connected stream</param>
 		/// <param name="request">an array of bytes to send</param>
@@ -332,8 +332,8 @@ namespace COMMON
 		/// <summary>
 		/// Sends a message as a string and receives a string response.
 		/// The stream must be opened and will remain so.
-		/// A size header of <see cref="CStreamBase.HeaderBytes"/> bytes is added to <paramref name="request"/> if <see cref="CStreamBase.UseSizeHeader"/> is true.
-		/// The response MUST begin with a size header of <see cref="CStreamBase.HeaderBytes"/> bytes which will be stripped.
+		/// A size header of <see cref="CStreamBase.SizeHeader"/> bytes is added to <paramref name="request"/> if <see cref="CStreamBase.UseSizeHeader"/> is true.
+		/// The response MUST begin with a size header of <see cref="CStreamBase.SizeHeader"/> bytes which will be stripped.
 		/// </summary>
 		/// <param name="stream">the connected stream</param>
 		/// <param name="request">an array of bytes to send</param>
@@ -365,7 +365,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Connects to a host, sends data then disconnects the stream.
-		/// A size header of <see cref="CStreamBase.HeaderBytes"/> bytes is added to <paramref name="buffer"/> if <see cref="CStreamBase.UseSizeHeader"/> is true.
+		/// A size header of <see cref="CStreamBase.SizeHeader"/> bytes is added to <paramref name="buffer"/> if <see cref="CStreamBase.UseSizeHeader"/> is true.
 		/// </summary>
 		/// <param name="settings">the settings to use for opening the stream and sending the data</param>
 		/// <param name="buffer">an array of bytes to send</param>
@@ -387,13 +387,13 @@ namespace COMMON
 		static CStreamClientIO ConnectToSend(CStreamClientSettings settings, byte[] buffer)
 		{
 			// adjust buffer size according to buffer to send
-			int fullBufferSize = (settings.UseSizeHeader ? buffer.Length + settings.HeaderBytes : buffer.Length);
+			int fullBufferSize = (settings.UseSizeHeader ? buffer.Length + settings.SizeHeader : buffer.Length);
 			settings.SendBufferSize = (settings.SendBufferSize > fullBufferSize ? settings.SendBufferSize : fullBufferSize + 1);
 			return Connect(settings);
 		}
 		/// <summary>
 		/// Connects to a host, sends data as a string then disconnects the stream.
-		/// A size header of <see cref="CStreamBase.HeaderBytes"/> bytes is added to <paramref name="buffer"/> if <see cref="CStreamBase.UseSizeHeader"/> is true.
+		/// A size header of <see cref="CStreamBase.SizeHeader"/> bytes is added to <paramref name="buffer"/> if <see cref="CStreamBase.UseSizeHeader"/> is true.
 		/// </summary>
 		/// <param name="settings">the settings to use for opening the stream and sending the data</param>
 		/// <param name="buffer">a string message to send</param>
@@ -430,14 +430,14 @@ namespace COMMON
 		static CStreamClientIO ConnectToSend(CStreamClientSettings settings, string message)
 		{
 			// adjust buffer size according to buffer to send
-			int fullBufferSize = message.Length + settings.HeaderBytes;
+			int fullBufferSize = message.Length + settings.SizeHeader;
 			settings.SendBufferSize = (settings.SendBufferSize > fullBufferSize ? settings.SendBufferSize : fullBufferSize + 1);
 			return Connect(settings);
 		}
 		/// <summary>
 		/// Connects to a host, sends a request, receives a response then disconnectes the stream.
-		/// A size header of <see cref="CStreamBase.HeaderBytes"/> bytes is added to <paramref name="request"/> if <see cref="CStreamBase.UseSizeHeader"/> is true.
-		/// The response MUST begin with a size header of <see cref="CStreamBase.HeaderBytes"/> bytes which will be stripped.
+		/// A size header of <see cref="CStreamBase.SizeHeader"/> bytes is added to <paramref name="request"/> if <see cref="CStreamBase.UseSizeHeader"/> is true.
+		/// The response MUST begin with a size header of <see cref="CStreamBase.SizeHeader"/> bytes which will be stripped.
 		/// </summary>
 		/// <param name="settings">the settings to use for opening the stream and sending the data</param>
 		/// <param name="request">an array of bytes to send</param>
@@ -459,8 +459,8 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Connects to a host, sends a request as a string, receives a response and converts it to a string then disconnectes the stream.
-		/// A size header of <see cref="CStreamBase.HeaderBytes"/> bytes is added to <paramref name="request"/> if <see cref="CStreamBase.UseSizeHeader"/> is true.
-		/// The response MUST begin with a size header of <see cref="CStreamBase.HeaderBytes"/> bytes which will be stripped.
+		/// A size header of <see cref="CStreamBase.SizeHeader"/> bytes is added to <paramref name="request"/> if <see cref="CStreamBase.UseSizeHeader"/> is true.
+		/// The response MUST begin with a size header of <see cref="CStreamBase.SizeHeader"/> bytes which will be stripped.
 		/// </summary>
 		/// <param name="settings">the settings to use for opening the stream and sending the data</param>
 		/// <param name="request">a string to send</param>

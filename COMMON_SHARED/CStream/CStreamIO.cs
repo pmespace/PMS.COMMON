@@ -193,7 +193,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Sends a buffer to an outer entity.
-		/// If requested with <see cref="CStreamBase.UseHeaderBytes"/> a size header of length <see cref="CStreamBase.HeaderBytes"/> is added at the beginning of the message.
+		/// If requested with <see cref="CStreamBase.UseSizeHeader"/> a size header of length <see cref="CStreamBase.HeaderBytes"/> is added at the beginning of the message.
 		/// </summary>
 		/// <param name="data">the message to send</param>
 		/// <returns>
@@ -207,11 +207,11 @@ namespace COMMON
 				return false;
 			}
 			// if requested, add the size header to the message to send
-			int lengthSize = (UseHeaderBytes ? HeaderBytes : 0);
+			int lengthSize = (UseSizeHeader ? HeaderBytes : 0);
 			int size = (int)data.Length + lengthSize;
 			byte[] messageToSend = new byte[size];
 			Buffer.BlockCopy(data, 0, messageToSend, (int)lengthSize, data.Length);
-			if (UseHeaderBytes)
+			if (UseSizeHeader)
 			{
 				byte[] bs = CMisc.SetBytesFromIntegralTypeValue((int)data.Length, false);
 				Buffer.BlockCopy(bs, 0, messageToSend, 0, (int)lengthSize);
@@ -233,7 +233,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Sends a buffer to an outer entity.
-		/// If requested with <see cref="CStreamBase.UseHeaderBytes"/> a size header of length <see cref="CStreamBase.HeaderBytes"/> is added at the beginning of the message.
+		/// If requested with <see cref="CStreamBase.UseSizeHeader"/> a size header of length <see cref="CStreamBase.HeaderBytes"/> is added at the beginning of the message.
 		/// </summary>
 		/// <param name="data">the message to send as a string</param>
 		/// <returns>
@@ -539,7 +539,7 @@ namespace COMMON
 		[DispId(1001)]
 		int HeaderBytes { get; set; }
 		[DispId(1002)]
-		bool UseHeaderBytes { get; set; }
+		bool UseSizeHeader { get; set; }
 		[DispId(1010)]
 		string ToString();
 		#endregion
@@ -684,7 +684,7 @@ namespace COMMON
 		[DispId(1001)]
 		int HeaderBytes { get; set; }
 		[DispId(1002)]
-		bool UseHeaderBytes { get; set; }
+		bool UseSizeHeader { get; set; }
 		[DispId(1010)]
 		string ToString();
 		#endregion

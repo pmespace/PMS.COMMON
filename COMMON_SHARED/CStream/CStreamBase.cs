@@ -18,7 +18,7 @@ namespace COMMON
 
 		#region constructor
 		public CStreamBase() { }
-		public CStreamBase(CStreamBase sb) { HeaderBytes = sb.HeaderBytes; UseHeaderBytes = sb.UseHeaderBytes; }
+		public CStreamBase(CStreamBase sb) { HeaderBytes = sb.HeaderBytes; UseSizeHeader = sb.UseSizeHeader; }
 		#endregion constructor
 
 		#region properties
@@ -38,14 +38,14 @@ namespace COMMON
 		/// <summary>
 		/// Indicates whether a header bytes of size <see cref="CStreamBase.HeaderBytes"/> must be added when sending a message or not
 		/// </summary>
-		public bool UseHeaderBytes { get => _addheaderbytes; set => _addheaderbytes = value; }
+		public bool UseSizeHeader { get => _addheaderbytes; set => _addheaderbytes = value; }
 		bool _addheaderbytes = true;
 		#endregion
 
 		#region methods
 		public override string ToString()
 		{
-			return $"header: {HeaderBytes} bytes; use header: {UseHeaderBytes}";
+			return $"header: {HeaderBytes} bytes; use header: {UseSizeHeader}";
 		}
 		public static bool IsHeaderBytes(int value) { return (/*ZEROBYTE == value ||*/ ONEBYTE == value || TWOBYTES == value || FOURBYTES == value || EIGHTBYTES == value); }
 		#endregion

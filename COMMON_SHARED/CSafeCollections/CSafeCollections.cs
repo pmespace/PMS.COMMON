@@ -32,8 +32,6 @@ namespace COMMON
 		#endregion
 
 		#region ISafeList properties
-		//[DispId(1)]
-		//List<T> List { get; }
 		[DispId(2)]
 		int Count { get; }
 		[DispId(3)]
@@ -67,6 +65,11 @@ namespace COMMON
 		bool Contains(T item);
 		#endregion
 	}
+	/// <summary>
+	/// That object CAN'T Be used to serialize a list in a JSON file.
+	/// To do that use a <see cref="IList{T}"/> object
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
 	[Guid("D9318A4A-0C92-4AAD-B8F3-6A5F96F2C9B0")]
 	[ClassInterface(ClassInterfaceType.None)]
 	[ComVisible(true)]
@@ -375,6 +378,13 @@ namespace COMMON
 		T Get(K k);
 		#endregion
 	}
+	/// <summary>
+	/// That object CAN'T Be used to serialize a dictionary in a JSON file.
+	/// To do that use a <see cref="IDictionary{TKey, TValue}"/> object
+	/// /// 
+	/// </summary>
+	/// <typeparam name="K"></typeparam>
+	/// <typeparam name="T"></typeparam>
 	[Guid("C67F6A91-8D10-462A-9F28-67F08705942D")]
 	[ClassInterface(ClassInterfaceType.None)]
 	[ComVisible(true)]

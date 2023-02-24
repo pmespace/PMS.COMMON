@@ -9,7 +9,8 @@
 - Added 2 shared variables (GUID and Context string) to CLog that can be used to set specific information for logging; these variables are per thread accessible
 - Log messages can also now be added by group of messages with different severities
 - Added a shared variable MaxBytesAsString to limit the number of bytes to convert using AsString(byte[])
-- prevented any read stream error message if the stream is stopped while reading is in wait mode
+- Prevented any read stream error message if the stream is stopped while reading is in wait mode
+- Added IEnumerable interface to all CSafe... objects
 
 6.3.3
 - Added 2 functions to work with enums (EnumGetName and EnumGetValue) in CMisc; they are only a revamping of the name of the old ones (GetEnumName and GetEnumValue)

@@ -5,6 +5,7 @@ using System.Text;
 using Newtonsoft.Json;
 using System.Linq;
 using System.Collections;
+using Newtonsoft.Json.Linq;
 
 namespace COMMON
 {
@@ -31,8 +32,8 @@ namespace COMMON
 		#endregion
 
 		#region ISafeList properties
-		[DispId(1)]
-		List<T> List { get; }
+		//[DispId(1)]
+		//List<T> List { get; }
 		[DispId(2)]
 		int Count { get; }
 		[DispId(3)]
@@ -69,8 +70,22 @@ namespace COMMON
 	[Guid("D9318A4A-0C92-4AAD-B8F3-6A5F96F2C9B0")]
 	[ClassInterface(ClassInterfaceType.None)]
 	[ComVisible(true)]
-	public class CSafeList<T> : CSafeBase, ISafeList<T>
+	public class CSafeList<T> : CSafeBase, ISafeList<T>, IEnumerable<T>
 	{
+		#region ienumerable
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return this.GetEnumerator();
+		}
+		public IEnumerator<T> GetEnumerator()
+		{
+			foreach (T t in List)
+			{
+				yield return t;
+			}
+		}
+		#endregion
+
 		#region constructor
 		public CSafeList() { }
 		public CSafeList(T[] l) { List = new List<T>(l); }
@@ -83,7 +98,7 @@ namespace COMMON
 		/// The encapsulated list
 		/// </summary>
 		[JsonIgnore]
-		public List<T> List { get => _list; private set => _list = value ?? _list; }
+		List<T> List { get => _list; set => _list = value ?? _list; }
 		List<T> _list = new List<T>();
 		/// <summary>
 		/// Number of objects inside the list
@@ -327,8 +342,8 @@ namespace COMMON
 		#endregion
 
 		#region ISafeDictionary properties
-		[DispId(1)]
-		Dictionary<K, T> Dict { get; }
+		//[DispId(1)]
+		//Dictionary<K, T> Dict { get; }
 		[DispId(2)]
 		int Count { get; }
 		[DispId(3)]
@@ -363,8 +378,22 @@ namespace COMMON
 	[Guid("C67F6A91-8D10-462A-9F28-67F08705942D")]
 	[ClassInterface(ClassInterfaceType.None)]
 	[ComVisible(true)]
-	public class CSafeDictionary<K, T> : CSafeBase, ISafeDictionary<K, T>
+	public class CSafeDictionary<K, T> : CSafeBase, ISafeDictionary<K, T>, IEnumerable<KeyValuePair<K, T>>
 	{
+		#region ienumerable
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return this.GetEnumerator();
+		}
+		public IEnumerator<KeyValuePair<K, T>> GetEnumerator()
+		{
+			foreach (KeyValuePair<K, T> t in Dict)
+			{
+				yield return t;
+			}
+		}
+		#endregion
+
 		#region constructor
 		public CSafeDictionary() { }
 		public CSafeDictionary(Dictionary<K, T> l) { Dict = new Dictionary<K, T>(l); }
@@ -377,7 +406,7 @@ namespace COMMON
 		/// The encapsulated dictionary
 		/// </summary>
 		[JsonIgnore]
-		public Dictionary<K, T> Dict { get => _dict; private set => _dict = value ?? _dict; }
+		Dictionary<K, T> Dict { get => _dict; set => _dict = value ?? _dict; }
 		Dictionary<K, T> _dict = new Dictionary<K, T>();
 		/// <summary>
 		/// The dictionary sorted by key

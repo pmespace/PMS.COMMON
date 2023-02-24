@@ -192,7 +192,14 @@ namespace TestCore
 			CMisc.Input("hello", default, out bool isdef, "invite");
 
 
-			MySafeDict hh = new MySafeDict();
+			MySafeDict hh = new MySafeDict()
+			{
+				{ "hello", new object() },
+				{ "HELLO", new object() },
+				{ "Hello", new object() },
+				{ "456", new object() },
+				{ "123", new object() },
+			};
 			hh.Add("hello", new object());
 			hh.Add("HELLO", new object());
 			hh.Add("Hello", new object());
@@ -205,9 +212,11 @@ namespace TestCore
 			string json = hh.ToJson();
 			var hhr = hh.ToArray();
 
-			MySafeList ll = new MySafeList();
-			ll.Add("456");
-			ll.Add("123");
+			MySafeList ll = new MySafeList()
+			{
+				"456",
+				"123",
+			};
 			string ls = ll[0];
 			ls = ll[255];
 			ll.Insert("wopa", 255);
@@ -215,6 +224,24 @@ namespace TestCore
 			ls = ll[2];
 			json = ll.ToJson();
 			var llr = ll.ToArray();
+
+			foreach (string s in ll)
+			{
+				Console.WriteLine(s);
+			}
+
+			CSafeStringTDictionary<object> jj = new CSafeStringTDictionary<object>()
+			{
+				{ "hello", new object() },
+				{ "HELLO", new object() },
+				{ "Hello", new object() },
+				{ "456", new object() },
+				{ "123", new object() },
+			};
+			foreach (KeyValuePair<string, object> h in jj)
+			{
+				Console.WriteLine(h.Key);
+			}
 
 			//string[] yes1 = { "OUI", "O" };
 			//string[] yes2 = { "123", "3" };

@@ -11,6 +11,8 @@
 - Added a shared variable MaxBytesAsString to limit the number of bytes to convert using AsString(byte[])
 - Prevented any read stream error message if the stream is stopped while reading is in wait mode
 - Added IEnumerable interface to all CSafe... objects
+- Added CMisc functions to create SHA256 hash
+- Added CMisc function to set and get a base64 value compatible with a URL
 
 6.3.3
 - Added 2 functions to work with enums (EnumGetName and EnumGetValue) in CMisc; they are only a revamping of the name of the old ones (GetEnumName and GetEnumValue)

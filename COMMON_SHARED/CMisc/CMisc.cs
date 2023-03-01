@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Security.Cryptography;
 using System.Reflection;
 using System.Text;
 using System;
@@ -985,6 +986,70 @@ namespace COMMON
 				}
 				catch (Exception) { }
 			return fullName;
+		}
+		/// <summary>
+		/// Creates a SHA256 buffer
+		/// </summary>
+		/// <param name="bufferToHash">array of bytes to hash</param>
+		/// <returns>
+		/// An hexadecimal string representing the hash if successful, null otherwise
+		/// </returns>
+		public static string CreateSHA256(byte[] bufferToHash)
+		{
+			try
+			{
+				var sha = new SHA256CryptoServiceProvider();
+				byte[] bytes = sha.ComputeHash(bufferToHash);
+				return CMisc.AsString(sha.ComputeHash(bufferToHash));
+			}
+			catch (Exception ex)
+			{
+				CLog.EXCEPT(ex);
+			}
+			return null;
+		}
+		/// <summary>
+		/// Creates a SHA256 buffer
+		/// </summary>
+		/// <param name="stringToHash">a string to hash</param>
+		/// <returns>
+		/// An hexadecimal string representing the hash if successful, null otherwise
+		/// </returns>
+		public static string CreateSHA256(string stringToHash)
+		{
+			return CreateSHA256(Encoding.UTF8.GetBytes(stringToHash));
+		}
+		/// <summary>
+		/// Converts a standard base64 string to an URL compatible string
+		/// </summary>
+		/// <param name="value">base64 string to convert</param>
+		/// <returns>
+		/// A base64 string compatible with a URL with successful, null or an empty string otherwise
+		/// </returns>
+		public static string ToBase64URLSafe(string value)
+		{
+			if (!value.IsNullOrEmpty())
+			{
+				value = value.Replace("+", "-");
+				value = value.Replace("/", "_");
+			}
+			return value;
+		}
+		/// <summary>
+		/// Converts a base64 URL compatible string to a standard base64 string
+		/// </summary>
+		/// <param name="value">base64 string to convert</param>
+		/// <returns>
+		/// A standard base64 string with successful, null or an empty string otherwise
+		/// </returns>
+		public static string FromBase64URLSafe(string value)
+		{
+			if (!value.IsNullOrEmpty())
+			{
+				value = value.Replace("-", "+");
+				value = value.Replace("_", "/");
+			}
+			return value;
 		}
 		/// <summary>
 		/// [CONSOLE ONLY] Request a YES/NO answer.

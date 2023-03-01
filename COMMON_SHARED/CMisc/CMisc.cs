@@ -123,19 +123,13 @@ namespace COMMON
 		/// </summary>
 		/// <param name="ab">The byte[] data to verify</param>
 		/// <returns>True if null or Length=0, false otherwise</returns>
-		public static bool IsNullOrEmpty(this byte[] ab)
-		{
-			return (default == ab || 0 == ab.Length);
-		}
+		public static bool IsNullOrEmpty(this byte[] ab) => (default == ab || 0 == ab.Length);
 		/// <summary>
 		/// Indicates whether a string is null or empty
 		/// </summary>
 		/// <param name="s">The string to verify</param>
 		/// <returns>True if null or Length=0, false otherwise</returns>
-		public static bool IsNullOrEmpty(this string s)
-		{
-			return string.IsNullOrEmpty(s);
-		}
+		public static bool IsNullOrEmpty(this string s) => string.IsNullOrEmpty(s);
 		/// <summary>
 		/// Compares the current string with another one
 		/// </summary>
@@ -143,10 +137,7 @@ namespace COMMON
 		/// <param name="value">The string to match to</param>
 		/// <param name="ignoreCase">true if case must be ignored, false otherwise</param>
 		/// <returns>true if both strings are equal, false otherwise</returns>
-		public static bool Compare(this string s, string value, bool ignoreCase = true)
-		{
-			return 0 == string.Compare(s, value, ignoreCase);
-		}
+		public static bool Compare(this string s, string value, bool ignoreCase = true) => 0 == string.Compare(s, value, ignoreCase);
 		/// <summary>
 		/// Returns an hexadecimal string of an array of bytes
 		/// </summary>
@@ -154,10 +145,7 @@ namespace COMMON
 		/// <returns>
 		/// A string containing each byte as a 2 hexadecima representation if successful, null otherwise
 		/// </returns>
-		public static string AsHexString(this byte[] ab)
-		{
-			return CMisc.AsHexString(ab, false);
-		}
+		public static string AsHexString(this byte[] ab) => CMisc.AsHexString(ab, false);
 		/// <summary>
 		/// Returns the string inside an array of bytes
 		/// </summary>
@@ -166,12 +154,112 @@ namespace COMMON
 		/// <returns>
 		/// The string contained inside the array of bytes or an empty string
 		/// </returns>
-		public static string AsString(this byte[] ab, bool asUtf8 = true)
+		public static string AsString(this byte[] ab, bool asUtf8 = true) => CMisc.AsString(ab, asUtf8);
+		/// <summary>
+		/// Converts an array of bytes to its base64 representation
+		/// </summary>
+		/// <param name="ab">an array of bytes to convert to base64</param>
+		/// <param name="urlSafe">if true the base64 string is produced URL compatible, if false no compatibility is searched</param>
+		/// <returns>
+		/// A base64 string if successful, null otherwise
+		/// </returns>
+		public static string ToBase64(this byte[] ab, bool urlSafe = false)
 		{
-			return CMisc.AsString(ab);
+			try
+			{
+				string s = Convert.ToBase64String(ab);
+				return urlSafe ? CMisc.ToBase64URLSafe(s) : s;
+			}
+			catch (Exception ex)
+			{
+				CLog.EXCEPT(ex);
+			}
+			return default;
 		}
+		/// <summary>
+		/// Converts an array of bytes to its URL safe base64 representation
+		/// </summary>
+		/// <param name="ab">an array of bytes to convert to base64</param>
+		/// <returns>
+		/// A URL safe base64 string if successful, null otherwise
+		/// </returns>
+		public static string ToBase64URLSafe(this byte[] ab) => ToBase64(ab, true);
+		/// <summary>
+		/// Converts a string to its base64 representation
+		/// </summary>
+		/// <param name="value">a string to convert to base64</param>
+		/// <param name="urlSafe">if true the base64 string is produced URL compatible, if false no compatibility is searched</param>
+		/// <returns>
+		/// A base64 string if successful, null otherwise
+		/// </returns>
+		public static string ToBase64(this string value, bool urlSafe = false) => Encoding.UTF8.GetBytes(value).ToBase64(urlSafe);
+		/// <summary>
+		/// Converts a string to its URL safe base64 representation
+		/// </summary>
+		/// <param name="value">a string to convert to base64</param>
+		/// <returns>
+		/// A URL safe base64 string if successful, null otherwise
+		/// </returns>
+		public static string ToBase64URLSafe(this string value) => ToBase64(value, true);
+		/// <summary>
+		/// Converts a base64 string to an array of bytes
+		/// </summary>
+		/// <param name="value">a base64 string to convert</param>
+		/// <param name="urlSafe">if true the base64 string is considered URL compatible and must be adjusted before conversion, if false it is a plain base64 string</param>
+		/// <returns>
+		/// An array of bytes base64 string if successful, null otherwise
+		/// </returns>
+		public static byte[] FromBase64(this string value, bool urlSafe = false)
+		{
+			try
+			{
+				value = urlSafe ? CMisc.FromBase64URLSafe(value) : value;
+				return Convert.FromBase64String(value);
+			}
+			catch (Exception ex)
+			{
+				CLog.EXCEPT(ex);
+			}
+			return default;
+		}
+		/// <summary>
+		/// Converts a base64 string to an array of bytes
+		/// </summary>
+		/// <param name="value">a base64 string to convert</param>
+		/// <returns>
+		/// An array of bytes base64 string if successful, null otherwise
+		/// </returns>
+		public static byte[] FromBase64URLSafe(this string value) => FromBase64(value, true);
+		/// <summary>
+		/// Creates a SHA256 from an array of bytes
+		/// </summary>
+		/// <param name="bufferToHash">an array of bytes to use to create the SHA256</param>
+		/// <returns>
+		/// A base64 string if successful, null otherwise
+		/// </returns>
+		public static string ToSHA256(this byte[] bufferToHash)
+		{
+			try
+			{
+				var sha = new SHA256CryptoServiceProvider();
+				byte[] bytes = sha.ComputeHash(bufferToHash);
+				return sha.ComputeHash(bufferToHash).AsHexString();
+			}
+			catch (Exception ex)
+			{
+				CLog.EXCEPT(ex);
+			}
+			return default;
+		}
+		/// <summary>
+		/// Converts a string to its base64 representation
+		/// </summary>
+		/// <param name="value">a string to convert to base64</param>
+		/// <returns>
+		/// A base64 string if successful, null otherwise
+		/// </returns>
+		public static string ToSHA256(this string value) => ToSHA256(Encoding.UTF8.GetBytes(value));
 	}
-
 #if COLORS
 	[ComVisible(false)]
 	public class CColors
@@ -290,10 +378,7 @@ namespace COMMON
 		/// <param name="value">The integral type to copy to an array of bytes</param>
 		/// <param name="optimize">If true the created buffer is optimized removing the bytes on the right set to 0, false means the buffer length is according to the length of the <paramref name="value"/> type</param>
 		/// <returns>The array of bytes created after copying the integral type</returns>
-		public static byte[] SetBytesFromIntegralTypeValue(int value, bool optimize = false)
-		{
-			return SetBytesFromIntegralTypeValue(value, sizeof(int), optimize);
-		}
+		public static byte[] SetBytesFromIntegralTypeValue(int value, bool optimize = false) => SetBytesFromIntegralTypeValue(value, sizeof(int), optimize);
 		/// <summary>
 		/// Copy bytes from long integral type to byte[].
 		/// The array of bytes is 8 bytes long (size of long).
@@ -302,10 +387,7 @@ namespace COMMON
 		/// <param name="value">The integral type to copy to an array of bytes</param>
 		/// <param name="optimize">If true the created buffer is optimized removing the bytes on the right set to 0, false means the buffer length is according to the length of the <paramref name="value"/> type</param>
 		/// <returns>The array of bytes created after copying the integral type</returns>
-		public static byte[] SetBytesFromIntegralTypeValue(long value, bool optimize = false)
-		{
-			return SetBytesFromIntegralTypeValue(value, sizeof(ulong), optimize);
-		}
+		public static byte[] SetBytesFromIntegralTypeValue(long value, bool optimize = false) => SetBytesFromIntegralTypeValue(value, sizeof(ulong), optimize);
 		/// <summary>
 		/// Copy bytes from long integral type to byte[].
 		/// The array of bytes is 8 bytes long (size of long).
@@ -379,10 +461,7 @@ namespace COMMON
 		/// </summary>
 		/// <param name="buffer">The array of bytes to analyse</param>
 		/// <returns>A long describing the value stored inside the array of bytes, 0 otherwise</returns>
-		public static long GetIntegralTypeValueFromBytes(byte[] buffer)
-		{
-			return GetIntegralTypeValueFromBytes(buffer, 0, buffer.Length);
-		}
+		public static long GetIntegralTypeValueFromBytes(byte[] buffer) => GetIntegralTypeValueFromBytes(buffer, 0, buffer.Length);
 		/// <summary>
 		/// Get integral long value value from an array of bytes where each byte (up to 8 bytes) represents a part of the integral value.
 		/// This function is useful to retrieve an integral value from a set of bytes
@@ -390,10 +469,7 @@ namespace COMMON
 		/// <param name="buffer">The array of bytes to analyse</param>
 		/// <param name="maxlen">The number of bytes to use to build the integral value</param>
 		/// <returns>A long describing the value stored inside the array of bytes, 0 otherwise</returns>
-		public static long GetIntegralTypeValueFromBytes(byte[] buffer, int maxlen)
-		{
-			return GetIntegralTypeValueFromBytes(buffer, 0, maxlen);
-		}
+		public static long GetIntegralTypeValueFromBytes(byte[] buffer, int maxlen) => GetIntegralTypeValueFromBytes(buffer, 0, maxlen);
 		/// <summary>
 		/// Get integral long value value from an array of bytes where each byte (up to 8 bytes) represents a part of the integral value.
 		/// This function is useful to retrieve an integral value from a set of bytes
@@ -691,40 +767,28 @@ namespace COMMON
 		/// </summary>
 		/// <param name="s">hexadecimal string</param>
 		/// <returns>Expected value or <see cref="EOutOfRange"/> exception or <see cref="EInvalidFormat"/> exception if not a valid hexadecimal string</returns>
-		public static double HexToDouble(string s)
-		{
-			return (double)HexToDecimal(s);
-		}
+		public static double HexToDouble(string s) => (double)HexToDecimal(s);
 		/// <summary>
 		/// Converts an hexadecimal representation to its long value
 		/// THIS FUNCTION MAY THROW AN EXCEPTION <see cref="EOutOfRange"/> or <see cref="EInvalidFormat"/>
 		/// </summary>
 		/// <param name="s">hexadecimal string</param>
 		/// <returns>Expected value or <see cref="EOutOfRange"/> exception or <see cref="EInvalidFormat"/> exception if not a valid hexadecimal string</returns>
-		public static long HexToLong(string s)
-		{
-			return (long)HexToDecimal(s);
-		}
+		public static long HexToLong(string s) => (long)HexToDecimal(s);
 		/// <summary>
 		/// Converts an hexadecimal representation to its int value
 		/// THIS FUNCTION MAY THROW AN EXCEPTION <see cref="EOutOfRange"/> or <see cref="EInvalidFormat"/>
 		/// </summary>
 		/// <param name="s">hexadecimal string</param>
 		/// <returns>Expected value or <see cref="EOutOfRange"/> exception or <see cref="EInvalidFormat"/> exception if not a valid hexadecimal string</returns>
-		public static int HexToInt(string s)
-		{
-			return (int)HexToDecimal(s);
-		}
+		public static int HexToInt(string s) => (int)HexToDecimal(s);
 		/// <summary>
 		/// Converts an hexadecimal representation to its short value
 		/// THIS FUNCTION MAY THROW AN EXCEPTION <see cref="EOutOfRange"/> or <see cref="EInvalidFormat"/>
 		/// </summary>
 		/// <param name="s">hexadecimal string</param>
 		/// <returns>Expected value or <see cref="EOutOfRange"/> exception or <see cref="EInvalidFormat"/> exception if not a valid hexadecimal string</returns>
-		public static short HexToShort(string s)
-		{
-			return (short)HexToDecimal(s);
-		}
+		public static short HexToShort(string s) => (short)HexToDecimal(s);
 		/// <summary>
 		/// Indicates whether a value is contained inside an enum type
 		/// </summary>
@@ -764,7 +828,7 @@ namespace COMMON
 		/// <param name="T">The enum type to check against</param>
 		/// <param name="value">The value to find</param>
 		/// <returns>The litteral string describing the value inside the enum, null if it does not exist</returns>
-		public static string EnumGetName(Type T, object value) { return GetEnumName(T, value); }
+		public static string EnumGetName(Type T, object value) => GetEnumName(T, value);
 		/// <summary>
 		/// Verify whether a value is valid inside an enumeration
 		/// </summary>
@@ -792,7 +856,7 @@ namespace COMMON
 		/// <param name="value">The value to verify</param>
 		/// <param name="defv">Default value to use if <paramref name="value"/> to search is not found; if null then <see cref="CMisc.UNKNOWN"/> will be used as the default value</param>
 		/// <returns><paramref name="value"/> if it is inside the enumeration, <paramref name="defv"/> is not inside the enumeration</returns>
-		public static object EnumGetValue(Type T, string value, object defv = default) { return GetEnumValue(T, value, defv); }
+		public static object EnumGetValue(Type T, string value, object defv = default) => GetEnumValue(T, value, defv);
 		/// <summary>
 		/// Returns the simples form of a string
 		/// </summary>
@@ -824,10 +888,7 @@ namespace COMMON
 		/// </summary>
 		/// <param name="s">The string to test</param>
 		/// <returns>The string  or an empty string</returns>
-		public static string AsString(string s)
-		{
-			return string.IsNullOrEmpty(s) ? default : s;
-		}
+		public static string AsString(string s) => string.IsNullOrEmpty(s) ? default : s;
 		/// <summary>
 		/// Returns the string inside an array of bytes
 		/// </summary>
@@ -994,7 +1055,7 @@ namespace COMMON
 		/// <returns>
 		/// An hexadecimal string representing the hash if successful, null otherwise
 		/// </returns>
-		public static string CreateSHA256(byte[] bufferToHash)
+		public static string ToSHA256(byte[] bufferToHash)
 		{
 			try
 			{
@@ -1015,10 +1076,7 @@ namespace COMMON
 		/// <returns>
 		/// An hexadecimal string representing the hash if successful, null otherwise
 		/// </returns>
-		public static string CreateSHA256(string stringToHash)
-		{
-			return CreateSHA256(Encoding.UTF8.GetBytes(stringToHash));
-		}
+		public static string ToSHA256(string stringToHash) => ToSHA256(Encoding.UTF8.GetBytes(stringToHash));
 		/// <summary>
 		/// Converts a standard base64 string to an URL compatible string
 		/// </summary>

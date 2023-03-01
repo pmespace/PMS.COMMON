@@ -60,6 +60,12 @@ namespace TestCore
 			CMisc.YesNo("hello", true, true, true);
 #endif
 
+			string sha = "hello, how are you mister Doolittle".ToSHA256();
+			string base641 = sha.ToBase64();
+			string base642 = sha.ToBase64URLSafe();
+			byte[] sha1 = base641.FromBase64();
+			byte[] sha2 = base642.FromBase64URLSafe();
+
 			byte[] j = new byte[CMisc.MaxBytesAsString * 2];
 			for (int i = 0; i < j.Length; i++) j[i] = (byte)(i % 10);
 			CMisc.MaxBytesAsString = 1000;

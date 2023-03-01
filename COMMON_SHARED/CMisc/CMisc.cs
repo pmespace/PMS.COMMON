@@ -241,9 +241,7 @@ namespace COMMON
 		{
 			try
 			{
-				var sha = new SHA256CryptoServiceProvider();
-				byte[] bytes = sha.ComputeHash(bufferToHash);
-				return sha.ComputeHash(bufferToHash).AsHexString();
+				return SHA256.Create().ComputeHash(bufferToHash).AsHexString();
 			}
 			catch (Exception ex)
 			{
@@ -1055,20 +1053,7 @@ namespace COMMON
 		/// <returns>
 		/// An hexadecimal string representing the hash if successful, null otherwise
 		/// </returns>
-		public static string ToSHA256(byte[] bufferToHash)
-		{
-			try
-			{
-				var sha = new SHA256CryptoServiceProvider();
-				byte[] bytes = sha.ComputeHash(bufferToHash);
-				return CMisc.AsString(sha.ComputeHash(bufferToHash));
-			}
-			catch (Exception ex)
-			{
-				CLog.EXCEPT(ex);
-			}
-			return null;
-		}
+		public static string ToSHA256(byte[] bufferToHash) => bufferToHash.ToSHA256();
 		/// <summary>
 		/// Creates a SHA256 buffer
 		/// </summary>
@@ -1076,7 +1061,7 @@ namespace COMMON
 		/// <returns>
 		/// An hexadecimal string representing the hash if successful, null otherwise
 		/// </returns>
-		public static string ToSHA256(string stringToHash) => ToSHA256(Encoding.UTF8.GetBytes(stringToHash));
+		public static string ToSHA256(string stringToHash) => stringToHash.ToSHA256();
 		/// <summary>
 		/// Converts a standard base64 string to an URL compatible string
 		/// </summary>

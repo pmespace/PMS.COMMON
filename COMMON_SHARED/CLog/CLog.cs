@@ -80,7 +80,7 @@ namespace COMMON
 		}
 		protected string ToStringPrefix() => $"{CMisc.BuildDate(CMisc.DateFormat.YYYYMMDDhhmmssfffEx)}{Chars.TAB}{Severity}{Chars.TAB}{Thread.CurrentThread.ManagedThreadId.ToString("X8")}{Chars.TAB}";
 		public override string ToString() => $"{(CLog.SeverityToLog <= Severity || TLog.FMNGT == Severity ? CLog.RemoveCRLF(Msg.Trim()) : string.Empty)}";
-		internal virtual string ToString(bool addSharedData)
+		internal virtual string ToStringEx(bool addSharedData)
 		{
 			try
 			{
@@ -94,7 +94,7 @@ namespace COMMON
 	{
 		public override TLog Severity { get => _severity; set => _severity = (CLog.IsTLog(value) || TLog.FMNGT == value ? value : _severity); }
 		protected override string ToStringSC(bool addSharedData = true) => Guid.Empty.ToString() + Chars.TAB;
-		internal override string ToString(bool addSharedData)
+		internal override string ToStringEx(bool addSharedData)
 		{
 			try
 			{
@@ -136,16 +136,19 @@ namespace COMMON
 			catch (Exception) { }
 			return r;
 		}
-		public string ToString(bool addSharedData)
+		public string ToStringEx(bool addSharedData)
 		{
 			string r = string.Empty;
 			try
 			{
+				bool hasBeenSet = CLog.SharedGuidHasBeenSet;
+				if (!hasBeenSet) CLog.SetSharedGuid();
 				for (int i = 0; i < Count; i++)
 				{
-					string s = this[i].ToString(addSharedData);
+					string s = this[i].ToStringEx(addSharedData);
 					r += (s.IsNullOrEmpty() ? string.Empty : 0 == i ? s : Chars.CRLF + s);
 				}
+				if (!hasBeenSet) CLog.ResetSharedGuid();
 			}
 			catch (Exception) { }
 			return r.Trim();
@@ -308,421 +311,6 @@ namespace COMMON
 		static readonly Object mylock = new Object();
 		#endregion
 
-		#region old per thread shared memory management
-		//#if !NET35
-		//		/// <summary>
-		//		/// Dictionary of MemoryMappedFile indexed by thread number
-		//		/// </summary>
-		//		static Dictionary<int, MemoryMappedFile> Mmfs = new Dictionary<int, MemoryMappedFile>();
-		//		const int offsetInitialized = 0;
-		//		const int offsetGuid = sizeof(bool);
-		//		const int guidLen = 16;
-		//		const int offsetContextLen = offsetGuid + guidLen;
-		//		const int labelLen = sizeof(int);
-		//		const int offsetContext = offsetContextLen + labelLen;
-		//		const int mappedMemoryFileSize = 1024;
-		//		/// <summary>
-		//		/// Get a <see cref="MemoryMappedFile"/> handle specific to the current thread
-		//		/// </summary>
-		//		/// <returns></returns>
-		//		static MemoryMappedFile GetMmf()
-		//		{
-		//			MemoryMappedFile mmf = null;
-		//			try
-		//			{
-		//				lock (mylock)
-		//				{
-		//					try
-		//					{
-		//						mmf = Mmfs[Thread.CurrentThread.ManagedThreadId];
-		//					}
-		//					catch (Exception)
-		//					{
-		//						mmf = MemoryMappedFile.CreateOrOpen(Thread.CurrentThread.ManagedThreadId.ToString("00000"), mappedMemoryFileSize);
-		//						Mmfs.Add(Thread.CurrentThread.ManagedThreadId, mmf);
-		//					}
-		//				}
-		//			}
-		//			catch (Exception) { mmf = null; }
-		//			return mmf;
-		//		}
-		//		/// <summary>
-		//		/// Delete athe <see cref="MemoryMappedFile"/> specific to the thread
-		//		/// </summary>
-		//		internal static void RazMmf()
-		//		{
-		//			lock (mylock)
-		//			{
-		//				try
-		//				{
-		//					var mmf = GetMmf();
-		//					mmf.Dispose();
-		//					Mmfs.Remove(Thread.CurrentThread.ManagedThreadId);
-		//				}
-		//				catch (Exception) { }
-		//			}
-		//		}
-		//#endif
-		//		/// <summary>
-		//		/// Specific GUID to use when logging data.
-		//		/// This value is set per thread.
-		//		/// </summary>
-		//		public static Guid? SharedGuid
-		//		{
-		//			get
-		//			{
-		//#if NET35
-		//				return Guid.NewGuid();
-		//#else
-		//				// access to the shared memory
-		//				try
-		//				{
-		//#if DEBUG && DEBUGLOG
-		//					AddEx(new List<string>() { "Guid shared memory name: " + CThread.SharedName }, TLog.DEBUG, false);
-		//#endif
-		//					//	var mmf = MemoryMappedFile.CreateOrOpen(CThread.SharedName, mappedMemoryFileSize);
-		//					var mmf = GetMmf();
-		//					using (var accessor = mmf.CreateViewAccessor())
-		//					{
-		//						accessor.Read(offsetInitialized, out bool b);
-		//						if (b)
-		//						{
-		//							byte[] ab = new byte[guidLen];
-		//							accessor.ReadArray<byte>(offsetGuid, ab, 0, guidLen);
-		//							return new Guid(ab);
-		//						}
-		//					}
-		//				}
-		//				catch (Exception ex)
-		//				{
-		//					AddException(ex, null, false);
-		//				}
-		//				return Guid.NewGuid();
-		//#endif
-		//			}
-		//			set
-		//			{
-		//#if NET35
-		//				return;
-		//#else
-		//				// access to the shared memory
-		//				try
-		//				{
-		//					//var mmf = MemoryMappedFile.CreateOrOpen(CThread.SharedName, mappedMemoryFileSize);
-		//					var mmf = GetMmf();
-		//					using (var accessor = mmf.CreateViewAccessor())
-		//					{
-		//						bool b = value.HasValue && Guid.Empty != value.Value;
-		//						accessor.Write(offsetInitialized, b);
-		//						accessor.WriteArray<byte>(offsetGuid, b ? value.Value.ToByteArray() : Guid.Empty.ToByteArray(), 0, guidLen);
-		//					}
-		//				}
-		//				catch (Exception ex)
-		//				{
-		//					AddException(ex, null, false);
-		//				}
-		//#endif
-		//			}
-		//		}
-		//		public static Guid SetNewSharedGuid() { SharedGuid = Guid.NewGuid(); return (Guid)SharedGuid; }
-		//		/// <summary>
-		//		/// Specific context string to use when logging data.
-		//		/// This value is set per thread.
-		//		/// It's MAXIMUM length is 1000 bytes in UTF8.
-		//		/// </summary>
-		//		public static string SharedContext
-		//		{
-		//			get
-		//			{
-		//#if NET35
-		//				return string.Empty;
-		//#else
-		//				// access to the shared memory
-		//				try
-		//				{
-		//#if DEBUG && DEBUGLOG
-		//					AddEx(new List<string>() { "Context shared memory name: " + CThread.SharedName }, TLog.DEBUG, false);
-		//#endif
-		//					//var mmf = MemoryMappedFile.CreateOrOpen(CThread.SharedName, mappedMemoryFileSize);
-		//					var mmf = GetMmf();
-		//					using (var accessor = mmf.CreateViewAccessor())
-		//					{
-		//						accessor.Read(offsetContextLen, out int i);
-		//						if (0 != i)
-		//						{
-		//							byte[] ab = new byte[i];
-		//							accessor.ReadArray<byte>(offsetContext, ab, 0, i);
-		//							return Encoding.UTF8.GetString(ab);
-		//						}
-		//					}
-		//				}
-		//				catch (Exception ex)
-		//				{
-		//					AddException(ex, null, false);
-		//				}
-		//				return string.Empty;
-		//#endif
-		//			}
-		//			set
-		//			{
-		//#if NET35
-		//				return;
-		//#else
-		//				// access to the shared memory
-		//				try
-		//				{
-		//					//var mmf = MemoryMappedFile.CreateOrOpen(CThread.SharedName, mappedMemoryFileSize);
-		//					var mmf = GetMmf();
-		//					using (var accessor = mmf.CreateViewAccessor())
-		//					{
-		//						byte[] ab = Encoding.UTF8.GetBytes(value.IsNullOrEmpty() ? string.Empty : value);
-		//						accessor.Write(offsetContextLen, ab.Length);
-		//						accessor.WriteArray<byte>(offsetContext, ab, 0, ab.Length);
-		//					}
-		//				}
-		//				catch (Exception ex)
-		//				{
-		//					AddException(ex, null, false);
-		//				}
-		//#endif
-		//			}
-		//		}
-		#endregion
-
-		//#region per thread shared memory management
-		///// <summary>
-		///// Dictionary of memory objects indexed by a key
-		///// </summary>
-		//static Dictionary<int, Stack<MMF>> Mmfs = new Dictionary<int, Stack<MMF>>();
-		//class MMF
-		//{
-		//	public MMF() { Uid = Guid.NewGuid(); Context = string.Empty; }
-		//	public Guid Uid { get; set; }
-		//	public string Context { get; set; }
-		//}
-		///// <summary>
-		///// Get the <see cref="MMF"/> object specific to the current thread if available,
-		///// a newly created one if unavailable
-		///// </summary>
-		///// <returns>a <see cref="MMF"/> object</returns>
-		//static MMF GetMmf()
-		//{
-		//	MMF mmf = new MMF();
-		//	lock (mylock)
-		//	{
-		//		try
-		//		{
-		//			if (Mmfs.ContainsKey(Thread.CurrentThread.ManagedThreadId))
-		//				mmf = Mmfs[Thread.CurrentThread.ManagedThreadId].Peek();
-		//		}
-		//		catch (Exception) { }
-		//	}
-		//	return mmf;
-		//}
-		///// <summary>
-		///// Pop the last added data
-		///// </summary>
-		//internal static void PopMmf()
-		//{
-		//	lock (mylock)
-		//	{
-		//		try
-		//		{
-		//			if (Mmfs.ContainsKey(Thread.CurrentThread.ManagedThreadId))
-		//				Mmfs[Thread.CurrentThread.ManagedThreadId].Pop();
-		//		}
-		//		catch (Exception) { }
-		//	}
-		//	try
-		//	{
-		//		if (0 == Mmfs[Thread.CurrentThread.ManagedThreadId].Count)
-		//			Mmfs.Remove(Thread.CurrentThread.ManagedThreadId);
-		//	}
-		//	catch (Exception) { }
-		//}
-		///// <summary>
-		///// Add a new memory data
-		///// </summary>
-		///// <returns>
-		///// true if the data has been pushed,
-		///// false otherwise
-		///// </returns>
-		//internal static void PushMmf()
-		//{
-		//	lock (mylock)
-		//	{
-		//		try
-		//		{
-		//			if (Mmfs.ContainsKey(Thread.CurrentThread.ManagedThreadId))
-		//				Mmfs[Thread.CurrentThread.ManagedThreadId].Push(new MMF() { Uid = Guid.NewGuid(), Context = Mmfs[Thread.CurrentThread.ManagedThreadId].Peek().Context });
-		//			else
-		//				Mmfs.Add(Thread.CurrentThread.ManagedThreadId, new Stack<MMF>(new MMF[] { new MMF() }));
-		//		}
-		//		catch (Exception) { }
-		//	}
-		//}
-		///// <summary>
-		///// Specific <see cref="Guid"/> to use when logging data.
-		///// This value is set per thread.
-		///// </summary>
-		///// <returns>a GUID</returns>
-		//public static Guid SharedGuid
-		//{
-		//	get => GetMmf().Uid;
-		//	set
-		//	{
-		//		try
-		//		{
-		//			if (Guid.NewGuid() == value || default == value)
-		//				PopMmf();
-		//			else
-		//				PushMmf();
-		//		}
-		//		catch (Exception) { }
-		//	}
-		//}
-		//public static Guid SetNewSharedGuid() => SharedGuid = Guid.NewGuid();
-		///// <summary>
-		///// Specific context string to use when logging data.
-		///// This value is set per thread.
-		///// </summary>
-		//public static string SharedContext
-		//{
-		//	get => GetMmf().Context;
-		//	set
-		//	{
-		//		lock (mylock)
-		//		{
-		//			try
-		//			{
-		//				if (Mmfs.ContainsKey(Thread.CurrentThread.ManagedThreadId))
-		//					Mmfs[Thread.CurrentThread.ManagedThreadId].Peek().Context = value;
-		//				else
-		//					Mmfs.Add(Thread.CurrentThread.ManagedThreadId, new Stack<MMF>(new MMF[] { new MMF() { Context = value } }));
-		//			}
-		//			catch (Exception) { }
-		//		}
-		//	}
-		//}
-		//#endregion
-
-		//#region per thread shared memory management
-		///// <summary>
-		///// Dictionary of memory objects indexed by a key
-		///// </summary>
-		//static Dictionary<int, MMF> Mmfs = new Dictionary<int, MMF>();
-		//class MMF
-		//{
-		//	public MMF() { Uids = new Stack<Guid>(new Guid[] { Guid.NewGuid() }); Context = string.Empty; }
-		//	public Stack<Guid> Uids { get; set; }
-		//	public string Context { get; set; }
-		//}
-		///// <summary>
-		///// Get the <see cref="MMF"/> object specific to the current thread if available,
-		///// a newly created one if unavailable
-		///// </summary>
-		///// <returns>a <see cref="MMF"/> object</returns>
-		//static MMF GetMmf()
-		//{
-		//	MMF mmf = new MMF();
-		//	lock (mylock)
-		//	{
-		//		try
-		//		{
-		//			if (Mmfs.ContainsKey(Thread.CurrentThread.ManagedThreadId))
-		//				mmf = Mmfs[Thread.CurrentThread.ManagedThreadId];
-		//		}
-		//		catch (Exception) { }
-		//	}
-		//	return mmf;
-		//}
-		///// <summary>
-		///// Pop the last added data
-		///// </summary>
-		//internal static void PopMmf()
-		//{
-		//	lock (mylock)
-		//	{
-		//		try
-		//		{
-		//			if (Mmfs.ContainsKey(Thread.CurrentThread.ManagedThreadId))
-		//				Mmfs[Thread.CurrentThread.ManagedThreadId].Uids.Pop();
-		//		}
-		//		catch (Exception) { }
-		//	}
-		//	try
-		//	{
-		//		if (0 == Mmfs[Thread.CurrentThread.ManagedThreadId].Uids.Count)
-		//			Mmfs.Remove(Thread.CurrentThread.ManagedThreadId);
-		//	}
-		//	catch (Exception) { }
-		//}
-		///// <summary>
-		///// Add a new memory data
-		///// </summary>
-		///// <returns>
-		///// true if the data has been pushed,
-		///// false otherwise
-		///// </returns>
-		//internal static void PushMmf()
-		//{
-		//	lock (mylock)
-		//	{
-		//		try
-		//		{
-		//			if (Mmfs.ContainsKey(Thread.CurrentThread.ManagedThreadId))
-		//				Mmfs[Thread.CurrentThread.ManagedThreadId].Uids.Push(Mmfs[Thread.CurrentThread.ManagedThreadId].Uids.Peek());
-		//			else
-		//				Mmfs.Add(Thread.CurrentThread.ManagedThreadId, new MMF());
-		//		}
-		//		catch (Exception) { }
-		//	}
-		//}
-		///// <summary>
-		///// Specific <see cref="Guid"/> to use when logging data.
-		///// This value is set per thread.
-		///// </summary>
-		///// <returns>a GUID</returns>
-		//public static Guid SharedGuid
-		//{
-		//	get => GetMmf().Uids.Peek();
-		//	set
-		//	{
-		//		try
-		//		{
-		//			if (Guid.NewGuid() == value || default == value)
-		//				PopMmf();
-		//			else
-		//				PushMmf();
-		//		}
-		//		catch (Exception) { }
-		//	}
-		//}
-		//public static Guid SetNewSharedGuid() => SharedGuid = Guid.NewGuid();
-		///// <summary>
-		///// Specific context string to use when logging data.
-		///// This value is set per thread.
-		///// </summary>
-		//public static string SharedContext
-		//{
-		//	get => GetMmf().Context;
-		//	set
-		//	{
-		//		lock (mylock)
-		//		{
-		//			try
-		//			{
-		//				if (Mmfs.ContainsKey(Thread.CurrentThread.ManagedThreadId))
-		//					Mmfs[Thread.CurrentThread.ManagedThreadId].Peek().Context = value;
-		//				else
-		//					Mmfs.Add(Thread.CurrentThread.ManagedThreadId, new Stack<MMF>(new MMF[] { new MMF() { Context = value } }));
-		//			}
-		//			catch (Exception) { }
-		//		}
-		//	}
-		//}
-		//#endregion
-
 		#region per thread shared memory management
 		/// <summary>
 		/// Dictionary of memory objects indexed by a key
@@ -784,7 +372,8 @@ namespace COMMON
 				}
 			}
 		}
-		public static Guid SetNewSharedGuid() => SharedGuid = Guid.NewGuid();
+		public static Guid SetSharedGuid() => SharedGuid = Guid.NewGuid();
+		public static void ResetSharedGuid() => SharedGuid = Guid.Empty;
 		/// <summary>
 		/// Indicates whether a shared guid has been set or not (apart from getting a value)
 		/// </summary>
@@ -935,7 +524,7 @@ namespace COMMON
 						OpenLogFile(originalFName);
 
 					// arrived here the file is ready for write, write what was meant to be written
-					AddToLog(ls.ToString(addSharedData));
+					AddToLog(ls.ToStringEx(addSharedData));
 				}
 			}
 			catch (Exception) { }
@@ -1040,7 +629,7 @@ namespace COMMON
 								 $"+++++ {LogFileName.ToUpper()} OPENED: {CMisc.BuildDate(_dateFormat, CreatedOn)} (EXE VERSION: {CMisc.Version(CMisc.VersionType.executable)}/{CMisc.Version(CMisc.VersionType.assemblyFile)} - COMMON VERSION: {CMisc.Version(CMisc.VersionType.assembly, Assembly.GetExecutingAssembly())}/{CMisc.Version(CMisc.VersionType.assemblyFile, Assembly.GetExecutingAssembly())})",
 								 $"+++++",
 							 });
-						AddToLog(ls.ToString(false));
+						AddToLog(ls.ToStringEx(false));
 						try
 						{
 							if (AutoPurgeLogFiles)
@@ -1097,7 +686,7 @@ namespace COMMON
 								$"----- {LogFileName.ToUpper()} CLOSED: {CMisc.BuildDate(_dateFormat)}",
 								$"-----"
 							});
-						AddToLog(ls.ToString(false));
+						AddToLog(ls.ToStringEx(false));
 					}
 				}
 				catch (Exception) { }

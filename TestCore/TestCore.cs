@@ -91,8 +91,42 @@ namespace TestCore
 			};
 
 			CLog.SeverityToLog = TLog.TRACE;
+
 			//CLog.LogFileName = "testcore.log";
-			//CLog.SetNewSharedGuid();
+			CLog.SetSharedGuid();
+			CLog.Add(new CLogMsgs()
+			{
+				new CLogMsg("1", TLog.TRACE),
+				new CLogMsg("2", TLog.DEBUG),
+				new CLogMsg("3", TLog.ERROR),
+				new CLogMsg("4", TLog.INFOR),
+			});
+			CLog.ResetSharedGuid();
+			CLog.Add(new CLogMsgs()
+			{
+				new CLogMsg("1", TLog.TRACE),
+				new CLogMsg("2", TLog.DEBUG),
+				new CLogMsg("3", TLog.ERROR),
+				new CLogMsg("4", TLog.INFOR),
+			});
+			CLog.SetSharedGuid();
+			CLog.Add(new CLogMsgs()
+			{
+				new CLogMsg("1", TLog.TRACE),
+				new CLogMsg("2", TLog.DEBUG),
+				new CLogMsg("3", TLog.ERROR),
+				new CLogMsg("4", TLog.INFOR),
+			});
+			CLog.SharedGuid = default;
+			CLog.Add(new CLogMsgs()
+			{
+				new CLogMsg("1", TLog.TRACE),
+				new CLogMsg("2", TLog.DEBUG),
+				new CLogMsg("3", TLog.ERROR),
+				new CLogMsg("4", TLog.INFOR),
+			});
+
+			//CLog.SetSharedGuid();
 			CLog.SharedContext = "TESTCORE";
 
 			CLog.Add(new CLogMsgs()
@@ -113,7 +147,7 @@ namespace TestCore
 			}
 			);
 
-			//CLog.TRACE($"New GUID: {CLog.SetNewSharedGuid()}");
+			//CLog.TRACE($"New GUID: {CLog.SetSharedGuid()}");
 
 			string qq = System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).ProductVersion;// FileVersion;
 			qq = System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).FileVersion;// FileVersion;

@@ -771,7 +771,7 @@ namespace COMMON
 						{
 							Mmfs[Thread.CurrentThread.ManagedThreadId].Uid = value;
 						}
-						else if (Guid.NewGuid() == value || default == value)
+						else if (Guid.Empty == value || default == value)
 						{
 							Mmfs.Remove(Thread.CurrentThread.ManagedThreadId);
 						}

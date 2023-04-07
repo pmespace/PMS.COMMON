@@ -217,7 +217,7 @@ namespace COMMON
 				Buffer.BlockCopy(bs, 0, messageToSend, 0, (int)lengthSize);
 			}
 			// arrived here the message is ready to be sent
-			string s1 = "(no header requested)", s2 = $"({lengthSize} size header)";
+			string s1 = "(no header requested)", s2 = $"(with {lengthSize} bytes header)";
 			CLog.Add(new CLogMsgs()
 			{
 				new CLogMsg($"sending message {messageToSend.Length} bytes {(0 == lengthSize ? s1 : s2)}", TLog.INFOR),

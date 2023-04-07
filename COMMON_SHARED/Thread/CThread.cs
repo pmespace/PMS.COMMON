@@ -277,9 +277,6 @@ namespace COMMON
 			{
 				CLog.EXCEPT(ex);
 			}
-#if !NET35
-			CLog.RazMmf();
-#endif
 		}
 
 #if NETFRAMEWORK

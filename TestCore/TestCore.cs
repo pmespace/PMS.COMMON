@@ -91,7 +91,9 @@ namespace TestCore
 			};
 
 			CLog.SeverityToLog = TLog.TRACE;
-			CLog.LogFileName = "testcore.log";
+			//CLog.LogFileName = "testcore.log";
+			//CLog.SetNewSharedGuid();
+			CLog.SharedContext = "TESTCORE";
 
 			CLog.Add(new CLogMsgs()
 			{
@@ -101,6 +103,17 @@ namespace TestCore
 				new CLogMsg("4", TLog.INFOR),
 			}
 				);
+
+			CLog.Add(new CLogMsgs()
+			{
+				new CLogMsg("1", TLog.TRACE),
+				new CLogMsg("2", TLog.TRACE),
+				new CLogMsg("3", TLog.TRACE),
+				new CLogMsg("4", TLog.TRACE),
+			}
+			);
+
+			//CLog.TRACE($"New GUID: {CLog.SetNewSharedGuid()}");
 
 			string qq = System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).ProductVersion;// FileVersion;
 			qq = System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).FileVersion;// FileVersion;

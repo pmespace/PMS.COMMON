@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net35</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net6.0;net35</TargetFrameworks>
     <AssemblyName>PMS.COMMON</AssemblyName>
-    <Version>7.0.0</Version>
+    <Version>8.0.0</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <FileVersion>7.0.0</FileVersion>
-    <AssemblyVersion>7.0.0</AssemblyVersion>
+    <FileVersion>8.0.0</FileVersion>
+    <AssemblyVersion>8.0.0</AssemblyVersion>
     <Authors>philippemp31</Authors>
     <Company>PMS</Company>
     <Description></Description>
@@ -46,6 +46,8 @@
 
   <Import Project="..\COMMON_WIN32\COMMON_WIN32.projitems" Label="Shared" Condition="'$(TargetFramework)'=='net35' Or '$(TargetFramework)'=='net40' Or '$(TargetFramework)'=='net45' Or '$(TargetFramework)'=='net47'" />
 
+  <Import Project="..\COMMON_CORE\COMMON_CORE.projitems" Label="Shared" Condition="'$(TargetFramework)'=='net6.0'" />
+
   <ItemGroup>
     <None Include="..\README.md">
       <Pack>True</Pack>
@@ -55,7 +57,8 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="System.Data.Odbc" Version="6.0.0" Condition="'$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='net50'" />
+    <PackageReference Include="System.Data.Odbc" Version="6.0.0" Condition="'$(TargetFramework)'!='net35'" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" Condition="'$(TargetFramework)'=='net6.0'" />
   </ItemGroup>
 
   <ItemGroup>

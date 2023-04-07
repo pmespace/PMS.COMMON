@@ -767,13 +767,13 @@ namespace COMMON
 				{
 					try
 					{
-						if (Mmfs.ContainsKey(Thread.CurrentThread.ManagedThreadId))
-						{
-							Mmfs[Thread.CurrentThread.ManagedThreadId].Uid = value;
-						}
-						else if (Guid.Empty == value || default == value)
+						if (Guid.Empty == value || default == value)
 						{
 							Mmfs.Remove(Thread.CurrentThread.ManagedThreadId);
+						}
+						else if (Mmfs.ContainsKey(Thread.CurrentThread.ManagedThreadId))
+						{
+							Mmfs[Thread.CurrentThread.ManagedThreadId].Uid = value;
 						}
 						else
 						{

@@ -1,7 +1,7 @@
-8.0.0
-- CLog.SharedGui and CLog.SHaredContext processing has been fully reviewed as the previous one worked only on Windows. It's been changed to work on all platforms and all .NET versions (including .NET 3.5)
-- CWSServer (and companions) is new object providing a Web Socket server interface to any application
-- The package now also supports .NET 6.0 along with .NET 3.5 and .NET standard 2.0
+7.5.0
+- Added WM_APP along with WM_USER in Win32 pakage
+- Fixed a bug retrieving an assembly version in CMis.Version when the calling app is NOT a .NET app (components used through COM)
+- CLog.SharedGui and CLog.SharedContext processing has been fully reviewed as the previous one worked only on Windows. It's been changed to work on all platforms and all .NET versions (including .NET 3.5)
 
 7.0.0
 - Made all object in CSafe... not serializable in json

@@ -79,7 +79,7 @@ namespace COMMON
 		public int StoppedMessage
 		{
 			get => _threadstoppedmessage;
-			set => _threadstoppedmessage = Win32.IsValidWM(value) ? value : _threadstoppedmessage;
+			set => _threadstoppedmessage = Win32.IsValidWMUser(value) ? value : _threadstoppedmessage;
 		}
 		private int _threadstoppedmessage = WM_THREAD_STOPPED;
 		public const int WM_THREAD_STOPPED = 0x666;
@@ -90,7 +90,7 @@ namespace COMMON
 		public int InformationMessage
 		{
 			get => _informationmessage;
-			set => _informationmessage = Win32.IsValidWM(value) ? value : _informationmessage;
+			set => _informationmessage = Win32.IsValidWMUser(value) ? value : _informationmessage;
 		}
 		private int _informationmessage = WM_THREAD_INFORMATION;
 		public const int WM_THREAD_INFORMATION = WM_THREAD_STOPPED + 1;

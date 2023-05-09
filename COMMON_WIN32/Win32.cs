@@ -56,13 +56,18 @@ namespace COMMON.WIN32
 			DWLP_DLGPROC = 0x04,
 		}
 
-		/// <summary>
-		/// WM_USER, starting point of user defined messages
-		/// </summary>
+		// WM_USER, starting point of user defined messages
 		public const int WM_USER = 0x0400;
 		public static int WMUser { get => WM_USER; }
 		public const int WM_USER_MAX = 0x7FFF;
 		public static int WMUserMax { get => WM_USER_MAX; }
-		public static bool IsValidWM(int value) { return Win32.WM_USER <= value && Win32.WM_USER_MAX >= value; }
+		public static bool IsValidWMUser(int value) { return WM_USER <= value && WM_USER_MAX >= value; }
+
+		// WM_APP, starting point of application defined messages
+		public const int WM_APP = 0x8000;
+		public static int WMApp { get => WM_APP; }
+		public const int WM_APP_MAX = 0xBFFF;
+		public static int WMAppMax { get => WM_APP_MAX; }
+		public static bool IsValidWMApp(int value) { return WM_APP <= value && WM_APP_MAX >= value; }
 	}
 }

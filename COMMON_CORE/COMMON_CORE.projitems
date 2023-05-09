@@ -9,8 +9,12 @@
     <Import_RootNamespace>COMMON_CORE</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)WSServer\CWSBuffer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)wsserver\CWSClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)wsserver\CWSClientSettings.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WSServer\CWSServer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WSServer\CWSServerSettings.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)wsserver\CWSServerClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WSServer\CWSServerConnectedClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)wsserver\CWSSettings.cs" />
   </ItemGroup>
 </Project>

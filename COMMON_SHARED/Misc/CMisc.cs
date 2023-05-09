@@ -933,23 +933,28 @@ namespace COMMON
 		/// <returns></returns>
 		public static string Version(VersionType type = VersionType.executable, Assembly assembly = default)
 		{
-			switch (type)
+			try
 			{
-				case VersionType.assembly: // <Version>7.0.1</Version>
-					if (default != assembly)
-						return System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
-					// exe version (similar to VersionType.executable)
-					return System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).ProductVersion;
-				case VersionType.assemblyFile: // <FileVersion>7.0.2</FileVersion>
-					if (default != assembly)
-						return System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion;
-					// exe file version
-					return System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).FileVersion;
-				case VersionType.executable:
-				default:
-					// exe version
-					return System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).ProductVersion;
+				switch (type)
+				{
+					case VersionType.assembly: // <Version>7.0.1</Version>
+						if (default != assembly)
+							return System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
+						// exe version (similar to VersionType.executable)
+						return System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).ProductVersion;
+					case VersionType.assemblyFile: // <FileVersion>7.0.2</FileVersion>
+						if (default != assembly)
+							return System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion;
+						// exe file version
+						return System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).FileVersion;
+					case VersionType.executable:
+					default:
+						// exe version
+						return System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).ProductVersion;
+				}
 			}
+			catch (Exception) { }
+			return "unknown";
 		}
 		public enum VersionType
 		{

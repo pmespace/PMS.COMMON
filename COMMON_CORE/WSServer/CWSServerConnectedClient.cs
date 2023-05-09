@@ -22,9 +22,9 @@ using System.Collections.ObjectModel;
 
 namespace COMMON.WSServer
 {
-	public class CWSClient
+	public class CWSConnectedClient
 	{
-		public CWSClient(WebSocket ws, string id = default)
+		public CWSConnectedClient(WebSocket ws, object id = default)
 		{
 			//Requests = new WSStatistics();
 			//Replies = new WSStatistics();
@@ -33,14 +33,14 @@ namespace COMMON.WSServer
 			ID = id;
 		}
 
-		public string ID { get; private set; }
+		public object ID { get; private set; }
 		public WebSocket WS { get; internal set; }
 		public DateTime Connection { get; private set; }
 		//public WSStatistics Requests { get; }
 		//public WSStatistics Replies { get; }
 
 		//public override string ToString() => $"{(ID.IsNullOrEmpty() ? string.Empty : $"ID: {ID}; ")}Connected at : {Connection}; [Requests: {Requests}]; [Replies: {Replies}]";
-		public override string ToString() => $"{(ID.IsNullOrEmpty() ? string.Empty : $"ID: {ID}; ")}Connected at : {Connection}";
+		public override string ToString() => $"{(null == ID ? string.Empty : $"ID: {ID}; ")}Connected at : {Connection}";
 	}
 	public class WSStatistics : CWSSize
 	{
@@ -129,10 +129,10 @@ namespace COMMON.WSServer
 	class WSMessageException : Exception { }
 
 	/// <summary>
-	/// A dictionary of <see cref="CWSClient"/>,
+	/// A dictionary of <see cref="CWSConnectedClient"/>,
 	/// the key is the connected address (IP:port)
 	/// </summary>
-	public class CWSClients : ConcurrentDictionary<string, CWSClient>
+	public class CWSClients : ConcurrentDictionary<string, CWSConnectedClient>
 	{
 		public override string ToString()
 		{
@@ -145,7 +145,7 @@ namespace COMMON.WSServer
 			return s;
 		}
 	}
-	public class CWSReadOnlyClients : ReadOnlyDictionary<string, CWSClient>
+	public class CWSReadOnlyClients : ReadOnlyDictionary<string, CWSConnectedClient>
 	{
 		public CWSReadOnlyClients(CWSClients clients) : base(clients) { }
 	}

@@ -1,25 +1,15 @@
 using System;
-using System.Diagnostics;
 using System.Net;
+using System.Web;
 using System.Net.WebSockets;
-using System.Runtime.InteropServices;
-using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json.Linq;
 using System.Threading;
 using System.Net.Sockets;
-using System.Runtime;
-using COMMON;
-using Microsoft.Extensions.ObjectPool;
-using System.Diagnostics.Eventing.Reader;
-using Microsoft.AspNetCore.Razor.TagHelpers;
-using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Data;
+using Microsoft.AspNetCore.Http;
 
 namespace COMMON.WSServer
 {
@@ -27,7 +17,7 @@ namespace COMMON.WSServer
 	/// A Web Socket (WS) server ready to use,
 	/// only <see cref="WebSocketMessageType.Text"/> messages are supported,
 	/// </summary>
-	public class CWSServer
+	public class CWSServer : CWS
 	{
 		#region constructor
 		/// <summary>
@@ -86,7 +76,7 @@ namespace COMMON.WSServer
 		}
 		int _maxnumberofconcurrentconnections = 1;
 		/// <summary>
-		/// All currently connected clients, described by a <see cref="CWSClient"/> object, the key is connected client IP:port address
+		/// All currently connected clients, described by a <see cref="CWSConnectedClient"/> object, the key is connected client IP:port address
 		/// </summary>
 		public CWSReadOnlyClients Clients { get; private set; }
 		CWSClients _clients;
@@ -98,7 +88,7 @@ namespace COMMON.WSServer
 		#endregion
 
 		#region classes
-		enum WSActionEnum
+		enum WSAction
 		{
 			Error = -1,
 			None,
@@ -106,103 +96,9 @@ namespace COMMON.WSServer
 			LoginOK,
 			LoginKO,
 			Connected,
-			WaitingCommand,
-			ReceivedReply,
-			ReceivedCommand,
-			ReceivedNotification,
+			WaitingRequest,
+			ReplyAvailable,
 		}
-
-		public enum WSResultEnum
-		{
-			OK,
-			KO,
-			Restart,
-			Shutdown,
-			Exception,
-			FailedToStart,
-			InvalidSettings,
-			InvalidRequest,
-			ConnectionDenied,
-			AccessDenied,
-		}
-
-		#region wsbuffer
-		//class WSBuffer
-		//{
-		//	#region constructor
-		//	public WSBuffer() { Reset(); }
-		//	#endregion
-
-		//	#region properties
-		//	/// <summary>
-		//	/// Buffer itself
-		//	/// </summary>
-		//	public object Data { get => default != request ? (default == brequest ? null : brequest) : request; }
-		//	/// <summary>
-		//	/// Length of buffer
-		//	/// </summary>
-		//	public int Length { get => IsBinary ? brequest.Length : request.Length; }
-		//	/// <summary>
-		//	/// True if the buffer is binary (byte[]), false if text (string)
-		//	/// </summary>
-		//	public bool IsBinary { get => default != brequest; }
-		//	#endregion
-
-		//	#region private
-		//	string request;
-		//	byte[] brequest;
-		//	#endregion
-
-		//	#region methods
-		//	public override string ToString() => IsBinary ? CMisc.AsHexString(Data as byte[]) : Data.ToString();
-		//	/// <summary>
-		//	/// Reset buffer.
-		//	/// This must be called each timethe buffer has been used.
-		//	/// </summary>
-		//	internal void Reset()
-		//	{
-		//		request = default;
-		//		brequest = default;
-		//	}
-		//	/// <summary>
-		//	/// Update the WS server buffer from the received data
-		//	/// </summary>
-		//	/// <param name="res"><see cref="WebSocketReceiveResult"/> object describing what happened when reading data</param>
-		//	/// <param name="ab">The received buffer</param>
-		//	/// <returns>
-		//	/// true if data has been received and saved,
-		//	/// false if it was a close message or an error has occurred
-		//	/// </returns>
-		//	public bool Receive(WebSocketReceiveResult res, byte[] ab)
-		//	{
-		//		try
-		//		{
-		//			if (WebSocketMessageType.Text == res.MessageType)
-		//			{
-		//				request += Encoding.UTF8.GetString(ab, 0, res.Count);
-		//				return true;
-		//			}
-		//			else if (WebSocketMessageType.Binary == res.MessageType)
-		//			{
-		//				if (default == brequest) brequest = new byte[0];
-		//				byte[] tmp = new byte[brequest.Length + res.Count];
-		//				Buffer.BlockCopy(brequest, 0, tmp, 0, brequest.Length);
-		//				Buffer.BlockCopy(ab, 0, tmp, brequest.Length, res.Count);
-		//				brequest = tmp;
-		//				return true;
-		//			}
-		//		}
-		//		catch (Exception _ex_)
-		//		{
-		//			CLog.EXCEPT(_ex_);
-		//		}
-		//		// close or any other reason
-		//		return false;
-		//	}
-		//	#endregion
-		//}
-		#endregion
-
 		#endregion
 
 		#region methods
@@ -213,233 +109,334 @@ namespace COMMON.WSServer
 		/// <param name="settings">a <see cref="CWSServerSettings"/> object allowing to set the way the server operates</param>
 		public async void Start(string[] args, CWSServerSettings settings)
 		{
-			Guid guid = Guid.NewGuid();
 			if (default == settings)
 			{
 				CLog.ERROR("no settings provided to start WS server");
-				return;// WSResultEnum.InvalidSettings;
+				return;
 			}
 			else if (!settings.IsValid)
 			{
 				CLog.ERROR($"invalid settings [{settings}]");
-				return;// WSResultEnum.InvalidSettings;
+				return;
 			}
 
 			bool ok;
+			bool restart = true;
 
-			// start specific processing
-			try
+			while (restart)
 			{
-				ok = (default == settings.OnStart ? true : settings.OnStart.Invoke(args));
-			}
-			catch (Exception ex)
-			{
-				ok = false;
-				CLog.EXCEPT(ex);
-			}
-			if (!ok)
-			{
-				CLog.TRACE($"WS server processing failed to start");
-				return;// WSResultEnum.FailedToStart;
-			}
-
-			// arrived here the server processing has started
-
-			// start the WS server
-			var builder = WebApplication.CreateBuilder();
-			builder.WebHost.UseUrls($"http://localhost:{settings.Port}");
-			var app = builder.Build();
-			app.UseWebSockets();
-			app.Map(settings.WSName.IsNullOrEmpty() ? string.Empty : $"/{settings.WSName}", async context =>
-			{
-				// arrived here a client is connected to the WS server
+				// start specific processing
 				try
 				{
-					IPEndPoint endpoint = new IPEndPoint(context.Connection.RemoteIpAddress, context.Connection.RemotePort);
-					string sendpoint = endpoint.ToString();
-					bool isLocalHost = false;
-					foreach (IPAddress k in CStream.Localhosts())
-						if (isLocalHost = (isLocalHost || k.ToString() == endpoint.Address.ToString()))
-							break;
-					CLog.TRACE($"incoming connection from {sendpoint} ({(isLocalHost ? "local" : "distant")} host)");
-					if (context.WebSockets.IsWebSocketRequest)
+					ok = (default == settings.OnStart ? true : settings.OnStart.Invoke(args));
+				}
+				catch (Exception ex)
+				{
+					ok = false;
+					CLog.EXCEPT(ex);
+				}
+				if (!ok)
+				{
+					CLog.ERROR($"WS server processing failed to start");
+					return;
+				}
+
+				// arrived here the server processing has started
+
+				// start the WS server
+				var builder = WebApplication.CreateBuilder();
+				builder.WebHost.UseUrls($"http://localhost:{settings.Port}");
+				var app = builder.Build();
+
+				app.UseAuthentication();
+				app.UseAuthorization();
+
+				app.UseWebSockets();
+
+				//app.UseEndpoints();
+
+				#region use
+				app.Use(async (context, next) =>
+				{
+					bool ok;
+					bool shutdown = false;
+
+					if ((settings.WSName.IsNullOrEmpty() ? string.Empty : $"/{settings.WSName}") == context.Request.Path)
 					{
-						using (var webSocket = await context.WebSockets.AcceptWebSocketAsync())
+						// arrived here a client is connected to the WS server
+						try
 						{
-							WSActionEnum wsaction = settings.LoginRequired ? WSActionEnum.WaitingForLogin : WSActionEnum.Connected;
-							byte[] ab = new byte[settings.BufferSize];
-							string request = string.Empty;
-							string reply = string.Empty;
-							string ID = string.Empty;
-
-							try
+							IPEndPoint endpoint = new IPEndPoint(context.Connection.RemoteIpAddress, context.Connection.RemotePort);
+							string sendpoint = endpoint.ToString();
+							bool isLocalHost = false;
+							foreach (IPAddress k in CStream.Localhosts())
+								if (isLocalHost = (isLocalHost || k.ToString() == endpoint.Address.ToString()))
+									break;
+							CLog.INFOR($"incoming connection from {sendpoint} ({(isLocalHost ? "local" : "distant")} host)");
+							if (context.WebSockets.IsWebSocketRequest)
 							{
-								// signal a connection has been opened
-								try
+								using (var webSocket = await context.WebSockets.AcceptWebSocketAsync())
 								{
-									int count = Clients.Count;
-									bool allowedIP = false;
-									foreach (string k in AllowedIPs)
-										if (allowedIP = (allowedIP && (IPAddress.TryParse(k, out IPAddress addr) && AllowedIPs.Contains(addr.ToString()))))
-											break;
-									bool ipCanConnect = (AllowNonLocalConnection) || (!AllowNonLocalConnection && isLocalHost);
-									bool availableConnections = (0 == MaxNumberOfConcurrentConnections) || (count < MaxNumberOfConcurrentConnections);
-									bool canOpen = allowedIP && ipCanConnect && availableConnections;
+									WSAction wsaction = settings.LoginRequired ? WSAction.WaitingForLogin : WSAction.Connected;
+									byte[] ab = new byte[settings.BufferSize];
+									object ID = null;
 
-									if (ok = (canOpen && (default == settings.OnOpen ? true : settings.OnOpen(endpoint, out ID))))
+									string request = string.Empty;
+									string reply = string.Empty;
+									int nextAction = (int)WSNextActionEnum.None;
+
+									try
 									{
-										CLog.DEBUG($"connection from {sendpoint} has been accepted{(ID.IsNullOrEmpty() ? string.Empty : $" (ID: {ID})")}");
-										CWSClient client = default;
-
-										// save connected client details
+										// signal a connection has been opened
 										try
 										{
-											client = new CWSClient(webSocket, ID);
-											_clients.TryAdd(sendpoint, client);
-										}
-										catch (Exception ex)
-										{
-											client = default;
-											CLog.EXCEPT(ex);
-										}
+											int count = Clients.Count;
+											bool allowedIP = false;
+											foreach (string k in AllowedIPs)
+												if (allowedIP = (allowedIP && (IPAddress.TryParse(k, out IPAddress addr) && AllowedIPs.Contains(addr.ToString()))))
+													break;
+											bool ipCanConnect = (AllowNonLocalConnection) || (!AllowNonLocalConnection && isLocalHost);
+											bool availableConnections = (0 == MaxNumberOfConcurrentConnections) || (count < MaxNumberOfConcurrentConnections);
+											bool canOpen = allowedIP && ipCanConnect && availableConnections;
 
-										try
-										{
-											// receive a message and append it to the current buffer
-											Func<WebSocketReceiveResult, bool> PopulateRequestBuffer = (WebSocketReceiveResult _res_) =>
+											if (ok = (canOpen && (default == settings.OnOpen ? true : settings.OnOpen(endpoint, out ID))))
 											{
+												CLog.INFOR($"connection from {sendpoint} has been accepted{(null == ID ? string.Empty : $" (ID: {ID})")}");
+												CWSConnectedClient client = default;
+
+												// save connected client details
 												try
 												{
-													if (WebSocketMessageType.Text == _res_.MessageType)
+													client = new CWSConnectedClient(webSocket, ID);
+													_clients.TryAdd(sendpoint, client);
+												}
+												catch (Exception ex)
+												{
+													client = default;
+													CLog.EXCEPT(ex);
+												}
+
+												try
+												{
+													// determines whether an action is requested or not
+													Func<int, WSNextActionEnum, bool> NextAction = (int _flags_, WSNextActionEnum _na_) => (int)_na_ == ((int)_na_ & _flags_);
+
+													// verifies immediate actions to perform and take appropriate measures
+													Func<int, bool> ImmediateNextAction = (int _flags_) =>
 													{
-														request += Encoding.UTF8.GetString(ab, 0, _res_.Count);
-														return true;
+														if (NextAction(_flags_, WSNextActionEnum.ShutdownImmediately))
+														{
+															CLog.INFOR($"received order to shutdown immediately");
+															lock (mylock) { shutdown = true; }
+															Source.Cancel();
+															return true;
+														}
+														else if (NextAction(_flags_, WSNextActionEnum.DisconnectImmediately))
+														{
+															CLog.INFOR($"received order to disconnect {sendpoint} immediately");
+															Source.Cancel();
+															return true;
+														}
+														return false;
+													};
+
+													// while the WS is operational process messages
+													while (WebSocketState.Open == webSocket.State && !Source.Token.IsCancellationRequested)
+													{
+														switch (wsaction)
+														{
+															case WSAction.WaitingForLogin:
+																{
+																	try
+																	{
+																		CLog.INFOR($"waiting security details from {sendpoint}");
+																		var res = await webSocket.ReceiveAsync(new ArraySegment<byte>(ab), Source.Token);
+																		if (PopulateReceivedBuffer(res, ab, ref request, Source) && res.EndOfMessage)
+																		{
+																			CLog.Add(new CLogMsgs()
+																			{
+																			new CLogMsg($"received security details", TLog.INFOR),
+																			new CLogMsg($"data: [{request}]", TLog.DEBUG),
+																			});
+																			try
+																			{
+																				// test login credentials ...
+																				ok = settings.OnLogin(endpoint, ID, request, out reply, out nextAction);
+																				if (default == reply) reply = string.Empty;
+																				if (ImmediateNextAction(nextAction)) { }
+																				else if (ok)
+																				{
+																					CLog.Add(new CLogMsgs()
+																				{
+																				new CLogMsg($"connexion from {sendpoint} has been granted", TLog.INFOR),
+																				new CLogMsg($"data: [{reply}]", TLog.DEBUG),
+																				});
+																					wsaction = WSAction.LoginOK;
+																				}
+																				else
+																				{
+																					CLog.Add(new CLogMsgs()
+																				{
+																				new CLogMsg($"connexion from {sendpoint} has been declined", TLog.INFOR),
+																				new CLogMsg($"data: [{reply}]", TLog.DEBUG),
+																				});
+																					wsaction = WSAction.LoginKO;
+																				}
+																			}
+																			catch (Exception ex)
+																			{
+																				CLog.EXCEPT(ex);
+																			}
+																			request = string.Empty;
+																		}
+																	}
+																	catch (Exception ex)
+																	{
+																		request = string.Empty;
+																		CLog.EXCEPT(ex);
+																	}
+																}
+																break;
+
+															case WSAction.LoginOK:
+															case WSAction.LoginKO:
+																{
+																	CLog.INFOR($"sending login result {wsaction} to {sendpoint}");
+																	try
+																	{
+																		await SendMessage(sendpoint, reply);
+																	}
+																	catch (Exception ex)
+																	{
+																		CLog.EXCEPT(ex);
+																	}
+																	switch (wsaction)
+																	{
+																		case WSAction.LoginOK:
+																			wsaction = WSAction.WaitingRequest;
+																			break;
+																		case WSAction.LoginKO:
+																			wsaction = WSAction.WaitingForLogin;
+																			break;
+																	}
+																	reply = default;
+																}
+																break;
+
+															case WSAction.WaitingRequest:
+																{
+																	try
+																	{
+																		CLog.DEBUG($"waiting command");
+																		var res = await webSocket.ReceiveAsync(new ArraySegment<byte>(ab), Source.Token);
+																		if (PopulateReceivedBuffer(res, ab, ref request, Source) && res.EndOfMessage)
+																		{
+																			CLog.Add(new CLogMsgs()
+																		{
+																		new CLogMsg($"received request from {sendpoint} [request of {request.Length} bytes]", TLog.INFOR),
+																		new CLogMsg($"data: [{request}]", TLog.DEBUG),
+																		});
+																			try
+																			{
+																				ok = settings.OnRequest(endpoint, ID, request, out reply, out nextAction);
+																				if (default == reply) reply = string.Empty;
+																				if (ImmediateNextAction(nextAction)) { }
+																				else if (ok)
+																				{
+																					CLog.Add(new CLogMsgs()
+																				{
+																				new CLogMsg($"request has been processed successfully [reply of {reply.Length} bytes]", TLog.INFOR),
+																				new CLogMsg($"data: [{reply}]", TLog.DEBUG),
+																				});
+																					wsaction = WSAction.ReplyAvailable;
+																				}
+																				else
+																				{
+																					CLog.Add(new CLogMsgs()
+																				{
+																				new CLogMsg($"request has been processed unsuccessfully [reply of {reply.Length} bytes]", TLog.INFOR),
+																				new CLogMsg($"data: [{reply}]", TLog.DEBUG),
+																				});
+																					wsaction = WSAction.ReplyAvailable;
+																				}
+																			}
+																			catch (Exception ex)
+																			{
+																				CLog.EXCEPT(ex);
+																			}
+																			request = string.Empty;
+																		}
+																	}
+																	catch (Exception ex)
+																	{
+																		request = string.Empty;
+																		CLog.EXCEPT(ex);
+																	}
+																}
+																break;
+
+															case WSAction.ReplyAvailable:
+																{
+																	CLog.INFOR($"sending reply to {sendpoint}");
+																	try
+																	{
+																		await SendMessage(sendpoint, reply);
+																	}
+																	catch (Exception ex)
+																	{
+																		CLog.EXCEPT(ex);
+																	}
+																	wsaction = WSAction.WaitingRequest;
+																	reply = default;
+																}
+																break;
+														}
+
+														// test next actions
+														if (NextAction(nextAction, WSNextActionEnum.Shutdown))
+														{
+															CLog.INFOR($"received order to shutdown");
+															lock (mylock) { shutdown = true; }
+															Source.Cancel();
+														}
+														else if (NextAction(nextAction, WSNextActionEnum.DisconnectClient))
+														{
+															CLog.INFOR($"received order to disconnect {sendpoint}");
+															Source.Cancel();
+														}
+														nextAction = (int)WSNextActionEnum.None;
 													}
 												}
-												catch (Exception _ex_)
+												catch (Exception ex)
 												{
-													CLog.EXCEPT(_ex_);
+													ok = false;
+													CLog.EXCEPT(ex);
 												}
-												// close or any other reason
-												return false;
-											};
-
-											// reset all receiving buffers
-											Func<bool> ResetRequest = () =>
-											{
-												request = string.Empty;
-												return true;
-											};
-
-											// while the WS is operational process messages
-											while (WebSocketState.Open == webSocket.State && !Source.Token.IsCancellationRequested)
-											{
-												switch (wsaction)
+												finally
 												{
-													case WSActionEnum.WaitingForLogin:
-														{
-															try
-															{
-																CLog.DEBUG($"waiting security details from {sendpoint}");
-																var res = await webSocket.ReceiveAsync(new ArraySegment<byte>(ab), Source.Token);
-																if (PopulateRequestBuffer(res) && res.EndOfMessage)
-																{
-																	CLog.DEBUG($"security details [{request}]");
-																	try
-																	{
-																		// test login credentials ...
-																		if (settings.OnLogin(endpoint, request, out reply))
-																		{
-																			CLog.DEBUG($"connexion from {sendpoint} has been granted{(request.IsNullOrEmpty() ? string.Empty : $" with {reply}")}");
-																			//WSClients[sendpoint].ID = loginRequest._extendedData.ToString().ToSHA256();
-																			wsaction = WSActionEnum.LoginOK;
-																		}
-																		else
-																		{
-																			CLog.DEBUG($"connexion from {sendpoint} has been declined");
-																			wsaction = WSActionEnum.LoginKO;
-																		}
-																	}
-																	catch (Exception ex)
-																	{
-																		CLog.EXCEPT(ex);
-																	}
-																	//request.Reset();
-																	request = string.Empty;
-																}
-															}
-															catch (Exception ex)
-															{
-																request = string.Empty;
-																CLog.EXCEPT(ex);
-															}
-														}
-														break;
-
-													case WSActionEnum.LoginOK:
-													case WSActionEnum.LoginKO:
-														{
-															CLogger.TRACE($"sending login result {wsaction} to {sendpoint}");
-															try
-															{
-																await webSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(reply)), WebSocketMessageType.Text, true, Source.Token);
-															}
-															catch (Exception ex)
-															{
-																CLog.EXCEPT(ex);
-															}
-															switch (wsaction)
-															{
-																case WSActionEnum.LoginOK:
-																	wsaction = WSActionEnum.WaitingCommand;
-																	break;
-																case WSActionEnum.LoginKO:
-																	wsaction = WSActionEnum.WaitingForLogin;
-																	break;
-															}
-															reply = string.Empty;
-														}
-														break;
-
-													case WSActionEnum.WaitingCommand:
-														{
-															try
-															{
-																CLog.DEBUG($"waiting command");
-																var res = await webSocket.ReceiveAsync(new ArraySegment<byte>(ab), Source.Token);
-																if (PopulateRequestBuffer(res) && res.EndOfMessage)
-																{
-																	CLogger.TRACE($"{sendpoint}] received notification [{reply}]");
-																	try
-																	{
-																		if (settings.OnCommand(endpoint, request, out reply))
-																		{
-																			CLogger.TRACE($"[{sendpoint}] received notification [{reply}]");
-																		}
-																		else
-																		{
-																			CLogger.TRACE($"received reply [{reply}]");
-																		}
-																	}
-																	catch (Exception ex)
-																	{
-																		CLog.EXCEPT(ex);
-																	}
-																	request = string.Empty;
-																}
-															}
-															catch (Exception ex)
-															{
-																request = string.Empty;
-																CLog.EXCEPT(ex);
-															}
-														}
-														break;
-
-													case WSActionEnum.ReceivedReply:
-													case WSActionEnum.ReceivedNotification:
-														break;
+													settings?.OnClose(sendpoint, ID, client);
+													try
+													{
+														_clients.TryRemove(sendpoint, out CWSConnectedClient c);
+													}
+													catch (Exception ex)
+													{
+														CLog.EXCEPT(ex);
+													}
+													CLog.TRACE($"connection from {sendpoint} has been closed");
 												}
+											}
+											else if (!ipCanConnect || !allowedIP)
+											{
+												CLog.ERROR($"connection from {sendpoint} has been denied, IP not allowed");
+											}
+											else if (!availableConnections)
+											{
+												CLog.ERROR($"connection from {sendpoint} has been denied, no more clients can connect ({count} already connected)");
+											}
+											else
+											{
+												CLog.DEBUG($"connection from {sendpoint} has been denied");
 											}
 										}
 										catch (Exception ex)
@@ -447,97 +444,64 @@ namespace COMMON.WSServer
 											ok = false;
 											CLog.EXCEPT(ex);
 										}
-										finally
-										{
-											settings?.OnClose(sendpoint, client, ID);
-											try
-											{
-												_clients.TryRemove(sendpoint, out CWSClient c);
-											}
-											catch (Exception ex)
-											{
-												CLog.EXCEPT(ex);
-											}
-											CLog.TRACE($"connection from {sendpoint} has been closed");
-										}
 									}
-									else if (!ipCanConnect || !allowedIP)
+									catch (Exception ex)
 									{
-										CLog.ERROR($"connection from {sendpoint} has been denied, IP not allowed");
+										CLog.EXCEPT(ex);
 									}
-									else if (!availableConnections)
-									{
-										CLog.ERROR($"connection from {sendpoint} has been denied, no more clients can connect ({count} already connected)");
-									}
-									else
-									{
-										CLog.DEBUG($"connection from {sendpoint} has been denied");
-									}
-								}
-								catch (Exception ex)
-								{
-									ok = false;
-									CLog.EXCEPT(ex);
-								}
 
+								}
 							}
-							catch (Exception ex)
+							else
 							{
-								CLog.EXCEPT(ex);
+								context.Response.StatusCode = StatusCodes.Status400BadRequest;
+								CLog.WARNING($"reception of an HTTP request, connection from {sendpoint} is being closed with status {context.Response.StatusCode}");
 							}
-
 						}
+						catch (Exception ex)
+						{
+							CLog.EXCEPT(ex);
+						}
+						// if shutdown is requested
+						if (shutdown) app.Lifetime.StopApplication();
 					}
 					else
 					{
-						context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-						CLog.WARNING($"reception of an HTTP request, connection from {sendpoint} is being closed with status {context.Response.StatusCode}");
+						await next(context);
 					}
+				});
+				#endregion
 
-				}
-				catch (Exception ex)
-				{
-					CLog.EXCEPT(ex);
-				}
-
-			});
-
-			settings.StartedEvt.Set();
-			await app.RunAsync();
-			settings.EndedEvt.Set();
-		}
-		/// <summary>
-		/// Send a message to client connected to the WS server.
-		/// </summary>
-		/// <param name="endpoint"></param>
-		/// <param name="message"></param>
-		/// <param name="evt"></param>
-		public async Task<bool> SendMessage(string endpoint, string message, ManualResetEvent evt)
-		{
-			bool ok = false;
-			if (message.IsNullOrEmpty()) return ok;
-			if (!Clients.TryGetValue(endpoint, out CWSClient client))
-			{
-				CLog.ERROR($"client {endpoint} can't be located, message not sent");
-				return ok;
+				await app.RunAsync();
 			}
 
-			// arrived the message can be sent
+			// stop specific processing
 			try
 			{
-				byte[] ab = Encoding.UTF8.GetBytes(message);
-				ArraySegment<byte> arb = new ArraySegment<byte>(ab);
-				await client.WS.SendAsync(arb, WebSocketMessageType.Text, true, Source.Token);
-				CLog.DEBUG($"message {message} sent to {endpoint}");
-				// the message has been sent
-				ok = true;
+				settings.OnStop();
 			}
 			catch (Exception ex)
 			{
-				CLogger.EXCEPT(ex);
+				CLog.EXCEPT(ex);
 			}
-			evt.Set();
-			return ok;
+			settings.EndedEvt.Set();
+		}
+		/// <summary>
+		/// Sends a message to client connected to the WS server.
+		/// </summary>
+		/// <param name="endpoint">the remote endpoint of the client</param>
+		/// <param name="message">the message to send</param>
+		/// <returns>
+		/// A <see cref="Task{TResult}"/> object returning a bool, true if sending was successful, false otherwise
+		/// </returns>
+		public async Task<bool> SendMessage(string endpoint, string message)
+		{
+			if (!Clients.TryGetValue(endpoint, out CWSConnectedClient client))
+			{
+				CLog.ERROR($"client {endpoint} can't be located, message not sent");
+				return false;
+			}
+			return await SendMessage(client.WS, endpoint, message, Source);
 		}
 		#endregion
 	}

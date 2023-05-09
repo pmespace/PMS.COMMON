@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net6.0;net35</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net35;net47;net60</TargetFrameworks>
     <AssemblyName>PMS.COMMON</AssemblyName>
-    <Version>8.0.0</Version>
+    <Version>7.5.2</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <FileVersion>8.0.0</FileVersion>
-    <AssemblyVersion>8.0.0</AssemblyVersion>
+    <FileVersion>7.5.2</FileVersion>
+    <AssemblyVersion>7.5.2</AssemblyVersion>
     <Authors>philippemp31</Authors>
     <Company>PMS</Company>
     <Description></Description>
@@ -44,7 +44,7 @@
 
   <Import Project="..\COMMON_SHARED\COMMON_SHARED.projitems" Label="Shared" />
 
-  <Import Project="..\COMMON_WIN32\COMMON_WIN32.projitems" Label="Shared" Condition="'$(TargetFramework)'=='net35' Or '$(TargetFramework)'=='net40' Or '$(TargetFramework)'=='net45' Or '$(TargetFramework)'=='net47'" />
+  <Import Project="..\COMMON_WIN32\COMMON_WIN32.projitems" Label="Shared" Condition="'$(TargetFramework)'=='net35' Or '$(TargetFramework)'=='net47' Or '$(TargetFramework)'=='net48'" />
 
   <Import Project="..\COMMON_CORE\COMMON_CORE.projitems" Label="Shared" Condition="'$(TargetFramework)'=='net6.0'" />
 
@@ -57,7 +57,7 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="System.Data.Odbc" Version="6.0.0" Condition="'$(TargetFramework)'!='net35'" />
+    <PackageReference Include="System.Data.Odbc" Version="6.0.0" Condition="'$(TargetFramework)'=='net48' Or '$(TargetFramework)'=='net60' Or '$(TargetFramework)'=='netstandard2.0'" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" Condition="'$(TargetFramework)'=='net6.0'" />
   </ItemGroup>
 
@@ -74,13 +74,16 @@
     <Reference Include="System.Windows.Forms" Condition="'$(TargetFramework)'=='net47'">
       <HintPath>c:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7\System.Windows.Forms.dll</HintPath>
     </Reference>
+    <Reference Include="System.Windows.Forms" Condition="'$(TargetFramework)'=='net48'">
+      <HintPath>c:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Windows.Forms.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <PropertyGroup>
     <TestNugetPath>$(SolutionDir)..\nuget\test</TestNugetPath>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>pms.key.file.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(SolutionDir)\pms.key.file.pfx</AssemblyOriginatorKeyFile>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
@@ -95,18 +98,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
-  <Target Name="ResetPackages" BeforeTargets="DispatchToInnerBuilds">
-    <!--
-    <ItemGroup>
-      <NuSpecFiles Include="$(OutputPath)*.nupkg" />
-    </ItemGroup>
-    <Delete Files="@(NuSpecFiles)" />
-    -->
-  </Target>
-
   <Target Name="PreparePackageReleaseNotesFromFile" BeforeTargets="PutReleaseNotesInsideNuspec">
     <PropertyGroup>
-      <PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(MSBuildProjectDirectory)/release notes.txt"))</PackageReleaseNotes>
+      <PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(SolutionDir)/release notes.txt"))</PackageReleaseNotes>
     </PropertyGroup>
   </Target>
 
@@ -118,11 +112,5 @@
     <MakeDir Directories="$(TestNugetPath)" Condition="!Exists('$(TestNugetPath)')" />
     <Copy SourceFiles="$(PackageOutputPath)\$(PackageId).$(PackageVersion).nupkg" DestinationFolder="$(TestNugetPath)" />
   </Target>
-
-  <!--
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)'=='net47'">
-    <Exec Command="rem %25windir%25\Microsoft.NET\Framework64\v4.0.30319\regasm.exe $(TargetPath) /tlb /codebase" />
-  </Target>
-  -->
 
 </Project>

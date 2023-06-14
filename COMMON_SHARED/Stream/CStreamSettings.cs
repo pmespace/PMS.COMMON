@@ -47,7 +47,7 @@ namespace COMMON
 		public const int ONEKB = 1024;
 		public const int ONESECOND = 1000;
 		public const int DEFAULT_PORT = 29413;
-		public const int NO_TIMEOUT = 0;
+		public const int NO_TIMEOUT = 0;//= Timeout.Infinite;
 		#endregion
 
 		#region properties
@@ -61,13 +61,7 @@ namespace COMMON
 		public int ReceiveTimeout
 		{
 			get => _receivetimeout;
-			set
-			{
-				if (NO_TIMEOUT >= value)
-					_receivetimeout = NO_TIMEOUT;
-				else
-					_receivetimeout = value;
-			}
+			set => _receivetimeout = NO_TIMEOUT >= value ? NO_TIMEOUT : value;
 		}
 		private int _receivetimeout = DEFAULT_RECEIVE_TIMEOUT;
 		public const int DEFAULT_RECEIVE_TIMEOUT = NO_TIMEOUT;
@@ -77,29 +71,17 @@ namespace COMMON
 		public int SendTimeout
 		{
 			get => _sendtimeout;
-			set
-			{
-				if (NO_TIMEOUT >= value)
-					_sendtimeout = NO_TIMEOUT;
-				else
-					_sendtimeout = value;
-			}
+			set => _sendtimeout = NO_TIMEOUT >= value ? NO_TIMEOUT : value;
 		}
 		private int _sendtimeout = DEFAULT_SEND_TIMEOUT;
-		public const int DEFAULT_SEND_TIMEOUT = 5;
+		public const int DEFAULT_SEND_TIMEOUT = NO_TIMEOUT;
 		/// <summary>
 		/// Buffer size in bytes
 		/// </summary>
 		public int ReceiveBufferSize
 		{
 			get => _receivebuffersize;
-			set
-			{
-				if (0 == value)
-					_receivebuffersize = DEFAULT_RECEIVE_BUFFER_SIZE;
-				else
-					_receivebuffersize = Math.Abs(value);
-			}
+			set => _receivebuffersize = 0 == value ? DEFAULT_RECEIVE_BUFFER_SIZE : Math.Abs(value);
 		}
 		private int _receivebuffersize = DEFAULT_RECEIVE_BUFFER_SIZE;
 		public const int DEFAULT_RECEIVE_BUFFER_SIZE = 50 * ONEKB;
@@ -109,13 +91,7 @@ namespace COMMON
 		public int SendBufferSize
 		{
 			get => _sendbuffersize;
-			set
-			{
-				if (0 == value)
-					_sendbuffersize = DEFAULT_SEND_BUFFER_SIZE;
-				else
-					_sendbuffersize = Math.Abs(value);
-			}
+			set => _sendbuffersize = 0 == value ? DEFAULT_SEND_BUFFER_SIZE : Math.Abs(value);
 		}
 		private int _sendbuffersize = DEFAULT_SEND_BUFFER_SIZE;
 		public const int DEFAULT_SEND_BUFFER_SIZE = 50 * ONEKB;
@@ -157,10 +133,7 @@ namespace COMMON
 		#endregion
 
 		#region methods
-		public override string ToString()
-		{
-			return $"valid: {IsValid}; ssl: {UseSsl}; receive timeout: {ReceiveTimeout}; receive buffer: {ReceiveBufferSize}; send timeout: {SendTimeout}; send buffer: {SendBufferSize}; " + base.ToString();
-		}
+		public override string ToString() => $"receive timeout: {ReceiveTimeout}; receive buffer: {ReceiveBufferSize}; send timeout: {SendTimeout}; send buffer: {SendBufferSize}; ssl: {UseSsl}; " + base.ToString();
 		#endregion
 	}
 

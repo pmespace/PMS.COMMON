@@ -3,10 +3,10 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net35;net47;net60</TargetFrameworks>
     <AssemblyName>PMS.COMMON</AssemblyName>
-    <Version>7.5.2</Version>
+    <Version>7.5.3</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <FileVersion>7.5.2</FileVersion>
-    <AssemblyVersion>7.5.2</AssemblyVersion>
+    <FileVersion>7.5.3</FileVersion>
+    <AssemblyVersion>7.5.3</AssemblyVersion>
     <Authors>philippemp31</Authors>
     <Company>PMS</Company>
     <Description></Description>
@@ -15,9 +15,6 @@
     <RepositoryUrl>https://github.com/pmespace/PMS.COMMON</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
-    <!--
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    -->
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
 
@@ -49,16 +46,16 @@
   <Import Project="..\COMMON_CORE\COMMON_CORE.projitems" Label="Shared" Condition="'$(TargetFramework)'=='net6.0'" />
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="System.Data.Odbc" Version="6.0.0" Condition="'$(TargetFramework)'=='net48' Or '$(TargetFramework)'=='net60' Or '$(TargetFramework)'=='netstandard2.0'" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" Condition="'$(TargetFramework)'=='net6.0'" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="System.Data.Odbc" Version="6.0.0" Condition="'$(TargetFramework)'=='net48' Or '$(TargetFramework)'=='net60' Or '$(TargetFramework)'=='netstandard2.0'" />
-    <FrameworkReference Include="Microsoft.AspNetCore.App" Condition="'$(TargetFramework)'=='net6.0'" />
   </ItemGroup>
 
   <ItemGroup>
@@ -78,16 +75,16 @@
       <HintPath>c:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Windows.Forms.dll</HintPath>
     </Reference>
   </ItemGroup>
-
+  
   <PropertyGroup>
     <TestNugetPath>$(SolutionDir)..\nuget\test</TestNugetPath>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(SolutionDir)\pms.key.file.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(SolutionDir)pms.key.file.pfx</AssemblyOriginatorKeyFile>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
     <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
     <BaseOutputPath>bin\</BaseOutputPath>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
@@ -100,7 +97,8 @@
 
   <Target Name="PreparePackageReleaseNotesFromFile" BeforeTargets="PutReleaseNotesInsideNuspec">
     <PropertyGroup>
-      <PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(SolutionDir)/release notes.txt"))</PackageReleaseNotes>
+      <!--<PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(MSBuildProjectDirectory)release notes.txt"))</PackageReleaseNotes>-->
+      <PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(SolutionDir)release notes.txt"))</PackageReleaseNotes>
     </PropertyGroup>
   </Target>
 

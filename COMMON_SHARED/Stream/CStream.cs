@@ -225,7 +225,7 @@ namespace COMMON
 				if (default == stream) throw new ArgumentException("no open stream");
 
 				// Read message from the server
-				CLog.INFORMATION($"waiting to receive a message");
+				CLog.INFORMATION($"waiting to receive a message from {stream.Tcp.Client.RemoteEndPoint}");
 				byte[] tmp = stream.Receive(out announcedSize);
 				if (default != tmp)
 				{
@@ -278,7 +278,7 @@ namespace COMMON
 				if (default == stream) throw new ArgumentException("no open stream");
 
 				// Read message from the server
-				CLog.INFORMATION($"waiting to receive a message");
+				CLog.INFORMATION($"waiting to receive a message from {stream.Tcp.Client.RemoteEndPoint}");
 				return stream.Receive(size);
 			}
 			catch (Exception ex)
@@ -303,7 +303,7 @@ namespace COMMON
 				if (default == stream) throw new ArgumentException("no open stream");
 
 				string s = stream.ReceiveLine(EOT);
-				CLog.INFORMATION($"received string message {(s.IsNullOrEmpty() ? 0 : s.Length)} characters");
+				CLog.INFORMATION($"received string message {(s.IsNullOrEmpty() ? 0 : s.Length)} characters from {stream.Tcp.Client.RemoteEndPoint}");
 				return s;
 			}
 			catch (Exception ex)

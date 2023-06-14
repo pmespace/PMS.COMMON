@@ -43,7 +43,8 @@ namespace COMMON
 	[ComVisible(true)]
 	public enum TLog
 	{
-		FMNGT = -2,
+		FMNGT = -3,
+		ILINE = -2,
 		_begin = -1,
 		DEBUG,
 		INFOR,
@@ -79,12 +80,12 @@ namespace COMMON
 			return $"{guid}{Chars.TAB}{(sc.IsNullOrEmpty() ? string.Empty : $"[{sc}] ")}";
 		}
 		protected string ToStringPrefix() => $"{CMisc.BuildDate(CMisc.DateFormat.YYYYMMDDhhmmssfffEx)}{Chars.TAB}{Severity}{Chars.TAB}{Thread.CurrentThread.ManagedThreadId.ToString("X8")}{Chars.TAB}";
-		public override string ToString() => $"{(CLog.SeverityToLog <= Severity || TLog.FMNGT == Severity ? CLog.RemoveCRLF(Msg.Trim()) : string.Empty)}";
+		public override string ToString() => $"{(CLog.SeverityToLog <= Severity || TLog.FMNGT >= Severity ? CLog.RemoveCRLF(Msg.Trim()) : string.Empty)}";
 		internal virtual string ToStringEx(bool addSharedData)
 		{
 			try
 			{
-				return (CLog.SeverityToLog <= Severity && !Msg.IsNullOrEmpty()) || TLog.FMNGT == Severity ? ToStringPrefix() + ToStringSC(addSharedData) + ToString() : string.Empty;
+				return (CLog.SeverityToLog <= Severity && !Msg.IsNullOrEmpty()) || TLog.FMNGT >= Severity ? ToStringPrefix() + ToStringSC(addSharedData) + ToString() : string.Empty;
 			}
 			catch (Exception) { }
 			return string.Empty;
@@ -92,7 +93,7 @@ namespace COMMON
 	}
 	class CLogMsgEx : CLogMsg
 	{
-		public override TLog Severity { get => _severity; set => _severity = (CLog.IsTLog(value) || TLog.FMNGT == value ? value : _severity); }
+		public override TLog Severity { get => _severity; set => _severity = (CLog.IsTLog(value) || TLog.FMNGT >= value ? value : _severity); }
 		protected override string ToStringSC(bool addSharedData = true) => Guid.Empty.ToString() + Chars.TAB;
 		internal override string ToStringEx(bool addSharedData)
 		{
@@ -115,7 +116,7 @@ namespace COMMON
 				if (!ls[i].IsNullOrEmpty())
 					Add(new CLogMsg() { Msg = ls[i], Severity = severity });
 		}
-		internal CLogMsgs(List<string> ls)
+		internal CLogMsgs(List<string> ls, int severity)
 		{
 			if (default == ls || 0 == ls.Count) return;
 			for (int i = 0; i < ls.Count; i++)
@@ -235,7 +236,7 @@ namespace COMMON
 			{
 				lock (mylock)
 				{
-					_severitytolog = IsTLog(value) || TLog.FMNGT == value ? value : _severitytolog;
+					_severitytolog = IsTLog(value) || TLog.FMNGT >= value ? value : _severitytolog;
 				}
 			}
 		}
@@ -468,7 +469,7 @@ namespace COMMON
 		/// <returns>The string as it has been written, null if an error has occurred</returns>
 		static string AddException(Exception ex, string msg, bool addSharedData = true)
 		{
-			string r = default;
+			string r = string.Empty;
 			if (default == ex) return r;
 			try
 			{
@@ -628,7 +629,7 @@ namespace COMMON
 								 $"+++++",
 								 $"+++++ {LogFileName.ToUpper()} OPENED: {CMisc.BuildDate(_dateFormat, CreatedOn)} (EXE VERSION: {CMisc.Version(CMisc.VersionType.executable)}/{CMisc.Version(CMisc.VersionType.assemblyFile)} - COMMON VERSION: {CMisc.Version(CMisc.VersionType.assembly, Assembly.GetExecutingAssembly())}/{CMisc.Version(CMisc.VersionType.assemblyFile, Assembly.GetExecutingAssembly())})",
 								 $"+++++",
-							 });
+							 }, (int)TLog.FMNGT);
 						AddToLog(ls.ToStringEx(false));
 						try
 						{
@@ -685,7 +686,7 @@ namespace COMMON
 								$"-----",
 								$"----- {LogFileName.ToUpper()} CLOSED: {CMisc.BuildDate(_dateFormat)}",
 								$"-----"
-							});
+							}, (int)TLog.FMNGT);
 						AddToLog(ls.ToStringEx(false));
 					}
 				}

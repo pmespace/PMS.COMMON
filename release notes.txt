@@ -1,3 +1,6 @@
+7.5.3
+- Fixed a bug in CMisc.ValueToHex preventing unexpected crash
+
 7.5.0
 - Added WM_APP along with WM_USER in Win32 pakage
 - Fixed a bug retrieving an assembly version in CMis.Version when the calling app is NOT a .NET app (components used through COM)

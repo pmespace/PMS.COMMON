@@ -257,7 +257,7 @@ Public Class FTestCommon
 			{
 			.IP = "194.50.38.6",
 			.Port = 3470,
-			.ReceiveTimeout = 0,
+			.ReceiveTimeout = CStreamSettings.NO_TIMEOUT,
 			.ServerName = "sslstca.lyra-network.com"
 			}
 		'send xml request waiting for an xml reply

@@ -177,16 +177,9 @@ namespace COMMON
 			{
 				read = stream.Read(data, offset, data.Length - offset);
 			}
-			//catch (ObjectDisposedException)
-			//{
-			//	ioexcept = true;
-			//}
-			//catch (IOException)
-			//{
-			//	ioexcept = true;
-			//}
 			catch (Exception ex)
 			{
+				ioexcept = (ex is ObjectDisposedException || ex is IOException);
 				CLog.EXCEPT(ex);
 			}
 			return read;
@@ -203,7 +196,7 @@ namespace COMMON
 		{
 			if (data.IsNullOrEmpty())
 			{
-				CLog.INFORMATION("no data to send");
+				CLog.INFOR($"trying to send an empty message to {Tcp.Client.RemoteEndPoint}");
 				return false;
 			}
 			// if requested, add the size header to the message to send
@@ -217,10 +210,10 @@ namespace COMMON
 				Buffer.BlockCopy(bs, 0, messageToSend, 0, (int)lengthSize);
 			}
 			// arrived here the message is ready to be sent
-			string s1 = "(no header requested)", s2 = $"(with {lengthSize} bytes header)";
+			string s1 = "(not adding size header)", s2 = $"(adding {lengthSize} bytes size header)";
 			CLog.Add(new CLogMsgs()
 			{
-				new CLogMsg($"sending message {messageToSend.Length} bytes {(0 == lengthSize ? s1 : s2)}", TLog.INFOR),
+				new CLogMsg($"sending message of {messageToSend.Length} bytes {(0 == lengthSize ? s1 : s2)} to {Tcp.Client.RemoteEndPoint}", TLog.INFOR),
 				new CLogMsg($"data [{CMisc.AsHexString(messageToSend, true)}]", TLog.DEBUG),
 			});
 			if (Write(messageToSend))
@@ -228,7 +221,7 @@ namespace COMMON
 				Flush();
 				return true;
 			}
-			CLog.ERROR($"failed sending message {messageToSend.Length} bytes {(0 == lengthSize ? s1 : s2)}");
+			CLog.INFOR($"failed sending message of {messageToSend.Length} bytes {(0 == lengthSize ? s1 : s2)} to {Tcp.Client.RemoteEndPoint}");
 			return false;
 		}
 		/// <summary>
@@ -267,13 +260,13 @@ namespace COMMON
 			}
 			CLog.Add(new CLogMsgs()
 			{
-				new CLogMsg($"sending text message {data.Length} characters", TLog.INFOR),
+				new CLogMsg($"sending text message of {data.Length} characters to {Tcp.Client.RemoteEndPoint}", TLog.INFOR),
 				new CLogMsg($"data [{data}]", TLog.DEBUG),
 			});
 			byte[] bdata = (default != data ? Encoding.UTF8.GetBytes(data) : default);
 			bool ok = Send(bdata);
 			if (!ok)
-				CLog.ERROR($"failed sending {data.Length} characters text message");
+				CLog.INFOR($"failed sending text message of {data.Length} characters to {Tcp.Client.RemoteEndPoint}");
 			return ok;
 		}
 		/// <summary>
@@ -291,23 +284,26 @@ namespace COMMON
 			{
 				// allocate buffer to receive
 				if (0 == bufferSize)
-					throw new ArgumentException("0 length buffer size indicated, receiving a message can't be achieved");
+					throw new ArgumentException("0 length buffer size indicated, receiving a message can't be made");
 
 				byte[] buffer = new byte[bufferSize];
 				int bytesRead = 0;
 				bool doContinue;
-				CLog.DEBUG($"waiting to receive fixed buffer of {buffer.Length} bytes");
+				CLog.DEBUG($"waiting to receive fixed buffer of {buffer.Length} bytes from {Tcp.Client.RemoteEndPoint}");
 
-				bool ioexcept;
 				do
 				{
 					// read stream for the specified buffer
-					int nbBytes = Read(buffer, bytesRead, out ioexcept);
+					int nbBytes = Read(buffer, bytesRead, out bool ioexcept);
 					if (doContinue = (0 != nbBytes))
 					{
 						bytesRead += nbBytes;
 						// we continue until we've filled up the buffer
 						doContinue = bytesRead < bufferSize;
+					}
+					else if (ioexcept)
+					{
+						CLog.INFORMATION($"client {Tcp.Client.RemoteEndPoint} has been disconnected");
 					}
 				}
 				while (doContinue);
@@ -318,6 +314,8 @@ namespace COMMON
 				// log a message only if not closing the stream
 				if (0 == bytesRead)
 				{
+					CLog.INFOR($"received unexpected empty message from {Tcp.Client.RemoteEndPoint}");
+
 					//if (!ioexcept)
 					//	CLog.ERROR($"unexpectedly received no data");
 					//else
@@ -325,18 +323,22 @@ namespace COMMON
 				}
 
 				else if (bytesRead != bufferSize)
+				{
 					CLog.Add(new CLogMsgs()
 					{
-						new CLogMsg($"received {bytesRead} bytes, expecting {bufferSize}", TLog.ERROR),
+						new CLogMsg($"received {bytesRead} bytes, expecting {bufferSize} from {Tcp.Client.RemoteEndPoint}", TLog.INFOR),
 						new CLogMsg($"data [{CMisc.AsHexString(bufferReceived, true)}]", TLog.DEBUG),
 					});
+				}
 
 				else
+				{
 					CLog.Add(new CLogMsgs()
 					{
-						new CLogMsg($"received {bytesRead} bytes", TLog.DEBUG),
+						new CLogMsg($"received {bytesRead} bytes from {Tcp.Client.RemoteEndPoint}", TLog.DEBUG),
 						new CLogMsg($"data [{CMisc.AsHexString(bufferReceived, true)}]",TLog.DEBUG),
 					});
+				}
 				return bufferReceived;
 			}
 			catch (Exception ex)
@@ -364,7 +366,7 @@ namespace COMMON
 				byte[] buffer = new byte[bufferToAllocate];
 				int bytesRead = 0;
 				bool doContinue;
-				CLog.DEBUG($"waiting to receive buffer with no specific size");
+				CLog.DEBUG($"waiting to receive buffer with no specific size from {Tcp.Client.RemoteEndPoint}");
 
 				bool ioexcept;
 				do
@@ -387,7 +389,7 @@ namespace COMMON
 					}
 					else if (ioexcept)
 					{
-						CLog.INFORMATION($"client has been disconnected");
+						CLog.INFORMATION($"client {Tcp.Client.RemoteEndPoint} has been disconnected");
 					}
 				}
 				while (doContinue);
@@ -396,7 +398,7 @@ namespace COMMON
 				Buffer.BlockCopy(buffer, 0, bufferReceived, 0, bytesRead);
 				CLog.Add(new CLogMsgs()
 				{
-					new CLogMsg($"received {bytesRead} bytes", TLog.INFOR),
+					new CLogMsg($"received {bytesRead} bytes from {Tcp.Client.RemoteEndPoint}", TLog.INFOR),
 					new CLogMsg($"data [{CMisc.AsHexString(bufferReceived, true)}]", TLog.DEBUG),
 				});
 				return bufferReceived;
@@ -430,14 +432,14 @@ namespace COMMON
 					// get the size of the buffer to read and start reading it
 					if (0 != (announcedSize = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, 0, SizeHeader)))
 					{
-						CLog.DEBUG($"received announce of {announcedSize} bytes");
+						CLog.DEBUG($"received announce of {announcedSize} bytes from {Tcp.Client.RemoteEndPoint}");
 						byte[] buffer = ReceiveSizedBuffer(announcedSize);
 						if (!buffer.IsNullOrEmpty() && announcedSize == buffer.Length)
 						{
 							return buffer;
 						}
 					}
-					CLog.ERROR($"received announce of 0 byte");
+					CLog.INFOR($"received announce of 0 byte from {Tcp.Client.RemoteEndPoint}");
 				}
 			}
 			catch (Exception ex)
@@ -499,7 +501,7 @@ namespace COMMON
 				// remove EOT if necessary
 				if (!string.IsNullOrEmpty(s))
 					s = s.Replace(EOT, "");
-				CLog.DEBUG($"data as string [{s}]");
+				CLog.DEBUG($"received string message [{s}] from {Tcp.Client.RemoteEndPoint}");
 				return s;
 			}
 			catch (Exception ex)
@@ -590,10 +592,10 @@ namespace COMMON
 				{
 					sslStream = new SslStream(client.GetStream(), false, new RemoteCertificateValidationCallback(ValidateServerCertificate), default);
 					int tmo = client.ReceiveTimeout * 1000;
-					client.ReceiveTimeout = 5000;
+					client.ReceiveTimeout = CStreamSettings.NO_TIMEOUT;// 5000;
 					try
 					{
-						// authenticate aginst the server
+						// authenticate against the server
 
 #if NET35
 						// check if TLS is supported

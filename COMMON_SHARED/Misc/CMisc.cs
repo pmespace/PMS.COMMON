@@ -286,8 +286,8 @@ namespace COMMON
 		/// Maxdimum numbe rof bytes to translate to hexadecimal representation
 		/// </summary>
 		public static volatile int MaxBytesAsString = 1024 * 5;
-		public static void SetMaxBytesAsString(int value) { MaxBytesAsString = value; }
-		public static int GetMaxBytesAsString() { return MaxBytesAsString; }
+		public static void SetMaxBytesAsString(int value) => MaxBytesAsString = value;
+		public static int GetMaxBytesAsString() => MaxBytesAsString;
 
 #if COLORS
 		/// <summary>
@@ -607,7 +607,7 @@ namespace COMMON
 			else if (string.IsNullOrEmpty(value))
 				return false;
 			pattern = AsString(pattern);
-			CLog.DEBUG($"{(confidential ? "<value hidden>" : $"input data: {value}")}; pattern: {pattern}");
+			//CLog.DEBUG($"{(confidential ? "<value hidden>" : $"input data: {value}")}; pattern: {pattern}");
 			Match match = Regex.Match(value, pattern);
 			return match.Success;
 		}
@@ -632,7 +632,7 @@ namespace COMMON
 			// build regular expression to check against
 			string count = "{" + (minlen == maxlen ? minlen.ToString() + "}" : minlen.ToString() + "," + maxlen.ToString() + "}");
 			string pattern = $"^{characterSet}{count}$";
-			CLog.DEBUG($"{(confidential ? "<value hidden>" : $"input data: {value}")}; pattern: {pattern}");
+			//CLog.DEBUG($"{(confidential ? "<value hidden>" : $"input data: {value}")}; pattern: {pattern}");
 			Match match = Regex.Match(value, pattern);
 			return match.Success;
 		}
@@ -727,7 +727,7 @@ namespace COMMON
 		/// </returns>
 		public static string ValueToHex(decimal v, int minlen = 0, bool oddLengthAllowed = false)
 		{
-			string s = default;
+			string s = string.Empty;
 			while (0 != v)
 			{
 				int f = (int)(v % 16);
@@ -920,7 +920,7 @@ namespace COMMON
 				for (int i = 0; i < lengthToUse; i++)
 					res += buffer[i].ToString("X2");
 				if (buffer.Length > lengthToUse)
-					res += $"... [translated {MaxBytesAsString} bytes on {buffer.Length}]";
+					res += $"... [translated {MaxBytesAsString} bytes on {buffer.Length} - would you need more bytes please consider setting CMisc.MaxBytesAsString using SetMaxBytesAsString(int value)]";
 			}
 			catch (Exception) { res = default; }
 			return res;

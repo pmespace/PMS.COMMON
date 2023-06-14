@@ -649,7 +649,7 @@ namespace COMMON
 					if (ex is IOException || ex is EDisconnected)
 					{
 						// the connection has been closed, normal stop
-						CLog.TRACE($"{thread.Description} {(default != clientEndPoint ? clientEndPoint.ToString() : "[address not available]")} is disconnecting");
+						CLog.INFOR($"{thread.Description} {(default != clientEndPoint ? clientEndPoint.ToString() : "[address not available]")} is disconnecting");
 						res = (int)ThreadResult.OK;
 					}
 					else
@@ -747,8 +747,8 @@ namespace COMMON
 								// check whether the messge must be hidden or not
 								CLog.Add(new CLogMsgs()
 								{
-									new CLogMsg($"{thread.Description} start processing request of {request.Length} bytes" , TLog.TRACE),
-									new CLogMsg($"{thread.Description} data [{MessageToLog(client, request, true, TextMessages)}]", TLog.INFOR),
+									new CLogMsg($"{thread.Description} start processing request of {request.Length} bytes" , TLog.INFOR),
+									new CLogMsg($"{thread.Description} data [{MessageToLog(client, request, true, TextMessages)}]", TLog.DEBUG),
 								});
 								// forward request for processing
 								byte[] reply = StartSettings.OnMessage(client.Tcp, request, out bool addBufferSize, thread, StartSettings.Parameters, client.Data, client);
@@ -756,7 +756,7 @@ namespace COMMON
 								{
 									CLog.Add(new CLogMsgs()
 									{
-										new CLogMsg($"{thread.Description} send reply of {request.Length} bytes" , TLog.TRACE),
+										new CLogMsg($"{thread.Description} send reply of {request.Length} bytes" , TLog.INFOR),
 										new CLogMsg($"{thread.Description} data [{MessageToLog(client, reply, true, TextMessages)}]", TLog.INFOR),
 									});
 									if (!CStream.Send(client.StreamIO, reply))

@@ -68,7 +68,13 @@ namespace COMMON
 				}
 			}
 		}
-		private string _filename = default;
+		string _filename = default;
+		/// <summary>
+		/// The fully qualified file name of the old settings file after <see cref="WriteSettings(TSettings, JsonSerializerSettings, bool)"/> has been called.
+		/// If overwrite was true, that property contains the name of the old settings file,
+		/// if overwrite was false that property is equal to <see cref="FileName"/>.
+		/// </summary>
+		public string SavedFileName { get; private set; }
 		/// <summary>
 		/// Last exception encountered during processing
 		/// </summary>
@@ -199,7 +205,12 @@ namespace COMMON
 			{
 				FileInfo fi = new FileInfo(FileName);
 				if (fi.Exists && 0 != fi.Length && !overwrite)
+				{
+					SavedFileName = FileName + $".{DateTime.Now.ToString(Chars.SDATETIMEEX)}.sav{fi.Extension}";
 					File.Move(FileName, FileName + $".{DateTime.Now.ToString(Chars.SDATETIMEEX)}.sav.json");
+				}
+				else
+					SavedFileName = FileName;
 			}
 			catch (Exception ex)
 			{

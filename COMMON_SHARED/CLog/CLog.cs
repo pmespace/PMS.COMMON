@@ -187,20 +187,30 @@ namespace COMMON
 		/// </summary>
 		public static DateTime CreatedOn { get; private set; } = default;
 		/// <summary>
-		/// Full name of log file
+		/// Name of log file
 		/// </summary>
-		public static string LogFileName
+		public static string Filename
 		{
-			get => _logfilename;
+			get => _filename;
 			set
 			{
-				if (_logfilename != value)
-				{
-					if (value.IsNullOrEmpty())
-						CloseLogFile();
-					else
-						OpenLogFile(value);
-				}
+				if (_filename != value)
+					LogFilename = value;
+			}
+		}
+		static string _filename = default;
+		/// <summary>
+		/// Full name of log file
+		/// </summary>
+		public static string LogFilename
+		{
+			get => _logfilename;
+			private set
+			{
+				if (value.IsNullOrEmpty())
+					CloseLogFile();
+				else
+					OpenLogFile(value);
 			}
 		}
 		static string _logfilename = default;
@@ -286,10 +296,10 @@ namespace COMMON
 		#endregion
 
 		#region privates
-		/// <summary>
-		/// Original fname used to create the log file
-		/// </summary>
-		static string originalFName = default;
+		///// <summary>
+		///// Original fname used to create the log file
+		///// </summary>
+		//static string originalFName = default;
 		/// <summary>
 		/// Original name (given by the log file creator) of the log file, without its extension
 		/// </summary>
@@ -482,20 +492,21 @@ namespace COMMON
 					ls.Add($"[EXCEPTION] {exx.GetType()}{(string.IsNullOrEmpty(exx.Message) ? default : $" - {exx.Message}")}");
 					exx = exx.InnerException;
 				}
-				//for (int i = st.FrameCount; 0 != i; i--)
+				for (int i = st.FrameCount; 0 != i; i--)
+				{
+					StackFrame sf = st.GetFrame(i - 1);
+					string f = string.IsNullOrEmpty(sf.GetFileName()) ? default : sf.GetFileName();
+					string m = string.IsNullOrEmpty(sf.GetMethod().ToString()) ? "??" : $"{sf.GetMethod()}";
+					//ls.Add($"[EXCEPTION #{st.FrameCount - i + 1}] file: {f}; method: {m}; #line: {sf.GetFileLineNumber()}");
+					ls.Add($"[EXCEPTION] {(f.IsNullOrEmpty() ? string.Empty : $"file: {f}; ")}{(0 == sf.GetFileLineNumber() ? string.Empty : $"#line: {sf.GetFileLineNumber()}; ")}{(m.IsNullOrEmpty() ? string.Empty : $"method: {m} ")}");
+				}
+				//for (int i = 0; i < st.FrameCount; i++)
 				//{
-				//	StackFrame sf = st.GetFrame(i - 1);
+				//	StackFrame sf = st.GetFrame(i);
 				//	string f = string.IsNullOrEmpty(sf.GetFileName()) ? "??" : sf.GetFileName();
 				//	string m = string.IsNullOrEmpty(sf.GetMethod().ToString()) ? "??" : $"{sf.GetMethod()}";
-				//	ls.Add($"[EXCEPTION #{st.FrameCount - i + 1}] file: {f}; method: {m}; #line: {sf.GetFileLineNumber()}");
+				//	ls.Add($"[EXCEPTION #{i + 1}] file: {f}; method: {m}; #line: {sf.GetFileLineNumber()}");
 				//}
-				for (int i = 0; i < st.FrameCount; i++)
-				{
-					StackFrame sf = st.GetFrame(i);
-					string f = string.IsNullOrEmpty(sf.GetFileName()) ? "??" : sf.GetFileName();
-					string m = string.IsNullOrEmpty(sf.GetMethod().ToString()) ? "??" : $"{sf.GetMethod()}";
-					ls.Add($"[EXCEPTION #{i + 1}] file: {f}; method: {m}; #line: {sf.GetFileLineNumber()}");
-				}
 				r = AddEx(ls, addSharedData ? TLog.EXCPT : TLog.DEBUG, addSharedData);
 			}
 			catch (Exception) { }
@@ -522,7 +533,7 @@ namespace COMMON
 					// check whether need to open a new file
 					if (DateTime.Now.Date != CreatedOn.Date)
 						// re-open a new file with the same name but different timestamp
-						OpenLogFile(originalFName);
+						OpenLogFile(Filename /*originalFName*/);
 
 					// arrived here the file is ready for write, write what was meant to be written
 					AddToLog(ls.ToStringEx(addSharedData));
@@ -627,7 +638,7 @@ namespace COMMON
 							 new List<string>
 							 {
 								 $"+++++",
-								 $"+++++ {LogFileName.ToUpper()} OPENED: {CMisc.BuildDate(_dateFormat, CreatedOn)} (EXE VERSION: {CMisc.Version(CMisc.VersionType.executable)}/{CMisc.Version(CMisc.VersionType.assemblyFile)} - COMMON VERSION: {CMisc.Version(CMisc.VersionType.assembly, Assembly.GetExecutingAssembly())}/{CMisc.Version(CMisc.VersionType.assemblyFile, Assembly.GetExecutingAssembly())})",
+								 $"+++++ {LogFilename.ToUpper()} OPENED: {CMisc.BuildDate(_dateFormat, CreatedOn)} (EXE VERSION: {CMisc.Version(CMisc.VersionType.executable)}/{CMisc.Version(CMisc.VersionType.assemblyFile)} - COMMON VERSION: {CMisc.Version(CMisc.VersionType.assembly, Assembly.GetExecutingAssembly())}/{CMisc.Version(CMisc.VersionType.assemblyFile, Assembly.GetExecutingAssembly())})",
 								 $"+++++",
 							 }, (int)TLog.FMNGT);
 						AddToLog(ls.ToStringEx(false));
@@ -658,7 +669,7 @@ namespace COMMON
 			try
 			{
 				FileInfo fi = new FileInfo(fileName);
-				originalFName = fi.Name;
+				Filename /*originalFName*/ = fi.Name;
 				originalFNameExtension = Path.GetExtension(fi.FullName);
 				originalFNameWithoutExtension = Path.GetFileNameWithoutExtension(fi.FullName);
 				LogFilePath = Path.GetDirectoryName(fi.FullName);
@@ -684,7 +695,7 @@ namespace COMMON
 							new List<string>
 							{
 								$"-----",
-								$"----- {LogFileName.ToUpper()} CLOSED: {CMisc.BuildDate(_dateFormat)}",
+								$"----- {LogFilename.ToUpper()} CLOSED: {CMisc.BuildDate(_dateFormat)}",
 								$"-----"
 							}, (int)TLog.FMNGT);
 						AddToLog(ls.ToStringEx(false));
@@ -695,7 +706,7 @@ namespace COMMON
 			streamWriter?.Close();
 			streamWriter = default;
 			CreatedOn = default;
-			_logfilename = LogFilePath = originalFName = originalFNameExtension = originalFNameWithoutExtension = default;
+			_logfilename = LogFilePath = Filename /*originalFName*/ = originalFNameExtension = originalFNameWithoutExtension = default;
 			canChangeAllSettings = true;
 		}
 		/// <summary>
@@ -709,7 +720,7 @@ namespace COMMON
 				try
 				{
 					// get files fitting search pattern and order them by descending creation date
-					DirectoryInfo di = new DirectoryInfo(Path.GetDirectoryName(LogFileName));
+					DirectoryInfo di = new DirectoryInfo(Path.GetDirectoryName(LogFilename));
 					FileSystemInfo[] files = di.GetFileSystemInfos($"{originalFNameWithoutExtension}*{originalFNameExtension}");
 					// order is from newer to older
 					var orderedFiles = files.OrderByDescending(x => x.CreationTimeUtc).ToList();
@@ -717,7 +728,7 @@ namespace COMMON
 					int deleted = 0;
 					foreach (var file in orderedFiles)
 					{
-						if (LogFileName != file.FullName)
+						if (LogFilename != file.FullName)
 						{
 							counter += 1;
 							if (numerberOfFilesToKeep < counter)

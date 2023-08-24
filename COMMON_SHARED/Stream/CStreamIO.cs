@@ -81,7 +81,7 @@ namespace COMMON
 				if (default != Tcp)
 				{
 					IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();
-					TcpConnectionInformation[] tcpConnections = ipProperties.GetActiveTcpConnections().Where(x => x.LocalEndPoint.Equals(Tcp.Client.RemoteEndPoint) && x.RemoteEndPoint.Equals(Tcp.Client.LocalEndPoint)).ToArray();
+					TcpConnectionInformation[] tcpConnections = ipProperties.GetActiveTcpConnections().Where(x => x.LocalEndPoint.Equals(Tcp?.Client?.RemoteEndPoint) && x.RemoteEndPoint.Equals(Tcp.Client.LocalEndPoint)).ToArray();
 					if (tcpConnections != default && tcpConnections.Length > 0)
 					{
 						TcpState stateOfConnection = tcpConnections.First().State;
@@ -104,7 +104,7 @@ namespace COMMON
 		public override string ToString()
 		{
 			if (default != Tcp)
-				return $"streamIO => connected: {Tcp.Connected}; remote end point: {Tcp.Client.RemoteEndPoint}; receive buffer size: {Tcp.ReceiveBufferSize}; receive timeout: {Tcp.ReceiveTimeout}";
+				return $"streamIO => connected: {Tcp.Connected}; remote end point: {Tcp?.Client?.RemoteEndPoint}; receive buffer size: {Tcp.ReceiveBufferSize}; receive timeout: {Tcp.ReceiveTimeout}";
 			return default;
 		}
 		/// <summary>
@@ -196,7 +196,7 @@ namespace COMMON
 		{
 			if (data.IsNullOrEmpty())
 			{
-				CLog.INFOR($"trying to send an empty message to {Tcp.Client.RemoteEndPoint}");
+				CLog.INFOR($"trying to send an empty message to {Tcp?.Client?.RemoteEndPoint}");
 				return false;
 			}
 			// if requested, add the size header to the message to send
@@ -213,7 +213,7 @@ namespace COMMON
 			string s1 = "(not adding size header)", s2 = $"(adding {lengthSize} bytes size header)";
 			CLog.Add(new CLogMsgs()
 			{
-				new CLogMsg($"sending message of {messageToSend.Length} bytes {(0 == lengthSize ? s1 : s2)} to {Tcp.Client.RemoteEndPoint}", TLog.INFOR),
+				new CLogMsg($"sending message of {messageToSend.Length} bytes {(0 == lengthSize ? s1 : s2)} to {Tcp?.Client?.RemoteEndPoint}", TLog.INFOR),
 				new CLogMsg($"data [{CMisc.AsHexString(messageToSend, true)}]", TLog.DEBUG),
 			});
 			if (Write(messageToSend))
@@ -221,7 +221,7 @@ namespace COMMON
 				Flush();
 				return true;
 			}
-			CLog.INFOR($"failed sending message of {messageToSend.Length} bytes {(0 == lengthSize ? s1 : s2)} to {Tcp.Client.RemoteEndPoint}");
+			CLog.INFOR($"failed sending message of {messageToSend.Length} bytes {(0 == lengthSize ? s1 : s2)} to {Tcp?.Client?.RemoteEndPoint}");
 			return false;
 		}
 		/// <summary>
@@ -260,13 +260,13 @@ namespace COMMON
 			}
 			CLog.Add(new CLogMsgs()
 			{
-				new CLogMsg($"sending text message of {data.Length} characters to {Tcp.Client.RemoteEndPoint}", TLog.INFOR),
+				new CLogMsg($"sending text message of {data.Length} characters to {Tcp?.Client?.RemoteEndPoint}", TLog.INFOR),
 				new CLogMsg($"data [{data}]", TLog.DEBUG),
 			});
 			byte[] bdata = (default != data ? Encoding.UTF8.GetBytes(data) : default);
 			bool ok = Send(bdata);
 			if (!ok)
-				CLog.INFOR($"failed sending text message of {data.Length} characters to {Tcp.Client.RemoteEndPoint}");
+				CLog.INFOR($"failed sending text message of {data.Length} characters to {Tcp?.Client?.RemoteEndPoint}");
 			return ok;
 		}
 		/// <summary>
@@ -289,7 +289,7 @@ namespace COMMON
 				byte[] buffer = new byte[bufferSize];
 				int bytesRead = 0;
 				bool doContinue;
-				CLog.DEBUG($"waiting to receive fixed buffer of {buffer.Length} bytes from {Tcp.Client.RemoteEndPoint}");
+				CLog.DEBUG($"waiting to receive fixed buffer of {buffer.Length} bytes from {Tcp?.Client?.RemoteEndPoint}");
 
 				do
 				{
@@ -303,7 +303,7 @@ namespace COMMON
 					}
 					else if (ioexcept)
 					{
-						CLog.INFORMATION($"client {Tcp.Client.RemoteEndPoint} has been disconnected");
+						CLog.INFORMATION($"client {Tcp?.Client?.RemoteEndPoint} has been disconnected");
 					}
 				}
 				while (doContinue);
@@ -314,7 +314,7 @@ namespace COMMON
 				// log a message only if not closing the stream
 				if (0 == bytesRead)
 				{
-					CLog.INFOR($"received unexpected empty message from {Tcp.Client.RemoteEndPoint}");
+					CLog.INFOR($"received unexpected empty message from {Tcp?.Client?.RemoteEndPoint}");
 
 					//if (!ioexcept)
 					//	CLog.ERROR($"unexpectedly received no data");
@@ -326,7 +326,7 @@ namespace COMMON
 				{
 					CLog.Add(new CLogMsgs()
 					{
-						new CLogMsg($"received {bytesRead} bytes, expecting {bufferSize} from {Tcp.Client.RemoteEndPoint}", TLog.INFOR),
+						new CLogMsg($"received {bytesRead} bytes, expecting {bufferSize} from {Tcp?.Client?.RemoteEndPoint}", TLog.INFOR),
 						new CLogMsg($"data [{CMisc.AsHexString(bufferReceived, true)}]", TLog.DEBUG),
 					});
 				}
@@ -335,7 +335,7 @@ namespace COMMON
 				{
 					CLog.Add(new CLogMsgs()
 					{
-						new CLogMsg($"received {bytesRead} bytes from {Tcp.Client.RemoteEndPoint}", TLog.DEBUG),
+						new CLogMsg($"received {bytesRead} bytes from {Tcp?.Client?.RemoteEndPoint}", TLog.DEBUG),
 						new CLogMsg($"data [{CMisc.AsHexString(bufferReceived, true)}]",TLog.DEBUG),
 					});
 				}
@@ -366,7 +366,7 @@ namespace COMMON
 				byte[] buffer = new byte[bufferToAllocate];
 				int bytesRead = 0;
 				bool doContinue;
-				CLog.DEBUG($"waiting to receive buffer with no specific size from {Tcp.Client.RemoteEndPoint}");
+				CLog.DEBUG($"waiting to receive buffer with no specific size from {Tcp?.Client?.RemoteEndPoint}");
 
 				bool ioexcept;
 				do
@@ -389,7 +389,7 @@ namespace COMMON
 					}
 					else if (ioexcept)
 					{
-						CLog.INFORMATION($"client {Tcp.Client.RemoteEndPoint} has been disconnected");
+						CLog.INFORMATION($"client {Tcp?.Client?.RemoteEndPoint} has been disconnected");
 					}
 				}
 				while (doContinue);
@@ -398,7 +398,7 @@ namespace COMMON
 				Buffer.BlockCopy(buffer, 0, bufferReceived, 0, bytesRead);
 				CLog.Add(new CLogMsgs()
 				{
-					new CLogMsg($"received {bytesRead} bytes from {Tcp.Client.RemoteEndPoint}", TLog.INFOR),
+					new CLogMsg($"received {bytesRead} bytes from {Tcp?.Client?.RemoteEndPoint}", TLog.INFOR),
 					new CLogMsg($"data [{CMisc.AsHexString(bufferReceived, true)}]", TLog.DEBUG),
 				});
 				return bufferReceived;
@@ -432,14 +432,14 @@ namespace COMMON
 					// get the size of the buffer to read and start reading it
 					if (0 != (announcedSize = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, 0, SizeHeader)))
 					{
-						CLog.DEBUG($"received announce of {announcedSize} bytes from {Tcp.Client.RemoteEndPoint}");
+						CLog.DEBUG($"received announce of {announcedSize} bytes from {Tcp?.Client?.RemoteEndPoint}");
 						byte[] buffer = ReceiveSizedBuffer(announcedSize);
 						if (!buffer.IsNullOrEmpty() && announcedSize == buffer.Length)
 						{
 							return buffer;
 						}
 					}
-					CLog.INFOR($"received announce of 0 byte from {Tcp.Client.RemoteEndPoint}");
+					CLog.INFOR($"received announce of 0 byte from {Tcp?.Client?.RemoteEndPoint}");
 				}
 			}
 			catch (Exception ex)
@@ -501,7 +501,7 @@ namespace COMMON
 				// remove EOT if necessary
 				if (!string.IsNullOrEmpty(s))
 					s = s.Replace(EOT, "");
-				CLog.DEBUG($"received string message [{s}] from {Tcp.Client.RemoteEndPoint}");
+				CLog.DEBUG($"received string message [{s}] from {Tcp?.Client?.RemoteEndPoint}");
 				return s;
 			}
 			catch (Exception ex)

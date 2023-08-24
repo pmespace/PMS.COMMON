@@ -1,3 +1,7 @@
+7.6.2
+- Bug fixes
+- Changed CLog.LogFileName to CLog.LogFilename and added CLog.Filename to control the original name of the file
+
 7.5.3
 - Fixed a bug in CMisc.ValueToHex preventing unexpected crash
 

@@ -92,7 +92,7 @@ namespace TestCore
 
 			CLog.SeverityToLog = TLog.TRACE;
 
-			//CLog.LogFileName = "testcore.log";
+			//CLog.LogFilename = "testcore.log";
 			CLog.SetSharedGuid();
 			CLog.Add(new CLogMsgs()
 			{
@@ -419,8 +419,8 @@ namespace TestCore
 		/// <returns></returns>
 		bool CreateLog(char c)
 		{
-			//CLog.LogFileName = $"test.core.txt";
-			//CLog.Add($"Starting log with {CLog.LogFileName}");
+			//CLog.LogFilename = $"test.core.txt";
+			//CLog.Add($"Starting log with {CLog.LogFilename}");
 			return true;
 		}
 		/// <summary>
@@ -429,7 +429,7 @@ namespace TestCore
 		/// <returns></returns>
 		bool StopLog(char c)
 		{
-			CLog.LogFileName = null;
+			CLog.Filename = null;
 			CLog.Add($"Stopping log");
 			return true;
 		}

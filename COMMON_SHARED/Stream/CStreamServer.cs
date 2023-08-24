@@ -388,8 +388,7 @@ namespace COMMON
 				StreamServerClient client = (StreamServerClient)o;
 				if (default != client && default != client.StreamIO)
 				{
-					CLog.INFORMATION($"send notification to {client.Tcp.Client.RemoteEndPoint}{(process.IsNullOrEmpty() ? string.Empty : $" from {process}")}");
-					EndPoint endpoint = client.Tcp.Client.RemoteEndPoint;
+					CLog.INFORMATION($"send notification to {client.Tcp?.Client?.RemoteEndPoint}{(process.IsNullOrEmpty() ? string.Empty : $" from {process}")}");
 					if (CStream.Send(client.StreamIO, msg))
 					{
 						client.UpdateStatistics(default, msg);
@@ -598,7 +597,7 @@ namespace COMMON
 			EndPoint clientEndPoint = default;
 			try
 			{
-				clientEndPoint = client.Tcp.Client.RemoteEndPoint;
+				clientEndPoint = client.Tcp?.Client?.RemoteEndPoint;
 			}
 			catch (Exception) { }
 			// start receiving messages for that server
@@ -968,7 +967,7 @@ namespace COMMON
 			{
 				try
 				{
-					return Tcp.Client.RemoteEndPoint.ToString();
+					return Tcp?.Client?.RemoteEndPoint.ToString();
 				}
 				catch (Exception) { }
 				return "[not connected]";

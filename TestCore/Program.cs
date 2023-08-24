@@ -14,7 +14,7 @@ namespace TestCore
 		{
 			CLog.UseGMT = false;
 			CLog.UseLocal = true;
-			CLog.LogFileName = "console";
+			CLog.Filename = "console";
 			try
 			{
 				throw new Exception("test");

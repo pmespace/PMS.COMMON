@@ -110,7 +110,7 @@ namespace COMMON
 				TcpClient tcpclient = new TcpClient(v6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork);
 				try
 				{
-					CLog.INFORMATION($"client attempt to connect to {settings.FullIP}");
+					CLog.INFORMATION($"client attempt to connect to {settings.FullIP}, timeout is {settings.ConnectTimeout} seconds");
 					var result = tcpclient.BeginConnect(settings.Address, (int)settings.Port, default, default);
 					var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(settings.ConnectTimeout));
 					if (success)
@@ -225,7 +225,7 @@ namespace COMMON
 				if (default == stream) throw new ArgumentException("no open stream");
 
 				// Read message from the server
-				CLog.INFORMATION($"waiting to receive a message from {stream.Tcp.Client.RemoteEndPoint}");
+				CLog.INFORMATION($"waiting to receive a message from {stream.Tcp?.Client?.RemoteEndPoint}, timeout is {stream.Tcp?.Client?.ReceiveTimeout} milliseconds");
 				byte[] tmp = stream.Receive(out announcedSize);
 				if (default != tmp)
 				{
@@ -241,6 +241,8 @@ namespace COMMON
 					else
 						reply = tmp;
 				}
+				else
+					CLog.INFOR("received an empty buffer");
 			}
 			catch (Exception ex)
 			{
@@ -278,7 +280,7 @@ namespace COMMON
 				if (default == stream) throw new ArgumentException("no open stream");
 
 				// Read message from the server
-				CLog.INFORMATION($"waiting to receive a message from {stream.Tcp.Client.RemoteEndPoint}");
+				CLog.INFORMATION($"waiting to receive a message from {stream.Tcp?.Client?.RemoteEndPoint}");
 				return stream.Receive(size);
 			}
 			catch (Exception ex)
@@ -303,7 +305,7 @@ namespace COMMON
 				if (default == stream) throw new ArgumentException("no open stream");
 
 				string s = stream.ReceiveLine(EOT);
-				CLog.INFORMATION($"received string message {(s.IsNullOrEmpty() ? 0 : s.Length)} characters from {stream.Tcp.Client.RemoteEndPoint}");
+				CLog.INFORMATION($"received string message {(s.IsNullOrEmpty() ? 0 : s.Length)} characters from {stream.Tcp?.Client?.RemoteEndPoint}");
 				return s;
 			}
 			catch (Exception ex)

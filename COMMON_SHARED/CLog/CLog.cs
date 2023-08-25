@@ -669,7 +669,7 @@ namespace COMMON
 			try
 			{
 				FileInfo fi = new FileInfo(fileName);
-				Filename /*originalFName*/ = fi.Name;
+				_filename /*originalFName*/ = fi.Name;
 				originalFNameExtension = Path.GetExtension(fi.FullName);
 				originalFNameWithoutExtension = Path.GetFileNameWithoutExtension(fi.FullName);
 				LogFilePath = Path.GetDirectoryName(fi.FullName);
@@ -706,7 +706,7 @@ namespace COMMON
 			streamWriter?.Close();
 			streamWriter = default;
 			CreatedOn = default;
-			_logfilename = LogFilePath = Filename /*originalFName*/ = originalFNameExtension = originalFNameWithoutExtension = default;
+			_logfilename = LogFilePath = _filename /*originalFName*/ = originalFNameExtension = originalFNameWithoutExtension = default;
 			canChangeAllSettings = true;
 		}
 		/// <summary>

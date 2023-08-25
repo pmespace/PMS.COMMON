@@ -200,6 +200,15 @@ namespace COMMON
 		}
 		static string _filename = default;
 		/// <summary>
+		/// Name of log file
+		/// </summary>
+		public static string FullName
+		{
+			get => _fullname;
+			private set => _fullname = value;
+		}
+		static string _fullname = default;
+		/// <summary>
 		/// Full name of log file
 		/// </summary>
 		public static string LogFilename
@@ -533,7 +542,7 @@ namespace COMMON
 					// check whether need to open a new file
 					if (DateTime.Now.Date != CreatedOn.Date)
 						// re-open a new file with the same name but different timestamp
-						OpenLogFile(Filename /*originalFName*/);
+						OpenLogFile(Filename);
 
 					// arrived here the file is ready for write, write what was meant to be written
 					AddToLog(ls.ToStringEx(addSharedData));
@@ -669,7 +678,8 @@ namespace COMMON
 			try
 			{
 				FileInfo fi = new FileInfo(fileName);
-				_filename /*originalFName*/ = fi.Name;
+				_filename = fi.Name;
+				_fullname = fi.FullName;
 				originalFNameExtension = Path.GetExtension(fi.FullName);
 				originalFNameWithoutExtension = Path.GetFileNameWithoutExtension(fi.FullName);
 				LogFilePath = Path.GetDirectoryName(fi.FullName);
@@ -706,7 +716,7 @@ namespace COMMON
 			streamWriter?.Close();
 			streamWriter = default;
 			CreatedOn = default;
-			_logfilename = LogFilePath = _filename /*originalFName*/ = originalFNameExtension = originalFNameWithoutExtension = default;
+			_logfilename = LogFilePath = _filename = _fullname = originalFNameExtension = originalFNameWithoutExtension = default;
 			canChangeAllSettings = true;
 		}
 		/// <summary>

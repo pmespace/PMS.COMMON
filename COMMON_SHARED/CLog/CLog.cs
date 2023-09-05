@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+using System.Xml.Schema;
 
 namespace COMMON
 {
@@ -81,11 +82,14 @@ namespace COMMON
 		}
 		protected string ToStringPrefix() => $"{CMisc.BuildDate(CMisc.DateFormat.YYYYMMDDhhmmssfffEx)}{Chars.TAB}{Severity}{Chars.TAB}{Thread.CurrentThread.ManagedThreadId.ToString("X8")}{Chars.TAB}";
 		public override string ToString() => $"{(CLog.SeverityToLog <= Severity || TLog.FMNGT >= Severity ? CLog.RemoveCRLF(Msg.Trim()) : string.Empty)}";
-		internal virtual string ToStringEx(bool addSharedData)
+		internal virtual string ToStringEx(bool addSharedData, out string msgToConsole)
 		{
+			msgToConsole = string.Empty;
 			try
 			{
-				return (CLog.SeverityToLog <= Severity && !Msg.IsNullOrEmpty()) || TLog.FMNGT >= Severity ? ToStringPrefix() + ToStringSC(addSharedData) + ToString() : string.Empty;
+				string msg = !Msg.IsNullOrEmpty() || TLog.FMNGT >= Severity ? ToStringPrefix() + ToStringSC(addSharedData) + ToString() : string.Empty;
+				msgToConsole = CLog.ConsoleSeverity <= Severity && !msg.IsNullOrEmpty() && CLog.ActivateConsoleLog ? msg : string.Empty;
+				return CLog.SeverityToLog <= Severity && !msg.IsNullOrEmpty() ? msg : string.Empty;
 			}
 			catch (Exception) { }
 			return string.Empty;
@@ -95,8 +99,9 @@ namespace COMMON
 	{
 		public override TLog Severity { get => _severity; set => _severity = (CLog.IsTLog(value) || TLog.FMNGT >= value ? value : _severity); }
 		protected override string ToStringSC(bool addSharedData = true) => Guid.Empty.ToString() + Chars.TAB;
-		internal override string ToStringEx(bool addSharedData)
+		internal override string ToStringEx(bool addSharedData, out string msgToConsole)
 		{
+			msgToConsole = string.Empty;
 			try
 			{
 				return ToStringPrefix() + ToStringSC(addSharedData) + ToString();
@@ -137,16 +142,17 @@ namespace COMMON
 			catch (Exception) { }
 			return r;
 		}
-		public string ToStringEx(bool addSharedData)
+		public string ToStringEx(bool addSharedData, out string msgToConsole)
 		{
 			string r = string.Empty;
+			msgToConsole = string.Empty;
 			try
 			{
 				bool hasBeenSet = CLog.SharedGuidHasBeenSet;
 				if (!hasBeenSet) CLog.SetSharedGuid();
 				for (int i = 0; i < Count; i++)
 				{
-					string s = this[i].ToStringEx(addSharedData);
+					string s = this[i].ToStringEx(addSharedData, out msgToConsole);
 					r += (s.IsNullOrEmpty() ? string.Empty : 0 == i ? s : Chars.CRLF + s);
 				}
 				if (!hasBeenSet) CLog.ResetSharedGuid();
@@ -302,6 +308,25 @@ namespace COMMON
 		}
 		static bool _uselocal = false;
 		internal static CMisc.DateFormat _dateFormat = CMisc.DateFormat.YYYYMMDDhhmmssfffEx;
+		/// <summary>
+		/// The level of severity to log on console
+		/// </summary>
+		public static TLog ConsoleSeverity
+		{
+			get => _consoleseverity;
+			set
+			{
+				lock (mylock)
+				{
+					_consoleseverity = IsTLog(value) || TLog.FMNGT >= value ? value : _severitytolog;
+				}
+			}
+		}
+		static TLog _consoleseverity = TLog.TRACE;
+		/// <summary>
+		/// Activates or not displaying log files on console
+		/// </summary>
+		public static bool ActivateConsoleLog { get; set; } = false;
 		#endregion
 
 		#region privates
@@ -545,7 +570,7 @@ namespace COMMON
 						OpenLogFile(Filename);
 
 					// arrived here the file is ready for write, write what was meant to be written
-					AddToLog(ls.ToStringEx(addSharedData));
+					AddToLog(ls.ToStringEx(addSharedData, out string msgToConsole), msgToConsole);
 				}
 			}
 			catch (Exception) { }
@@ -587,14 +612,15 @@ namespace COMMON
 		/// Write safely to the log file
 		/// </summary>
 		/// <param name="s">The message to write, it can be multiline</param>
-		static void AddToLog(string s)
+		/// <param name="sToConsole">The message to write to console, it can be multiline</param>
+		static void AddToLog(string s, string sToConsole)
 		{
 			if (s.IsNullOrEmpty()) return;
 			try
 			{
 				lock (mylock)
 				{
-					AddToLogUnsafe(s);
+					AddToLogUnsafe(s, sToConsole);
 				}
 			}
 			catch (Exception) { }
@@ -603,11 +629,13 @@ namespace COMMON
 		/// Unsafely write to the log file
 		/// </summary>
 		/// <param name="s">The message to write, it can be multiline</param>
-		static void AddToLogUnsafe(string s)
+		/// <param name="sToConsole">The message to write to console, it can be multiline</param>
+		static void AddToLogUnsafe(string s, string sToConsole)
 		{
 			try
 			{
 				streamWriter?.WriteLine(s);
+				if (!sToConsole.IsNullOrEmpty()) Console.WriteLine(sToConsole);
 			}
 			catch (Exception) { }
 		}
@@ -650,7 +678,7 @@ namespace COMMON
 								 $"+++++ {LogFilename.ToUpper()} OPENED: {CMisc.BuildDate(_dateFormat, CreatedOn)} (EXE VERSION: {CMisc.Version(CMisc.VersionType.executable)}/{CMisc.Version(CMisc.VersionType.assemblyFile)} - COMMON VERSION: {CMisc.Version(CMisc.VersionType.assembly, Assembly.GetExecutingAssembly())}/{CMisc.Version(CMisc.VersionType.assemblyFile, Assembly.GetExecutingAssembly())})",
 								 $"+++++",
 							 }, (int)TLog.FMNGT);
-						AddToLog(ls.ToStringEx(false));
+						AddToLog(ls.ToStringEx(false, out string msgToConsole), msgToConsole);
 						try
 						{
 							if (AutoPurgeLogFiles)
@@ -708,7 +736,7 @@ namespace COMMON
 								$"----- {LogFilename.ToUpper()} CLOSED: {CMisc.BuildDate(_dateFormat)}",
 								$"-----"
 							}, (int)TLog.FMNGT);
-						AddToLog(ls.ToStringEx(false));
+						AddToLog(ls.ToStringEx(false, out string msgToConsole), msgToConsole);
 					}
 				}
 				catch (Exception) { }

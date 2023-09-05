@@ -1,3 +1,6 @@
+7.6.3
+- Added the possibility to log on console using CLog.ActivateConsoleLog and CLog.ConsoleSeverity
+
 7.6.2
 - Bug fixes
 - Changed CLog.LogFileName to CLog.LogFilename and added CLog.Filename to control the original name of the file

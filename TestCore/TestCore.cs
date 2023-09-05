@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using COMMON;
 using Newtonsoft.Json.Serialization;
 using System.Threading;
+using System.IO;
 
 namespace TestCore
 {
@@ -91,6 +92,7 @@ namespace TestCore
 			};
 
 			CLog.SeverityToLog = TLog.TRACE;
+			CLog.ActivateConsoleLog = true;
 
 			//CLog.LogFilename = "testcore.log";
 			CLog.SetSharedGuid();

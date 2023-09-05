@@ -7,9 +7,9 @@
     <UseWindowsForms>true</UseWindowsForms>
     <BaseOutputPath></BaseOutputPath>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>7.6.2</Version>
-    <FileVersion>7.6.2</FileVersion>
-    <AssemblyVersion>7.6.2</AssemblyVersion>
+    <Version>7.6.3</Version>
+    <FileVersion>7.6.3</FileVersion>
+    <AssemblyVersion>7.6.3</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

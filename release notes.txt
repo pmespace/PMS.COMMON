@@ -1,3 +1,10 @@
+7.6.5
+- Fixed a bug in CStreamServer where a connection from an address which has already been connected crashes the app
+
+7.6.4
+- CJson.Serialize now allows to serialize directly inside a file if specified
+- CJson.Deserialize now allows to deserialize directly from a file if specified
+
 7.6.3
 - Added the possibility to log on console using CLog.ActivateConsoleLog and CLog.ConsoleSeverity
 

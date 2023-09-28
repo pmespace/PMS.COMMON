@@ -494,7 +494,7 @@ namespace COMMON
 					// accept client connection
 					tcp = listener.AcceptTcpClient();
 					StreamServerClient client = default;
-					EndPoint clientEndPoint = tcp.Client.RemoteEndPoint;
+					EndPoint clientEndPoint = tcp.Client?.RemoteEndPoint;
 					client = new StreamServerClient(tcp, StartSettings.StreamServerSettings);
 					string clientKey = client.Key;
 					try
@@ -875,7 +875,8 @@ namespace COMMON
 			public string Key { get => ToString(); }
 			public Guid ID { get; }
 			public object myLock = new object();
-			public TcpClient Tcp { get; }
+			public TcpClient Tcp { get => _tcp; private set { _tcp = value; RemoteIP = _tcp?.Client?.RemoteEndPoint.ToString(); } }
+			TcpClient _tcp = null;
 			public CStreamServerSettings StreamServerSettings { get; }
 			public CStreamServerIO StreamIO { get; private set; } = default;
 			public CThread ReceivingThread { get; }
@@ -890,6 +891,9 @@ namespace COMMON
 			internal string Server = default;
 			public object Data { get => _privateData; set => _privateData = value; }
 			internal object _privateData = default;
+			public string RemoteIP { get; private set; }
+			public long Ticks { get => _ticks; }
+			long _ticks = DateTime.Now.Ticks;
 			#endregion
 
 			//#region IStreamServerStatistics implementation
@@ -945,11 +949,19 @@ namespace COMMON
 			{
 				if (ProcessingThread.IsRunning)
 				{
-					StopProcessingThreadEvent.Set();
-					if (!ProcessorEvents.WaitStopped(WaitBeforeAbort * CStreamSettings.ONESECOND))
-#pragma warning disable SYSLIB0006
-						ProcessingThread.Thread.Abort();
-#pragma warning restore SYSLIB0006
+					try
+					{
+						StopProcessingThreadEvent.Set();
+						if (!ProcessorEvents.WaitStopped(WaitBeforeAbort * CStreamSettings.ONESECOND))
+							//#pragma warning disable SYSLIB0006
+							//ProcessingThread.Thread.Abort();
+							//#pragma warning restore SYSLIB0006
+							throw new Exception($"thread did not stop after {WaitBeforeAbort} seconds, forcing it to stop.");
+					}
+					catch (Exception ex)
+					{
+						CLog.EXCEPT(ex);
+					}
 				}
 			}
 			public void Stop()
@@ -967,7 +979,7 @@ namespace COMMON
 			{
 				try
 				{
-					return Tcp?.Client?.RemoteEndPoint.ToString();
+					return $"{RemoteIP}@{Ticks}";
 				}
 				catch (Exception) { }
 				return "[not connected]";

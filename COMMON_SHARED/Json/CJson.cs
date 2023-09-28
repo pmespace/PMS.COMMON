@@ -115,7 +115,7 @@ namespace COMMON
 		/// <summary>
 		/// Read settings from a file
 		/// </summary>
-		/// <param name="serializerSettings">Settings to use to deserialize, if null default settings are as iin <see cref="Deserialize(string, JsonSerializerSettings)"/></param>
+		/// <param name="serializerSettings">Settings to use to deserialize, if null default settings are as iin <see cref="Deserialize(string, JsonSerializerSettings, bool)"/></param>
 		/// <returns>
 		/// A structure of the specified settings if successful, null otherwise
 		/// </returns>
@@ -144,15 +144,24 @@ namespace COMMON
 		/// <summary>
 		/// Deserialize an object to a string
 		/// </summary>
-		/// <param name="o">The object to deserialize</param>
+		/// <param name="o">The json file to deserialize as a string or a file name to read and deserialize the content; if <paramref name="isFile"/> is true this must be a valid file name containing the json to deserialize</param>
 		/// <param name="serializerSettings">Settings to use to deserialize, if null default settings are: missing members are ignored</param>
+		/// <param name="isFile">True if <paramref name="o"/> links to a file, false if a regular string</param>
 		/// <returns>
 		/// The deserialized object if successful, null otherwise
 		/// </returns>
-		public static TSettings Deserialize(string o, JsonSerializerSettings serializerSettings = default)
+		public static TSettings Deserialize(string o, JsonSerializerSettings serializerSettings = default, bool isFile = false)
 		{
 			try
 			{
+				// read file if necessary
+				if (isFile)
+				{
+					using (StreamReader sr = new StreamReader(o))
+					{
+						o = sr.ReadToEnd();
+					}
+				}
 				serializerSettings = serializerSettings ?? new JsonSerializerSettings()
 				{
 					MissingMemberHandling = MissingMemberHandling.Ignore,
@@ -169,7 +178,7 @@ namespace COMMON
 		/// Write settings of the specified type
 		/// </summary>
 		/// <param name="o">The settings to write</param>
-		/// <param name="serializerSettings">Settings to use to serialize, if null default settings are as in <see cref="Serialize(TSettings, JsonSerializerSettings)"/>/></param>
+		/// <param name="serializerSettings">Settings to use to serialize, if null default settings are as in <see cref="Serialize(TSettings, JsonSerializerSettings, string)"/>/></param>
 		/// <param name="overwrite">Indicates whether writing can overwrite an existing file; if false and the existing file is not empty then a new file is created and the old one is being added a ".sav" extension</param>
 		/// <returns>
 		/// True if successful, false otherwise
@@ -222,10 +231,11 @@ namespace COMMON
 		/// </summary>
 		/// <param name="o">The object to serialize</param>
 		/// <param name="serializerSettings">Settings to use to serialize, if null default settings are: null and default values added, indentation</param>
+		/// <param name="fname">Name of a file to create and that will contain the serialised json</param>
 		/// <returns>
 		/// A string representing the serialized object, null otherwise
 		/// </returns>
-		public static string Serialize(TSettings o, JsonSerializerSettings serializerSettings = default)
+		public static string Serialize(TSettings o, JsonSerializerSettings serializerSettings = default, string fname = null)
 		{
 			try
 			{
@@ -235,7 +245,26 @@ namespace COMMON
 					Formatting = Newtonsoft.Json.Formatting.Indented,
 					DefaultValueHandling = DefaultValueHandling.Include,
 				};
-				return JsonConvert.SerializeObject(o, serializerSettings.Formatting, serializerSettings);
+				string s = JsonConvert.SerializeObject(o, serializerSettings.Formatting, serializerSettings);
+				try
+				{
+					if (!fname.IsNullOrEmpty())
+					{
+						using (StreamWriter sw = new StreamWriter(fname))
+						{
+							serializerSettings = new JsonSerializerSettings()
+							{
+								NullValueHandling = NullValueHandling.Include,
+								Formatting = Newtonsoft.Json.Formatting.Indented,
+								DefaultValueHandling = DefaultValueHandling.Include,
+							};
+							string sx = JsonConvert.SerializeObject(o, serializerSettings.Formatting, serializerSettings);
+							sw.Write(sx);
+						}
+					}
+				}
+				catch (Exception ex) { }
+				return s;
 			}
 			catch (Exception ex)
 			{

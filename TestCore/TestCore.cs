@@ -61,6 +61,20 @@ namespace TestCore
 			CMisc.YesNo("hello", true, true, true);
 #endif
 
+			string hexValue = "780B1343658";
+			byte[] byteArray = CMisc.HexToBin(hexValue, out bool padded);
+			string hexResult = CMisc.AsHexString(byteArray);
+
+			FileInfo fi = new FileInfo(@"C:\Users\philippe\Documents\Dev\CB2AFILE.cb2afile");
+			using (FileStream sr = new FileStream(@"C:\Users\philippe\Documents\Dev\CB2AFILE.cb2afile", FileMode.Open, FileAccess.Read))
+			{
+				byte[] ab = new byte[sr.Length];
+				int read = sr.Read(ab, 0, (int)sr.Length);
+				hexResult = CMisc.AsHexString(ab);
+			}
+
+
+
 			string sha = "hello, how are you mister Doolittle".ToSHA256();
 			string base641 = sha.ToBase64();
 			string base642 = sha.ToBase64URLSafe();

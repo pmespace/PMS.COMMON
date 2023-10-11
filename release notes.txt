@@ -1,3 +1,6 @@
+7.6.6
+- CMisc.AsHexString has been updated to increase conversion speed
+
 7.6.5
 - Fixed a bug in CStreamServer where a connection from an address which has already been connected crashes the app
 

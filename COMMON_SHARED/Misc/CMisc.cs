@@ -698,7 +698,7 @@ namespace COMMON
 		/// <returns>
 		/// An array of bytes containing the hexadecimal value, a <see cref="EInvalidFormat"/> exception if an error has occurred
 		/// </returns>
-		public static byte[] HexToBin(string s, out bool padded, bool padRight = true)
+		public static byte[] HexToBin(string s, out bool padded, bool padRight = false)
 		{
 			padded = false;
 			if (string.IsNullOrEmpty(s)) return new byte[0];
@@ -912,18 +912,29 @@ namespace COMMON
 		/// <returns>The converted array into a string if successful, an empty string if any error occured</returns>
 		public static string AsHexString(byte[] buffer, bool limitOutput = false)
 		{
+			//if (buffer.IsNullOrEmpty()) return default;
+			//int lengthToUse = (MaxBytesAsString <= buffer.Length && limitOutput ? MaxBytesAsString : buffer.Length);
+			//string res = string.Empty;
+			//try
+			//{
+			//	for (int i = 0; i < lengthToUse; i++)
+			//		res += buffer[i].ToString("X2");
+			//	if (buffer.Length > lengthToUse)
+			//		res += $"... [translated {MaxBytesAsString} bytes on {buffer.Length} - would you need more bytes please consider setting CMisc.MaxBytesAsString using SetMaxBytesAsString(int value)]";
+			//}
+			//catch (Exception) { res = default; }
+			//return res;
+
+			//if (BitConverter.IsLittleEndian)
+			//	for (int i = 0; i < buffer.Length / 2; i++)
+			//	{
+			//		byte b = buffer[i];
+			//		buffer[i] = buffer[buffer.Length - 1 - i];
+			//		buffer[buffer.Length - 1 - i] = b;
+			//	}
+
 			if (buffer.IsNullOrEmpty()) return default;
-			int lengthToUse = (MaxBytesAsString <= buffer.Length && limitOutput ? MaxBytesAsString : buffer.Length);
-			string res = string.Empty;
-			try
-			{
-				for (int i = 0; i < lengthToUse; i++)
-					res += buffer[i].ToString("X2");
-				if (buffer.Length > lengthToUse)
-					res += $"... [translated {MaxBytesAsString} bytes on {buffer.Length} - would you need more bytes please consider setting CMisc.MaxBytesAsString using SetMaxBytesAsString(int value)]";
-			}
-			catch (Exception) { res = default; }
-			return res;
+			return BitConverter.ToString(buffer).Replace("-", "");
 		}
 		/// <summary>
 		/// Get the different versions included inside the module

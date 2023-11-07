@@ -4,18 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3E5BAF1A-A375-47CB-94F4-E170E98B62F2}</ProjectGuid>
+    <ProjectGuid>{591B7348-B991-4E00-86A6-36FAE8FE9234}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <StartupObject>TestCommon.My.MyApplication</StartupObject>
     <RootNamespace>TestCommon</RootNamespace>
     <AssemblyName>TestCommon</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>WindowsForms</MyType>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
-    <AssemblyVersion>2023.271.0.0</AssemblyVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -23,9 +21,8 @@
     <DebugType>full</DebugType>
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
-    <OutputPath>..\bin\net47\</OutputPath>
-    <DocumentationFile>
-    </DocumentationFile>
+    <OutputPath>..\bin\</OutputPath>
+    <DocumentationFile>TestCommon.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -34,9 +31,8 @@
     <DefineDebug>false</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
-    <OutputPath>..\bin\net47\</OutputPath>
-    <DocumentationFile>
-    </DocumentationFile>
+    <OutputPath>..\bin\</OutputPath>
+    <DocumentationFile>TestCommon.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
@@ -77,7 +73,7 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FTestCommon.Designer.vb">
+    <Compile Include="FTestCommon.designer.vb">
       <DependentUpon>FTestCommon.vb</DependentUpon>
     </Compile>
     <Compile Include="FTestCommon.vb">
@@ -129,6 +125,11 @@
       <Project>{7aff3ff8-b99e-4690-ac1a-730fd76f3b90}</Project>
       <Name>COMMON</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>13.0.3</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

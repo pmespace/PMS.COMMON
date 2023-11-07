@@ -1,17 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
-    <BaseOutputPath></BaseOutputPath>
+    <BaseOutputPath>..\bin</BaseOutputPath>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>7.6.6</Version>
-    <FileVersion>7.6.6</FileVersion>
-    <AssemblyVersion>7.6.6</AssemblyVersion>
+    <Version>7.6.7</Version>
+    <FileVersion>7.6.7</FileVersion>
+    <AssemblyVersion>7.6.7</AssemblyVersion>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\bin</OutputPath>
     <ShouldCreateLogs>True</ShouldCreateLogs>
@@ -23,9 +21,7 @@
     <AssemblyInfoVersionType>SettingsVersion</AssemblyInfoVersionType>
     <InheritWinAppVersionFrom>AssemblyVersion</InheritWinAppVersionFrom>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <OutputPath>..\bin</OutputPath>
   </PropertyGroup>
-
 </Project>

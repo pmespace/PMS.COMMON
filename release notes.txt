@@ -1,3 +1,6 @@
+7.6.7
+- NewtonSoft.Json in 13.0.3
+
 7.6.6
 - CMisc.AsHexString has been updated to increase conversion speed
 

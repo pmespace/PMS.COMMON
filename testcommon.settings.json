@@ -1,0 +1,16 @@
+{
+  "SQLCommand": "",
+  "ConnectionString": "",
+  "TableName": "",
+  "Dummy1": {
+    "A": null,
+    "Z": null,
+    "T": null,
+    "B": null
+  },
+  "SelectCommand": "",
+  "BaseSelectCommand": null,
+  "BaseConnectionString": null,
+  "BaseTableName": null,
+  "BaseSQLCommand": null
+}

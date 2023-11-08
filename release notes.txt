@@ -1,3 +1,6 @@
+7.6.8
+- Fixed CMisc.SearchInArgs which could return the absence of an option though present (if not associated with any data)
+
 7.6.7
 - NewtonSoft.Json in 13.0.3
 

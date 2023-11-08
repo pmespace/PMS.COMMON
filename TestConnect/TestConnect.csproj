@@ -6,9 +6,9 @@
     <UseWindowsForms>true</UseWindowsForms>
     <BaseOutputPath>..\bin</BaseOutputPath>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>7.6.7</Version>
-    <FileVersion>7.6.7</FileVersion>
-    <AssemblyVersion>7.6.7</AssemblyVersion>
+    <Version>7.6.8</Version>
+    <FileVersion>7.6.8</FileVersion>
+    <AssemblyVersion>7.6.8</AssemblyVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\bin</OutputPath>

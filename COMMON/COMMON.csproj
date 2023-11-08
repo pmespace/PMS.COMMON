@@ -2,10 +2,10 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net6.0;net462;net35</TargetFrameworks>
     <AssemblyName>PMS.COMMON</AssemblyName>
-    <Version>7.6.7</Version>
+    <Version>7.6.8</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <FileVersion>7.6.7</FileVersion>
-    <AssemblyVersion>7.6.7</AssemblyVersion>
+    <FileVersion>7.6.8</FileVersion>
+    <AssemblyVersion>7.6.8</AssemblyVersion>
     <Authors>philippemp31</Authors>
     <Company>PMS</Company>
     <Description>

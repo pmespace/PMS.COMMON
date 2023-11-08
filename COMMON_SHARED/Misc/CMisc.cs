@@ -1332,11 +1332,14 @@ namespace COMMON
 		/// <param name="option">The option to look for</param>
 		/// <param name="index">Index of the option inside the list of arguments, -1 if not found</param>
 		/// <param name="occurrence">Occurrence (1 based) of the option in the list of arguments, if the option can be present more than once</param>
-		/// <returns>The value of the option if present with the indicated occurrence (it could be an empty string), null if not present</returns>
+		/// <returns>The value of the option if present with the indicated occurrence (it could be an empty string), an empty string if the option is present but additional data is present, null if not present</returns>
 		public static string SearchInArgs(string[] args, string option, out int index, int occurrence = 1)
 		{
 			index = -1;
 			int k = 0;
+
+			if (option.IsNullOrEmpty()) return default;
+
 			for (int i = 0; i < args.Length; i++)
 			{
 				try
@@ -1349,9 +1352,16 @@ namespace COMMON
 						// is it the occurrence we are looking for ?
 						if (occurrence == k)
 						{
-							// that is th eoption we're looking for
+							// that is the option we're looking for
 							index = i;
-							return args[i].Substring(fulloption.Length);
+							try
+							{
+								return args[i].Substring(fulloption.Length);
+							}
+							catch (Exception)
+							{
+								return string.Empty;
+							}
 						}
 					}
 				}

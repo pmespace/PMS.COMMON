@@ -1,16 +1,16 @@
 {
-  "SQLCommand": "",
+  "BaseConnectionString": null,
+  "BaseSelectCommand": null,
+  "BaseSQLCommand": null,
+  "BaseTableName": null,
   "ConnectionString": "",
-  "TableName": "",
   "Dummy1": {
     "A": null,
-    "Z": null,
+    "B": null,
     "T": null,
-    "B": null
+    "Z": null
   },
   "SelectCommand": "",
-  "BaseSelectCommand": null,
-  "BaseConnectionString": null,
-  "BaseTableName": null,
-  "BaseSQLCommand": null
+  "SQLCommand": "",
+  "TableName": ""
 }

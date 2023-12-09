@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data.Odbc;
 using System.Data;
 using System.Text.RegularExpressions;
+using COMMON.Properties;
 
 namespace COMMON.ODBC
 {
@@ -46,7 +47,7 @@ namespace COMMON.ODBC
 					}
 					catch (Exception ex)
 					{
-						CLog.EXCEPT(ex, $"connection string: {ConnectionString}");
+						CLog.EXCEPT(ex, Resources.ODBCConnectionString.Format(ConnectionString));
 					}
 				}
 			}
@@ -85,7 +86,7 @@ namespace COMMON.ODBC
 					}
 					catch (Exception ex)
 					{
-						CLog.EXCEPT(ex, $"connection string: {ConnectionString}");
+						CLog.EXCEPT(ex, Resources.ODBCConnectionString.Format(ConnectionString));
 					}
 				}
 			}
@@ -110,7 +111,7 @@ namespace COMMON.ODBC
 				}
 				catch (Exception ex)
 				{
-					CLog.EXCEPT(ex, $"{Database.Database} is still open");
+					CLog.EXCEPT(ex, Resources.ODBCDatabaseStillOpened.Format(Database.Database));
 				}
 			}
 			return !IsOpen;
@@ -490,7 +491,7 @@ namespace COMMON.ODBC
 			}
 			catch (Exception ex)
 			{
-				CLog.EXCEPT(ex, $"column name: {columnName}");
+				CLog.EXCEPT(ex, Resources.ODBColumnName.Format(columnName));
 			}
 			return false;
 		}
@@ -513,7 +514,7 @@ namespace COMMON.ODBC
 			}
 			catch (Exception ex)
 			{
-				CLog.EXCEPT(ex, $"column name: {columnName}");
+				CLog.EXCEPT(ex, Resources.ODBColumnName.Format(columnName));
 				throw;
 			}
 		}
@@ -564,7 +565,7 @@ namespace COMMON.ODBC
 				}
 				catch (Exception ex)
 				{
-					CLog.EXCEPT(ex, $"connection string: {ConnectionString}");
+					CLog.EXCEPT(ex, Resources.ODBCConnectionString.Format(ConnectionString));
 				}
 			}
 			return null;

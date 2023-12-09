@@ -15,6 +15,7 @@ using System.Net;
 using Newtonsoft.Json;
 using System.IO;
 using System.Collections.Generic;
+using COMMON.Properties;
 
 namespace COMMON
 {
@@ -104,17 +105,18 @@ namespace COMMON
 		public override string ToString()
 		{
 			if (default != Tcp)
-				return $"streamIO => connected: {Tcp.Connected}; remote end point: {Tcp?.Client?.RemoteEndPoint}; receive buffer size: {Tcp.ReceiveBufferSize}; receive timeout: {Tcp.ReceiveTimeout}";
+				return Resources.CStreamIOToString.Format(new object[] { Tcp.Connected, Tcp?.Client?.RemoteEndPoint, Tcp.ReceiveBufferSize, Tcp.ReceiveTimeout });
 			return default;
 		}
 		/// <summary>
 		/// Writes to the adequate stream
 		/// </summary>
 		/// <param name="data">buffer to write</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// True if write operation has been made, false otherwise
 		/// </returns>
-		private bool Write(byte[] data)
+		private bool Write(byte[] data, CancellationToken token = default)
 		{
 			if (data.IsNullOrEmpty()) return false;
 
@@ -124,8 +126,23 @@ namespace COMMON
 
 			try
 			{
-				stream.Write(data, 0, data.Length);
-				return true;
+				//if (CancellationToken.None == token)
+				//{
+				//	stream.Write(data, 0, data.Length);
+				//	return true;
+				//}
+				//else
+				//{
+				//	var task = stream.WriteAsync(data, 0, data.Length, token);
+				//	task.Wait();
+				//	if (task.IsCompleted)
+				//		return true;
+				//}
+
+				var task = stream.WriteAsync(data, 0, data.Length, token);
+				task.Wait();
+				if (task.IsCompleted)
+					return true;
 			}
 			catch (Exception ex)
 			{
@@ -136,7 +153,8 @@ namespace COMMON
 		/// <summary>
 		/// Flush the adequate stream
 		/// </summary>
-		private void Flush()
+		/// <param name="token">cancellation token to use for async operation</param>
+		private void Flush(CancellationToken token)
 		{
 			Stream stream = networkStream;
 			if (default == stream) stream = sslStream;
@@ -144,7 +162,18 @@ namespace COMMON
 
 			try
 			{
-				stream.Flush();
+				//if (CancellationToken.None == token)
+				//{
+				//	stream.Flush();
+				//}
+				//else
+				//{
+				//	var task = stream.FlushAsync(token);
+				//	task.Wait();
+				//}
+
+				var task = stream.FlushAsync(token);
+				task.Wait();
 			}
 			catch (Exception ex)
 			{
@@ -157,10 +186,11 @@ namespace COMMON
 		/// <param name="data">buffer to feed with read data</param>
 		/// <param name="offset">offset at which to put data inside the buffer</param>
 		/// <param name="ioexcept">the exception which stopped the read process</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// The number of bytes read, 0 if no bytes read
 		/// </returns>
-		private int Read(byte[] data, int offset, out bool ioexcept)
+		private int Read(byte[] data, int offset, out bool ioexcept, CancellationToken token = default)
 		{
 			ioexcept = false;
 
@@ -175,7 +205,22 @@ namespace COMMON
 
 			try
 			{
-				read = stream.Read(data, offset, data.Length - offset);
+				//if (CancellationToken.None == token)
+				//{
+				//	read = stream.Read(data, offset, data.Length - offset);
+				//}
+				//else
+				//{
+				//	var task = stream.ReadAsync(data, offset, data.Length - offset);
+				//	task.Wait();
+				//	if (task.IsCompleted)
+				//		read = task.Result;
+				//}
+
+				var task = stream.ReadAsync(data, offset, data.Length - offset, token);
+				task.Wait();
+				if (task.IsCompleted)
+					read = task.Result;
 			}
 			catch (Exception ex)
 			{
@@ -189,14 +234,15 @@ namespace COMMON
 		/// If requested with <see cref="CStreamBase.UseSizeHeader"/> a size header of length <see cref="CStreamBase.SizeHeader"/> is added at the beginning of the message.
 		/// </summary>
 		/// <param name="data">the message to send</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// True if the message has been sent, false otherwise
 		/// </returns>
-		internal bool Send(byte[] data)
+		internal bool Send(byte[] data, CancellationToken token = default)
 		{
 			if (data.IsNullOrEmpty())
 			{
-				CLog.INFOR($"trying to send an empty message to {Tcp?.Client?.RemoteEndPoint}");
+				CLog.INFOR(Resources.CStreamIOTryingToSendEmptyBuffer);
 				return false;
 			}
 			// if requested, add the size header to the message to send
@@ -210,18 +256,18 @@ namespace COMMON
 				Buffer.BlockCopy(bs, 0, messageToSend, 0, (int)lengthSize);
 			}
 			// arrived here the message is ready to be sent
-			string s1 = "(not adding size header)", s2 = $"(adding {lengthSize} bytes size header)";
+			string s1 = Resources.CStreamIONotAddingHeader, s2 = Resources.CStreamIOAddingHeader.Format(lengthSize);
 			CLog.Add(new CLogMsgs()
 			{
-				new CLogMsg($"sending message of {messageToSend.Length} bytes {(0 == lengthSize ? s1 : s2)} to {Tcp?.Client?.RemoteEndPoint}", TLog.INFOR),
-				new CLogMsg($"data [{CMisc.AsHexString(messageToSend, true)}]", TLog.DEBUG),
+				new CLogMsg(Resources.CStreamIOSendingMessage.Format(new object[] {messageToSend.Length, (0 == lengthSize ? s1 : s2), Tcp?.Client?.RemoteEndPoint}), TLog.INFOR),
+				new CLogMsg(Resources.CStreamIOData.Format(CMisc.AsHexString(messageToSend, true)), TLog.DEBUG),
 			});
-			if (Write(messageToSend))
+			if (Write(messageToSend, token))
 			{
-				Flush();
+				Flush(token);
 				return true;
 			}
-			CLog.INFOR($"failed sending message of {messageToSend.Length} bytes {(0 == lengthSize ? s1 : s2)} to {Tcp?.Client?.RemoteEndPoint}");
+			CLog.INFOR(Resources.CStreamIOFailedSendingMessage.Format(new object[] { messageToSend.Length, (0 == lengthSize ? s1 : s2), Tcp?.Client?.RemoteEndPoint }));
 			return false;
 		}
 		/// <summary>
@@ -229,13 +275,14 @@ namespace COMMON
 		/// If requested with <see cref="CStreamBase.UseSizeHeader"/> a size header of length <see cref="CStreamBase.SizeHeader"/> is added at the beginning of the message.
 		/// </summary>
 		/// <param name="data">the message to send as a string</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// true if the message has been sent, false otherwise
 		/// </returns>
-		internal bool Send(string data)
+		internal bool Send(string data, CancellationToken token = default)
 		{
 			byte[] bdata = (default != data ? Encoding.UTF8.GetBytes(data) : default);
-			return Send(bdata);
+			return Send(bdata, token);
 		}
 		/// <summary>
 		/// Sends a buffer to an outer entity.
@@ -243,10 +290,11 @@ namespace COMMON
 		/// </summary>
 		/// <param name="data">the message to send</param>
 		/// <param name="EOT">the  end of transmission character to use to terminate the mesage (CR+LF by default)</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// true if the message has been sent, false otherwise
 		/// </returns>
-		internal bool SendLine(string data, string EOT = CRLF)
+		internal bool SendLine(string data, CancellationToken token = default, string EOT = CRLF)
 		{
 			if (EOT.IsNullOrEmpty()) EOT = CRLF;
 
@@ -260,13 +308,13 @@ namespace COMMON
 			}
 			CLog.Add(new CLogMsgs()
 			{
-				new CLogMsg($"sending text message of {data.Length} characters to {Tcp?.Client?.RemoteEndPoint}", TLog.INFOR),
-				new CLogMsg($"data [{data}]", TLog.DEBUG),
+				new CLogMsg(Resources.CStreamIOSendingTextMessage.Format(new object[] {data.Length, Tcp?.Client?.RemoteEndPoint}), TLog.INFOR),
+				new CLogMsg(Resources.CStreamIOData.Format(data), TLog.DEBUG),
 			});
 			byte[] bdata = (default != data ? Encoding.UTF8.GetBytes(data) : default);
-			bool ok = Send(bdata);
+			bool ok = Send(bdata, token);
 			if (!ok)
-				CLog.INFOR($"failed sending text message of {data.Length} characters to {Tcp?.Client?.RemoteEndPoint}");
+				CLog.INFOR(Resources.CStreamIOFailedSendingTextMessage.Format(new object[] { data.Length, Tcp?.Client?.RemoteEndPoint }));
 			return ok;
 		}
 		/// <summary>
@@ -275,26 +323,27 @@ namespace COMMON
 		/// The function will not return until the buffer has been fully received or an error has occurred (timeout,...).
 		/// </summary>
 		/// <param name="bufferSize">size of the buffer to receive</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// the received buffer if successful (eventually with a 0 length if no data has been received), null otherwise
 		/// </returns>
-		byte[] ReceiveSizedBuffer(int bufferSize)
+		byte[] ReceiveSizedBuffer(int bufferSize, CancellationToken token = default)
 		{
 			try
 			{
 				// allocate buffer to receive
 				if (0 == bufferSize)
-					throw new ArgumentException("0 length buffer size indicated, receiving a message can't be made");
+					throw new ArgumentException(Resources.CStreamIOZeroLengthBufferGiven);
 
 				byte[] buffer = new byte[bufferSize];
 				int bytesRead = 0;
 				bool doContinue;
-				CLog.DEBUG($"waiting to receive fixed buffer of {buffer.Length} bytes from {Tcp?.Client?.RemoteEndPoint}");
+				CLog.DEBUG(Resources.CStreamIOReceivingFixedSizeBuffer.Format(new object[] { buffer.Length, Tcp?.Client?.RemoteEndPoint }));
 
 				do
 				{
 					// read stream for the specified buffer
-					int nbBytes = Read(buffer, bytesRead, out bool ioexcept);
+					int nbBytes = Read(buffer, bytesRead, out bool ioexcept, token);
 					if (doContinue = (0 != nbBytes))
 					{
 						bytesRead += nbBytes;
@@ -303,7 +352,7 @@ namespace COMMON
 					}
 					else if (ioexcept)
 					{
-						CLog.INFORMATION($"client {Tcp?.Client?.RemoteEndPoint} has been disconnected");
+						CLog.INFORMATION(Resources.CStreamIOClientDisconnected.Format(Tcp?.Client?.RemoteEndPoint));
 					}
 				}
 				while (doContinue);
@@ -314,7 +363,7 @@ namespace COMMON
 				// log a message only if not closing the stream
 				if (0 == bytesRead)
 				{
-					CLog.INFOR($"received unexpected empty message from {Tcp?.Client?.RemoteEndPoint}");
+					CLog.INFOR(Resources.CStreamIOReceivedUnexpectedEmptyBuffer.Format(Tcp?.Client?.RemoteEndPoint));
 
 					//if (!ioexcept)
 					//	CLog.ERROR($"unexpectedly received no data");
@@ -326,8 +375,8 @@ namespace COMMON
 				{
 					CLog.Add(new CLogMsgs()
 					{
-						new CLogMsg($"received {bytesRead} bytes, expecting {bufferSize} from {Tcp?.Client?.RemoteEndPoint}", TLog.INFOR),
-						new CLogMsg($"data [{CMisc.AsHexString(bufferReceived, true)}]", TLog.DEBUG),
+						new CLogMsg($"{Resources.CStreamIOReceivedMessage.Format(new object[] {bytesRead, Tcp?.Client?.RemoteEndPoint})} {Resources.CStreamIOExpectingBytes.Format(bufferSize)}", TLog.INFOR),
+						new CLogMsg(Resources.CStreamIOData.Format(CMisc.AsHexString(bufferReceived, true)), TLog.DEBUG),
 					});
 				}
 
@@ -335,8 +384,8 @@ namespace COMMON
 				{
 					CLog.Add(new CLogMsgs()
 					{
-						new CLogMsg($"received {bytesRead} bytes from {Tcp?.Client?.RemoteEndPoint}", TLog.DEBUG),
-						new CLogMsg($"data [{CMisc.AsHexString(bufferReceived, true)}]",TLog.DEBUG),
+						new CLogMsg(Resources.CStreamIOReceivedMessage.Format(new object[] {bytesRead, Tcp?.Client?.RemoteEndPoint}), TLog.DEBUG),
+						new CLogMsg(Resources.CStreamIOData.Format(CMisc.AsHexString(bufferReceived, true)),TLog.DEBUG),
 					});
 				}
 				return bufferReceived;
@@ -354,10 +403,11 @@ namespace COMMON
 		/// </summary>
 		/// <param name="EOT">a string which if found marks the end of transmission</param>
 		/// <param name="bufferToAllocate">size of buffer to allocate to read the incoming data (default is 1 Kb)</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// the received buffer if successful (eventually with a 0 length if no data has been received), null otherwise
 		/// </returns>
-		byte[] ReceiveNonSizedBuffer(string EOT, int bufferToAllocate = CStreamSettings.ONEKB)
+		byte[] ReceiveNonSizedBuffer(string EOT, CancellationToken token = default, int bufferToAllocate = CStreamSettings.ONEKB)
 		{
 			try
 			{
@@ -366,13 +416,13 @@ namespace COMMON
 				byte[] buffer = new byte[bufferToAllocate];
 				int bytesRead = 0;
 				bool doContinue;
-				CLog.DEBUG($"waiting to receive buffer with no specific size from {Tcp?.Client?.RemoteEndPoint}");
+				CLog.DEBUG(Resources.CStreamIOWaitingMessage.Format(Tcp?.Client?.RemoteEndPoint));
 
 				bool ioexcept;
 				do
 				{
 					// read stream for the specified buffer
-					int nbBytes = Read(buffer, bytesRead, out ioexcept);
+					int nbBytes = Read(buffer, bytesRead, out ioexcept, token);
 					if (doContinue = (0 != nbBytes))
 					{
 						bytesRead += nbBytes;
@@ -389,7 +439,7 @@ namespace COMMON
 					}
 					else if (ioexcept)
 					{
-						CLog.INFORMATION($"client {Tcp?.Client?.RemoteEndPoint} has been disconnected");
+						CLog.INFORMATION(Resources.CStreamIOClientDisconnected.Format(Tcp?.Client?.RemoteEndPoint));
 					}
 				}
 				while (doContinue);
@@ -398,8 +448,8 @@ namespace COMMON
 				Buffer.BlockCopy(buffer, 0, bufferReceived, 0, bytesRead);
 				CLog.Add(new CLogMsgs()
 				{
-					new CLogMsg($"received {bytesRead} bytes from {Tcp?.Client?.RemoteEndPoint}", TLog.INFOR),
-					new CLogMsg($"data [{CMisc.AsHexString(bufferReceived, true)}]", TLog.DEBUG),
+					new CLogMsg(Resources.CStreamIOReceivedMessage.Format(new object[] {bytesRead, Tcp?.Client?.RemoteEndPoint}), TLog.INFOR),
+					new CLogMsg(Resources.CStreamIOData.Format(CMisc.AsHexString(bufferReceived, true)),TLog.DEBUG),
 				});
 				return bufferReceived;
 			}
@@ -417,29 +467,30 @@ namespace COMMON
 		/// </summary>
 		/// <param name="announcedSize">size of the buffer as declared by the caller , therefore expected by the receiver.
 		/// If that size differs from the size of the actually received buffer then an error has occurred</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// the  received buffer stripped of the size header (whose value is indicated in announcedSize) if successful, null otherwise
 		/// </returns>
-		internal byte[] Receive(out int announcedSize)
+		internal byte[] Receive(out int announcedSize, CancellationToken token = default)
 		{
 			announcedSize = 0;
 			try
 			{
 				// determine whether the header must be used or not and the size arrived here, either an automatic header is used or the protocol contains one, get the size of the headerto receive 
-				byte[] bufferSize = ReceiveSizedBuffer(SizeHeader);
+				byte[] bufferSize = ReceiveSizedBuffer(SizeHeader, token);
 				if (!bufferSize.IsNullOrEmpty() && SizeHeader == bufferSize.Length)
 				{
 					// get the size of the buffer to read and start reading it
 					if (0 != (announcedSize = (int)CMisc.GetIntegralTypeValueFromBytes(bufferSize, 0, SizeHeader)))
 					{
-						CLog.DEBUG($"received announce of {announcedSize} bytes from {Tcp?.Client?.RemoteEndPoint}");
-						byte[] buffer = ReceiveSizedBuffer(announcedSize);
+						CLog.DEBUG(Resources.CStreamIOReceiveAnnounceOf.Format(new object[] { announcedSize, Tcp?.Client?.RemoteEndPoint }));
+						byte[] buffer = ReceiveSizedBuffer(announcedSize, token);
 						if (!buffer.IsNullOrEmpty() && announcedSize == buffer.Length)
 						{
 							return buffer;
 						}
 					}
-					CLog.INFOR($"received announce of 0 byte from {Tcp?.Client?.RemoteEndPoint}");
+					CLog.INFOR(Resources.CStreamIOReceiveAnnounceOfZero.Format(Tcp?.Client?.RemoteEndPoint));
 				}
 			}
 			catch (Exception ex)
@@ -457,12 +508,13 @@ namespace COMMON
 		/// 
 		/// </summary>
 		/// <param name="size">size of the buffer to receive.</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// the received buffer if successful (eventually with a 0 length if no data has been received), <see cref="ArgumentException"/> or any other exception otherwise
 		/// </returns>
-		internal byte[] Receive(int size)
+		internal byte[] Receive(int size, CancellationToken token = default)
 		{
-			return ReceiveSizedBuffer(size);
+			return ReceiveSizedBuffer(size, token);
 		}
 		/// <summary>
 		/// Receive a string of an unknown size from the server.
@@ -474,10 +526,10 @@ namespace COMMON
 		/// 
 		/// </summary>
 		/// <returns>the  received buffer as a string if no error occurred, an empty string otherwise</returns>
-		internal string Receive()
+		internal string Receive(CancellationToken token)
 		{
 			// receive the buffer
-			byte[] buffer = Receive(out int size);
+			byte[] buffer = Receive(out int size, token);
 			return (!buffer.IsNullOrEmpty() && size == buffer.Length ? Encoding.UTF8.GetString(buffer) : default);
 		}
 		/// <summary>
@@ -488,20 +540,21 @@ namespace COMMON
 		/// The returned string NEVER contains the size header.
 		/// </summary>
 		/// <param name="EOT">a string which if found marks the end of transmission</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// the  received buffer as a string if successful, null otherwise
 		/// </returns>
-		internal string ReceiveLine(string EOT = CRLF)
+		internal string ReceiveLine(CancellationToken token, string EOT = CRLF)
 		{
 			try
 			{
 				// receive the buffer
-				byte[] buffer = ReceiveNonSizedBuffer(EOT);
+				byte[] buffer = ReceiveNonSizedBuffer(EOT, token);
 				string s = (default != buffer ? Encoding.UTF8.GetString(buffer) : default);
 				// remove EOT if necessary
 				if (!string.IsNullOrEmpty(s))
 					s = s.Replace(EOT, "");
-				CLog.DEBUG($"received string message [{s}] from {Tcp?.Client?.RemoteEndPoint}");
+				CLog.DEBUG(Resources.CStreamIOReceivedTextMessage.Format(new object[] { s, Tcp?.Client?.RemoteEndPoint }));
 				return s;
 			}
 			catch (Exception ex)
@@ -659,7 +712,7 @@ namespace COMMON
 			{
 				for (int i = 0; chain.ChainElements.Count > i; i++)
 				{
-					CLog.INFORMATION($"Chain element {i + 1}: {(chain.ChainElements[i].Certificate?.Subject ?? "not specified")}");
+					CLog.INFORMATION(Resources.CStreamIOSecurityChainElement.Format(new object[] { i + 1, (chain.ChainElements[i].Certificate?.Subject ?? Resources.GeneralNotSpecified) }));
 					//CLog.INFORMATION($"Certificate details: {(chain.ChainElements[i].Certificate?.ToString() ?? "not specified")}");
 				}
 			}
@@ -671,7 +724,7 @@ namespace COMMON
 
 			// arrived here a certificate error occured
 			// Do not allow this client to communicate with unauthenticated servers.
-			CLog.Add($"Certificate error [{sslPolicyErrors}]", TLog.ERROR);
+			CLog.Add(Resources.CStreamIOCertificateError.Format(sslPolicyErrors), TLog.ERROR);
 			return false;
 		}
 		#endregion
@@ -786,7 +839,7 @@ namespace COMMON
 
 			// arrived here a certificate error occured
 			// Do not allow this client to communicate with unauthenticated servers.
-			CLog.Add($"Certificate error [{sslPolicyErrors}]", TLog.ERROR);
+			CLog.Add(Resources.CStreamIOCertificateError.Format(sslPolicyErrors), TLog.ERROR);
 			return false;
 		}
 		#endregion

@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="CLogExceptionLine" xml:space="preserve">
+    <value>ligne</value>
+  </data>
+  <data name="CLogExceptionMethod" xml:space="preserve">
+    <value>fonction</value>
+  </data>
+  <data name="CLogExceptionFile" xml:space="preserve">
+    <value>fichier</value>
+  </data>
+  <data name="CLogException" xml:space="preserve">
+    <value>[EXCEPTION]</value>
+  </data>
+  <data name="CExceptionStreamDisconnected" xml:space="preserve">
+    <value>le canal de communication a été déconnecté</value>
+  </data>
+  <data name="CExceptionInvalidFormat" xml:space="preserve">
+    <value>{s} a un format invalid</value>
+  </data>
+  <data name="CExceptionNotImplemented" xml:space="preserve">
+    <value>la fonction {0} n'est pas implémenté dans l'objet {1}</value>
+  </data>
+  <data name="CExceptionOutOfRange" xml:space="preserve">
+    <value>{0} est hors limites</value>
+  </data>
+  <data name="CMiscCannotBeZeroLength" xml:space="preserve">
+    <value>la chaîne de caractères ne peut être de longueur nulle</value>
+  </data>
+  <data name="CMiscCheckBufferMinMax" xml:space="preserve">
+    <value>longueur invalide - longueur min={0}; longueur max={1}; longueur={2}</value>
+  </data>
+  <data name="CMiscCheckBufferMinMaxValue" xml:space="preserve">
+    <value>longueur invalide - valeur={3}; longueur min={0}; longueur max={1}; longueur={2}</value>
+  </data>
+  <data name="CMiscInvalidHexadecimalFormat" xml:space="preserve">
+    <value>{0} n'est pas un format hexadécimal</value>
+  </data>
+  <data name="CMiscInvalidLength" xml:space="preserve">
+    <value>{0} n'est pas une longueur valide (en attente de {1})</value>
+  </data>
+  <data name="GeneralUnknown" xml:space="preserve">
+    <value>inconnu(e)</value>
+  </data>
+  <data name="GeneralYES" xml:space="preserve">
+    <value>OUI</value>
+  </data>
+  <data name="GeneralNO" xml:space="preserve">
+    <value>NON</value>
+  </data>
+  <data name="CSafeListEmpty" xml:space="preserve">
+    <value>liste vide</value>
+  </data>
+  <data name="CStreamClientConnect" xml:space="preserve">
+    <value>tentative de connexion à {0}, le timeout est {1} seconde(s)</value>
+  </data>
+  <data name="CStreamClientConnected" xml:space="preserve">
+    <value>connecté à {0}</value>
+  </data>
+  <data name="CStreamClientNotConnected" xml:space="preserve">
+    <value>la connexion à {0} a échoué</value>
+  </data>
+  <data name="CStreamNoOpenedStream" xml:space="preserve">
+    <value>aucun canal de communication ouvert</value>
+  </data>
+  <data name="CStreamWaitingMessageWithTimeout" xml:space="preserve">
+    <value>en attente d'un message en provenance de {0}, le timeout est de {1} milliseconde(s)</value>
+  </data>
+  <data name="CStreamReceivedEmptyBuffer" xml:space="preserve">
+    <value>réception d'un buffer vide</value>
+  </data>
+  <data name="CStreamWaitingMessage" xml:space="preserve">
+    <value>en attente d'un message en provenance de {0}</value>
+  </data>
+  <data name="CStreamReceivedStringMessage" xml:space="preserve">
+    <value>réception d'un message texte de {0} charactères en provenance de {1}</value>
+  </data>
+  <data name="CStreamToString" xml:space="preserve">
+    <value>longueur du header {0} octets; utiliser le header :{1}</value>
+  </data>
+  <data name="CStreamIOToString" xml:space="preserve">
+    <value>streamIO =&gt; connecté: {0}; end point distant: {1}; taille du buffer en réception: {2}; timeout en réception: {3}</value>
+  </data>
+  <data name="CStreamIOTryingToSendEmptyBuffer" xml:space="preserve">
+    <value>tentative d'envoi d'un buffer vide</value>
+  </data>
+  <data name="CStreamIONotAddingHeader" xml:space="preserve">
+    <value>(sans ajouter de header)</value>
+  </data>
+  <data name="CStreamIOAddingHeader" xml:space="preserve">
+    <value>en utilisant un header de {0} octets</value>
+  </data>
+  <data name="CStreamIOSendingMessage" xml:space="preserve">
+    <value>envoi d'un message de {0} octets ({1}) vers {2}</value>
+  </data>
+  <data name="CStreamIOData" xml:space="preserve">
+    <value>data [{0}]</value>
+  </data>
+  <data name="CStreamIOFailedSendingMessage" xml:space="preserve">
+    <value>échec de l'envoi d'un message de {0} octets ({1}) vers {2}</value>
+  </data>
+  <data name="CStreamIOSendingTextMessage" xml:space="preserve">
+    <value>envoi d'un message texte de {0} charactères vers {1}</value>
+  </data>
+  <data name="CStreamIOFailedSendingTextMessage" xml:space="preserve">
+    <value>échec de l'envoi d'un message texte de {0} octets vers {2}</value>
+  </data>
+  <data name="CStreamIOZeroLengthBufferGiven" xml:space="preserve">
+    <value>un buffer de taille nulle a été donné rendant impossible la réception d'un message</value>
+  </data>
+  <data name="CStreamIOReceivingFixedSizeBuffer" xml:space="preserve">
+    <value>en attente d'un buffer de taille fixe de {0} octets en provenance de {1}</value>
+  </data>
+  <data name="CStreamIOClientDisconnected" xml:space="preserve">
+    <value>le client at l'adresse {0} a été déconnecté</value>
+  </data>
+  <data name="CStreamIOReceivedUnexpectedEmptyBuffer" xml:space="preserve">
+    <value>réception inattendue d'un message vide en provenance de {0}</value>
+  </data>
+  <data name="CStreamIOExpectingBytes" xml:space="preserve">
+    <value>{0} octets étaient attendus</value>
+  </data>
+  <data name="CStreamIOReceivedMessage" xml:space="preserve">
+    <value>réception d'un message de {0} octets en provenance de {1}</value>
+  </data>
+  <data name="CStreamIOWaitingMessage" xml:space="preserve">
+    <value>en attente d'un buffer sans taille prédéfinie en provenance de {0}</value>
+  </data>
+  <data name="CStreamIOReceiveAnnounceOf" xml:space="preserve">
+    <value>réception d'une annonce de message de {0} octets en provenance de {1}</value>
+  </data>
+  <data name="CStreamIOReceiveAnnounceOfZero" xml:space="preserve">
+    <value>réception d'une annonce de 0 octet en provenance de {0}</value>
+  </data>
+  <data name="CStreamIOReceivedTextMessage" xml:space="preserve">
+    <value>réception d'un message texte [{0}] en provenance de {1}</value>
+  </data>
+  <data name="CStreamIOSecurityChainElement" xml:space="preserve">
+    <value>élément de la chaîne {0}: {1}</value>
+  </data>
+  <data name="GeneralNotSpecified" xml:space="preserve">
+    <value>non spécifié(e)</value>
+  </data>
+  <data name="CStreamIOCertificateError" xml:space="preserve">
+    <value>erreur de certificat {0}</value>
+  </data>
+  <data name="CStreamSettingsBaseToString" xml:space="preserve">
+    <value>timeout en réception: {0}; buffer en réception: {1}; timeout en émission: {2}; buffer en émission: {3}; ssl: {4}</value>
+  </data>
+  <data name="CStreamClientSettingsToString" xml:space="preserve">
+    <value>endpoint: {0}; servername: {1}; erreurs ssl autorisées: {2}</value>
+  </data>
+  <data name="GeneralInvalidIPAddress" xml:space="preserve">
+    <value>adresse IP invalide {0}:{1}</value>
+  </data>
+  <data name="ServerListenerNotAllowedToStart" xml:space="preserve">
+    <value>{0} - le serveur n'a pas été autorisé à démarrer</value>
+  </data>
+  <data name="ServerListenerCreated" xml:space="preserve">
+    <value>{0} - le listener du serveur a été créé à l'écoute du port {1}</value>
+  </data>
+  <data name="ServerListenerName" xml:space="preserve">
+    <value>LISTENER SERVER</value>
+  </data>
+  <data name="ServerListenerFailedToStart" xml:space="preserve">
+    <value>{0} - erreur lors du démarrage du serveur</value>
+  </data>
+  <data name="ServerListenerNotRunning" xml:space="preserve">
+    <value>{0} - le serveur ne s'exécute pas</value>
+  </data>
+  <data name="ServerListenerHasStopped" xml:space="preserve">
+    <value>{0} - le serveur est arrêté</value>
+  </data>
+  <data name="GeneralFrom" xml:space="preserve">
+    <value>en provenance de</value>
+  </data>
+  <data name="ServerSendingNotification" xml:space="preserve">
+    <value>envoi d'une notification vers {0}{1}</value>
+  </data>
+  <data name="ServerListenerIsShuttingDown" xml:space="preserve">
+    <value>{0} - le serveur est en cours d'arrêt</value>
+  </data>
+  <data name="ServerReceiverName" xml:space="preserve">
+    <value>STREAM SERVER RECEIVER</value>
+  </data>
+  <data name="ServerProcessorName" xml:space="preserve">
+    <value>STREAM SERVER PROCESSOR</value>
+  </data>
+  <data name="ServerListenerClientConnected" xml:space="preserve">
+    <value>{0} - l'environnement pour le client à l'adresse {1} est prêt</value>
+  </data>
+  <data name="ServerListenerClientConnectionDeclined" xml:space="preserve">
+    <value>{0} - le client à l'adresse {1} n'a pas été autorisé à se connecter</value>
+  </data>
+  <data name="ServerListenerFailedToStartThread" xml:space="preserve">
+    <value>{0} - erreur lors du démarrage du thread {1} pour le client à l'adresse {2}</value>
+  </data>
+  <data name="ServerListenerThreadHasStopped" xml:space="preserve">
+    <value>{0} - le thread est arrêté</value>
+  </data>
+  <data name="ServerListenerThreadIsStopping" xml:space="preserve">
+    <value>{0} - le thread est en cours d'arrêt</value>
+  </data>
+  <data name="ServerReceivedStopOrder" xml:space="preserve">
+    <value>{0} - le thread a reçu une demande d'arrêt</value>
+  </data>
+  <data name="ServerClientIsDisconnecting" xml:space="preserve">
+    <value>{0} - le client à l'adresse {1} est en cours de déconnexion</value>
+  </data>
+  <data name="GeneralNoAvailableIPAddress" xml:space="preserve">
+    <value>aucune adrese IP n'est disponible</value>
+  </data>
+  <data name="ServerFetchMessageException" xml:space="preserve">
+    <value>{0} - erreur de récupération d'un message</value>
+  </data>
+  <data name="ServerStartProcessingRequest" xml:space="preserve">
+    <value>{0} - traitement d'une requête de {1} octets</value>
+  </data>
+  <data name="ServerData" xml:space="preserve">
+    <value>{0} - data [{1}]</value>
+  </data>
+  <data name="ServerSendReply" xml:space="preserve">
+    <value>{0} - renvoi d'une réponse de {1} octets</value>
+  </data>
+  <data name="ServerSendFailed" xml:space="preserve">
+    <value>{0} - l'envoi du message a échoué</value>
+  </data>
+  <data name="ServerSendNoReply" xml:space="preserve">
+    <value>{0} - le message est vide, aucune réponse à renvoyer</value>
+  </data>
+  <data name="ServerSendNoRequest" xml:space="preserve">
+    <value>{0} - le message est vide, aucune requête à renvoyer</value>
+  </data>
+  <data name="ServerUnknownNonFatalError" xml:space="preserve">
+    <value>{0} - erreur inconnue non fatale</value>
+  </data>
+  <data name="ServerMessageHidden" xml:space="preserve">
+    <value>&lt;MESSAGE MASQUE&gt;</value>
+  </data>
+  <data name="ServerThreadNotStopped" xml:space="preserve">
+    <value>{0} - le thread ne s'est pas arrêté après {1} secondes, l'arrêt est forcé</value>
+  </data>
+  <data name="ServerNotConnected" xml:space="preserve">
+    <value>&lt;NON CONNECTE&gt;</value>
+  </data>
+  <data name="ThreadNoName" xml:space="preserve">
+    <value>N/A</value>
+  </data>
+  <data name="ThreadThread" xml:space="preserve">
+    <value>thread</value>
+  </data>
+  <data name="ThreadResult" xml:space="preserve">
+    <value>{0} - résultat du thread: {1}</value>
+  </data>
+  <data name="THreadNoMethodToCall" xml:space="preserve">
+    <value>{0} - aucune fonction à appeler pour ce thread</value>
+  </data>
+  <data name="ODBCConnectionString" xml:space="preserve">
+    <value>chaîne de connexion</value>
+  </data>
+  <data name="ODBCDatabaseStillOpened" xml:space="preserve">
+    <value>la base de données {0} est toujours ouverte</value>
+  </data>
+  <data name="ODBColumnName" xml:space="preserve">
+    <value>nom de la colonne</value>
+  </data>
+  <data name="UIActivityFailedAddingActivity" xml:space="preserve">
+    <value>l'activité {0} n'a pas été ajoutée</value>
+  </data>
+  <data name="UIActivityInsideActivity" xml:space="preserve">
+    <value>durant le traitement de l'activité {0}</value>
+  </data>
+  <data name="UIActivityToString" xml:space="preserve">
+    <value>UIActivity =&gt; control: {0}; évènement: {1}; message: {2}; valeur: {3}</value>
+  </data>
+</root>

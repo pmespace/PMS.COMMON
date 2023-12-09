@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net6.0;net462;net35</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net6.0;net462</TargetFrameworks>
     <AssemblyName>PMS.COMMON</AssemblyName>
-    <Version>7.6.8</Version>
+    <Version>8.0.1</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <FileVersion>7.6.8</FileVersion>
-    <AssemblyVersion>7.6.8</AssemblyVersion>
+    <FileVersion>8.0.1</FileVersion>
+    <AssemblyVersion>8.0.1</AssemblyVersion>
     <Authors>philippemp31</Authors>
     <Company>PMS</Company>
     <Description>
@@ -60,6 +60,19 @@
     <Reference Include="System.Windows.Forms" Condition="'$(TargetFramework)'=='net462'">
       <HintPath>c:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.2\System.Windows.Forms.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <TestNugetPath>$(SolutionDir)..\nuget\test</TestNugetPath>

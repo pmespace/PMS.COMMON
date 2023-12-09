@@ -61,17 +61,18 @@ namespace TestCore
 			CMisc.YesNo("hello", true, true, true);
 #endif
 
+			#region TESTS
 			string hexValue = "780B1343658";
 			byte[] byteArray = CMisc.HexToBin(hexValue, out bool padded);
 			string hexResult = CMisc.AsHexString(byteArray);
 
-			FileInfo fi = new FileInfo(@"C:\Users\philippe\Documents\Dev\CB2AFILE.cb2afile");
-			using (FileStream sr = new FileStream(@"C:\Users\philippe\Documents\Dev\CB2AFILE.cb2afile", FileMode.Open, FileAccess.Read))
-			{
-				byte[] ab = new byte[sr.Length];
-				int read = sr.Read(ab, 0, (int)sr.Length);
-				hexResult = CMisc.AsHexString(ab);
-			}
+			//FileInfo fi = new FileInfo(@"C:\Users\phili\Documents\Dev\CB2AFILE.cb2afile");
+			//using (FileStream sr = new FileStream(@"C:\Users\phili\Documents\Dev\CB2AFILE.cb2afile", FileMode.Open, FileAccess.Read))
+			//{
+			//	byte[] ab = new byte[sr.Length];
+			//	int read = sr.Read(ab, 0, (int)sr.Length);
+			//	hexResult = CMisc.AsHexString(ab);
+			//}
 
 
 
@@ -106,7 +107,9 @@ namespace TestCore
 			};
 
 			CLog.SeverityToLog = TLog.TRACE;
+			CLog.DISPL("DISPLAY ONLY");
 			CLog.ActivateConsoleLog = true;
+
 
 			//CLog.LogFilename = "testcore.log";
 			CLog.SetSharedGuid();
@@ -311,6 +314,7 @@ namespace TestCore
 			{
 				Console.WriteLine(h.Key);
 			}
+			#endregion
 
 			//string[] yes1 = { "OUI", "O" };
 			//string[] yes2 = { "123", "3" };
@@ -593,10 +597,11 @@ namespace TestCore
 		{
 			if (null != server)
 			{
+				//server.TokenSource.Cancel();
 				server.StopServer();
 				Console.WriteLine(server.Statistics());
 			}
-			server = null;
+			//server = null;
 			return true;
 		}
 		#endregion

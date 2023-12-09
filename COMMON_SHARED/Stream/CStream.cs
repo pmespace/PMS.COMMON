@@ -4,6 +4,8 @@ using System.Text;
 using System.Linq;
 using System.Net;
 using System;
+using System.Threading;
+using COMMON.Properties;
 
 namespace COMMON
 {
@@ -110,14 +112,14 @@ namespace COMMON
 				TcpClient tcpclient = new TcpClient(v6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork);
 				try
 				{
-					CLog.INFORMATION($"client attempt to connect to {settings.FullIP}, timeout is {settings.ConnectTimeout} seconds");
+					CLog.INFORMATION(Resources.CStreamClientConnect.Format(new object[] { settings.FullIP, settings.ConnectTimeout }));
 					var result = tcpclient.BeginConnect(settings.Address, (int)settings.Port, default, default);
 					var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(settings.ConnectTimeout));
 					if (success)
 					{
 						// stream is connected
 						tcpclient.EndConnect(result);
-						CLog.INFORMATION($"client connected to {settings.FullIP}");
+						CLog.INFORMATION(Resources.CStreamClientConnected.Format(settings.FullIP));
 						tcpclient.SendBufferSize = (tcpclient.SendBufferSize >= settings.SendBufferSize ? tcpclient.SendBufferSize : settings.SendBufferSize + 1);
 						tcpclient.ReceiveBufferSize = (tcpclient.ReceiveBufferSize >= settings.ReceiveBufferSize ? tcpclient.SendBufferSize : settings.ReceiveBufferSize);
 						tcpclient.SendTimeout = settings.SendTimeout * CStreamSettings.ONESECOND;
@@ -126,7 +128,7 @@ namespace COMMON
 						stream = new CStreamClientIO(tcpclient, settings);
 					}
 					else
-						throw new Exception($"client failed to connect to {settings.FullIP}");
+						throw new Exception(Resources.CStreamClientNotConnected.Format(settings.FullIP));
 				}
 				catch (Exception ex)
 				{
@@ -151,16 +153,17 @@ namespace COMMON
 		/// </summary>
 		/// <param name="stream">the connected stream</param>
 		/// <param name="buffer">an array of bytes to send</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// true is successful, false otherwise
 		/// </returns>
-		public static bool Send(CStreamIO stream, byte[] buffer)
+		public static bool Send(CStreamIO stream, byte[] buffer, CancellationToken token = default)
 		{
 			try
 			{
-				if (default == stream) throw new ArgumentException("no open stream");
+				if (default == stream) throw new ArgumentException(Resources.CStreamNoOpenedStream);
 
-				if (stream.Send(buffer))
+				if (stream.Send(buffer, token))
 					return true;
 			}
 			catch (Exception ex)
@@ -175,13 +178,14 @@ namespace COMMON
 		/// </summary>
 		/// <param name="stream">the connected stream</param>
 		/// <param name="buffer">a string to send</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// true is successful, false otherwise
 		/// </returns>
-		public static bool Send(CStreamIO stream, string buffer)
+		public static bool Send(CStreamIO stream, string buffer, CancellationToken token = default)
 		{
 			byte[] brequest = buffer.IsNullOrEmpty() ? default : Encoding.UTF8.GetBytes(buffer);
-			return Send(stream, brequest);
+			return Send(stream, brequest, token);
 		}
 		/// <summary>
 		/// Sends data using the given stream.
@@ -190,16 +194,17 @@ namespace COMMON
 		/// <param name="stream">the connected stream</param>
 		/// <param name="message">a string to send</param>
 		/// <param name="EOT">the string marking the end of the message</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// true is successful, false otherwise
 		/// </returns>
-		public static bool SendLine(CStreamIO stream, string message, string EOT = CStreamIO.CRLF)
+		public static bool SendLine(CStreamIO stream, string message, string EOT = CStreamIO.CRLF, CancellationToken token = default)
 		{
 			try
 			{
-				if (default == stream) throw new ArgumentException("no open stream");
+				if (default == stream) throw new ArgumentException(Resources.CStreamNoOpenedStream);
 
-				if (stream.SendLine(message, EOT))
+				if (stream.SendLine(message, token, EOT))
 					return true;
 			}
 			catch (Exception ex)
@@ -213,20 +218,21 @@ namespace COMMON
 		/// The buffer MUST begin with a size header of <see cref="CStreamBase.SizeHeader"/> bytes
 		/// </summary>
 		/// <param name="stream">the connected stream</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// An array of bytes if successful, null otherwise
 		/// </returns>
-		public static byte[] Receive(CStreamIO stream)
+		public static byte[] Receive(CStreamIO stream, CancellationToken token = default)
 		{
 			byte[] reply = default;
 			int announcedSize = 0;
 			try
 			{
-				if (default == stream) throw new ArgumentException("no open stream");
+				if (default == stream) throw new ArgumentException(Resources.CStreamNoOpenedStream);
 
 				// Read message from the server
-				CLog.INFORMATION($"waiting to receive a message from {stream.Tcp?.Client?.RemoteEndPoint}, timeout is {stream.Tcp?.Client?.ReceiveTimeout} milliseconds");
-				byte[] tmp = stream.Receive(out announcedSize);
+				CLog.INFORMATION(Resources.CStreamWaitingMessageWithTimeout.Format(new object[] { stream.Tcp?.Client?.RemoteEndPoint, stream.Tcp?.Client?.ReceiveTimeout }));
+				byte[] tmp = stream.Receive(out announcedSize, token);
 				if (default != tmp)
 				{
 					// rebuild the buffer is required
@@ -242,7 +248,7 @@ namespace COMMON
 						reply = tmp;
 				}
 				else
-					CLog.INFOR("received an empty buffer");
+					CLog.INFOR(Resources.CStreamReceivedEmptyBuffer);
 			}
 			catch (Exception ex)
 			{
@@ -256,12 +262,13 @@ namespace COMMON
 		/// The buffer is converted to a string after reception and must support this conversion.
 		/// </summary>
 		/// <param name="stream">the connected stream</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// received message as a string if sucessful, null otherwise
 		/// </returns>
-		public static string ReceiveAsString(CStreamIO stream)
+		public static string ReceiveAsString(CStreamIO stream, CancellationToken token = default)
 		{
-			byte[] reply = Receive(stream);
+			byte[] reply = Receive(stream, token);
 			return (null != reply ? Encoding.UTF8.GetString(reply) : null);
 		}
 		/// <summary>
@@ -270,18 +277,19 @@ namespace COMMON
 		/// </summary>
 		/// <param name="stream">the connected stream</param>
 		/// <param name="size">size of the buffer to receive</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// An array of bytes if successful, null otherwise
 		/// </returns>
-		public static byte[] Receive(CStreamIO stream, int size)
+		public static byte[] Receive(CStreamIO stream, int size, CancellationToken token = default)
 		{
 			try
 			{
-				if (default == stream) throw new ArgumentException("no open stream");
+				if (default == stream) throw new ArgumentException(Resources.CStreamNoOpenedStream);
 
 				// Read message from the server
-				CLog.INFORMATION($"waiting to receive a message from {stream.Tcp?.Client?.RemoteEndPoint}");
-				return stream.Receive(size);
+				CLog.INFORMATION(Resources.CStreamWaitingMessage.Format(stream.Tcp?.Client?.RemoteEndPoint));
+				return stream.Receive(size, token);
 			}
 			catch (Exception ex)
 			{
@@ -295,17 +303,18 @@ namespace COMMON
 		/// </summary>
 		/// <param name="stream">the connected stream</param>
 		/// <param name="EOT">a string which if found marks the end of transmission</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// received message as a string if sucessful, null otherwise
 		/// </returns>
-		public static string ReceiveLine(CStreamIO stream, string EOT = CStreamIO.CRLF)
+		public static string ReceiveLine(CStreamIO stream, string EOT = CStreamIO.CRLF, CancellationToken token = default)
 		{
 			try
 			{
-				if (default == stream) throw new ArgumentException("no open stream");
+				if (default == stream) throw new ArgumentException(Resources.CStreamNoOpenedStream);
 
-				string s = stream.ReceiveLine(EOT);
-				CLog.INFORMATION($"received string message {(s.IsNullOrEmpty() ? 0 : s.Length)} characters from {stream.Tcp?.Client?.RemoteEndPoint}");
+				string s = stream.ReceiveLine(token, EOT);
+				CLog.INFORMATION(Resources.CStreamReceivedStringMessage.Format(new object[] { (s.IsNullOrEmpty() ? 0 : s.Length), stream.Tcp?.Client?.RemoteEndPoint }));
 				return s;
 			}
 			catch (Exception ex)
@@ -322,13 +331,14 @@ namespace COMMON
 		/// </summary>
 		/// <param name="stream">the connected stream</param>
 		/// <param name="request">an array of bytes to send</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// An array of bytes or null if an error occured. 
 		/// </returns>
-		public static byte[] SendReceive(CStreamIO stream, byte[] request)
+		public static byte[] SendReceive(CStreamIO stream, byte[] request, CancellationToken token = default)
 		{
-			if (Send(stream, request))
-				return Receive(stream);
+			if (Send(stream, request, token))
+				return Receive(stream, token);
 			return default;
 		}
 		/// <summary>
@@ -339,12 +349,13 @@ namespace COMMON
 		/// </summary>
 		/// <param name="stream">the connected stream</param>
 		/// <param name="request">an array of bytes to send</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// received message as a string if sucessful, null otherwise
 		/// </returns>
-		public static string SendReceive(CStreamIO stream, string request)
+		public static string SendReceive(CStreamIO stream, string request, CancellationToken token = default)
 		{
-			byte[] reply = SendReceive(stream, default != request ? Encoding.UTF8.GetBytes(request) : default);
+			byte[] reply = SendReceive(stream, default != request ? Encoding.UTF8.GetBytes(request) : default, token);
 			return (default != reply ? Encoding.UTF8.GetString(reply) : default);
 		}
 		/// <summary>
@@ -355,14 +366,15 @@ namespace COMMON
 		/// </summary>
 		/// <param name="stream">the connected stream</param>
 		/// <param name="request">the string message to send</param>
-		/// <param name="EOT">the string marking the end of the message</param>
+		/// <param name="EOT">the string marking the end of the message, default is <see cref="CStreamIO.CRLF"/></param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// received string message if sucessful, null otherwise
 		/// </returns>
-		public static string SendReceiveLine(CStreamIO stream, string request, string EOT = CStreamIO.CRLF)
+		public static string SendReceiveLine(CStreamIO stream, string request, string EOT = CStreamIO.CRLF, CancellationToken token = default)
 		{
-			if (SendLine(stream, request, EOT))
-				return ReceiveLine(stream, EOT);
+			if (SendLine(stream, request, EOT, token))
+				return ReceiveLine(stream, EOT, token);
 			return default;
 		}
 		/// <summary>
@@ -371,16 +383,17 @@ namespace COMMON
 		/// </summary>
 		/// <param name="settings">the settings to use for opening the stream and sending the data</param>
 		/// <param name="buffer">an array of bytes to send</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// true if successful, false otherwise
 		/// </returns>
-		public static bool ConnectSend(CStreamClientSettings settings, byte[] buffer)
+		public static bool ConnectSend(CStreamClientSettings settings, byte[] buffer, CancellationToken token = default)
 		{
 			if (buffer.IsNullOrEmpty()) return false;
 			CStreamClientIO stream = ConnectToSend(settings, buffer);
 			if (default != stream)
 			{
-				bool fOK = Send(stream, buffer);
+				bool fOK = Send(stream, buffer, token);
 				Disconnect(stream);
 				return fOK;
 			}
@@ -399,12 +412,13 @@ namespace COMMON
 		/// </summary>
 		/// <param name="settings">the settings to use for opening the stream and sending the data</param>
 		/// <param name="buffer">a string message to send</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// true if successful, false otherwise
 		/// </returns>
-		public static bool ConnectSend(CStreamClientSettings settings, string buffer)
+		public static bool ConnectSend(CStreamClientSettings settings, string buffer, CancellationToken token = default)
 		{
-			return ConnectSend(settings, string.IsNullOrEmpty(buffer) ? default : Encoding.UTF8.GetBytes(buffer));
+			return ConnectSend(settings, string.IsNullOrEmpty(buffer) ? default : Encoding.UTF8.GetBytes(buffer), token);
 		}
 		/// <summary>
 		/// Connects to a host, sends a string message finished by <paramref name="EOT"/> and disconnects the stream.
@@ -413,17 +427,18 @@ namespace COMMON
 		/// <param name="settings">the settings to use for opening the stream and sending the data</param>
 		/// <param name="message">a string to send</param>
 		/// <param name="EOT">the string marking the end of the message</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// true if successful, false otherwise
 		/// </returns>
-		public static bool ConnectSendLine(CStreamClientSettings settings, string message, string EOT = CStreamIO.CRLF)
+		public static bool ConnectSendLine(CStreamClientSettings settings, string message, string EOT = CStreamIO.CRLF, CancellationToken token = default)
 		{
 			if (string.IsNullOrEmpty(message))
 				return false;
 			CStreamClientIO stream = ConnectToSend(settings, message);
 			if (default != stream)
 			{
-				bool fOK = SendLine(stream, message, EOT);
+				bool fOK = SendLine(stream, message, EOT, token);
 				Disconnect(stream);
 				return fOK;
 			}
@@ -443,18 +458,19 @@ namespace COMMON
 		/// </summary>
 		/// <param name="settings">the settings to use for opening the stream and sending the data</param>
 		/// <param name="request">an array of bytes to send</param>
-		/// <returns>
+		/// <param name="token">cancellation token to use for async operation</param>
+		/// <returns>v
 		/// an array of bytes received in response if successful, null otherwise
 		/// </returns>
-		public static byte[] ConnectSendReceive(CStreamClientSettings settings, byte[] request)
+		public static byte[] ConnectSendReceive(CStreamClientSettings settings, byte[] request, CancellationToken token = default)
 		{
 			byte[] reply = default;
 			if (request.IsNullOrEmpty()) return reply;
 			CStreamClientIO stream = ConnectToSend(settings, request);
 			if (default != stream)
 			{
-				if (Send(stream, request))
-					reply = Receive(stream);
+				if (Send(stream, request, token))
+					reply = Receive(stream, token);
 				Disconnect(stream);
 			}
 			return reply;
@@ -466,12 +482,13 @@ namespace COMMON
 		/// </summary>
 		/// <param name="settings">the settings to use for opening the stream and sending the data</param>
 		/// <param name="request">a string to send</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// an array of bytes received in response if successful, null otherwise
 		/// </returns>
-		public static string ConnectSendReceive(CStreamClientSettings settings, string request)
+		public static string ConnectSendReceive(CStreamClientSettings settings, string request, CancellationToken token = default)
 		{
-			byte[] reply = ConnectSendReceive(settings, Encoding.UTF8.GetBytes(request));
+			byte[] reply = ConnectSendReceive(settings, Encoding.UTF8.GetBytes(request), token);
 			return (default != reply ? Encoding.UTF8.GetString(reply) : default);
 		}
 		/// <summary>
@@ -479,18 +496,21 @@ namespace COMMON
 		/// No size header is added to <paramref name="request"/> but <paramref name="EOT"/> will to finish the message.
 		/// The response does not need a size header but MUST be finished by <paramref name="EOT"/>.
 		/// </summary>
-		/// <param name="settings"></param>
-		/// <param name="request"></param>
-		/// <param name="EOT"></param>
-		/// <returns></returns>
-		public static string ConnectSendReceiveLine(CStreamClientSettings settings, string request, string EOT = CStreamIO.CRLF)
+		/// <param name="settings"><see cref="CStreamClientSettings"/> to use</param>
+		/// <param name="request">Request to send</param>
+		/// <param name="EOT"><see cref="CStreamIO.CRLF"/> is the default</param>
+		/// <param name="token">cancellation token to use for async operation</param>
+		/// <returns>
+		/// The received string using <see cref="SendReceiveLine(CStreamIO, string, string, CancellationToken)"/>
+		/// </returns>
+		public static string ConnectSendReceiveLine(CStreamClientSettings settings, string request, string EOT = CStreamIO.CRLF, CancellationToken token = default)
 		{
 			if (string.IsNullOrEmpty(request))
 				return default;
 			CStreamClientIO stream = ConnectToSend(settings, request);
 			if (default != stream)
 			{
-				string reply = SendReceiveLine(stream, request, EOT);
+				string reply = SendReceiveLine(stream, request, EOT, token);
 				Disconnect(stream);
 				return reply;
 			}
@@ -502,12 +522,13 @@ namespace COMMON
 		/// </summary>
 		/// <param name="sendAsync">settings to start the thread</param>
 		/// <param name="request">an array of bytes to send</param>
-		/// <param name="asstring">if true the buffer is sent using <see cref="SendLine(CStreamIO, string, string)"/>, if false it will be sent using <see cref="Send(CStreamIO, byte[])"/></param>
+		/// <param name="asstring">if true the buffer is sent using <see cref="SendLine(CStreamIO, string, string, CancellationToken)"/>, if false it will be sent using <see cref="Send(CStreamIO, byte[], CancellationToken)"/></param>
 		/// <param name="EOT">the string marking the end of the message (only if <paramref name="asstring"/> is true)</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// a <see cref="CThread"/> object if successful, null otherwise
 		/// </returns>
-		static CThread SendAsync(SendAsyncType sendAsync, byte[] request, bool asstring, string EOT = CStreamIO.CRLF)
+		static CThread SendAsync(SendAsyncType sendAsync, byte[] request, bool asstring, string EOT = CStreamIO.CRLF, CancellationToken token = default)
 		{
 			if (default == sendAsync
 				|| default == sendAsync.Settings
@@ -525,6 +546,7 @@ namespace COMMON
 					ClientOnly = default == sendAsync.OnReply,
 					AsString = asstring,
 					EOT = EOT,
+					Token = token,
 				};
 				// prepare the thread object
 				CThread thread = new CThread();
@@ -541,43 +563,46 @@ namespace COMMON
 		}
 		/// <summary>
 		/// Start a client thread to send and receive data.
-		/// The message is sent using <see cref="Send(CStreamIO, byte[])"/>
+		/// The message is sent using <see cref="Send(CStreamIO, byte[],CancellationToken)"/>
 		/// </summary>
 		/// <param name="sendAsync">settings to start the thread</param>
 		/// <param name="request">a string to send</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// a <see cref="CThread"/> object if successful, null otherwise
 		/// </returns>
-		public static CThread SendAsync(SendAsyncType sendAsync, byte[] request)
+		public static CThread SendAsync(SendAsyncType sendAsync, byte[] request, CancellationToken token = default)
 		{
-			return SendAsync(sendAsync, request, false);
+			return SendAsync(sendAsync, request, false, CStreamIO.CRLF, token);
 		}
 		/// <summary>
 		/// Start a client thread to send and receive data.
-		/// The message is sent using <see cref="Send(CStreamIO, byte[])"/>
+		/// The message is sent using <see cref="Send(CStreamIO, byte[], CancellationToken)"/>
 		/// </summary>
 		/// <param name="sendAsync">settings to start the thread</param>
 		/// <param name="request">a string to send</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// a <see cref="CThread"/> object if successful, null otherwise
 		/// </returns>
-		public static CThread SendAsync(SendAsyncType sendAsync, string request)
+		public static CThread SendAsync(SendAsyncType sendAsync, string request, CancellationToken token = default)
 		{
-			return SendAsync(sendAsync, Encoding.UTF8.GetBytes(request), false);
+			return SendAsync(sendAsync, Encoding.UTF8.GetBytes(request), false, CStreamIO.CRLF, token);
 		}
 		/// <summary>
-		/// Refer to <see cref="SendAsync(SendAsyncType, byte[], bool, string)"/>
-		/// The message is sent using <see cref="SendLine(CStreamIO, string, string)"/>
+		/// Refer to <see cref="SendAsync(SendAsyncType, byte[], bool, string, CancellationToken)"/>
+		/// The message is sent using <see cref="SendLine(CStreamIO, string, string, CancellationToken)"/>
 		/// </summary>
 		/// <param name="sendAsync">settings to start the thread</param>
 		/// <param name="request">a string to send</param>
 		/// <param name="EOT">the string marking the end of the message</param>
+		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// a <see cref="CThread"/> object if successful, null otherwise
 		/// </returns>
-		public static CThread SendAsyncLine(SendAsyncType sendAsync, string request, string EOT = CStreamIO.CRLF)
+		public static CThread SendAsyncLine(SendAsyncType sendAsync, string request, string EOT = CStreamIO.CRLF, CancellationToken token = default)
 		{
-			return SendAsync(sendAsync, Encoding.UTF8.GetBytes(request), true, EOT);
+			return SendAsync(sendAsync, Encoding.UTF8.GetBytes(request), true, EOT, token);
 		}
 		/// <summary>
 		/// Class used to specify how to handle asynchronous sending of data
@@ -603,7 +628,7 @@ namespace COMMON
 		}
 		/// <summary>
 		/// <see cref="CThread.ThreadFunction"/>.
-		/// That function supports <see cref="SendAsync(SendAsyncType, byte[], bool, string)"/> processing/
+		/// That function supports <see cref="SendAsync(SendAsyncType, byte[], bool, string, CancellationToken)"/> processing/
 		/// </summary>
 		/// <param name="thread"></param>
 		/// <param name="o"></param>
@@ -619,7 +644,7 @@ namespace COMMON
 				// send & receive 
 				if (threadParams.AsString)
 				{
-					string reply = ConnectSendReceiveLine(threadParams.SendAsync.Settings, Encoding.UTF8.GetString(threadParams.Request), threadParams.EOT);
+					string reply = ConnectSendReceiveLine(threadParams.SendAsync.Settings, Encoding.UTF8.GetString(threadParams.Request), threadParams.EOT, threadParams.Token);
 					if (string.IsNullOrEmpty(reply))
 					{
 						res = SendAsyncEnum.NoData;
@@ -635,7 +660,7 @@ namespace COMMON
 				}
 				else
 				{
-					byte[] reply = ConnectSendReceive(threadParams.SendAsync.Settings, threadParams.Request);
+					byte[] reply = ConnectSendReceive(threadParams.SendAsync.Settings, threadParams.Request, threadParams.Token);
 					if (default == reply || 0 == reply.Length)
 					{
 						res = SendAsyncEnum.NoData;
@@ -655,14 +680,14 @@ namespace COMMON
 				// send only
 				if (threadParams.AsString)
 				{
-					if (ConnectSendLine(threadParams.SendAsync.Settings, Encoding.UTF8.GetString(threadParams.Request), threadParams.EOT))
+					if (ConnectSendLine(threadParams.SendAsync.Settings, Encoding.UTF8.GetString(threadParams.Request), threadParams.EOT, threadParams.Token))
 						res = SendAsyncEnum.OK;
 					else
 						res = SendAsyncEnum.SendError;
 				}
 				else
 				{
-					if (ConnectSend(threadParams.SendAsync.Settings, threadParams.Request))
+					if (ConnectSend(threadParams.SendAsync.Settings, threadParams.Request, threadParams.Token))
 						res = SendAsyncEnum.OK;
 					else
 						res = SendAsyncEnum.SendError;
@@ -677,6 +702,7 @@ namespace COMMON
 			public bool ClientOnly { get; set; } = false;
 			public bool AsString { get; set; } = false;
 			public string EOT { get; set; } = CStreamIO.CRLF;
+			public CancellationToken Token = default;
 		}
 		#endregion
 	}

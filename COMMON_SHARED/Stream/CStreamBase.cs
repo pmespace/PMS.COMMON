@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using COMMON.Properties;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -45,7 +46,7 @@ namespace COMMON
 		#region methods
 		public override string ToString()
 		{
-			return $"header: {SizeHeader} bytes; use header: {UseSizeHeader}";
+			return Resources.CStreamToString.Format(new object[] { SizeHeader, UseSizeHeader });
 		}
 		public static bool IsHeaderBytes(int value) { return (/*ZEROBYTE == value ||*/ ONEBYTE == value || TWOBYTES == value || FOURBYTES == value || EIGHTBYTES == value); }
 		#endregion

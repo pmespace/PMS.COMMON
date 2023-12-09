@@ -8,6 +8,7 @@ using System.IO;
 using System.Xml.Linq;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using COMMON.Properties;
 
 namespace COMMON
 {
@@ -68,7 +69,7 @@ namespace COMMON
 			if (oldValue.Length == 0)
 			{
 				// Same as original .NET C# string.Replace behavior.
-				throw new ArgumentException("String cannot be of zero length");
+				throw new ArgumentException(Resources.CMiscCannotBeZeroLength);
 			}
 
 			// Prepare string builder for storing the processed string.
@@ -117,6 +118,30 @@ namespace COMMON
 			resultStringBuilder.Append(str, startSearchFromIndex, charsUntilStringEnd);
 
 			return resultStringBuilder.ToString();
+		}
+		/// <summary>
+		/// Allows directly creating a formatted string using <see cref="string.Format(string, object[])"/>
+		/// </summary>
+		/// <param name="s">The string containing the format to use</param>
+		/// <param name="args">Additional data to use to create the resulting string</param>
+		/// <returns>
+		/// The formatted string
+		/// </returns>
+		public static string Format(this string s, object[] args)
+		{
+			return string.Format(s, args);
+		}
+		/// <summary>
+		/// Allows directly creating a formatted string using <see cref="string.Format(string, object)"/>
+		/// </summary>
+		/// <param name="s">The string containing the format to use</param>
+		/// <param name="arg0">Additional data to use to create the resulting string</param>
+		/// <returns>
+		/// The formatted string
+		/// </returns>
+		public static string Format(this string s, object arg0)
+		{
+			return string.Format(s, arg0);
 		}
 		/// <summary>
 		/// Indicates whether a byte[] is null or empty
@@ -557,7 +582,7 @@ namespace COMMON
 		{
 			AdjustMinMax1N(ref minlen, ref maxlen);
 			if (value.Length < minlen || value.Length > maxlen)
-				throw new Exception("invalid length - min length: " + minlen.ToString() + "; max length: " + maxlen.ToString() + "; length: " + value.Length.ToString());
+				throw new Exception(Resources.CMiscCheckBufferMinMax.Format(new object[] { minlen, maxlen, value.Length }));
 		}
 		/// <summary>
 		/// Adjust min and max value (inverting them if necessary).
@@ -570,7 +595,7 @@ namespace COMMON
 		{
 			AdjustMinMax1N(ref minlen, ref maxlen);
 			if (value.Length < minlen || value.Length > maxlen)
-				throw new Exception("invalid length - value: " + value + "; min length: " + minlen.ToString() + "; max length: " + maxlen.ToString() + "; length: " + value.Length.ToString());
+				throw new Exception(Resources.CMiscCheckBufferMinMaxValue.Format(new object[] { minlen, maxlen, value.Length, value }));
 		}
 		/// <summary>
 		/// Help deciding the length to use when manipulating an array of bytes, according to the min and max considered.
@@ -651,7 +676,7 @@ namespace COMMON
 			if (-1 != i)
 				return (byte)i;
 			else
-				throw new EInvalidFormat($"{c} is not an compatible hexadecimal value");
+				throw new EInvalidFormat(Resources.CMiscInvalidHexadecimalFormat.Format(c));
 		}
 		/// <summary>
 		/// Converts a 2 characters string holding an hexadecimal value to its binary value.
@@ -668,7 +693,7 @@ namespace COMMON
 		{
 			if (string.IsNullOrEmpty(s)) return 0;
 			if (2 > s.Length)
-				throw new EInvalidFormat($"invalid length");
+				throw new EInvalidFormat(Resources.CMiscInvalidLength.Format(new object[] { s.Length, "2+" }));
 			// convert hex value (on 2 positions) to byte
 			try
 			{
@@ -681,7 +706,7 @@ namespace COMMON
 			}
 			catch (EInvalidFormat)
 			{
-				throw new EInvalidFormat($"{s} is not an compatible hexadecimal value");
+				throw new EInvalidFormat(Resources.CMiscInvalidHexadecimalFormat.Format(s));
 			}
 		}
 		private const string HEXCHARS = "0123456789ABCDEF";
@@ -756,7 +781,7 @@ namespace COMMON
 			}
 			catch (EInvalidFormat)
 			{
-				throw new EInvalidFormat($"{s} is not an compatible hexadecimal value");
+				throw new EInvalidFormat(Resources.CMiscInvalidHexadecimalFormat.Format(s));
 			}
 		}
 		/// <summary>
@@ -965,7 +990,7 @@ namespace COMMON
 				}
 			}
 			catch (Exception) { }
-			return "unknown";
+			return Resources.GeneralUnknown;
 		}
 		public enum VersionType
 		{
@@ -1126,10 +1151,10 @@ namespace COMMON
 		/// <returns>True if YES, false if NO</returns>
 		public static bool YesNo(string msg, bool useDefault = false, bool theDefault = true, bool useESC = false, string[] yesvalues = default, string[] novalues = default, bool displayYesNo = true, bool displayChoice = true)
 		{
-			const string YES = "YES";
-			const string NO = "NO";
-			const string Y = "Y";
-			const string N = "N";
+			string YES = Resources.GeneralYES;
+			string NO = Resources.GeneralNO;
+			string Y = YES.Substring(0, 1);
+			string N = NO.Substring(0, 1);
 			string lyes = default == yesvalues || 0 == yesvalues.Length || 0 == yesvalues[0].Length ? YES : yesvalues[0];
 			string syes = default == yesvalues || 1 > yesvalues.Length || 0 == yesvalues[1].Length ? Y : yesvalues[1].Substring(0, 1);
 			string lno = default == novalues || 0 == novalues.Length || 0 == novalues[0].Length ? NO : novalues[0];
@@ -1411,15 +1436,7 @@ namespace COMMON
 				default:
 					return default;
 			}
-
-
-
-
-
-
-
 		}
-
 
 
 		//public class CMenuChoiceException : Exception { }

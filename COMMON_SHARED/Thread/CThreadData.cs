@@ -132,9 +132,9 @@ namespace COMMON
 
 #if NETFRAMEWORK
 			string SEP = " - ";
-			return "window to warn: " + (default != WindowToWarn).ToString() + SEP
-				+ (default != WindowToWarn ? "stopped message: " + StoppedMessage + SEP : default)
-				+ (default != WindowToWarn ? "information message: " + InformationMessage + SEP : default);
+			return "WindowToWarn: " + (default != WindowToWarn).ToString() + SEP
+				+ (default != WindowToWarn ? "StoppedMessage: " + StoppedMessage + SEP : default)
+				+ (default != WindowToWarn ? "InformationMessage: " + InformationMessage + SEP : default);
 #else
 			return base.ToString();
 #endif

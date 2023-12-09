@@ -63,7 +63,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.EXCEPT(ex, $"{value} can't be found");
+					CLog.EXCEPT(ex, $"{value} is not a valid file name");
 					_filename = default;
 				}
 			}

@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System.Linq;
 using System.Collections;
 using Newtonsoft.Json.Linq;
+using COMMON.Properties;
 
 namespace COMMON
 {
@@ -17,7 +18,7 @@ namespace COMMON
 		/// </summary>
 		[JsonIgnore]
 		public string Empty { get => _empty; set => _empty = value; }
-		string _empty = "empty";
+		string _empty = Resources.CSafeListEmpty;
 		#endregion
 	}
 

@@ -10,6 +10,7 @@ using System.Threading;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using System.Xml.Schema;
+using COMMON.Properties;
 
 namespace COMMON
 {
@@ -44,9 +45,9 @@ namespace COMMON
 	[ComVisible(true)]
 	public enum TLog
 	{
-		FMNGT = -3,
-		ILINE = -2,
-		_begin = -1,
+		DISPL = -5,
+		FMNGT,
+		_begin,
 		DEBUG,
 		INFOR,
 		TRACE,
@@ -54,7 +55,7 @@ namespace COMMON
 		ERROR,
 		EXCPT,
 		_end,
-		_none
+		_NONE,
 	}
 
 	public class CLogMsg
@@ -64,7 +65,21 @@ namespace COMMON
 		public string Msg { get; set; }
 		public virtual TLog Severity { get => _severity; set => _severity = (CLog.IsTLog(value) ? value : _severity); }
 		protected TLog _severity;
-		protected virtual string ToStringSC(bool addSharedData = true)
+		/// <summary>
+		/// beginning of any logged data
+		/// </summary>
+		/// <returns>
+		/// the string to add at the beginning of every logged expression
+		/// </returns>
+		protected string ToStringPrefix() => $"{CMisc.BuildDate(CMisc.DateFormat.YYYYMMDDhhmmssfffEx)}{Chars.TAB}{Severity}{Chars.TAB}{Thread.CurrentThread.ManagedThreadId.ToString("X8")}{Chars.TAB}";
+		/// <summary>
+		/// specific shared context management
+		/// </summary>
+		/// <param name="addSharedData"></param>
+		/// <returns>
+		/// The shared context data to use
+		/// </returns>
+		protected string ToStringSC(bool addSharedData = true)
 		{
 			Guid? guid;
 			string sc;
@@ -75,41 +90,45 @@ namespace COMMON
 			}
 			else
 			{
-				guid = Guid.NewGuid();
+				guid = TLog.FMNGT >= Severity ? Guid.Empty : Guid.NewGuid();
 				sc = null;
 			}
 			return $"{guid}{Chars.TAB}{(sc.IsNullOrEmpty() ? string.Empty : $"[{sc}] ")}";
 		}
-		protected string ToStringPrefix() => $"{CMisc.BuildDate(CMisc.DateFormat.YYYYMMDDhhmmssfffEx)}{Chars.TAB}{Severity}{Chars.TAB}{Thread.CurrentThread.ManagedThreadId.ToString("X8")}{Chars.TAB}";
-		public override string ToString() => $"{(CLog.SeverityToLog <= Severity || TLog.FMNGT >= Severity ? CLog.RemoveCRLF(Msg.Trim()) : string.Empty)}";
+		/// <summary>
+		/// builds the final message to log and/or display
+		/// </summary>
+		/// <param name="addSharedData"></param>
+		/// <param name="msgToConsole"></param>
+		/// <returns></returns>
 		internal virtual string ToStringEx(bool addSharedData, out string msgToConsole)
 		{
 			msgToConsole = string.Empty;
 			try
 			{
-				string msg = !Msg.IsNullOrEmpty() || TLog.FMNGT >= Severity ? ToStringPrefix() + ToStringSC(addSharedData) + ToString() : string.Empty;
-				msgToConsole = CLog.ConsoleSeverity <= Severity && !msg.IsNullOrEmpty() && CLog.ActivateConsoleLog ? msg : string.Empty;
-				return CLog.SeverityToLog <= Severity && !msg.IsNullOrEmpty() ? msg : string.Empty;
+				string msg = !Msg.IsNullOrEmpty() ? ToStringPrefix() + ToStringSC(addSharedData) + ToString() : string.Empty;
+				msgToConsole = !msg.IsNullOrEmpty() && (CLog.ConsoleSeverity <= Severity || TLog.DISPL == Severity) && CLog.ActivateConsoleLog ? msg : string.Empty;
+				return !msg.IsNullOrEmpty() && CLog.SeverityToLog <= Severity && TLog.DISPL != Severity || TLog.FMNGT == Severity ? msg : string.Empty;
 			}
 			catch (Exception) { }
 			return string.Empty;
 		}
+		/// <summary>
+		/// the message to use for logging, trimmed of blanks
+		/// </summary>
+		/// <returns>
+		/// The actual message that will be logged
+		/// </returns>
+		public override string ToString() => $"{(!Msg.IsNullOrEmpty() && (CLog.SeverityToLog <= Severity || TLog.FMNGT >= Severity) ? CLog.RemoveCRLF(Msg.Trim()) : string.Empty)}";
 	}
+
 	class CLogMsgEx : CLogMsg
 	{
+		public CLogMsgEx() : base() { }
+		public CLogMsgEx(string msg, TLog severity) : base(msg, severity) { }
 		public override TLog Severity { get => _severity; set => _severity = (CLog.IsTLog(value) || TLog.FMNGT >= value ? value : _severity); }
-		protected override string ToStringSC(bool addSharedData = true) => Guid.Empty.ToString() + Chars.TAB;
-		internal override string ToStringEx(bool addSharedData, out string msgToConsole)
-		{
-			msgToConsole = string.Empty;
-			try
-			{
-				return ToStringPrefix() + ToStringSC(addSharedData) + ToString();
-			}
-			catch (Exception) { }
-			return string.Empty;
-		}
 	}
+
 	public class CLogMsgs : List<CLogMsg>
 	{
 		public CLogMsgs() { }
@@ -126,7 +145,7 @@ namespace COMMON
 			if (default == ls || 0 == ls.Count) return;
 			for (int i = 0; i < ls.Count; i++)
 				if (!ls[i].IsNullOrEmpty())
-					Add(new CLogMsgEx() { Msg = ls[i], Severity = TLog.FMNGT });
+					Add(new CLogMsgEx() { Msg = ls[i], Severity = (TLog)severity });
 		}
 		public override string ToString()
 		{
@@ -261,15 +280,11 @@ namespace COMMON
 			{
 				lock (mylock)
 				{
-					_severitytolog = IsTLog(value) || TLog.FMNGT >= value ? value : _severitytolog;
+					_severitytolog = IsTLog(value) /*|| TLog.FMNGT >= value*/ ? value : _severitytolog;
 				}
 			}
 		}
 		static TLog _severitytolog = TLog.TRACE;
-		///// <summary>
-		///// Indicate whether error log must be set to upper or not
-		///// </summary>
-		//public static bool ErrorToUpper { get; set; } = false;
 		/// <summary>
 		/// Separator to use between multiple lines in a resulting 1 line string
 		/// </summary>
@@ -318,7 +333,7 @@ namespace COMMON
 			{
 				lock (mylock)
 				{
-					_consoleseverity = IsTLog(value) || TLog.FMNGT >= value ? value : _severitytolog;
+					_consoleseverity = IsTLog(value) || TLog._NONE >= value ? value : _severitytolog;
 				}
 			}
 		}
@@ -478,6 +493,8 @@ namespace COMMON
 		public static string ERROR(List<string> ls) => Add(ls, TLog.ERROR);
 		public static string EXCPT(Exception ex, string s = default) => EXCEPT(ex, s);
 		public static string EXCEPT(Exception ex, string s = default) => AddException(ex, s);
+		public static string DISPL(string s) { AddToLog(new CLogMsgs(new CLogMsgEx(s, TLog.DISPL)).ToStringEx(true, out string msgToConsole), msgToConsole); return msgToConsole; }
+		public static string DISPL(List<string> ls) { AddToLog(new CLogMsgs(ls, TLog.DISPL).ToStringEx(true, out string msgToConsole), msgToConsole); return msgToConsole; }
 		/// <summary>
 		/// Test if a severity is within bounds
 		/// </summary>
@@ -519,11 +536,11 @@ namespace COMMON
 			{
 				StackTrace st = new StackTrace(ex, true);
 				List<string> ls = new List<string>();
-				ls.Add($"[EXCEPTION] {ex.GetType()}{(string.IsNullOrEmpty(ex.Message) ? default : $" - {ex.Message}")}{(string.IsNullOrEmpty(msg) ? default : $" - {msg}")}");
+				ls.Add($"{Resources.CLogException} {ex.GetType()}{(string.IsNullOrEmpty(ex.Message) ? default : $" - {ex.Message}")}{(string.IsNullOrEmpty(msg) ? default : $" - {msg}")}");
 				Exception exx = ex.InnerException;
 				while (default != exx)
 				{
-					ls.Add($"[EXCEPTION] {exx.GetType()}{(string.IsNullOrEmpty(exx.Message) ? default : $" - {exx.Message}")}");
+					ls.Add($"{Resources.CLogException} {exx.GetType()}{(string.IsNullOrEmpty(exx.Message) ? default : $" - {exx.Message}")}");
 					exx = exx.InnerException;
 				}
 				for (int i = st.FrameCount; 0 != i; i--)
@@ -532,7 +549,7 @@ namespace COMMON
 					string f = string.IsNullOrEmpty(sf.GetFileName()) ? default : sf.GetFileName();
 					string m = string.IsNullOrEmpty(sf.GetMethod().ToString()) ? "??" : $"{sf.GetMethod()}";
 					//ls.Add($"[EXCEPTION #{st.FrameCount - i + 1}] file: {f}; method: {m}; #line: {sf.GetFileLineNumber()}");
-					ls.Add($"[EXCEPTION] {(f.IsNullOrEmpty() ? string.Empty : $"file: {f}; ")}{(0 == sf.GetFileLineNumber() ? string.Empty : $"#line: {sf.GetFileLineNumber()}; ")}{(m.IsNullOrEmpty() ? string.Empty : $"method: {m} ")}");
+					ls.Add($"{Resources.CLogException} {(f.IsNullOrEmpty() ? string.Empty : $"{Resources.CLogExceptionMethod}: {f}; ")}{(0 == sf.GetFileLineNumber() ? string.Empty : $"#{Resources.CLogExceptionLine}: {sf.GetFileLineNumber()}; ")}{(m.IsNullOrEmpty() ? string.Empty : $"{Resources.CLogExceptionMethod}: {m} ")}");
 				}
 				//for (int i = 0; i < st.FrameCount; i++)
 				//{
@@ -615,7 +632,7 @@ namespace COMMON
 		/// <param name="sToConsole">The message to write to console, it can be multiline</param>
 		static void AddToLog(string s, string sToConsole)
 		{
-			if (s.IsNullOrEmpty()) return;
+			//if (s.IsNullOrEmpty()) return;
 			try
 			{
 				lock (mylock)
@@ -634,8 +651,10 @@ namespace COMMON
 		{
 			try
 			{
-				streamWriter?.WriteLine(s);
-				if (!sToConsole.IsNullOrEmpty()) Console.WriteLine(sToConsole);
+				if (!s.IsNullOrEmpty())
+					streamWriter?.WriteLine(s);
+				if (!sToConsole.IsNullOrEmpty())
+					Console.WriteLine(sToConsole);
 			}
 			catch (Exception) { }
 		}

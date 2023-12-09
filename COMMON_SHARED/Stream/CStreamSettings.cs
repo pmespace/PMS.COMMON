@@ -8,6 +8,7 @@ using System.Net.Security;
 using Newtonsoft.Json;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
+using COMMON.Properties;
 
 namespace COMMON
 {
@@ -133,7 +134,7 @@ namespace COMMON
 		#endregion
 
 		#region methods
-		public override string ToString() => $"receive timeout: {ReceiveTimeout}; receive buffer: {ReceiveBufferSize}; send timeout: {SendTimeout}; send buffer: {SendBufferSize}; ssl: {UseSsl}; " + base.ToString();
+		public override string ToString() => Resources.CStreamSettingsBaseToString.Format(new object[] { ReceiveTimeout, ReceiveBufferSize, SendTimeout, SendBufferSize, UseSsl }) + "; " + base.ToString();
 		#endregion
 	}
 
@@ -279,10 +280,7 @@ namespace COMMON
 		#endregion
 
 		#region methods
-		public override string ToString()
-		{
-			return $"endpoint: {EndPoint}; servername: {ServerName}; allowed errors: {AllowedSslErrors}, " + base.ToString();
-		}
+		public override string ToString() => Resources.CStreamClientSettingsToString.Format(new object[] { EndPoint, ServerName, AllowedSslErrors }) + "; " + base.ToString();
 		/// <summary>
 		/// Tells whether an IP is found on DNS or not
 		/// </summary>
@@ -328,7 +326,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.EXCEPT(ex, $"invalid IP address: {ip}:{port}");
+					CLog.EXCEPT(ex, Resources.GeneralInvalidIPAddress.Format(new object[] { ip, port }));
 					Address = default;
 					EndPoint = default;
 				}

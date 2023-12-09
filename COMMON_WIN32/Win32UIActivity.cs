@@ -1,4 +1,5 @@
-﻿using System;
+﻿using COMMON.Properties;
+using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -77,10 +78,7 @@ namespace COMMON.WIN32
 		/// Striing description of the activity
 		/// </summary>
 		/// <returns></returns>
-		public override string ToString()
-		{
-			return $"UIActivity = control: {Ctrl}; event: {Evt}; message: {Message}; value: {Value}";
-		}
+		public override string ToString() => Resources.UIActivityToString.Format(new object[] { Ctrl, Evt, Message, Value });
 	}
 
 	/// <summary>
@@ -110,12 +108,12 @@ namespace COMMON.WIN32
 				}
 				else
 				{
-					CLog.Add($"{activity} could not be added", TLog.ERROR);
+					CLog.Add(Resources.UIActivityFailedAddingActivity.Format(activity), TLog.ERROR);
 				}
 			}
 			catch (Exception ex)
 			{
-				CLog.EXCEPT(ex, $"while processing {activity}");
+				CLog.EXCEPT(ex, Resources.UIActivityInsideActivity.Format(activity));
 			}
 		}
 		#endregion

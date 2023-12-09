@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Threading;
 using System;
+using COMMON.Properties;
 
 #if NETFRAMEWORK
 using COMMON.WIN32;
@@ -139,7 +140,7 @@ namespace COMMON
 		/// </summary>
 		public string Name
 		{
-			get => string.IsNullOrEmpty(_name) ? @"N/A" : _name;
+			get => string.IsNullOrEmpty(_name) ? Resources.ThreadNoName : _name;
 			set
 			{
 				if (!HasBeenStarted)
@@ -150,7 +151,7 @@ namespace COMMON
 		/// <summary>
 		/// Description of the thread
 		/// </summary>
-		public string Description { get => $"[{(_name.IsNullOrEmpty() ? $"thread {UniqueID}" : Name)}]"; }
+		public string Description { get => $"[{(_name.IsNullOrEmpty() ? $"{Resources.ThreadThread} {UniqueID}" : Name)}]"; }
 		/// <summary>
 		/// Indicate whether the thread has already been started
 		/// </summary>
@@ -247,10 +248,10 @@ namespace COMMON
 				if (default != ThreadMethod)
 				{
 					Result = ThreadMethod(this, ThreadParams);
-					CLog.INFORMATION($"{Description} thread result: {Result}");
+					CLog.DEBUG(Resources.ThreadResult.Format(new object[] { Description, Result }));
 				}
 				else
-					CLog.ERROR($"{Description} no method to call for the thread");
+					CLog.ERROR(Resources.THreadNoMethodToCall.Format(Description));
 			}
 			catch (Exception ex)
 			{

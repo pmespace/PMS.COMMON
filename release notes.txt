@@ -1,3 +1,10 @@
+8.0.1
+- Localisation is activated
+
+8.0.0
+- Removed NET35 support
+- CStreamIO functions now support async mode
+
 7.6.8
 - Fixed CMisc.SearchInArgs which could return the absence of an option though present (if not associated with any data)
 

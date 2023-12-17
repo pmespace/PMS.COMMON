@@ -17,6 +17,8 @@ namespace COMMON
 		int WaitAny(int timer = Timeout.Infinite);
 		[DispId(103)]
 		bool Reset();
+		[DispId(104)]
+		int WaitAny(WaitHandle[] handles, int timer = Timeout.Infinite);
 	}
 	/// <summary>
 	/// Class used to manage started and stopped flags of a thread
@@ -38,6 +40,7 @@ namespace COMMON
 			}
 		}
 		public int WaitAny(int timer = Timeout.Infinite) { return ManualResetEvent.WaitAny(waitHandles, timer); }
+		public int WaitAny(WaitHandle[] handles, int timer = Timeout.Infinite) { return ManualResetEvent.WaitAny(handles, timer); }
 		public bool WaitAll(int timer = Timeout.Infinite) { return ManualResetEvent.WaitAll(waitHandles, timer); }
 		public bool Reset()
 		{

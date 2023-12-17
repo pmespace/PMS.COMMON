@@ -1,3 +1,6 @@
+8.0.2
+- Added a WaitAny(WaitHandles[]...) to CSynchronize
+
 8.0.1
 - Localisation is activated
 

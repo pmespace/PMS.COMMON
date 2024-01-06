@@ -1,16 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net6.0;net462</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net6.0;net6.0-windows;net462</TargetFrameworks>
     <AssemblyName>PMS.COMMON</AssemblyName>
-    <Version>8.0.2</Version>
+    <Version>8.0.3</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <FileVersion>8.0.2</FileVersion>
-    <AssemblyVersion>8.0.2</AssemblyVersion>
+    <FileVersion>8.0.3</FileVersion>
+    <AssemblyVersion>8.0.3</AssemblyVersion>
     <Authors>philippemp31</Authors>
     <Company>PMS</Company>
     <Description>
     </Description>
-    <Copyright>PMS - philippemp31 at outlook dot com - 2022</Copyright>
+    <Copyright>PMS - philippemp31 at outlook dot com - 2022-2024</Copyright>
     <PackageProjectUrl>https://github.com/pmespace/PMS.COMMON</PackageProjectUrl>
     <RepositoryUrl>https://github.com/pmespace/PMS.COMMON</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -32,13 +32,13 @@
   </PropertyGroup>
   <Import Project="..\COMMON_ODBC\COMMON_ODBC.projitems" Label="Shared" />
   <Import Project="..\COMMON_SHARED\COMMON_SHARED.projitems" Label="Shared" />
-  <Import Project="..\COMMON_WIN32\COMMON_WIN32.projitems" Label="Shared" Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net35'" />
+  <Import Project="..\COMMON_WIN32\COMMON_WIN32.projitems" Label="Shared" Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net6.0-windows' Or '$(TargetFramework)'=='net35'" />
   <!--
   <Import Project="..\COMMON_CORE\COMMON_CORE.projitems" Label="Shared" Condition="'$(TargetFramework)'=='net6.0'" />
   -->
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="System.Data.Odbc" Version="7.0.0" Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net6.0' Or '$(TargetFramework)'=='netstandard2.0'" />
+    <PackageReference Include="System.Data.Odbc" Version="7.0.0" Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net6.0' Or '$(TargetFramework)'=='net6.0-windows' Or '$(TargetFramework)'=='netstandard2.0'" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" Condition="'$(TargetFramework)'=='net6.0'" />
   </ItemGroup>
   <ItemGroup>
@@ -57,7 +57,7 @@
     <Reference Include="System.Windows.Forms" Condition="'$(TargetFramework)'=='net45'">
       <HintPath>c:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Windows.Forms.dll</HintPath>
     </Reference>
-    <Reference Include="System.Windows.Forms" Condition="'$(TargetFramework)'=='net462'">
+    <Reference Include="System.Windows.Forms" Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net6.0-windows'">
       <HintPath>c:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.2\System.Windows.Forms.dll</HintPath>
     </Reference>
   </ItemGroup>

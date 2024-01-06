@@ -264,12 +264,6 @@ namespace COMMON
 #if NETFRAMEWORK
 			SendNotification(Result, true);
 #endif
-
-			// this MUST be the final statements
-			// indicate the thread is finished
-			IsRunning = false;
-			HasBeenStarted = false;
-			Events.SetStopped();
 			try
 			{
 				ThreadData?.OnTerminates?.Invoke(ID, Name, UniqueID, Result);
@@ -278,6 +272,11 @@ namespace COMMON
 			{
 				CLog.EXCEPT(ex);
 			}
+			// this MUST be the final statements
+			// indicate the thread is finished
+			IsRunning = false;
+			HasBeenStarted = false;
+			Events.SetStopped();
 		}
 
 #if NETFRAMEWORK

@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Windows;
+using System.Windows.Interop;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -28,6 +29,10 @@ namespace WpfApp
 			efBox.Text = "empty";
 			IntPtr hWnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
 			Win32.PostMessage(hWnd, Win32.WM_USER, 0, 0);
+			IntPtr iptr = Win32.HWND_DESKTOP;
+			HwndSource source = HwndSource.FromHwnd(iptr);
+			Window wnd = source.RootVisual as Window;
+			//this.Owner = HwndSource.FromHwnd(Win32.HWND_DESKTOP).RootVisual as Window;
 			efBox.Text = "pressed";
 			press.IsEnabled = false;
 			reset.IsEnabled = !press.IsEnabled;

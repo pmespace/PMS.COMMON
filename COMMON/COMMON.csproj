@@ -2,10 +2,10 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net6.0;net6.0-windows;net462</TargetFrameworks>
     <AssemblyName>PMS.COMMON</AssemblyName>
-    <Version>8.0.3</Version>
+    <Version>8.0.4</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <FileVersion>8.0.3</FileVersion>
-    <AssemblyVersion>8.0.3</AssemblyVersion>
+    <FileVersion>8.0.4</FileVersion>
+    <AssemblyVersion>8.0.4</AssemblyVersion>
     <Authors>philippemp31</Authors>
     <Company>PMS</Company>
     <Description>
@@ -59,6 +59,9 @@
     </Reference>
     <Reference Include="System.Windows.Forms" Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net6.0-windows'">
       <HintPath>c:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.2\System.Windows.Forms.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Windows.Forms.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

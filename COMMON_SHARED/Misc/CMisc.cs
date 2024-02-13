@@ -971,22 +971,28 @@ namespace COMMON
 		{
 			try
 			{
+				Assembly entryAssembly = Assembly.GetEntryAssembly();
 				switch (type)
 				{
 					case VersionType.assembly: // <Version>7.0.1</Version>
 						if (default != assembly)
 							return System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
-						// exe version (similar to VersionType.executable)
-						return System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).ProductVersion;
+						else if (default != entryAssembly)
+							return System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).ProductVersion;
+						break;
 					case VersionType.assemblyFile: // <FileVersion>7.0.2</FileVersion>
 						if (default != assembly)
 							return System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion;
-						// exe file version
-						return System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).FileVersion;
+						else if (default != entryAssembly)
+							// exe file version
+							return System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()?.Location)?.FileVersion;
+						break;
 					case VersionType.executable:
 					default:
 						// exe version
-						return System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).ProductVersion;
+						if (default != Assembly.GetEntryAssembly())
+							return System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()?.Location)?.ProductVersion;
+						break;
 				}
 			}
 			catch (Exception) { }

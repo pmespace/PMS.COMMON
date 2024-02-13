@@ -1,3 +1,6 @@
+8.0.4
+- Fixed a bug in CMisc.Version if calling "executable" when the executable is not an assembly
+
 8.0.3
 - Added support for net6.0-windows inside COMMON
 

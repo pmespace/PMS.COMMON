@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using System.Windows;
 
 namespace COMMON.WIN32
 {
@@ -22,6 +23,8 @@ namespace COMMON.WIN32
 		public static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, SWL nIndex, IntPtr dw);
 		[DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto, EntryPoint = "SetWindowLong")]
 		public static extern int SetWindowLong32(IntPtr hWnd, SWL nIndex, IntPtr newLong);
+		[DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto, EntryPoint = "GetDesktopWindow")]
+		public static extern IntPtr GetDesktopWindow();
 
 		/// <summary>
 		/// Set a window property (refer to Platform SDK)
@@ -70,5 +73,7 @@ namespace COMMON.WIN32
 		public const int WM_APP_MAX = 0xBFFF;
 		public static int WMAppMax { get => WM_APP_MAX; }
 		public static bool IsValidWMApp(int value) { return WM_APP <= value && WM_APP_MAX >= value; }
+
+		public static IntPtr HWND_DESKTOP { get => GetDesktopWindow(); }
 	}
 }

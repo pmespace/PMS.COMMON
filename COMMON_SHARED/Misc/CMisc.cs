@@ -969,6 +969,7 @@ namespace COMMON
 		/// <returns></returns>
 		public static string Version(VersionType type = VersionType.executable, Assembly assembly = default)
 		{
+			string version = default;
 			try
 			{
 				Assembly entryAssembly = Assembly.GetEntryAssembly();
@@ -976,27 +977,34 @@ namespace COMMON
 				{
 					case VersionType.assembly: // <Version>7.0.1</Version>
 						if (default != assembly)
-							return System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
-						else if (default != entryAssembly)
-							return System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly().Location).ProductVersion;
+							version = System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).ProductVersion;
+						else
+							version = System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly()?.Location)?.ProductVersion;
 						break;
 					case VersionType.assemblyFile: // <FileVersion>7.0.2</FileVersion>
 						if (default != assembly)
-							return System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion;
-						else if (default != entryAssembly)
-							// exe file version
-							return System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()?.Location)?.FileVersion;
+							version = System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion;
+						else
+							version = System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly()?.Location)?.FileVersion;
 						break;
 					case VersionType.executable:
 					default:
 						// exe version
-						if (default != Assembly.GetEntryAssembly())
-							return System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()?.Location)?.ProductVersion;
+						version = System.Diagnostics.FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()?.Location)?.ProductVersion;
 						break;
 				}
 			}
 			catch (Exception) { }
-			return Resources.GeneralUnknown;
+			if (!version.IsNullOrEmpty())
+			{
+				try
+				{
+					int i = version.IndexOf('+');
+					version = version.Substring(0, -1 != i ? i : version.Length);
+				}
+				catch (Exception) { version = default; }
+			}
+			return version.IsNullOrEmpty() ? Resources.GeneralUnknown : version;
 		}
 		public enum VersionType
 		{

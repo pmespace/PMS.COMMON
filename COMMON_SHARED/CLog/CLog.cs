@@ -694,7 +694,7 @@ namespace COMMON
 							 new List<string>
 							 {
 								 $"+++++",
-								 $"+++++ {LogFilename.ToUpper()} OPENED: {CMisc.BuildDate(_dateFormat, CreatedOn)} (EXE VERSION: {CMisc.Version(CMisc.VersionType.executable)}/{CMisc.Version(CMisc.VersionType.assemblyFile)} - COMMON VERSION: {CMisc.Version(CMisc.VersionType.assembly, Assembly.GetExecutingAssembly())}/{CMisc.Version(CMisc.VersionType.assemblyFile, Assembly.GetExecutingAssembly())})",
+								 $"+++++ {LogFilename.ToUpper()} OPENED: {CMisc.BuildDate(_dateFormat, CreatedOn)} (EXE VERSION: {CMisc.Version(CMisc.VersionType.executable)} - COMMON VERSION: {CMisc.Version(CMisc.VersionType.assembly, Assembly.GetExecutingAssembly())})",
 								 $"+++++",
 							 }, (int)TLog.FMNGT);
 						AddToLog(ls.ToStringEx(false, out string msgToConsole), msgToConsole);

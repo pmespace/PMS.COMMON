@@ -1,3 +1,6 @@
+8.0.5
+- Some enhancements inside CLog
+
 8.0.4
 - Fixed a bug in CMisc.Version if calling "executable" when the executable is not an assembly
 

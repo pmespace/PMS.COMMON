@@ -15,6 +15,8 @@ namespace TestCore
 			CLog.UseGMT = false;
 			CLog.UseLocal = true;
 			CLog.Filename = "console";
+			CLog.Filename = "console";
+			CLog.NumberOfFilesToKeep = 2;
 			try
 			{
 				throw new Exception("test");

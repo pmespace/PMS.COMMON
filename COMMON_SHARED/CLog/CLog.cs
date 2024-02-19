@@ -219,7 +219,7 @@ namespace COMMON
 			get => _filename;
 			set
 			{
-				if (_filename != value)
+				if (!(_filename.Compare(value)))
 					LogFilename = value;
 			}
 		}
@@ -241,10 +241,10 @@ namespace COMMON
 			get => _logfilename;
 			private set
 			{
-				if (value.IsNullOrEmpty())
-					CloseLogFile();
-				else
-					OpenLogFile(value);
+				//if (value.IsNullOrEmpty())
+				//	CloseLogFile();
+				//else
+				OpenLogFile(value);
 			}
 		}
 		static string _logfilename = default;
@@ -252,7 +252,7 @@ namespace COMMON
 		/// Path of the log file, without the log file name.
 		/// It always ends with "\" (or any other platform folder separator)
 		/// </summary>
-		public static string LogFilePath
+		public static string LogFilepath
 		{
 			get => _logfilepath;
 			private set => _logfilepath = (value.IsNullOrEmpty() ? default : value + (Path.DirectorySeparatorChar != value[value.Length - 1] ? new string(Path.DirectorySeparatorChar, 1) : default));
@@ -677,9 +677,11 @@ namespace COMMON
 		/// </summary>
 		static bool OpenLogFile(string fileName)
 		{
-			if (string.IsNullOrEmpty(fileName)) return false;
-			// only if a file open has been requested
 			CloseLogFile();
+			if (string.IsNullOrEmpty(fileName))
+			{
+				return false;
+			}
 			try
 			{
 				lock (mylock)
@@ -705,13 +707,10 @@ namespace COMMON
 						}
 						catch (Exception) { }
 						canChangeAllSettings = false;
-						return true;
 					}
-					catch (Exception)
-					{
-						CloseLogFile();
-					}
+					catch (Exception) { CloseLogFile(); }
 				}
+				return true;
 			}
 			catch (Exception) { }
 			return false;
@@ -729,9 +728,9 @@ namespace COMMON
 				_fullname = fi.FullName;
 				originalFNameExtension = Path.GetExtension(fi.FullName);
 				originalFNameWithoutExtension = Path.GetFileNameWithoutExtension(fi.FullName);
-				LogFilePath = Path.GetDirectoryName(fi.FullName);
+				LogFilepath = Path.GetDirectoryName(fi.FullName);
 				CreatedOn = DateTime.Now;
-				return $"{LogFilePath}{originalFNameWithoutExtension}-{CMisc.BuildDate(CMisc.DateFormat.YYYYMMDD, CreatedOn)}{(string.IsNullOrEmpty(originalFNameExtension) ? EXTENSION : originalFNameExtension)}";
+				return $"{LogFilepath}{originalFNameWithoutExtension}-{CMisc.BuildDate(CMisc.DateFormat.YYYYMMDD, CreatedOn)}{(string.IsNullOrEmpty(originalFNameExtension) ? EXTENSION : originalFNameExtension)}";
 			}
 			catch (Exception) { }
 			return default;
@@ -763,7 +762,7 @@ namespace COMMON
 			streamWriter?.Close();
 			streamWriter = default;
 			CreatedOn = default;
-			_logfilename = LogFilePath = _filename = _fullname = originalFNameExtension = originalFNameWithoutExtension = default;
+			_logfilename = LogFilepath = _filename = _fullname = originalFNameExtension = originalFNameWithoutExtension = default;
 			canChangeAllSettings = true;
 		}
 		/// <summary>

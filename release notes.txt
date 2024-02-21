@@ -1,3 +1,7 @@
+8.0.6
+- Added a new CMisc.AsserFolder function
+- CJon.ToString now returns the file name
+
 8.0.5
 - Some enhancements inside CLog
 

@@ -74,6 +74,10 @@ namespace TestCore
 			//	hexResult = CMisc.AsHexString(ab);
 			//}
 
+			bool ok = CMisc.AssertFolder("hello", out CMisc.AssertFolderResult result, false, false);
+			ok = CMisc.AssertFolder("hello", out result, false, true);
+			ok = CMisc.AssertFolder("hello", out result, true, false);
+			ok = CMisc.AssertFolder("hello", out result, true, true);
 
 
 			string sha = "hello, how are you mister Doolittle".ToSHA256();
@@ -338,7 +342,7 @@ namespace TestCore
 			Menu.Add('8', new CMenu() { Text = "Server statistics", Fnc = ServerStatistics });
 			Menu.Add('X', new CMenu() { Text = "Exit", Fnc = Exit });
 
-			bool ok = true;
+			ok = true;
 			while (ok)
 			{
 				DFnc fnc = DisplayMenu(out char c);

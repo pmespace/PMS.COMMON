@@ -112,6 +112,7 @@ namespace COMMON
 		#endregion
 
 		#region methods
+		public override string ToString() => FileName;
 		/// <summary>
 		/// Read settings from a file
 		/// </summary>

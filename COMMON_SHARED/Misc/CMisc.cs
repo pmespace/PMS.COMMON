@@ -1451,8 +1451,94 @@ namespace COMMON
 					return default;
 			}
 		}
+		/// <summary>
+		/// Verify whether a requested folder is valid and exists, eventually creating it and moving into it.
+		/// If the folder isn't right, or can't be created,... then the current folder remains unchanged.
+		/// </summary>
+		/// <param name="value">Folder to look for</param>
+		/// <param name="result">[OUT] A <see cref="AssertFolderResult"/> object giving processing details</param>
+		/// <param name="create">If true the folder is created if it doesn't exist</param>
+		/// <param name="setAsCurrent">If true and the folder is valid and exists then this folder becomes the new current folder</param>
+		/// <returns>
+		/// True if the requested folder is valid (exists or may exist),
+		/// false otherwise
+		/// </returns>
+		public static bool AssertFolder(string value, out AssertFolderResult result, bool create = true, bool setAsCurrent = false)
+		{
+			result = new AssertFolderResult(value);
 
-
+			if (value.IsNullOrEmpty()) value = Directory.GetCurrentDirectory();
+			if (!value.IsNullOrEmpty())
+			{
+				try
+				{
+					// verify whether the requested folder is valid or not and/or exists
+					DirectoryInfo di = new DirectoryInfo(value);
+					result.Valid = true;
+					if (!di.Exists && create)
+					{
+						// the directory doesn't exist, let's try to create it
+						di = Directory.CreateDirectory(value);
+						result.Created = true;
+					}
+					// if the requested folder exists and switch to it requested
+					if ((result.Exists = di.Exists) && setAsCurrent)
+					{
+						Directory.SetCurrentDirectory(di.FullName);
+						result.MovedToNewFolder = true;
+					}
+					// the the separator character
+					result.FullName = di.FullName;
+					string stmp = new string(Path.DirectorySeparatorChar, 1);
+					if (!result.FullName.EndsWith(stmp))
+						result.FullName += stmp;
+				}
+				catch (Exception ex)
+				{
+					CLog.EXCEPT(ex);
+				}
+			}
+			return result.Valid;
+		}
+		public class AssertFolderResult
+		{
+			public AssertFolderResult(string v)
+			{
+				Value = v;
+				FullName = default;
+				Exists = Created = Valid = MovedToNewFolder = false;
+				CurrentFolderOnEntry = new DirectoryInfo(Directory.GetCurrentDirectory()).FullName;
+			}
+			/// <summary>
+			/// Value given on entry
+			/// </summary>
+			public string Value { get; }
+			/// <summary>
+			/// Full directory name on exit
+			/// </summary>
+			public string FullName { get; internal set; }
+			/// <summary>
+			/// true is the entry matches with a folder
+			/// </summary>
+			public bool Valid { get; internal set; }
+			/// <summary>
+			/// true if the folder has been created during processing, false if it existed already or creation failed or not requested
+			/// </summary>
+			public bool Exists { get; internal set; }
+			/// <summary>
+			/// true if the folder has been created, false otherwise
+			/// </summary>
+			public bool Created { get; internal set; }
+			/// <summary>
+			/// true if the new folder is the new current folder on exit
+			/// </summary>
+			public bool MovedToNewFolder { get; internal set; }
+			/// <summary>
+			/// the current folder on entry
+			/// </summary>
+			public string CurrentFolderOnEntry { get; internal set; }
+			public override string ToString() => FullName;
+		}
 		//public class CMenuChoiceException : Exception { }
 		//public class CMenuChoice
 		//{

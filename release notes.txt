@@ -1,4 +1,4 @@
-8.0.6
+8.0.6 & 8.0.7
 - Added a new CMisc.AsserFolder function
 - CJon.ToString now returns the file name
 

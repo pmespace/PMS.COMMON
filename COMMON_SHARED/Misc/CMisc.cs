@@ -1491,6 +1491,7 @@ namespace COMMON
 				get => _value;
 				private set
 				{
+					if (value.IsNullOrEmpty()) { value = "."; }
 					_value = value;
 					try
 					{

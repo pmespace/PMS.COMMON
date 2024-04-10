@@ -61,6 +61,16 @@ namespace TestCore
 			CMisc.YesNo("hello", true, true, true);
 #endif
 
+			CStreamClientSettings cs = new CStreamClientSettings() { IP = "1.1.1.1", URL = "pos.natixis.fr" };
+			cs.IP = "pos.natixis.fr";
+			string ipx = cs.IP;
+			cs.URL = "google.com";
+			cs.Port = 7014;
+			cs.IP = ipx;
+			cs.IP = "1.1.1.1";
+			cs.IP = ipx;
+			CLog.DISPL(cs.IP);
+
 			#region TESTS
 			string hexValue = "780B1343658";
 			byte[] byteArray = CMisc.HexToBin(hexValue, out bool padded);

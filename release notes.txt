@@ -1,3 +1,6 @@
+8.0.9
+- Reintriduced the possibility to specify a URL instead of an IP address in CStreamClientSettings
+
 8.0.6 & 8.0.7 & 8.0.8
 - Added a new CMisc.AsserFolder function
 - CJon.ToString now returns the file name

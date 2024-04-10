@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using COMMON.Properties;
+using System.Linq;
 
 namespace COMMON
 {
@@ -162,6 +163,8 @@ namespace COMMON
 		SslPolicyErrors AllowedSslErrors { get; set; }
 		[DispId(9)]
 		int ConnectTimeout { get; set; }
+		[DispId(10)]
+		string URL { get; set; }
 
 		[DispId(100)]
 		string ToString();
@@ -221,6 +224,16 @@ namespace COMMON
 			get => IsValid ? (uint)EndPoint.Port : DEFAULT_PORT;
 			set => SetIP(IP, IPEndPoint.MinPort < value && IPEndPoint.MaxPort >= value ? value : DEFAULT_PORT);
 		}
+		/// <summary>
+		/// The URL specified if any
+		/// </summary>
+		public string URL
+		{
+			get => _url;
+			set => SetIP(_url = value, Port);
+		}
+		string _url = string.Empty;
+		public bool ShouldSerializeURL() => !_url.IsNullOrEmpty();
 		/// <summary>
 		/// The IP port to use or 0 if invalid
 		/// </summary>
@@ -312,8 +325,33 @@ namespace COMMON
 			if (!ip.IsNullOrEmpty())
 				try
 				{
+					ip = ip.Trim();
 					// if localhost is requested get its address
-					if (0 == string.Compare(ip, "localhost", true)) ip = CStream.Localhost();
+					if (0 == string.Compare(ip, "localhost", true))
+						ip = CStream.Localhost();
+					else if (!ip.Compare(IP))
+					{
+						_url = string.Empty;
+						if (!Regex.Match(ip, @"^([0-9]{1,3}\.){3}[0-9]{1,3}$").Success)
+						{
+							// let's assume the ip is a URL
+							try
+							{
+								IPAddress[] aip = Dns.GetHostAddresses(ip);
+								for (int i = 0; i < aip.Length && _url.IsNullOrEmpty(); i++)
+									if (AddressFamily.InterNetwork == aip[i].AddressFamily)
+									{
+										_url = ip;
+										ip = aip[i].ToString();
+									}
+							}
+							catch (Exception)
+							{
+								_url = string.Empty;
+							}
+						}
+
+					}
 
 					try
 					{

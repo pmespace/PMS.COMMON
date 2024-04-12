@@ -644,8 +644,7 @@ namespace COMMON
 				if (Settings.UseSsl)
 				{
 					sslStream = new SslStream(client.GetStream(), false, new RemoteCertificateValidationCallback(ValidateServerCertificate), default);
-					int tmo = client.ReceiveTimeout * 1000;
-					client.ReceiveTimeout = CStreamSettings.NO_TIMEOUT;// 5000;
+					client.ReceiveTimeout = settings.ConnectTimeout * 1000;// CStreamSettings.NO_TIMEOUT;// 5000;
 					try
 					{
 						// authenticate against the server
@@ -667,18 +666,28 @@ namespace COMMON
 							sslStream.AuthenticateAsClient(Settings.ServerName);
 #else
 						sslStream.AuthenticateAsClient(Settings.ServerName);
+
+						//try
+						//{
+						//	sslStream.BeginAuthenticateAsClient(Settings.ServerName, );
+
+						//}
+						//catch (Exception)
+						//{
+
+						//	throw;
+						//}
 #endif
 						CLog.INFORMATION($"using {sslStream.SslProtocol.ToString().ToUpper()} secured protocol");
 					}
-					catch (Exception ex)
+					catch (Exception)
 					{
-						CLog.EXCEPT(ex);
 						sslStream = default;
 						throw;
 					}
 					finally
 					{
-						client.ReceiveTimeout = tmo;
+						client.ReceiveTimeout = settings.ReceiveTimeout;
 					}
 				}
 				else

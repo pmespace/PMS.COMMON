@@ -10,6 +10,7 @@ using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using COMMON.Properties;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace COMMON
 {
@@ -135,7 +136,7 @@ namespace COMMON
 		#endregion
 
 		#region methods
-		public override string ToString() => Resources.CStreamSettingsBaseToString.Format(new object[] { ReceiveTimeout, ReceiveBufferSize, SendTimeout, SendBufferSize, UseSsl }) + "; " + base.ToString();
+		public override string ToString() => Resources.CStreamSettingsBaseToString.Format(new object[] { ReceiveTimeout, ReceiveBufferSize, SendTimeout, SendBufferSize, UseSsl }) + Chars.SEPARATOR + base.ToString();
 		#endregion
 	}
 
@@ -279,6 +280,17 @@ namespace COMMON
 		}
 		private int _connecttimeout = DEFAULT_CONNECT_TIMEOUT;
 		public const int DEFAULT_CONNECT_TIMEOUT = 5; // 5 second
+		[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+		public List<SCertificate> Certificates
+		{
+			get;
+			set;
+		} = default;
+		public struct SCertificate
+		{
+			public string Filename;
+			public string Password;
+		}
 		#endregion
 
 		#region private properties
@@ -293,7 +305,7 @@ namespace COMMON
 		#endregion
 
 		#region methods
-		public override string ToString() => Resources.CStreamClientSettingsToString.Format(new object[] { EndPoint, ServerName, AllowedSslErrors }) + "; " + base.ToString();
+		public override string ToString() => Resources.CStreamClientSettingsToString.Format(new object[] { EndPoint, ServerName, AllowedSslErrors }) + Chars.SEPARATOR + base.ToString();
 		/// <summary>
 		/// Tells whether an IP is found on DNS or not
 		/// </summary>

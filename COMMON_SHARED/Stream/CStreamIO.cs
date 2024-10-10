@@ -647,6 +647,19 @@ namespace COMMON
 					client.ReceiveTimeout = settings.ConnectTimeout * 1000;// CStreamSettings.NO_TIMEOUT;// 5000;
 					try
 					{
+						X509CertificateCollection xcco = default != Settings.Certificates && 0 != Settings.Certificates.Count ? new X509CertificateCollection() : default;
+						try
+						{
+							if (default != xcco)
+								foreach (CStreamClientSettings.SCertificate k in Settings.Certificates)
+									xcco.Add(new X509Certificate2(k.Filename, k.Password));
+						}
+						catch (Exception ex)
+						{
+							CLog.EXCEPT(ex);
+							xcco = default;
+						}
+
 						// authenticate against the server
 
 #if NET35
@@ -665,7 +678,7 @@ namespace COMMON
 						else
 							sslStream.AuthenticateAsClient(Settings.ServerName);
 #else
-						sslStream.AuthenticateAsClient(Settings.ServerName);
+						sslStream.AuthenticateAsClient(Settings.ServerName, xcco, SslProtocols.None, false);
 
 						//try
 						//{

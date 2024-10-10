@@ -39,8 +39,7 @@ namespace COMMON.WSServer
 		//public WSStatistics Requests { get; }
 		//public WSStatistics Replies { get; }
 
-		//public override string ToString() => $"{(ID.IsNullOrEmpty() ? string.Empty : $"ID: {ID}; ")}Connected at : {Connection}; [Requests: {Requests}]; [Replies: {Replies}]";
-		public override string ToString() => $"{(null == ID ? string.Empty : $"ID: {ID}; ")}Connected at : {Connection}";
+		public override string ToString() => $"{(null == ID ? string.Empty : $"ID: {ID}{Chars.SEPARATOR}")}Connected at : {Connection}";
 	}
 	public class WSStatistics : CWSSize
 	{

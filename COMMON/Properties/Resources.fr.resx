@@ -390,4 +390,7 @@
   <data name="UIActivityToString" xml:space="preserve">
     <value>UIActivity =&gt; control: {0}; évènement: {1}; message: {2}; valeur: {3}</value>
   </data>
+  <data name="CJsonInvalidFileName" xml:space="preserve">
+    <value>{0} n'est pas un nom de fichier valide</value>
+  </data>
 </root>

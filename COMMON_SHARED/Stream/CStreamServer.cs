@@ -67,8 +67,8 @@ namespace COMMON
 		#region public methods
 		public override string ToString()
 		{
-			string s = $"client: {(default == EndPoint ? "<unknown>" : EndPoint.Address.ToString())}; connect: {ConnectTimestamp.ToString(Chars.DATETIMEEX)}; ";
-			s += $"received: {ReceivedMessages} messages for {ReceivedBytes} bytes; sent: {SentMessages} messages for {SentBytes} bytes";
+			string s = $"client: {(default == EndPoint ? "<unknown>" : EndPoint.Address.ToString())}{Chars.SEPARATOR}connect: {ConnectTimestamp.ToString(Chars.DATETIMEEX)}{Chars.SEPARATOR}";
+			s += $"received: {ReceivedMessages} messages for {ReceivedBytes} bytes{Chars.SEPARATOR}sent: {SentMessages} messages for {SentBytes} bytes";
 			return s;
 		}
 		#endregion

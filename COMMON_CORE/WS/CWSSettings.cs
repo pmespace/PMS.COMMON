@@ -140,7 +140,7 @@ namespace COMMON.WSServer
 		#endregion
 
 		#region methods
-		public override string ToString() => $"Login required: {LoginRequired}; Is valid: {IsValid}";
+		public override string ToString() => $"Login required: {LoginRequired}{Chars.SEPARATOR}Is valid: {IsValid}";
 		#endregion
 	}
 

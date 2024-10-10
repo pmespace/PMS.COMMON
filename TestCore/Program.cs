@@ -42,10 +42,10 @@ namespace TestCore
 			if (ab.IsNullOrEmpty())
 				Console.WriteLine("NULL");
 			string s;
-			Console.WriteLine($"Option value: {CMisc.SearchInArgs(args, "?", out int index, 1)}; Index: {index}");
-			Console.WriteLine($"Option value: {CMisc.SearchInArgs(args, "?", out index, 2)}; Index: {index}");
-			Console.WriteLine($"Option value: {CMisc.SearchInArgs(args, "?", out index, 3)}; Index: {index}");
-			Console.WriteLine($"Option value: {CMisc.SearchInArgs(args, "?", out index, 4)}; Index: {index}");
+			Console.WriteLine($"Option value: {CMisc.SearchInArgs(args, "?", out int index, 1)}{Chars.SEPARATOR}Index: {index}");
+			Console.WriteLine($"Option value: {CMisc.SearchInArgs(args, "?", out index, 2)}{Chars.SEPARATOR}Index: {index}");
+			Console.WriteLine($"Option value: {CMisc.SearchInArgs(args, "?", out index, 3)}{Chars.SEPARATOR}Index: {index}");
+			Console.WriteLine($"Option value: {CMisc.SearchInArgs(args, "?", out index, 4)}{Chars.SEPARATOR}Index: {index}");
 			t.Start(args);
 		}
 		static void P1()

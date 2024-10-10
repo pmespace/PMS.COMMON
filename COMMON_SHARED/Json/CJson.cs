@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using Newtonsoft.Json.Serialization;
 using System.Linq;
+using COMMON.Properties;
 
 namespace COMMON
 {
@@ -63,7 +64,7 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.EXCEPT(ex, $"{value} is not a valid file name");
+					CLog.EXCEPT(ex, Resources.CJsonInvalidFileName.Format(value));
 					_filename = default;
 				}
 			}

@@ -13,7 +13,7 @@ using COMMON.Properties;
 namespace COMMON
 {
 	[ComVisible(false)]
-	static class RegexIP
+	public static class RegexIP
 	{
 		/// <summary>
 		/// IP formats
@@ -632,7 +632,7 @@ namespace COMMON
 			else if (string.IsNullOrEmpty(value))
 				return false;
 			pattern = AsString(pattern);
-			//CLog.DEBUG($"{(confidential ? "<value hidden>" : $"input data: {value}")}; pattern: {pattern}");
+			//CLog.DEBUG($"{(confidential ? "<value hidden>" : $"input data: {value}")}{Chars.SEPARATOR}pattern: {pattern}");
 			Match match = Regex.Match(value, pattern);
 			return match.Success;
 		}
@@ -657,7 +657,7 @@ namespace COMMON
 			// build regular expression to check against
 			string count = "{" + (minlen == maxlen ? minlen.ToString() + "}" : minlen.ToString() + "," + maxlen.ToString() + "}");
 			string pattern = $"^{characterSet}{count}$";
-			//CLog.DEBUG($"{(confidential ? "<value hidden>" : $"input data: {value}")}; pattern: {pattern}");
+			//CLog.DEBUG($"{(confidential ? "<value hidden>" : $"input data: {value}")}{Chars.SEPARATOR}pattern: {pattern}");
 			Match match = Regex.Match(value, pattern);
 			return match.Success;
 		}

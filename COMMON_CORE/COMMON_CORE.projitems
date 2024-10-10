@@ -9,12 +9,16 @@
     <Import_RootNamespace>COMMON_CORE</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)WSServer\CWSBuffer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)wsserver\CWSClient.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)wsserver\CWSClientSettings.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)WSServer\CWSServer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)WSServer\CWSServerSettings.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)WSServer\CWSServerConnectedClient.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)wsserver\CWSSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WS\CWSBuffer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WS\Client\CWSClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WS\Client\CWSClientSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WS\Server\CWSServer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WS\Server\CWSServerSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WS\Server\CWSServerConnectedClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WS\CWSSettings.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)WS\Client\" />
+    <Folder Include="$(MSBuildThisFileDirectory)WS\Server\" />
   </ItemGroup>
 </Project>

@@ -97,6 +97,15 @@ namespace COMMON.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} is not a valid file name.
+        /// </summary>
+        internal static string CJsonInvalidFileName {
+            get {
+                return ResourceManager.GetString("CJsonInvalidFileName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [EXCEPTION].
         /// </summary>
         internal static string CLogException {

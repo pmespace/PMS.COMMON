@@ -67,7 +67,7 @@ namespace COMMON
 		#endregion
 	}
 	/// <summary>
-	/// That object CAN'T Be used to serialize a list in a JSON file.
+	/// THAT OBJECT CAN'T BE USED TO SERIALIZE A LIST IN A JSON FILE.
 	/// To do that use a <see cref="IList{T}"/> object
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
@@ -380,7 +380,7 @@ namespace COMMON
 		#endregion
 	}
 	/// <summary>
-	/// That object CAN'T Be used to serialize a dictionary in a JSON file.
+	/// THAT OBJECT CAN'T BE USED TO SERIALIZE A DICTIONARY IN A JSON FILE.
 	/// To do that use a <see cref="IDictionary{TKey, TValue}"/> object
 	/// /// 
 	/// </summary>
@@ -517,7 +517,7 @@ namespace COMMON
 			foreach (KeyValuePair<K, T> k in this.SortedDict)
 			{
 				i++;
-				s += $" - {k.Key} => {k.Value}" + (i < Count ? Chars.CRLF : default);
+				s += $"{Chars.FOLLOWEDBY}{k.Key} => {k.Value}" + (i < Count ? Chars.CRLF : default);
 			}
 			return s;
 		}
@@ -623,6 +623,7 @@ namespace COMMON
 	}
 
 	/// <summary>
+	/// THAT OBJECT CAN'T BE USED TO SERIALIZE A LIST IN A JSON FILE.
 	/// base class for lists of strings
 	/// </summary>
 	[Guid("36E77450-B165-4F64-9B67-280D4986FCB8")]
@@ -631,6 +632,7 @@ namespace COMMON
 	public class CSafeStringList : CSafeList<string>, ISafeList<string> { }
 
 	/// <summary>
+	/// THAT OBJECT CAN'T BE USED TO SERIALIZE A LIST IN A JSON FILE.
 	/// base class for dictionaries of any kind with a string key
 	/// </summary>
 	[Guid("629FE821-B788-4593-8B92-C5DF4B408E83")]

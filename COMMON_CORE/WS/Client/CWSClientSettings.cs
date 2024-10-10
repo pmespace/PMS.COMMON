@@ -1,20 +1,39 @@
-//#define USE_WSBUFFER
-
+using System;
+using System.Diagnostics;
 using System.Net;
-using COMMON.WSServer.Client;
+using System.Net.WebSockets;
+using System.Runtime.InteropServices;
+using System.Text;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json.Linq;
+using System.Threading;
+using System.Net.Sockets;
+using System.Runtime;
+using System.Reflection;
 
-namespace COMMON.WSServer
+namespace COMMON.WSServer.Client
 {
 	#region delegates
 	/// <summary>
-	/// Generic function call when the server is starting
+	/// Allows indicating the current status of WS connection
 	/// </summary>
-	/// <param name="args">the args available at start time</param>
+	/// <param name="status">a <see cref="WSStatusEnum"/> object indicating the current status of the connection</param>
 	/// <returns>
 	/// true indicates the processing must carry on,
-	/// false indicates the processing must stop, the server will stop
+	/// false indicates the processing must stop
 	/// </returns>
-	public delegate bool OnStart(string[] args);
+	public delegate bool OnStatus(WSStatusEnum status);
+	/// <summary>
+	/// Generic function call before the client tries to login to the server
+	/// </summary>
+	/// <param name="credentials">[OUT] credentiels to use to login to the server</param>
+	/// <returns>
+	/// true if login must be performed,
+	/// false indicates the processing must stop
+	/// </returns>
+	public delegate bool OnLogin(out string credentials);
 	/// <summary>
 	/// Generic function called when a connection has been made to the WS server
 	/// </summary>
@@ -46,76 +65,35 @@ namespace COMMON.WSServer
 	/// true means successful and processing will carry on,
 	/// false means unsuccessful and next step will not be triggered
 	/// </returns>
-	public delegate bool OnCommand(IPEndPoint client, object ID,
-#if USE_WSBUFFER
-		CWSBuffer input,
-		out byte[] output,
-#else
-		string input,
-		out string output,
-#endif
-		out int nextAction);
+	public delegate bool OnCommand(IPEndPoint client, object ID, string input, out string output, out int nextAction);
 	/// <summary>
 	/// Generic function eventually call when the server is shutting down on request issued by the server itself
 	/// </summary>
 	public delegate void OnStop();
 	#endregion
 
-	public class CWSServerSettings : CWSSettings
+
+
+	public class CWSClientSettings : CWSSettings
 	{
 		#region constructor
-		public CWSServerSettings() { }
+		public CWSClientSettings() { }
 		#endregion
 
 		#region properties
 		/// <summary>
-		/// The prefix name to use to identify the WS server.
-		/// That name will be used after the IP address to identify the pages.
-		/// Default is "ws" (a "/" will be added before that prefix if not empty).
+		/// Address of the web socket server to reach including the IP or URL, page and the port
 		/// </summary>
-		public string WSName
-		{
-			get => _wsaddr;
-			set
-			{
-				value = value.Replace(" ", "");
-				if (!value.IsNullOrEmpty()) _wsaddr = value;
-			}
-		}
-		string _wsaddr = "ws";
+		public string URI { get; set; }
 		/// <summary>
-		/// The port number the WS server will read
+		/// Called whenevr the status of the WS connection changes
 		/// </summary>
-		public int Port { get => _port; set => _port = IPEndPoint.MinPort <= value && value <= IPEndPoint.MaxPort ? value : _port; }
-		int _port = IPEndPoint.MinPort;
-		/// <summary>
-		/// Called when the server starts the main process (the one which requires the services of the server)
-		/// </summary>
-		public OnStart OnStart { get; set; }
-		/// <summary>
-		/// Called when a connection is opened
-		/// </summary>
-		public OnOpen OnOpen { get; set; }
-		/// <summary>
-		/// Called when a login is requested
-		/// </summary>
-		public OnCommand OnLogin { get; set; }
-		/// <summary>
-		/// Called when a messge has been received
-		/// </summary>
-		public OnCommand OnRequest { get; set; }
-		/// <summary>
-		/// Called when a connection is closed
-		/// </summary>
-		public OnClose OnClose { get; set; }
-		/// <summary>
-		/// Called when a connection is closed
-		/// </summary>
-		public OnStop OnStop { get; set; }
+		public OnStatus OnStatus { get; set; }
+		public OnLogin OnLogin { get; set; }
 		#endregion
 
 		#region methods
-		public override string ToString() => $"{base.ToString()}; WS Name: {WSName}; Port: {Port}";
+		public override string ToString() => $"{base.ToString()}{Chars.SEPARATOR}URI: {URI}";
 		#endregion
 	}
 }

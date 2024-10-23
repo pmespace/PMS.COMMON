@@ -171,7 +171,9 @@ namespace COMMON
 				if (!hasBeenSet) CLog.SetSharedGuid();
 				for (int i = 0; i < Count; i++)
 				{
-					string s = this[i].ToStringEx(addSharedData, out msgToConsole);
+					//string s = this[i].ToStringEx(addSharedData, out msgToConsole);
+					string s = this[i].ToStringEx(addSharedData, out string msgToConsoleX);
+					msgToConsole += msgToConsoleX.IsNullOrEmpty() ? string.Empty : Chars.CRLF + msgToConsoleX;
 					r += (s.IsNullOrEmpty() ? string.Empty : 0 == i ? s : Chars.CRLF + s);
 				}
 				if (!hasBeenSet) CLog.ResetSharedGuid();

@@ -545,21 +545,24 @@ namespace COMMON
 					ls.Add($"{Resources.CLogException} {exx.GetType()}{(string.IsNullOrEmpty(exx.Message) ? default : $"{Chars.FOLLOWEDBY}{exx.Message}")}");
 					exx = exx.InnerException;
 				}
-				for (int i = st.FrameCount; 0 != i; i--)
+
+				//for (int i = st.FrameCount; 0 != i; i--)
+				//{
+				//	StackFrame sf = st.GetFrame(i - 1);
+				//	string f = string.IsNullOrEmpty(sf.GetFileName()) ? default : sf.GetFileName();
+				//	string m = string.IsNullOrEmpty(sf.GetMethod().ToString()) ? "??" : $"{sf.GetMethod()}";
+				//	//ls.Add($"[EXCEPTION #{st.FrameCount - i + 1}] file: {f}{Chars.SEPARATOR}method: {m}{Chars.SEPARATOR}#line: {sf.GetFileLineNumber()}");
+				//	ls.Add($"{Resources.CLogException} {(f.IsNullOrEmpty() ? string.Empty : $"{Resources.CLogExceptionMethod}: {f}{Chars.SEPARATOR}")}{(0 == sf.GetFileLineNumber() ? string.Empty : $"#{Resources.CLogExceptionLine}: {sf.GetFileLineNumber()}{Chars.SEPARATOR}")}{(m.IsNullOrEmpty() ? string.Empty : $"{Resources.CLogExceptionMethod}: {m} ")}");
+				//}
+
+				for (int i = 0; i < st.FrameCount; i++)
 				{
-					StackFrame sf = st.GetFrame(i - 1);
-					string f = string.IsNullOrEmpty(sf.GetFileName()) ? default : sf.GetFileName();
-					string m = string.IsNullOrEmpty(sf.GetMethod().ToString()) ? "??" : $"{sf.GetMethod()}";
-					//ls.Add($"[EXCEPTION #{st.FrameCount - i + 1}] file: {f}{Chars.SEPARATOR}method: {m}{Chars.SEPARATOR}#line: {sf.GetFileLineNumber()}");
+					StackFrame sf = st.GetFrame(i);
+					string f = sf.GetFileName().IsNullOrEmpty() ? "??" : sf.GetFileName();
+					string m = sf.GetMethod().ToString().IsNullOrEmpty() ? "??" : sf.GetMethod().ToString();
+					//ls.Add($"[EXCEPTION #{i + 1}] file: {f}{Chars.SEPARATOR}method: {m}{Chars.SEPARATOR}#line: {sf.GetFileLineNumber()}");
 					ls.Add($"{Resources.CLogException} {(f.IsNullOrEmpty() ? string.Empty : $"{Resources.CLogExceptionMethod}: {f}{Chars.SEPARATOR}")}{(0 == sf.GetFileLineNumber() ? string.Empty : $"#{Resources.CLogExceptionLine}: {sf.GetFileLineNumber()}{Chars.SEPARATOR}")}{(m.IsNullOrEmpty() ? string.Empty : $"{Resources.CLogExceptionMethod}: {m} ")}");
 				}
-				//for (int i = 0; i < st.FrameCount; i++)
-				//{
-				//	StackFrame sf = st.GetFrame(i);
-				//	string f = string.IsNullOrEmpty(sf.GetFileName()) ? "??" : sf.GetFileName();
-				//	string m = string.IsNullOrEmpty(sf.GetMethod().ToString()) ? "??" : $"{sf.GetMethod()}";
-				//	ls.Add($"[EXCEPTION #{i + 1}] file: {f}{Chars.SEPARATOR}method: {m}{Chars.SEPARATOR}#line: {sf.GetFileLineNumber()}");
-				//}
 				r = AddEx(ls, addSharedData ? TLog.EXCPT : TLog.DEBUG, addSharedData);
 			}
 			catch (Exception) { }

@@ -1,3 +1,6 @@
+8.0.17
+- Modified CMisc.AssertFolderResult class to make it more reliable
+
 8.0.16
 - Inverted the exceptions order in CLog.EXCEPT display
 

@@ -127,10 +127,7 @@ namespace COMMON
 		/// <returns>
 		/// The formatted string
 		/// </returns>
-		public static string Format(this string s, object[] args)
-		{
-			return string.Format(s, args);
-		}
+		public static string Format(this string s, object[] args) => string.Format(s, args);
 		/// <summary>
 		/// Allows directly creating a formatted string using <see cref="string.Format(string, object)"/>
 		/// </summary>
@@ -139,10 +136,7 @@ namespace COMMON
 		/// <returns>
 		/// The formatted string
 		/// </returns>
-		public static string Format(this string s, object arg0)
-		{
-			return string.Format(s, arg0);
-		}
+		public static string Format(this string s, object arg0) => string.Format(s, arg0);
 		/// <summary>
 		/// Indicates whether a byte[] is null or empty
 		/// </summary>
@@ -153,8 +147,9 @@ namespace COMMON
 		/// Indicates whether a string is null or empty
 		/// </summary>
 		/// <param name="s">The string to verify</param>
+		/// <param name="trim">If true the string to test is trimmed before testing, processed as is if false</param>
 		/// <returns>True if null or Length=0, false otherwise</returns>
-		public static bool IsNullOrEmpty(this string s) => string.IsNullOrEmpty(s);
+		public static bool IsNullOrEmpty(this string s, bool trim = true) => string.IsNullOrEmpty(trim ? s?.Trim() : s);
 		/// <summary>
 		/// Compares the current string with another one
 		/// </summary>
@@ -1466,18 +1461,16 @@ namespace COMMON
 		public static bool AssertFolder(string value, out AssertFolderResult result, bool createIfNotExist = true, bool setAsCurrent = false)
 		{
 			result = new AssertFolderResult(value);
-			if (createIfNotExist) result.CreateDirectory();
-			if (setAsCurrent) result.SetAsCurrentDirectory();
-			return result.Valid && (createIfNotExist ? result.Exists : true) && (setAsCurrent ? result.IsCurrentDirectory : true);
+			//if (createIfNotExist) result.CreateDirectory();
+			//if (setAsCurrent) result.SetAsCurrentDirectory();
+			return result.Valid && (createIfNotExist ? result.CreateDirectory() : true) && (setAsCurrent ? result.SetAsCurrentDirectory() : true);
 		}
 		public class AssertFolderResult
 		{
 			#region constructor
 			public AssertFolderResult(string v)
 			{
-				Valid = false;
-				FullName = FullNameEx = default;
-				CurrentFolderOnEntry = new DirectoryInfo(Directory.GetCurrentDirectory()).FullName;
+				InitialFolder = new DirectoryInfo(Directory.GetCurrentDirectory()).FullName;
 				Value = v;
 			}
 			#endregion
@@ -1491,22 +1484,20 @@ namespace COMMON
 				get => _value;
 				private set
 				{
-					if (value.IsNullOrEmpty()) { value = "."; }
-					_value = value;
+					if (value.IsNullOrEmpty()) value = Directory.GetCurrentDirectory();
 					try
 					{
 						DirectoryInfo di = new DirectoryInfo(value);
-						// the folder is a valid one
+						_value = value;
 						Valid = true;
-						// save its full name
 						FullName = di.FullName;
 					}
 					catch (Exception ex) { CLog.EXCEPT(ex); }
 				}
 			}
-			string _value = default;
+			string _value = string.Empty;
 			/// <summary>
-			/// Full directory name on exit without any directory separator at the end
+			/// Full directory name without any directory separator at the end
 			/// </summary>
 			public string FullName
 			{
@@ -1514,55 +1505,66 @@ namespace COMMON
 				private set
 				{
 					_fullname = value;
-					FullNameEx = _fullname + new string(Path.DirectorySeparatorChar, 1);
+					if (FullName.EndsWith(new string(Path.DirectorySeparatorChar, 1)))
+						FullNameEx = _fullname;
+					else
+						FullNameEx = _fullname + new string(Path.DirectorySeparatorChar, 1);
 				}
 			}
-			string _fullname = default;
+			string _fullname = string.Empty;
 			/// <summary>
-			/// Full directory name on exit without any directory separator at the end
+			/// Full directory name with a directory separator at the end
 			/// </summary>
-			public string FullNameEx { get; private set; }
+			public string FullNameEx { get; private set; } = string.Empty;
 			/// <summary>
-			/// true is the entry matches with a folder
+			/// true is the entry is actually a valid folder name (it doesn't mean it exists, check <seealso cref="Exists"/> for that)
 			/// </summary>
-			public bool Valid { get; private set; }
+			public bool Valid { get; private set; } = false;
 			/// <summary>
-			/// true if the folder has been created during processing, false if it existed already or creation failed or not requested
+			/// true if the folder exists, false otherwise
 			/// </summary>
 			public bool Exists
 			{
 				get
 				{
-					if (Valid)
+					try
 					{
-						DirectoryInfo di = new DirectoryInfo(FullName);
-						return di.Exists;
+						if (Valid)
+						{
+							DirectoryInfo di = new DirectoryInfo(FullName);
+							return di.Exists;
+						}
 					}
+					catch (Exception ex) { CLog.EXCEPT(ex); }
 					return false;
 				}
 			}
+			///// <summary>
+			///// true if the new folder is the new current folder on exit
+			///// </summary>
+			//public bool IsCurrentDirectory
+			//{
+			//	get => Exists ? FullName.Compare(Directory.GetCurrentDirectory()) : false;
+			//}
 			/// <summary>
-			/// true if the new folder is the new current folder on exit
+			/// the current folder when the object was created
 			/// </summary>
-			public bool IsCurrentDirectory
-			{
-				get
-				{
-					if (Exists)
-						return FullName.Compare(Directory.GetCurrentDirectory());
-					return false;
-				}
-			}
+			public string InitialFolder { get; private set; } = string.Empty;
 			/// <summary>
-			/// the current folder on entry when the object was created
+			/// Current folder
 			/// </summary>
-			public string CurrentFolderOnEntry { get; }
+			public string CurrentFolder { get => Directory.GetCurrentDirectory(); }
 			#endregion
 
 			#region methods
 			public override string ToString() => FullName;
+			/// <summary>
+			/// Creates the targeted directory if it doesn't exist
+			/// </summary>
+			/// <returns>true if created or already exists, false otherwise</returns>
 			public bool CreateDirectory()
 			{
+				if (!Valid) return false;
 				if (Exists) return true;
 				try
 				{
@@ -1572,12 +1574,51 @@ namespace COMMON
 				catch (Exception ex) { CLog.EXCEPT(ex); }
 				return false;
 			}
+			/// <summary>
+			/// Deletes the targeted directory if it exists
+			/// </summary>
+			/// <param name="recursiveDelete">If true deletion will delete files inside the folder, if false the folder must be empty to be deleted, default is false</param>
+			/// <returns>true if deleted or not existing, false otherwise</returns>
+			public bool DeleteDirectory(bool recursiveDelete = false)
+			{
+				if (!Valid) return false;
+				if (!Exists) return true;
+				try
+				{
+					Directory.Delete(FullName, recursiveDelete);
+					return true;
+				}
+				catch (Exception ex) { CLog.EXCEPT(ex); }
+				return false;
+			}
+			/// <summary>
+			/// Sets the current directory to the targeted one
+			/// </summary>
+			/// <returns>true if moved to the targeted directory, false otherwise</returns>
 			public bool SetAsCurrentDirectory()
 			{
+				if (!Valid) return false;
 				if (!Exists) return false;
 				try
 				{
-					Directory.SetCurrentDirectory(FullName);
+					if (CreateDirectory())
+					{
+						Directory.SetCurrentDirectory(FullName);
+						return true;
+					}
+				}
+				catch (Exception ex) { CLog.EXCEPT(ex); }
+				return false;
+			}
+			/// <summary>
+			/// Restiores the initial folder
+			/// </summary>
+			/// <returns>true if moved to the initial directory, false otherwise</returns>
+			public bool RestoreInitialDirectory()
+			{
+				try
+				{
+					Directory.SetCurrentDirectory(InitialFolder);
 					return true;
 				}
 				catch (Exception ex) { CLog.EXCEPT(ex); }

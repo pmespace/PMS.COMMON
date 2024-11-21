@@ -16,16 +16,21 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Collections.Generic;
 using COMMON.Properties;
+using System.Threading.Tasks;
 
 namespace COMMON
 {
 	[ComVisible(false)]
-	public abstract class CStreamIO : CStreamBase
+	public abstract class CStreamIO : CStreamSettings
 	{
 		#region constructors
-		public CStreamIO(TcpClient tcp, CStreamBase sb) : base(sb)
+		public CStreamIO(TcpClient tcp, CStreamSettings sb) : base(sb)
 		{
 			Tcp = tcp;
+			//Tcp.ReceiveBufferSize = sb.ReceiveBufferSize;
+			////Tcp.ReceiveTimeout = sb.ReceiveTimeout * 1000;
+			//Tcp.SendBufferSize = sb.SendBufferSize;
+			////Tcp.SendTimeout = sb.SendTimeout * 1000;
 		}
 		~CStreamIO()
 		{
@@ -95,8 +100,6 @@ namespace COMMON
 		#endregion
 
 		#region constants
-		public const string CRLF = "\r\n";
-		public const string LFCR = "\n\r";
 		public const byte ETX = 0x03;
 		public const byte EOT = 0x04;
 		#endregion
@@ -217,10 +220,26 @@ namespace COMMON
 				//		read = task.Result;
 				//}
 
+#if true
 				var task = stream.ReadAsync(data, offset, data.Length - offset, token);
 				task.Wait();
 				if (task.IsCompleted)
 					read = task.Result;
+#elif _OLD2
+				var task = stream.ReadAsync(data, offset, data.Length - offset, token);
+				Task.WaitAny(task, Task.Delay(stream.ReadTimeout));
+				if (task.IsCompleted)
+					read = task.Result;
+				else
+				{
+					stream.Close();
+					read = task.Result;
+				}
+#else
+				if (stream.CanTimeout)
+					stream.ReadTimeout = 5000;// NO_TIMEOUT == ReceiveTimeout ? Timeout.Infinite : ReceiveTimeout;
+				read = stream.Read(data, offset, data.Length - offset);
+#endif
 			}
 			catch (Exception ex)
 			{
@@ -294,9 +313,9 @@ namespace COMMON
 		/// <returns>
 		/// true if the message has been sent, false otherwise
 		/// </returns>
-		internal bool SendLine(string data, CancellationToken token = default, string EOT = CRLF)
+		internal bool SendLine(string data, CancellationToken token = default, string EOT = Chars.CRLF)
 		{
-			if (EOT.IsNullOrEmpty()) EOT = CRLF;
+			if (EOT.IsNullOrEmpty()) EOT = Chars.CRLF;
 
 			// verify the EOL is there, add it if necessary
 			if (!data.IsNullOrEmpty())
@@ -411,7 +430,7 @@ namespace COMMON
 		{
 			try
 			{
-				if (string.IsNullOrEmpty(EOT)) EOT = CRLF;
+				if (string.IsNullOrEmpty(EOT)) EOT = Chars.CRLF;
 				// allocate buffer to receive
 				byte[] buffer = new byte[bufferToAllocate];
 				int bytesRead = 0;
@@ -544,7 +563,7 @@ namespace COMMON
 		/// <returns>
 		/// the  received buffer as a string if successful, null otherwise
 		/// </returns>
-		internal string ReceiveLine(CancellationToken token, string EOT = CRLF)
+		internal string ReceiveLine(CancellationToken token, string EOT = Chars.CRLF)
 		{
 			try
 			{
@@ -821,8 +840,8 @@ namespace COMMON
 				}
 				catch (Exception ex)
 				{
-					CLog.EXCEPT(ex);
 					sslStream = default;
+					CLog.EXCEPT(ex);
 					throw;
 				}
 				finally

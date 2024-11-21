@@ -55,7 +55,7 @@ namespace COMMON
 
 		#region properties
 		[JsonIgnore]
-		public abstract bool IsValid { get; }
+		public virtual bool IsValid { get => true; }
 		[JsonIgnore]
 		public int NoTimeout { get => NO_TIMEOUT; }
 		/// <summary>
@@ -119,7 +119,7 @@ namespace COMMON
 		[JsonIgnore]
 		public int DefaultServerPort { get => DEFAULT_PORT; }
 		/// <summary>
-		/// A delegate allowing to, when a message either received or about to be sent, review the content of this message before it is logged, thus allowing either to hide or alter the content TO LOG (not the content of the message), thus allowing PCI-DSS compliance
+		/// A delegate allowing to, when a message is either received or about to be sent, review the content of this message before it is logged, thus allowing either to hide or alter the content TO LOG (not the content of the message), thus allowing PCI-DSS compliance
 		/// </summary>
 		[JsonIgnore]
 		public CStreamDelegates.ClientServerOnMessageToLog OnMessageToLog { get => _onmessagetolog; set => _onmessagetolog = value; }
@@ -440,8 +440,8 @@ namespace COMMON
 		#endregion
 
 		#region properties
-		[JsonIgnore]
-		public override bool IsValid { get => true; }
+		//[JsonIgnore]
+		//public override bool IsValid { get => true; }
 		/// <summary>
 		/// The IP port to use or 0 if invalid
 		/// </summary>

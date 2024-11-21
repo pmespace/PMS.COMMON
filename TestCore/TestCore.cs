@@ -9,6 +9,7 @@ using COMMON;
 using Newtonsoft.Json.Serialization;
 using System.Threading;
 using System.IO;
+using Microsoft.AspNetCore.Mvc;
 
 namespace TestCore
 {
@@ -85,10 +86,14 @@ namespace TestCore
 			//}
 
 			bool ok = CMisc.AssertFolder("hello", out CMisc.AssertFolderResult result, false, false);
-			ok = CMisc.AssertFolder("hello", out result, false, true);
-			ok = CMisc.AssertFolder("hello", out result, true, false);
-			ok = CMisc.AssertFolder("hello", out result, true, true);
-
+			ok = result.DeleteDirectory(true);
+			ok = CMisc.AssertFolder("%;Judh9 *$^=hello", out result, false, true);
+			ok = result.DeleteDirectory(true);
+			ok = CMisc.AssertFolder("hello2", out result, true, false);
+			ok = result.DeleteDirectory(true);
+			ok = CMisc.AssertFolder("hello2", out result, true, true);
+			ok = result.RestoreInitialDirectory();
+			ok = result.DeleteDirectory(true);
 
 			string sha = "hello, how are you mister Doolittle".ToSHA256();
 			string base641 = sha.ToBase64();

@@ -40,6 +40,7 @@ namespace COMMON
 		public const string STIMEEX = "HHmmssfff";
 		public const string SDATETIME = SDATE + STIME;
 		public const string SDATETIMEEX = SDATE + STIMEEX;
+		public const string SSDATE = "yyMMdd";
 	}
 
 	[ComVisible(true)]
@@ -561,7 +562,7 @@ namespace COMMON
 					string f = sf.GetFileName().IsNullOrEmpty() ? "??" : sf.GetFileName();
 					string m = sf.GetMethod().ToString().IsNullOrEmpty() ? "??" : sf.GetMethod().ToString();
 					//ls.Add($"[EXCEPTION #{i + 1}] file: {f}{Chars.SEPARATOR}method: {m}{Chars.SEPARATOR}#line: {sf.GetFileLineNumber()}");
-					ls.Add($"{Resources.CLogException} {(f.IsNullOrEmpty() ? string.Empty : $"{Resources.CLogExceptionMethod}: {f}{Chars.SEPARATOR}")}{(0 == sf.GetFileLineNumber() ? string.Empty : $"#{Resources.CLogExceptionLine}: {sf.GetFileLineNumber()}{Chars.SEPARATOR}")}{(m.IsNullOrEmpty() ? string.Empty : $"{Resources.CLogExceptionMethod}: {m} ")}");
+					ls.Add($"{Resources.CLogException} {(f.IsNullOrEmpty() ? string.Empty : $"{Resources.CLogExceptionFile}: {f}{Chars.SEPARATOR}")}{(0 == sf.GetFileLineNumber() ? string.Empty : $"#{Resources.CLogExceptionLine}: {sf.GetFileLineNumber()}{Chars.SEPARATOR}")}{(m.IsNullOrEmpty() ? string.Empty : $"{Resources.CLogExceptionMethod}: {m} ")}");
 				}
 				r = AddEx(ls, addSharedData ? TLog.EXCPT : TLog.DEBUG, addSharedData);
 			}

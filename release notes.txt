@@ -1,3 +1,6 @@
+8.0.18
+- CMisc.string extension IsNullOrEmpty for a string variable now accepts an optional parameter to trim the value
+
 8.0.17
 - Modified CMisc.AssertFolderResult class to make it more reliable
 

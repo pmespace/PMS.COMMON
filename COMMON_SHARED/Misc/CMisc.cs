@@ -149,7 +149,7 @@ namespace COMMON
 		/// <param name="s">The string to verify</param>
 		/// <param name="trim">If true the string to test is trimmed before testing, processed as is if false</param>
 		/// <returns>True if null or Length=0, false otherwise</returns>
-		public static bool IsNullOrEmpty(this string s, bool trim = true) => string.IsNullOrEmpty(trim ? s?.Trim() : s);
+		public static bool IsNullOrEmpty(this string s, bool trim = false) => string.IsNullOrEmpty(trim ? s?.Trim() : s);
 		/// <summary>
 		/// Compares the current string with another one
 		/// </summary>

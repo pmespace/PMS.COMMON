@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿//#define COLORS
+
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
 using System.Reflection;
@@ -9,6 +11,7 @@ using System.Xml.Linq;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using COMMON.Properties;
+using System.Collections.ObjectModel;
 
 namespace COMMON
 {
@@ -18,17 +21,17 @@ namespace COMMON
 		/// <summary>
 		/// IP formats
 		/// </summary>
-		public const string REGEX_HEADER = @"^";
-		public const string REGEX_TRAILER = @"$";
-		public const string REGEX_IPV4_ADDRESS_PART = @"([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])";
-		public const string REGEX_IPV4_PORT_NUMBER_PART = @":([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])";
-		public const string REGEX_IPV4_PARTS_1TO3 = "(" + REGEX_IPV4_ADDRESS_PART + @"\.){3}";
-		public const string REGEX_IPV4_PART_4 = REGEX_IPV4_ADDRESS_PART;
-		public const string REGEX_IPV4_WITHOUT_PORT = REGEX_HEADER + REGEX_IPV4_PARTS_1TO3 + REGEX_IPV4_PART_4 + REGEX_TRAILER;
-		public const string REGEX_IPV4_WITH_PORT = REGEX_IPV4_WITHOUT_PORT + REGEX_IPV4_PORT_NUMBER_PART + REGEX_TRAILER;
-		public const string REGEX_URL_CHARACTER_SET = @"^(?i)([a-z0-9]|[a-z0-9][a-z0-9\-]{0,61}[a-z0-9])(\.([a-z0-9]|[a-z0-9][a-z0-9\-]{0,61}[a-z0-9]))*$";
-		public const string REGEX_URL_WITHOUT_PORT = REGEX_HEADER + REGEX_URL_CHARACTER_SET + "+" + REGEX_TRAILER;
-		public const string REGEX_URL_WITH_PORT = REGEX_HEADER + REGEX_URL_CHARACTER_SET + "+" + REGEX_IPV4_PORT_NUMBER_PART + REGEX_TRAILER;
+		public const string BOL = @"^";
+		public const string EOL = @"$";
+		public const string IPV4_ADDRESS_PART = @"([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])";
+		public const string IPV4_PORT_NUMBER_PART = @":([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])";
+		public const string IPV4_PARTS_1TO3 = "(" + IPV4_ADDRESS_PART + @"\.){3}";
+		public const string IPV4_PART_4 = IPV4_ADDRESS_PART;
+		public const string IPV4_WITHOUT_PORT = BOL + IPV4_PARTS_1TO3 + IPV4_PART_4 + EOL;
+		public const string IPV4_WITH_PORT = BOL + IPV4_PARTS_1TO3 + IPV4_PART_4 + IPV4_PORT_NUMBER_PART + EOL;
+		public const string URL_CHARACTER_SET = @"(?i)([a-z0-9]|[a-z0-9][a-z0-9\-]{0,61}[a-z0-9])(\.([a-z0-9]|[a-z0-9][a-z0-9\-]{0,61}[a-z0-9]))*";
+		public const string URL_WITHOUT_PORT = BOL + URL_CHARACTER_SET + "+" + EOL;
+		public const string URL_WITH_PORT = BOL + URL_CHARACTER_SET + "+" + IPV4_PORT_NUMBER_PART + EOL;
 	}
 
 	/// <summary>
@@ -1359,6 +1362,48 @@ namespace COMMON
 #endif
 			return s;
 		}
+		/// <summary>
+		/// [CONSOLE ONLY] Request an entry with the possibility of a default value
+		/// </summary>
+		/// <param name="msg">Message to display to request the entry</param>
+		/// <param name="allowedKeys">If null or empty all keys are accepted, otherwise only the keys contained oinside the object are accepted</param>
+		/// <param name="displayKey">If true the entered key is displayed if possible, not displayed otherwise</param>
+		/// <param name="invite">If <paramref name="displayKey"/> is true the invite is displayed before the key to display</param>
+		/// <returns>
+		/// The <see cref="ConsoleKeyInfo"/> object entered
+		/// </returns>
+		public static ConsoleKeyInfo Pause(string msg, IList<ConsoleKey> allowedKeys = null, bool displayKey = false, string invite = null)
+		{
+#if COLORS
+			TextColors.Apply();
+#endif
+			if (!msg.IsNullOrEmpty()) Console.Write(msg);
+			ConsoleKeyInfo? keyInfo;
+			do
+			{
+				keyInfo = Console.ReadKey(true);
+				bool? c = allowedKeys?.Contains(keyInfo.Value.Key);
+				if (c.HasValue && !c.Value)
+					keyInfo = null;
+			} while (null == keyInfo);
+			if (displayKey) Console.WriteLine($"{invite}{keyInfo.Value.Key}");
+			return keyInfo.Value;
+		}
+		public class ListOfKeys : List<ConsoleKey>
+		{
+			public ListOfKeys() : base() { }
+			public static ListOfKeys operator +(ListOfKeys a, ConsoleKey b) { a.Add(b); return a; }
+			public static ListOfKeys operator +(ListOfKeys a, ListOfKeys b) { foreach (ConsoleKey k in b) a.Add(k); return a; }
+		}
+		class _esckey : ListOfKeys { public _esckey() { Add(ConsoleKey.Escape); } }
+		class _listofalphakeys : ListOfKeys { public _listofalphakeys() { for (ConsoleKey k = ConsoleKey.A; ConsoleKey.Z >= k; k++) Add(k); } }
+		class _listofnumerickeys : ListOfKeys { public _listofnumerickeys() { for (ConsoleKey k = ConsoleKey.D0; ConsoleKey.D9 >= k; k++) Add(k); for (ConsoleKey k = ConsoleKey.NumPad0; ConsoleKey.NumPad9 >= k; k++) Add(k); } }
+		class _listoffunctionkeys : ListOfKeys { public _listoffunctionkeys() { for (ConsoleKey k = ConsoleKey.F1; ConsoleKey.F24 >= k; k++) Add(k); } }
+		public sealed class ESCKey : ReadOnlyCollection<ConsoleKey> { public ESCKey() : base(new _esckey()) { } }
+		public sealed class ListOfAlphaKeys : ReadOnlyCollection<ConsoleKey> { public ListOfAlphaKeys() : base(new _listofalphakeys()) { } }
+		public sealed class ListOfNumericKeys : ReadOnlyCollection<ConsoleKey> { public ListOfNumericKeys() : base(new _listofnumerickeys()) { } }
+		public sealed class ListOfFunctionsKeys : ReadOnlyCollection<ConsoleKey> { public ListOfFunctionsKeys() : base(new _listoffunctionkeys()) { } }
+		public sealed class ListOfAlphaNumericKeys : ReadOnlyCollection<ConsoleKey> { public ListOfAlphaNumericKeys() : base(new _listofalphakeys() + new _listofnumerickeys()) { } }
 		/// <summary>
 		/// Look for a string option (format can be either "-option" or "/option" in a list of arguments passed to an application
 		/// </summary>

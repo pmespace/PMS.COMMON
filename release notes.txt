@@ -1,3 +1,7 @@
+8.0.20
+- Add a new CMisc.Pause function
+- Made CJson to avoid file buffering and caching
+
 8.0.18
 - CMisc.string extension IsNullOrEmpty for a string variable now accepts an optional parameter to trim the value
 

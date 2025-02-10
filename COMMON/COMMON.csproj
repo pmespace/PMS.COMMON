@@ -1,121 +1,124 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net6.0;net6.0-windows;net462</TargetFrameworks>
-    <AssemblyName>PMS.COMMON</AssemblyName>
-    <Version>8.0.18</Version>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <FileVersion>8.0.18</FileVersion>
-    <AssemblyVersion>8.0.18</AssemblyVersion>
-    <Authors>philippemp31</Authors>
-    <Company>PMS</Company>
-    <Description>
-    </Description>
-    <Copyright>PMS - philippemp31 at outlook dot com - 2022-2024</Copyright>
-    <PackageProjectUrl>https://github.com/pmespace/PMS.COMMON</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/pmespace/PMS.COMMON</RepositoryUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryType>git</RepositoryType>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    <DocumentationFile>.\bin\PMS.COMMON.xml</DocumentationFile>
-    <OutputPath>.\bin</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net35|AnyCPU'">
-    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net35|AnyCPU'">
-    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-  </PropertyGroup>
-  <Import Project="..\COMMON_ODBC\COMMON_ODBC.projitems" Label="Shared" />
-  <Import Project="..\COMMON_SHARED\COMMON_SHARED.projitems" Label="Shared" />
-  <Import Project="..\COMMON_WIN32\COMMON_WIN32.projitems" Label="Shared" Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net6.0-windows' Or '$(TargetFramework)'=='net35'" />
-  <!--
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0;net6.0;net8.0;net6.0-windows;net462</TargetFrameworks>
+		<AssemblyName>PMS.COMMON</AssemblyName>
+		<Version>8.0.20</Version>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<FileVersion>8.0.20</FileVersion>
+		<AssemblyVersion>8.0.20</AssemblyVersion>
+		<Authors>philippemp31</Authors>
+		<Company>PMS</Company>
+		<Description>
+		</Description>
+		<Copyright>PMS - philippemp31 at outlook dot com - 2022-2024</Copyright>
+		<PackageProjectUrl>https://github.com/pmespace/PMS.COMMON</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/pmespace/PMS.COMMON</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<RepositoryType>git</RepositoryType>
+		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+		<DocumentationFile>.\bin\PMS.COMMON.xml</DocumentationFile>
+		<OutputPath>.\bin</OutputPath>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net35|AnyCPU'">
+		<GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net35|AnyCPU'">
+		<GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+	</PropertyGroup>
+	<Import Project="..\COMMON_ODBC\COMMON_ODBC.projitems" Label="Shared" />
+	<Import Project="..\COMMON_SHARED\COMMON_SHARED.projitems" Label="Shared" />
+	<Import Project="..\COMMON_WIN32\COMMON_WIN32.projitems" Label="Shared" Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net6.0-windows' Or '$(TargetFramework)'=='net35'" />
+	<!--
   <Import Project="..\COMMON_CORE\COMMON_CORE.projitems" Label="Shared" Condition="'$(TargetFramework)'=='net6.0'" />
   -->
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="System.Data.Odbc" Version="8.0.0" Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net6.0' Or '$(TargetFramework)'=='net6.0-windows' Or '$(TargetFramework)'=='netstandard2.0'" />
-    <FrameworkReference Include="Microsoft.AspNetCore.App" Condition="'$(TargetFramework)'=='net6.0'" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System.Windows.Forms" Condition="'$(TargetFramework)'=='net35'">
-      <HintPath>c:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\v3.5\System.Windows.Forms.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Windows.Forms" Condition="'$(TargetFramework)'=='net40'">
-      <HintPath>c:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Windows.Forms.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Windows.Forms" Condition="'$(TargetFramework)'=='net45'">
-      <HintPath>c:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Windows.Forms.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Windows.Forms" Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net6.0-windows'">
-      <HintPath>c:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.2\System.Windows.Forms.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Windows.Forms">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Windows.Forms.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-  <PropertyGroup>
-    <TestNugetPath>$(SolutionDir)..\nuget\test</TestNugetPath>
-    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
-    <!--
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<!--
+	  <PackageReference Include="System.Data.Odbc" Version="9.0.1" Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net6.0' Or '$(TargetFramework)'=='net6.0-windows' Or '$(TargetFramework)'=='netstandard2.0'" />
+	  -->
+		<PackageReference Include="System.Data.Odbc" Version="8.0.1" />
+		<FrameworkReference Include="Microsoft.AspNetCore.App" Condition="'$(TargetFramework)'=='net6.0'" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<Reference Include="System.Windows.Forms" Condition="'$(TargetFramework)'=='net35'">
+			<HintPath>c:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\v3.5\System.Windows.Forms.dll</HintPath>
+		</Reference>
+		<Reference Include="System.Windows.Forms" Condition="'$(TargetFramework)'=='net40'">
+			<HintPath>c:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Windows.Forms.dll</HintPath>
+		</Reference>
+		<Reference Include="System.Windows.Forms" Condition="'$(TargetFramework)'=='net45'">
+			<HintPath>c:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Windows.Forms.dll</HintPath>
+		</Reference>
+		<Reference Include="System.Windows.Forms" Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net6.0-windows'">
+			<HintPath>c:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.2\System.Windows.Forms.dll</HintPath>
+		</Reference>
+		<Reference Include="System.Windows.Forms">
+			<HintPath>..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Windows.Forms.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Update="Properties\Resources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Update="Properties\Resources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+	</ItemGroup>
+	<PropertyGroup>
+		<TestNugetPath>$(SolutionDir)..\nuget\test</TestNugetPath>
+		<RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+		<!--
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(SolutionDir)pms.key.file.pfx</AssemblyOriginatorKeyFile>
     -->
-    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
-    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
-    <BaseOutputPath>bin\</BaseOutputPath>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-    <WarningLevel>4</WarningLevel>
-    <ShouldCreateLogs>True</ShouldCreateLogs>
-    <AdvancedSettingsExpanded>True</AdvancedSettingsExpanded>
-    <UpdateAssemblyVersion>False</UpdateAssemblyVersion>
-    <UpdateAssemblyFileVersion>False</UpdateAssemblyFileVersion>
-    <UpdateAssemblyInfoVersion>False</UpdateAssemblyInfoVersion>
-    <UpdatePackageVersion>True</UpdatePackageVersion>
-    <PackageVersionSettings>AssemblyVersion.IncrementWithAutoReset.None</PackageVersionSettings>
-    <AssemblyInfoVersionType>SettingsVersion</AssemblyInfoVersionType>
-    <InheritWinAppVersionFrom>None</InheritWinAppVersionFrom>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <Target Name="PreparePackageReleaseNotesFromFile" BeforeTargets="PutReleaseNotesInsideNuspec">
-    <PropertyGroup>
-      <!--<PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(MSBuildProjectDirectory)release notes.txt"))</PackageReleaseNotes>-->
-      <PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(SolutionDir)release notes.txt"))</PackageReleaseNotes>
-    </PropertyGroup>
-  </Target>
-  <Target Name="CopyPackage" AfterTargets="Pack">
-    <ItemGroup>
-      <NuSpecFiles Include="$(PackageOutputPath)\*.nupkg" Exclude="$(PackageOutputPath)\$(PackageId).$(PackageVersion).nupkg" />
-    </ItemGroup>
-    <Delete Files="@(NuSpecFiles)" />
-    <MakeDir Directories="$(TestNugetPath)" Condition="!Exists('$(TestNugetPath)')" />
-    <Copy SourceFiles="$(PackageOutputPath)\$(PackageId).$(PackageVersion).nupkg" DestinationFolder="$(TestNugetPath)" />
-  </Target>
+		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+		<BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
+		<BaseOutputPath>bin\</BaseOutputPath>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+		<WarningLevel>4</WarningLevel>
+		<ShouldCreateLogs>True</ShouldCreateLogs>
+		<AdvancedSettingsExpanded>True</AdvancedSettingsExpanded>
+		<UpdateAssemblyVersion>False</UpdateAssemblyVersion>
+		<UpdateAssemblyFileVersion>False</UpdateAssemblyFileVersion>
+		<UpdateAssemblyInfoVersion>False</UpdateAssemblyInfoVersion>
+		<UpdatePackageVersion>True</UpdatePackageVersion>
+		<PackageVersionSettings>AssemblyVersion.IncrementWithAutoReset.None</PackageVersionSettings>
+		<AssemblyInfoVersionType>SettingsVersion</AssemblyInfoVersionType>
+		<InheritWinAppVersionFrom>None</InheritWinAppVersionFrom>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+		<WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+	<Target Name="PreparePackageReleaseNotesFromFile" BeforeTargets="PutReleaseNotesInsideNuspec">
+		<PropertyGroup>
+			<!--<PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(MSBuildProjectDirectory)release notes.txt"))</PackageReleaseNotes>-->
+			<PackageReleaseNotes>$([System.IO.File]::ReadAllText("$(SolutionDir)release notes.txt"))</PackageReleaseNotes>
+		</PropertyGroup>
+	</Target>
+	<Target Name="CopyPackage" AfterTargets="Pack">
+		<ItemGroup>
+			<NuSpecFiles Include="$(PackageOutputPath)\*.nupkg" Exclude="$(PackageOutputPath)\$(PackageId).$(PackageVersion).nupkg" />
+		</ItemGroup>
+		<Delete Files="@(NuSpecFiles)" />
+		<MakeDir Directories="$(TestNugetPath)" Condition="!Exists('$(TestNugetPath)')" />
+		<Copy SourceFiles="$(PackageOutputPath)\$(PackageId).$(PackageVersion).nupkg" DestinationFolder="$(TestNugetPath)" />
+	</Target>
 </Project>

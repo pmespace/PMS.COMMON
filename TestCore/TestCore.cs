@@ -46,6 +46,13 @@ namespace TestCore
 		{
 			public MySafeDict() : base(StringComparer.InvariantCultureIgnoreCase) { }
 		}
+
+		class Settings
+		{
+			public int Int { get; set; }
+			public string String { get; set; }
+			public override string ToString() => $"Int={Int}, String={String}";
+		}
 		#endregion
 
 		#region main method
@@ -84,6 +91,19 @@ namespace TestCore
 			//	int read = sr.Read(ab, 0, (int)sr.Length);
 			//	hexResult = CMisc.AsHexString(ab);
 			//}
+
+
+			CJson<Settings> js = new CJson<Settings>("settings.json");
+			var setting = js.ReadSettings();
+			if (default == setting)
+			{
+				setting = new Settings() { Int = 1, String = "hello" };
+				js.WriteSettings(setting);
+			}
+			Console.WriteLine(setting.ToString());
+			CMisc.Input("modify " + js.FileName, default, out bool isdef, "invite");
+			setting = js.ReadSettings();
+			Console.WriteLine(setting.ToString());
 
 			bool ok = CMisc.AssertFolder("hello", out CMisc.AssertFolderResult result, false, false);
 			ok = result.DeleteDirectory(true);
@@ -221,42 +241,49 @@ namespace TestCore
 
 			Guid? guid;
 			ConsoleKeyInfo keyInfo;
-			do
-			{
-				//guid = CLog.SharedGuid;
-				//ddd(default, 0);
-				//guid = CLog.SharedGuid;
-				//ddd("localhost", 0);
-				//guid = CLog.SharedGuid;
-				//ddd("localhost", 2018);
-				//ddd("192.168.0.225", 0);
-				//ddd("192.168.0.225", 2018);
-				//ddd("192.168.0.225", 9999);
-				//ddd("192.168.0.137", 0);
-				//CLog.SharedGuid = null;
-				//ddd("192.168.0.137", 2018);
+			//			do
+			//			{
+			//				//guid = CLog.SharedGuid;
+			//				//ddd(default, 0);
+			//				//guid = CLog.SharedGuid;
+			//				//ddd("localhost", 0);
+			//				//guid = CLog.SharedGuid;
+			//				//ddd("localhost", 2018);
+			//				//ddd("192.168.0.225", 0);
+			//				//ddd("192.168.0.225", 2018);
+			//				//ddd("192.168.0.225", 9999);
+			//				//ddd("192.168.0.137", 0);
+			//				//CLog.SharedGuid = null;
+			//				//ddd("192.168.0.137", 2018);
 
-				//Console.WriteLine("Sleeping...");
-				//Thread.Sleep(1000);
+			//				//Console.WriteLine("Sleeping...");
+			//				//Thread.Sleep(1000);
 
-				//ddd(default, 0);
-				//ddd("localhost", 0);
-				//ddd("localhost", 2018);
-				//CLog.SharedGuid = Guid.NewGuid();
-				//ddd("192.168.0.225", 0);
-				//ddd("192.168.0.225", 2018);
-				//ddd("192.168.0.225", 9999);
-				//ddd("192.168.0.137", 0);
-				//ddd("192.168.0.137", 2018);
+			//				//ddd(default, 0);
+			//				//ddd("localhost", 0);
+			//				//ddd("localhost", 2018);
+			//				//CLog.SharedGuid = Guid.NewGuid();
+			//				//ddd("192.168.0.225", 0);
+			//				//ddd("192.168.0.225", 2018);
+			//				//ddd("192.168.0.225", 9999);
+			//				//ddd("192.168.0.137", 0);
+			//				//ddd("192.168.0.137", 2018);
 
-				Console.WriteLine("Press a key or ESC");
-#if COLORS
-				CMisc.InputColors.Apply();
-#endif
-				keyInfo = Console.ReadKey(true);
-			} while (keyInfo.Key != ConsoleKey.Escape);
-
-
+			//				Console.WriteLine("Press a key or ESC");
+			//#if COLORS
+			//				CMisc.InputColors.Apply();
+			//#endif
+			//				keyInfo = Console.ReadKey(true);
+			//			} while (keyInfo.Key != ConsoleKey.Escape);
+			keyInfo = CMisc.Pause("Press any: ", null, true);
+			keyInfo = CMisc.Pause("Press ESC: ", new CMisc.ESCKey(), true);
+			keyInfo = CMisc.Pause("Press Alpha: ", new CMisc.ListOfAlphaKeys(), true);
+			keyInfo = CMisc.Pause("Press NUM: ", new CMisc.ListOfNumericKeys(), true);
+			keyInfo = CMisc.Pause("Press Almpha+NUM: ", new CMisc.ListOfAlphaNumericKeys(), true);
+			keyInfo = CMisc.Pause("Press ESC+F1: ", new CMisc.ListOfKeys() { ConsoleKey.F1, ConsoleKey.Escape }, true);
+			keyInfo = CMisc.Pause("Press any key ", null, true);
+			keyInfo = CMisc.Pause("Press function key: ", new CMisc.ListOfFunctionsKeys(), true);
+			keyInfo = CMisc.Pause("Press F1: ", new CMisc.ListOfKeys() { ConsoleKey.F1 }, true);
 
 			string unique = default;
 			string tmpf = CMisc.GetTempFileName(out string path, out string fname, ref unique, null, null, "json");
@@ -280,7 +307,7 @@ namespace TestCore
 			CMisc.TextColors.Foreground = ConsoleColor.Magenta;
 #endif
 
-			CMisc.Input("hello", default, out bool isdef, "invite");
+			CMisc.Input("hello", default, out isdef, "invite");
 
 
 			MySafeDict hh = new MySafeDict()

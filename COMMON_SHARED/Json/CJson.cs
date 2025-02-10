@@ -46,6 +46,12 @@ namespace COMMON
 
 		#region properties
 		/// <summary>
+		/// Buffer size to use when opening a json file
+		/// </summary>
+		public int BufferSize { get => _buffersize; set => _buffersize = 0 < value ? value : DEFAULT_BUFFER_SIZE; }
+		int _buffersize = DEFAULT_BUFFER_SIZE;
+		public const int DEFAULT_BUFFER_SIZE = 4096;
+		/// <summary>
 		/// The fully qualified file name for the settings file
 		/// Setting this file name will open a LOG file if it is valid
 		/// If the file name cannot be found the file name remains null
@@ -193,12 +199,13 @@ namespace COMMON
 				SafeFileWrite(overwrite);
 
 				// open file and deserialize it
-				using (FileStream stream = new FileStream(FileName, FileMode.Create, FileAccess.Write))
+				using (FileStream stream = new FileStream(FileName, FileMode.Create, FileAccess.Write))//, FileShare.ReadWrite, BufferSize, FileOptions.WriteThrough))
 				{
 					using (StreamWriter writer = new StreamWriter(stream))
 					{
 						string data = Serialize(o, serializerSettings);
 						writer.Write(data);
+						writer.Flush();
 						return true;
 					}
 				}

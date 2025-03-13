@@ -16,6 +16,12 @@ namespace TestCore
 	internal class TestCore
 	{
 		#region types
+		enum ENUM
+		{
+			A,
+			B,
+			C,
+		}
 		private delegate bool DFnc(char c);
 		class CMenu
 		{
@@ -92,6 +98,11 @@ namespace TestCore
 			//	hexResult = CMisc.AsHexString(ab);
 			//}
 
+			ENUM e = ENUM.A;
+			e = e.OnlyEnumValue(ENUM.B);
+			e = e.OnlyEnumValue((ENUM)10);
+			e = e.OnlyEnumValue(ENUM.C);
+			e = e.OnlyEnumValue(e);
 			string fn = "settings10.json";
 			Settings sett = CJson<Settings>.GetSettings(ref fn, new Settings() { Int = 0xFF, String = "Hi" });
 			fn = "settings11.json";

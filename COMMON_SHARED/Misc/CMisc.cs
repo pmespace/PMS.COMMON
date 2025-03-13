@@ -40,6 +40,17 @@ namespace COMMON
 	static public class CMiscExtensions
 	{
 		/// <summary>
+		/// Makes sure a only an Enum value can be assigned
+		/// </summary>
+		/// <typeparam name="TyP"></typeparam>
+		/// <param name="t">The current Enum variable to use as a source</param>
+		/// <param name="value">The new value to set</param>
+		/// <returns>
+		/// <paramref name="value"/> if its value is described in the Enum type,
+		/// the value of cucurrent object otherwise
+		/// </returns>
+		public static TyP OnlyEnumValue<TyP>(this TyP t, TyP value) => Enum.IsDefined(typeof(TyP), value) ? value : t;
+		/// <summary>
 		/// Returns a new string in which all occurrences of a specified string in the current instance are replaced with another 
 		/// specified string according the type of search to use for the specified string.
 		/// [created by: Oleg Zarevennyi - https://stackoverflow.com/questions/6275980/string-replace-ignoring-case]

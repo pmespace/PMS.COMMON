@@ -92,6 +92,11 @@ namespace TestCore
 			//	hexResult = CMisc.AsHexString(ab);
 			//}
 
+			Settings sett = CJson<Settings>.GetSettings("settings10.json", new Settings() { Int = 0xFF, String = "Hi" });
+			sett = CJson<Settings>.GetSettings("settings11.json");
+			new FileInfo("settings11.json").Delete();
+			sett = CJson<Settings>.GetSettings("settings10.json");
+
 
 			CJson<Settings> js = new CJson<Settings>("settings.json");
 			var setting = js.ReadSettings();

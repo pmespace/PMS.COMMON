@@ -92,10 +92,17 @@ namespace TestCore
 			//	hexResult = CMisc.AsHexString(ab);
 			//}
 
-			Settings sett = CJson<Settings>.GetSettings("settings10.json", new Settings() { Int = 0xFF, String = "Hi" });
-			sett = CJson<Settings>.GetSettings("settings11.json");
-			new FileInfo("settings11.json").Delete();
-			sett = CJson<Settings>.GetSettings("settings10.json");
+			string fn = "settings10.json";
+			Settings sett = CJson<Settings>.GetSettings(ref fn, new Settings() { Int = 0xFF, String = "Hi" });
+			fn = "settings11.json";
+			sett = CJson<Settings>.GetSettings(ref fn);
+			try
+			{
+				new FileInfo(fn).Delete();
+			}
+			catch (Exception) { }
+			fn = "settings10.json";
+			sett = CJson<Settings>.GetSettings(ref fn);
 
 
 			CJson<Settings> js = new CJson<Settings>("settings.json");

@@ -129,7 +129,43 @@ namespace COMMON
 		/// <returns>
 		/// An object of the desired type if available, null otherwise
 		/// </returns>
-		public static TSettings GetSettings(string filename, TSettings sample = default)
+		public static TSettings GetSettings(ref string filename, TSettings sample = default)
+		{
+			TSettings settings = default;
+			try
+			{
+				// tries to open the file and verifies whether it exists
+				CJson<TSettings> json = new CJson<TSettings>(filename);
+				if (json.FileName.IsNullOrEmpty()) return default;
+				// read data
+				settings = json.ReadSettings();
+				if (null == settings && null != sample)
+				{
+					// nothing to read, let's create a content
+					json.WriteSettings(sample);
+				}
+				else
+				{
+					// the file has been successfully read, let's return its full name
+					filename = json.FileName;
+				}
+			}
+			catch (Exception ex)
+			{
+				CLog.EXCEPT(ex);
+			}
+			return settings;
+		}
+		/// <summary>
+		/// Opens a settings file and reads its content; if no file could be read the function may create it and
+		/// write a default sample
+		/// </summary>
+		/// <param name="filename">File to read</param>
+		/// <param name="sample">Sample of appropriate type to save inside the file if no data is available</param>
+		/// <returns>
+		/// An object of the desired type if available, null otherwise
+		/// </returns>
+		public TSettings GetSettings(string filename, TSettings sample = default)
 		{
 			TSettings settings = default;
 			try

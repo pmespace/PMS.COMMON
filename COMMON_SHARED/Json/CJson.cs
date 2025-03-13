@@ -136,23 +136,22 @@ namespace COMMON
 			{
 				// tries to open the file and verifies whether it exists
 				CJson<TSettings> json = new CJson<TSettings>(filename);
-				if (json.FileName.IsNullOrEmpty()) return default;
-				// read data
-				settings = json.ReadSettings();
-				if (null == settings && null != sample)
+				if (!json.FileName.IsNullOrEmpty())
 				{
-					// nothing to read, let's create a content
-					json.WriteSettings(sample);
+					// read data
+					settings = json.ReadSettings();
+					if (null == settings && null != sample)
+					{
+						// nothing to read, let's create a content
+						json.WriteSettings(sample);
+					}
 				}
-				else
-				{
-					// the file has been successfully read, let's return its full name
-					filename = json.FileName;
-				}
+				filename = json.FileName;
 			}
 			catch (Exception ex)
 			{
 				CLog.EXCEPT(ex);
+				filename = default;
 			}
 			return settings;
 		}

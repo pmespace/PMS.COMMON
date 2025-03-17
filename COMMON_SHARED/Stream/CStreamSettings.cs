@@ -145,7 +145,7 @@ namespace COMMON
 		/// Tuple (string, uint) describing the IP and the port.
 		/// If no IP is present the first string string is set to <see cref="string.Empty"/>, if no port is present port is set to 0.
 		/// No port can be returned if there's no valid IP.
-		/// TRUE if the IP has been set, FALSE otherwise</returns>
+		/// </returns>
 		public static (string, uint) GetIPPortFromAddress(string address)
 		{
 			if (!address.IsNullOrEmpty())
@@ -227,9 +227,8 @@ namespace COMMON
 	{
 		#region constructors
 		public CStreamClientSettings() { SetIP(default); }
-		//public CStreamClientSettings(int SizeHeader) : base(SizeHeader) { SetIP(default); }
 		public CStreamClientSettings(string ip, uint port = DEFAULT_PORT) { SetIP(ip, port); }
-		//public CStreamClientSettings(int SizeHeader, string ip, uint port = DEFAULT_PORT) : base(SizeHeader) { SetIP(ip, port); }
+		public CStreamClientSettings(string address) { SetIPPortFromAddress(address); }
 		#endregion
 
 		#region public properties
@@ -332,6 +331,21 @@ namespace COMMON
 
 		#region methods
 		public override string ToString() => Resources.CStreamClientSettingsToString.Format(new object[] { EndPoint, ServerName, AllowedSslErrors }) + Chars.SEPARATOR + base.ToString();
+		/// <summary>
+		/// Set the TCP/IP address and the port from a string
+		/// </summary>
+		/// <param name="address">IP or URL to reach</param>
+		/// <returns>
+		/// true if successfully set, false otherwise
+		/// </returns>
+		public bool SetIPPortFromAddress(string address)
+		{
+			string ip = string.Empty;
+			uint port = 0;
+			(ip, port) = GetIPPortFromAddress(address);
+			if (ip.IsNullOrEmpty()) return false;
+			return SetIP(ip, port);
+		}
 		/// <summary>
 		/// Tells whether an IP is found on DNS or not
 		/// </summary>

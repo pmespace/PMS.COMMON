@@ -84,6 +84,10 @@ namespace TestCore
 				return true;
 			};
 
+
+			var aa = new CStreamClientSettings("2.8.18.65:6897");
+			var aaa = new CStreamClientSettings("192.168.534.39:65536");
+
 			GetIPPort("2.8.18.65:6897");
 			GetIPPort("2.8.566.65:6897");
 			GetIPPort("2.8.18.65:96897");

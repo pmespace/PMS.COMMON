@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net6.0;net8.0;net6.0-windows;net462</TargetFrameworks>
 		<AssemblyName>PMS.COMMON</AssemblyName>
@@ -42,6 +42,7 @@
 	  <PackageReference Include="System.Data.Odbc" Version="9.0.1" Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net6.0' Or '$(TargetFramework)'=='net6.0-windows' Or '$(TargetFramework)'=='netstandard2.0'" />
 	  -->
 		<PackageReference Include="System.Data.Odbc" Version="8.0.1" />
+		<PackageReference Include="System.ValueTuple" Version="4.5.0" />
 		<FrameworkReference Include="Microsoft.AspNetCore.App" Condition="'$(TargetFramework)'=='net6.0'" />
 	</ItemGroup>
 	<ItemGroup>

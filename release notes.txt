@@ -1,5 +1,5 @@
 8.0.21
-- Added a new CJson.GetSettings allowinig to easily open a JSON file and get its content all in 1 call
+- Added a new CJson.GetSettings/CJson.SetSettings allowinig to easily read/write a JSON file and get/set its content all in 1 call
 
 8.0.20
 - Add a new CMisc.Pause function

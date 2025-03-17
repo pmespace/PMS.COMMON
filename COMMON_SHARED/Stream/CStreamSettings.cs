@@ -137,6 +137,32 @@ namespace COMMON
 
 		#region methods
 		public override string ToString() => Resources.CStreamSettingsBaseToString.Format(new object[] { ReceiveTimeout, ReceiveBufferSize, SendTimeout, SendBufferSize, UseSsl }) + Chars.SEPARATOR + base.ToString();
+		/// <summary>
+		/// Get the TCP/IP address and the port from a string
+		/// </summary>
+		/// <param name="address">IP or URL to reach</param>
+		/// <returns>
+		/// Tuple (string, uint) describing the IP and the port.
+		/// If no IP is present the first string string is set to <see cref="string.Empty"/>, if no port is present port is set to 0.
+		/// No port can be returned if there's no valid IP.
+		/// TRUE if the IP has been set, FALSE otherwise</returns>
+		public static (string, uint) GetIPPortFromAddress(string address)
+		{
+			if (!address.IsNullOrEmpty())
+			{
+				string groupIP = "groupIP", groupPort = "groupPort";
+				string pattern = @"^(?'" + groupIP + @"'(?:[0-9]{1,3}\.){3}[0-9]{1,3})(?::(?'" + groupPort + @"'(([1-9]\d{0,3})|([1-5]\d{4})|(6[0-4]\d{3})|(65[0-4]\d{1,2})|(655[0-2]\d)|(6553[0-5]))))?$";
+				Regex regex = new Regex(pattern);
+				Match match = regex.Match(address);
+				if (match.Success && 0 != match.Groups.Count)
+				{
+					string ip = match.Groups[regex.GroupNumberFromName(groupIP)].Value;
+					uint.TryParse(match.Groups[regex.GroupNumberFromName(groupPort)].Value, out uint port);
+					return (ip, port);
+				}
+			}
+			return (string.Empty, 0);
+		}
 		#endregion
 	}
 
@@ -334,6 +360,7 @@ namespace COMMON
 		/// <returns>TRUE if the IP has been set, FALSE otherwise</returns>
 		private bool SetIP(string ip, uint port = DEFAULT_PORT)
 		{
+			if (0 >= port || 65535 < port) port = DEFAULT_PORT;
 			if (!ip.IsNullOrEmpty())
 				try
 				{
@@ -362,7 +389,6 @@ namespace COMMON
 								_url = string.Empty;
 							}
 						}
-
 					}
 
 					try

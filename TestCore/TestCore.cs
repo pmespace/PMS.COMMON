@@ -75,6 +75,21 @@ namespace TestCore
 			CMisc.YesNo("hello", true, true, true);
 #endif
 
+			Func<string, bool> GetIPPort = (string _d_) =>
+			{
+				uint _p_ = 0;
+				string _i_ = string.Empty;
+				(_i_, _p_) = CStreamSettings.GetIPPortFromAddress(_d_);
+				Console.WriteLine($"Address: {_d_} => IP: {_i_} - Port: {_p_}");
+				return true;
+			};
+
+			GetIPPort("2.8.18.65:6897");
+			GetIPPort("2.8.566.65:6897");
+			GetIPPort("2.8.18.65:96897");
+			GetIPPort("192.168.0.39:888");
+			GetIPPort("192.168.534.39:65536");
+
 			CStreamClientSettings cs = new CStreamClientSettings() { IP = "1.1.1.1", URL = "pos.natixis.fr" };
 			cs.IP = "pos.natixis.fr";
 			string ipx = cs.IP;

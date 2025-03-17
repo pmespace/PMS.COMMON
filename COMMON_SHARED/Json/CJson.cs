@@ -156,6 +156,33 @@ namespace COMMON
 			return settings;
 		}
 		/// <summary>
+		/// Tries to open a settings file and saves the settings
+		/// </summary>
+		/// <param name="filename">File to write to</param>
+		/// <param name="settings">data to save</param>
+		/// <returns>
+		/// true if successfully saved, false otherwise
+		/// </returns>
+		public static bool SetSettings(string filename, TSettings settings)
+		{
+			try
+			{
+				// tries to open the file and verifies whether it exists
+				CJson<TSettings> json = new CJson<TSettings>(filename);
+				if (!json.FileName.IsNullOrEmpty())
+				{
+					// write data
+					json.WriteSettings(settings);
+					return true;
+				}
+			}
+			catch (Exception ex)
+			{
+				CLog.EXCEPT(ex);
+			}
+			return false;
+		}
+		/// <summary>
 		/// Read settings from a file
 		/// </summary>
 		/// <param name="serializerSettings">Settings to use to deserialize, if null default settings are as iin <see cref="Deserialize(string, JsonSerializerSettings, bool)"/></param>

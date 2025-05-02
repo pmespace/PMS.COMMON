@@ -184,7 +184,8 @@ namespace COMMON
 		/// </returns>
 		public static bool Send(CStreamIO stream, string buffer, CancellationToken token = default)
 		{
-			byte[] brequest = buffer.IsNullOrEmpty() ? default : Encoding.UTF8.GetBytes(buffer);
+			//byte[] brequest = buffer.IsNullOrEmpty() ? default : Encoding.UTF8.GetBytes(buffer);
+			byte[] brequest = buffer.IsNullOrEmpty() ? default : stream.Encoding.GetBytes(buffer);
 			return Send(stream, brequest, token);
 		}
 		/// <summary>
@@ -240,8 +241,8 @@ namespace COMMON
 					{
 						// the request natively contained a size header, meaningfull to the application, we therefore must reinsert the size header inside the received buffer
 						reply = new byte[tmp.Length + stream.SizeHeader];
-						byte[] bb = CMisc.SetBytesFromIntegralTypeValue((int)tmp.Length, false);
-						Buffer.BlockCopy(bb, 0, reply, 0, (int)stream.SizeHeader);
+						byte[] bb = CMisc.SetBytesFromIntegralTypeValue((long)tmp.Length, false);
+						Buffer.BlockCopy(bb, CStreamBase.EIGHTBYTES - stream.SizeHeader, reply, 0, (int)stream.SizeHeader);
 						Buffer.BlockCopy(tmp, 0, reply, (int)stream.SizeHeader, tmp.Length);
 					}
 					else
@@ -269,7 +270,7 @@ namespace COMMON
 		public static string ReceiveAsString(CStreamIO stream, CancellationToken token = default)
 		{
 			byte[] reply = Receive(stream, token);
-			return (null != reply ? Encoding.UTF8.GetString(reply) : null);
+			return (null != reply ? stream.Encoding.GetString(reply) : null);
 		}
 		/// <summary>
 		/// Receives data of <paramref name="size"/> size on the indicated stream.
@@ -355,8 +356,10 @@ namespace COMMON
 		/// </returns>
 		public static string SendReceive(CStreamIO stream, string request, CancellationToken token = default)
 		{
-			byte[] reply = SendReceive(stream, default != request ? Encoding.UTF8.GetBytes(request) : default, token);
-			return (default != reply ? Encoding.UTF8.GetString(reply) : default);
+			//byte[] reply = SendReceive(stream, default != request ? Encoding.UTF8.GetBytes(request) : default, token);
+			//return (default != reply ? Encoding.UTF8.GetString(reply) : default);
+			byte[] reply = SendReceive(stream, default != request ? stream.Encoding.GetBytes(request) : default, token);
+			return (default != reply ? stream.Encoding.GetString(reply) : default);
 		}
 		/// <summary>
 		/// Sends a string message terminated by a <paramref name="EOT"/> string and receives a string response terminated by the same <paramref name="EOT"/> string.
@@ -418,7 +421,8 @@ namespace COMMON
 		/// </returns>
 		public static bool ConnectSend(CStreamClientSettings settings, string buffer, CancellationToken token = default)
 		{
-			return ConnectSend(settings, string.IsNullOrEmpty(buffer) ? default : Encoding.UTF8.GetBytes(buffer), token);
+			//return ConnectSend(settings, string.IsNullOrEmpty(buffer) ? default : Encoding.UTF8.GetBytes(buffer), token);
+			return ConnectSend(settings, string.IsNullOrEmpty(buffer) ? default : settings.Encoding.GetBytes(buffer), token);
 		}
 		/// <summary>
 		/// Connects to a host, sends a string message finished by <paramref name="EOT"/> and disconnects the stream.
@@ -488,8 +492,10 @@ namespace COMMON
 		/// </returns>
 		public static string ConnectSendReceive(CStreamClientSettings settings, string request, CancellationToken token = default)
 		{
-			byte[] reply = ConnectSendReceive(settings, Encoding.UTF8.GetBytes(request), token);
-			return (default != reply ? Encoding.UTF8.GetString(reply) : default);
+			//byte[] reply = ConnectSendReceive(settings, Encoding.UTF8.GetBytes(request), token);
+			//return (default != reply ? Encoding.UTF8.GetString(reply) : default);
+			byte[] reply = ConnectSendReceive(settings, settings.Encoding.GetBytes(request), token);
+			return (default != reply ? settings.Encoding.GetString(reply) : default);
 		}
 		/// <summary>
 		/// This function prevents using any size header, using CR+LF as an EOT
@@ -587,7 +593,8 @@ namespace COMMON
 		/// </returns>
 		public static CThread SendAsync(SendAsyncType sendAsync, string request, CancellationToken token = default)
 		{
-			return SendAsync(sendAsync, Encoding.UTF8.GetBytes(request), false, Chars.CRLF, token);
+			//return SendAsync(sendAsync, Encoding.UTF8.GetBytes(request), false, Chars.CRLF, token);
+			return SendAsync(sendAsync, sendAsync.Settings.Encoding.GetBytes(request), false, Chars.CRLF, token);
 		}
 		/// <summary>
 		/// Refer to <see cref="SendAsync(SendAsyncType, byte[], bool, string, CancellationToken)"/>
@@ -602,7 +609,8 @@ namespace COMMON
 		/// </returns>
 		public static CThread SendAsyncLine(SendAsyncType sendAsync, string request, string EOT = Chars.CRLF, CancellationToken token = default)
 		{
-			return SendAsync(sendAsync, Encoding.UTF8.GetBytes(request), true, EOT, token);
+			//return SendAsync(sendAsync, Encoding.UTF8.GetBytes(request), true, EOT, token);
+			return SendAsync(sendAsync, sendAsync.Settings.Encoding.GetBytes(request), true, EOT, token);
 		}
 		/// <summary>
 		/// Class used to specify how to handle asynchronous sending of data
@@ -644,7 +652,8 @@ namespace COMMON
 				// send & receive 
 				if (threadParams.AsString)
 				{
-					string reply = ConnectSendReceiveLine(threadParams.SendAsync.Settings, Encoding.UTF8.GetString(threadParams.Request), threadParams.EOT, threadParams.Token);
+					//string reply = ConnectSendReceiveLine(threadParams.SendAsync.Settings, Encoding.UTF8.GetString(threadParams.Request), threadParams.EOT, threadParams.Token);
+					string reply = ConnectSendReceiveLine(threadParams.SendAsync.Settings, threadParams.SendAsync.Settings.Encoding.GetString(threadParams.Request), threadParams.EOT, threadParams.Token);
 					if (string.IsNullOrEmpty(reply))
 					{
 						res = SendAsyncEnum.NoData;
@@ -652,7 +661,8 @@ namespace COMMON
 					else
 					{
 						// forward reply to the caller
-						if (threadParams.SendAsync.OnReply(Encoding.UTF8.GetBytes(reply), thread, threadParams.SendAsync.Parameters))
+						//if (threadParams.SendAsync.OnReply(Encoding.UTF8.GetBytes(reply), thread, threadParams.SendAsync.Parameters))
+						if (threadParams.SendAsync.OnReply(threadParams.SendAsync.Settings.Encoding.GetBytes(reply), thread, threadParams.SendAsync.Parameters))
 							res = SendAsyncEnum.OK;
 						else
 							res = SendAsyncEnum.ReceiveError;
@@ -680,7 +690,8 @@ namespace COMMON
 				// send only
 				if (threadParams.AsString)
 				{
-					if (ConnectSendLine(threadParams.SendAsync.Settings, Encoding.UTF8.GetString(threadParams.Request), threadParams.EOT, threadParams.Token))
+					//if (ConnectSendLine(threadParams.SendAsync.Settings, Encoding.UTF8.GetString(threadParams.Request), threadParams.EOT, threadParams.Token))
+					if (ConnectSendLine(threadParams.SendAsync.Settings, threadParams.SendAsync.Settings.Encoding.GetString(threadParams.Request), threadParams.EOT, threadParams.Token))
 						res = SendAsyncEnum.OK;
 					else
 						res = SendAsyncEnum.SendError;

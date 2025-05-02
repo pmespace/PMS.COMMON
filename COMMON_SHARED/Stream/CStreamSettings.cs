@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using COMMON.Properties;
 using System.Linq;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace COMMON
 {
@@ -118,6 +119,11 @@ namespace COMMON
 		/// </summary>
 		[JsonIgnore]
 		public int DefaultServerPort { get => DEFAULT_PORT; }
+		/// <summary>
+		/// Type of encoding to use with that stream
+		/// </summary>
+		[JsonIgnore]
+		public System.Text.Encoding Encoding { get; set; } = System.Text.Encoding.UTF8;
 		/// <summary>
 		/// A delegate allowing to, when a message is either received or about to be sent, review the content of this message before it is logged, thus allowing either to hide or alter the content TO LOG (not the content of the message), thus allowing PCI-DSS compliance
 		/// </summary>

@@ -6,10 +6,12 @@ using System.Net.Sockets;
 using System.Net.Security;
 using System.Collections.Generic;
 using COMMON;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Threading;
 using System.IO;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 
 namespace TestCore
 {
@@ -47,6 +49,16 @@ namespace TestCore
 		#endregion
 
 		#region classes
+		public class MyUniversal
+		{
+			public MyUniversal()
+			{
+				extensionData = new Dictionary<string, JToken>();
+			}
+			[JsonExtensionData]
+			public Dictionary<string, JToken> extensionData;
+		}
+
 		class MySafeList : CSafeList<string> { }
 		class MySafeDict : CSafeDictionary<string, object>
 		{
@@ -83,6 +95,25 @@ namespace TestCore
 				Console.WriteLine($"Address: {_d_} => IP: {_i_} - Port: {_p_}");
 				return true;
 			};
+
+			CJson<CJsonObject> json2 = new CJson<CJsonObject>("..\\swagger.json");
+			CJsonObject u = json2.ReadSettings();
+			if (default != u)
+			{
+				CJson.SortExtensionData(u);
+				CJson<CJsonObject> json3 = new CJson<CJsonObject>(json2.FileName + ".json");
+				json3.WriteSettings(u, json3.SerializeAlphabetically());
+			}
+
+			CJson<MyUniversal> json4 = new CJson<MyUniversal>("..\\swagger.json");
+			MyUniversal u2 = json4.ReadSettings();
+			if (default != u2)
+			{
+				CJson.SortExtensionData(u2);
+				CJson<MyUniversal> json3 = new CJson<MyUniversal>(json2.FileName + ".json");
+				json3.WriteSettings(u2, json3.SerializeAlphabetically());
+			}
+
 
 
 			var aa = new CStreamClientSettings("2.8.18.65:6897");

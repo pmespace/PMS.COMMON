@@ -28,6 +28,8 @@ namespace COMMON
 		public const string TABTAB = "\t\t";
 		public const string CRLF = "\r\n";
 		public const string LFCR = "\n\r";
+		public const string ZERO = "\0";
+		public const char cZERO = (char)0;
 		public const string DATE = "yyyy-MM-dd";
 		public const string TIME = "HH:mm:ss";
 		public const string TIMEEX = "HH:mm:ss.fff";

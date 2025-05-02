@@ -394,13 +394,13 @@ namespace COMMON
 		/// <param name="value">The integral type to copy to an array of bytes</param>
 		/// <param name="optimize">If true the created buffer is optimized removing the bytes on the right set to 0, false means the buffer length is according to the length of the <paramref name="value"/> type</param>
 		/// <returns>The array of bytes created after copying the integral type</returns>
-		public static byte[] SetBytesFromIntegralTypeValue(ushort value, bool optimize = false)
+		public static byte[] SetBytesFromIntegralTypeValue(short value, bool optimize = false)
 		{
 			//byte[] bb = BitConverter.GetBytes(value);
 			//if (BitConverter.IsLittleEndian)
 			//	Array.Reverse(bb);
 			//return bb;
-			return SetBytesFromIntegralTypeValue(value, sizeof(ushort), optimize);
+			return SetBytesFromIntegralTypeValue(value, sizeof(short), optimize);
 		}
 		/// <summary>
 		/// Copy bytes from int integral type to byte[].
@@ -472,7 +472,7 @@ namespace COMMON
 				{
 					case CStreamBase.TWOBYTES:
 						{
-							ushort t = (ushort)value;
+							short t = (short)value;
 							return SetBytesFromIntegralTypeValue(t);
 						}
 					case CStreamBase.FOURBYTES:
@@ -641,7 +641,6 @@ namespace COMMON
 			else if (string.IsNullOrEmpty(value))
 				return false;
 			pattern = AsString(pattern);
-			//CLog.DEBUG($"{(confidential ? "<value hidden>" : $"input data: {value}")}{Chars.SEPARATOR}pattern: {pattern}");
 			Match match = Regex.Match(value, pattern);
 			return match.Success;
 		}
@@ -666,7 +665,6 @@ namespace COMMON
 			// build regular expression to check against
 			string count = "{" + (minlen == maxlen ? minlen.ToString() + "}" : minlen.ToString() + "," + maxlen.ToString() + "}");
 			string pattern = $"^{characterSet}{count}$";
-			//CLog.DEBUG($"{(confidential ? "<value hidden>" : $"input data: {value}")}{Chars.SEPARATOR}pattern: {pattern}");
 			Match match = Regex.Match(value, pattern);
 			return match.Success;
 		}

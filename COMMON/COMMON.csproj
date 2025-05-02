@@ -1,11 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net6.0;net8.0;net6.0-windows;net462</TargetFrameworks>
 		<AssemblyName>PMS.COMMON</AssemblyName>
-		<Version>8.0.21</Version>
+		<Version>8.1.0</Version>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<FileVersion>8.0.21</FileVersion>
-		<AssemblyVersion>8.0.21</AssemblyVersion>
+		<FileVersion>8.1.0</FileVersion>
+		<AssemblyVersion>8.1.0</AssemblyVersion>
 		<Authors>philippemp31</Authors>
 		<Company>PMS</Company>
 		<Description>

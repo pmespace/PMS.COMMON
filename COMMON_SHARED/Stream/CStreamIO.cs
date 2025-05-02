@@ -27,10 +27,6 @@ namespace COMMON
 		public CStreamIO(TcpClient tcp, CStreamSettings sb) : base(sb)
 		{
 			Tcp = tcp;
-			//Tcp.ReceiveBufferSize = sb.ReceiveBufferSize;
-			////Tcp.ReceiveTimeout = sb.ReceiveTimeout * 1000;
-			//Tcp.SendBufferSize = sb.SendBufferSize;
-			////Tcp.SendTimeout = sb.SendTimeout * 1000;
 		}
 		~CStreamIO()
 		{
@@ -271,8 +267,11 @@ namespace COMMON
 			Buffer.BlockCopy(data, 0, messageToSend, (int)lengthSize, data.Length);
 			if (UseSizeHeader)
 			{
-				byte[] bs = CMisc.SetBytesFromIntegralTypeValue((int)data.Length, false);
-				Buffer.BlockCopy(bs, 0, messageToSend, 0, (int)lengthSize);
+				//byte[] bs = CMisc.SetBytesFromIntegralTypeValue((int)data.Length ? TWOBYTES == SizeHeader ? , false);
+				//Buffer.BlockCopy(bs, 0, messageToSend, 0, (int)lengthSize);
+
+				byte[] bs = CMisc.SetBytesFromIntegralTypeValue((long)data.Length, false);
+				Buffer.BlockCopy(bs, EIGHTBYTES - SizeHeader, messageToSend, 0, (int)lengthSize);
 			}
 			// arrived here the message is ready to be sent
 			string s1 = Resources.CStreamIONotAddingHeader, s2 = Resources.CStreamIOAddingHeader.Format(lengthSize);
@@ -300,7 +299,8 @@ namespace COMMON
 		/// </returns>
 		internal bool Send(string data, CancellationToken token = default)
 		{
-			byte[] bdata = (default != data ? Encoding.UTF8.GetBytes(data) : default);
+			//byte[] bdata = (default != data ? Encoding.UTF8.GetBytes(data) : default);
+			byte[] bdata = (default != data ? Encoding.GetBytes(data) : default);
 			return Send(bdata, token);
 		}
 		/// <summary>
@@ -308,7 +308,7 @@ namespace COMMON
 		/// A size header is never added to the message itself, size of buffer to send is determined by presence of the <paramref name="EOT"/> finishing the message.
 		/// </summary>
 		/// <param name="data">the message to send</param>
-		/// <param name="EOT">the  end of transmission character to use to terminate the mesage (CR+LF by default)</param>
+		/// <param name="EOT">the end of transmission character to use to terminate the mesage (CR+LF by default)</param>
 		/// <param name="token">cancellation token to use for async operation</param>
 		/// <returns>
 		/// true if the message has been sent, false otherwise
@@ -330,7 +330,8 @@ namespace COMMON
 				new CLogMsg(Resources.CStreamIOSendingTextMessage.Format(new object[] {data.Length, Tcp?.Client?.RemoteEndPoint}), TLog.INFOR),
 				new CLogMsg(Resources.CStreamIOData.Format(data), TLog.DEBUG),
 			});
-			byte[] bdata = (default != data ? Encoding.UTF8.GetBytes(data) : default);
+			//byte[] bdata = (default != data ? Encoding.UTF8.GetBytes(data) : default);
+			byte[] bdata = (default != data ? Encoding.GetBytes(data) : default);
 			bool ok = Send(bdata, token);
 			if (!ok)
 				CLog.INFOR(Resources.CStreamIOFailedSendingTextMessage.Format(new object[] { data.Length, Tcp?.Client?.RemoteEndPoint }));
@@ -454,7 +455,8 @@ namespace COMMON
 						}
 						// if the EOT is found stop reading
 						if (!string.IsNullOrEmpty(EOT))
-							doContinue = !Encoding.UTF8.GetString(buffer).Contains(EOT);
+							//doContinue = !Encoding.UTF8.GetString(buffer).Contains(EOT);
+							doContinue = !Encoding.GetString(buffer).Contains(EOT);
 					}
 					else if (ioexcept)
 					{
@@ -549,11 +551,11 @@ namespace COMMON
 		{
 			// receive the buffer
 			byte[] buffer = Receive(out int size, token);
-			return (!buffer.IsNullOrEmpty() && size == buffer.Length ? Encoding.UTF8.GetString(buffer) : default);
+			return (!buffer.IsNullOrEmpty() && size == buffer.Length ? Encoding.GetString(buffer) : default);
 		}
 		/// <summary>
 		/// Receive a string of an unknown size from the server.
-		/// The buffer does not need to begin with a size header as reading will be made on a fixed size.
+		/// The string does not need to begin with a size header as reading will be made until a specific string is found.
 		/// The string MUST however finish (or at least contain) a <paramref name="EOT"/> string marking the end of message.
 		/// The function will not return until the string has been fully received or an error occurred (timeout).
 		/// The returned string NEVER contains the size header.
@@ -569,7 +571,8 @@ namespace COMMON
 			{
 				// receive the buffer
 				byte[] buffer = ReceiveNonSizedBuffer(EOT, token);
-				string s = (default != buffer ? Encoding.UTF8.GetString(buffer) : default);
+				//string s = (default != buffer ? Encoding.UTF8.GetString(buffer) : default);
+				string s = (default != buffer ? Encoding.GetString(buffer) : default);
 				// remove EOT if necessary
 				if (!string.IsNullOrEmpty(s))
 					s = s.Replace(EOT, "");

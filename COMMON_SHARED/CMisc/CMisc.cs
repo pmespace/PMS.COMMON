@@ -3,6 +3,7 @@
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography;
+using System.Collections;
 using System.Reflection;
 using System.Text;
 using System;
@@ -291,6 +292,67 @@ namespace COMMON
 		/// A base64 string if successful, null otherwise
 		/// </returns>
 		public static string ToSHA256(this string value) => ToSHA256(Encoding.UTF8.GetBytes(value));
+		/// <summary>
+		/// Determines if a type is <see cref="String"/>
+		/// </summary>
+		/// <param name="type">type to test</param>
+		/// <returns>true if <see cref="String"/>, false otherwise</returns>
+		public static bool IsString(this Type type) => type == typeof(string);
+		/// <summary>
+		/// Determines if a type is a <see cref="Decimal"/>
+		/// </summary>
+		/// <param name="type">type to test</param>
+		/// <returns>true if <see cref="Decimal"/>, false otherwise</returns>
+		public static bool IsDecimal(this Type type) => type == typeof(decimal) || type == typeof(decimal?);
+		/// <summary>
+		/// Indicates a type is either <see cref="Type.IsPrimitive"/> or <see cref="IsString(Type)"/> or <see cref="IsDecimal(Type)"/>
+		/// </summary>
+		/// <param name="type">Type to test</param>
+		/// <returns>true if full primitive type, false otherwise (class, struct, array,...)</returns>
+		public static bool IsPrimitiveEx(this Type type) => type.IsPrimitive || type.IsDecimal() || type.IsString();
+		/// <summary>
+		/// Indicates if a type derives from <see cref="IList"/>
+		/// </summary>
+		/// <param name="type">Type to test</param>
+		/// <returns>true if derived from <see cref="IList"/>, false otherwise</returns>
+		/// <exception cref="ArgumentNullException"></exception>
+		public static bool IsGenericList(this Type type)
+		{
+			if (type == null) throw new ArgumentNullException("type");
+			foreach (Type @interface in type.GetInterfaces())
+			{
+				if (@interface.IsGenericType)
+				{
+					if (@interface.GetGenericTypeDefinition() == typeof(IList<>))
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+		///// <summary>
+		///// Indicates if a type derives from another <paramref name="derivesFrom"/>
+		///// </summary>
+		///// <param name="type">Type to test</param>
+		///// <param name="derivesFrom">type derived from</param>
+		///// <returns>true if derived from <paramref name="derivesFrom"/>, false otherwise</returns>
+		///// <exception cref="ArgumentNullException"></exception>
+		//public static bool IsGenericList(this Type type, Type derivesFrom)
+		//{
+		//	if (type == null) throw new ArgumentNullException("type");
+		//	foreach (Type @interface in type.GetInterfaces())
+		//	{
+		//		if (@interface.IsGenericType)
+		//		{
+		//			if (@interface.GetGenericTypeDefinition() == derivesFrom)
+		//			{
+		//				return true;
+		//			}
+		//		}
+		//	}
+		//	return false;
+		//}
 	}
 #if COLORS
 	[ComVisible(false)]

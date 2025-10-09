@@ -123,6 +123,8 @@ namespace COMMON
 			if (default == stream) stream = sslStream;
 			if (default == stream) return false;
 
+			token.ThrowIfCancellationRequested();
+
 			try
 			{
 				//if (CancellationToken.None == token)
@@ -158,6 +160,8 @@ namespace COMMON
 			Stream stream = networkStream;
 			if (default == stream) stream = sslStream;
 			if (default == stream) return;
+
+			token.ThrowIfCancellationRequested();
 
 			try
 			{
@@ -202,6 +206,8 @@ namespace COMMON
 			if (default == stream)
 				return 0;
 
+			token.ThrowIfCancellationRequested();
+
 			try
 			{
 				//if (CancellationToken.None == token)
@@ -216,26 +222,10 @@ namespace COMMON
 				//		read = task.Result;
 				//}
 
-#if true
 				var task = stream.ReadAsync(data, offset, data.Length - offset, token);
 				task.Wait();
 				if (task.IsCompleted)
 					read = task.Result;
-#elif _OLD2
-				var task = stream.ReadAsync(data, offset, data.Length - offset, token);
-				Task.WaitAny(task, Task.Delay(stream.ReadTimeout));
-				if (task.IsCompleted)
-					read = task.Result;
-				else
-				{
-					stream.Close();
-					read = task.Result;
-				}
-#else
-				if (stream.CanTimeout)
-					stream.ReadTimeout = 5000;// NO_TIMEOUT == ReceiveTimeout ? Timeout.Infinite : ReceiveTimeout;
-				read = stream.Read(data, offset, data.Length - offset);
-#endif
 			}
 			catch (Exception ex)
 			{

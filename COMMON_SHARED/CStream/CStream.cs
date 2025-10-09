@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿#define USEASYNC
+
+using System.Runtime.InteropServices;
 using System.Net.Sockets;
 using System.Text;
 using System.Linq;
@@ -6,6 +8,7 @@ using System.Net;
 using System;
 using System.Threading;
 using COMMON.Properties;
+using System.Threading.Tasks;
 
 namespace COMMON
 {
@@ -172,6 +175,7 @@ namespace COMMON
 			}
 			return false;
 		}
+		public static Task<bool> SendAsync(CStreamIO stream, byte[] buffer, CancellationToken token = default) => Task.Run(() => Send(stream, buffer, token));
 		/// <summary>
 		/// Sends data using the given stream.
 		/// A size header of <see cref="CStreamBase.SizeHeader"/> bytes is added if <see cref="CStreamBase.UseSizeHeader"/> is true.
@@ -188,6 +192,7 @@ namespace COMMON
 			byte[] brequest = buffer.IsNullOrEmpty() ? default : stream.Encoding.GetBytes(buffer);
 			return Send(stream, brequest, token);
 		}
+		public static Task<bool> SendAsync(CStreamIO stream, string buffer, CancellationToken token = default) => Task.Run(() => Send(stream, buffer, token));
 		/// <summary>
 		/// Sends data using the given stream.
 		/// No size header is added, the sent buffer will be followed by <paramref name="EOT"/> to indicate the end of the message.
@@ -214,6 +219,7 @@ namespace COMMON
 			}
 			return false;
 		}
+		public static Task<bool> SendLineAsync(CStreamIO stream, string message, string EOT = Chars.CRLF, CancellationToken token = default) => Task.Run(() => SendLine(stream, message, EOT, token));
 		/// <summary>
 		/// Receives data on the indicated stream.
 		/// The buffer MUST begin with a size header of <see cref="CStreamBase.SizeHeader"/> bytes
@@ -257,6 +263,7 @@ namespace COMMON
 			}
 			return reply;
 		}
+		public static Task<byte[]> ReceiveAsync(CStreamIO stream, CancellationToken token = default) => Task.Run(() => Receive(stream, token));
 		/// <summary>
 		/// Receives data on the indicated stream.
 		/// The buffer MUST begin with a size header of <see cref="CStreamBase.SizeHeader"/> bytes.
@@ -272,6 +279,7 @@ namespace COMMON
 			byte[] reply = Receive(stream, token);
 			return (null != reply ? stream.Encoding.GetString(reply) : null);
 		}
+		public static Task<string> ReceiveAsStringAsync(CStreamIO stream, CancellationToken token = default) => Task.Run(() => ReceiveAsString(stream, token));
 		/// <summary>
 		/// Receives data of <paramref name="size"/> size on the indicated stream.
 		/// Presence of a size header is not required.
@@ -298,6 +306,7 @@ namespace COMMON
 			}
 			return default;
 		}
+		public static Task<byte[]> ReceiveAsync(CStreamIO stream, int size, CancellationToken token = default) => Task.Run(() => Receive(stream, size, token));
 		/// <summary>
 		/// Receives data on the indicated stream.
 		/// Presence of a size header is not required but the received message must be finished by <paramref name="EOT"/> to know when to stop reading.
@@ -324,6 +333,7 @@ namespace COMMON
 			}
 			return default;
 		}
+		public static Task<string> ReceiveLineAsync(CStreamIO stream, string EOT = Chars.CRLF, CancellationToken token = default) => Task.Run(() => ReceiveLine(stream, EOT, token));
 		/// <summary>
 		/// Sends a request message and receives the response.
 		/// The stream must be opened and will remain so.

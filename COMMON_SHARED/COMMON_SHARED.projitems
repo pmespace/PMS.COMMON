@@ -9,28 +9,28 @@
     <Import_RootNamespace>COMMON</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Exceptions\EDisconnected.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Exceptions\EInvalidFormat.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Exceptions\EOutOfRange.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Json\CJson.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Json\CJsonConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CExceptions\EDisconnected.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CExceptions\EInvalidFormat.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CExceptions\EOutOfRange.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CJson\CJson.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CJson\CJsonConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CLog\CLog.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CLog\CLogger.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Misc\CMisc.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Exceptions\ENotImplemented.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)SafeCollections\CSafeCollections.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Stream\CStream.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Stream\CStreamBase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Stream\CStreamIO.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Stream\CStreamDelegates.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Stream\CStreamServer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Stream\CStreamSettings.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Synchronize\CSynchronize.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Thread\CThread.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Thread\CThreadData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CMisc\CMisc.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CExceptions\ENotImplemented.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CSafeCollections\CSafeCollections.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CStream\CStream.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CStream\CStreamBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CStream\CStreamIO.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CStream\CStreamDelegates.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CStream\CStreamServer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CStream\CStreamSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CSynchronize\CSynchronize.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CThread\CThread.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CThread\CThreadData.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Misc\" />
-    <Folder Include="$(MSBuildThisFileDirectory)SafeCollections\" />
+    <Folder Include="$(MSBuildThisFileDirectory)CMisc\" />
+    <Folder Include="$(MSBuildThisFileDirectory)CSafeCollections\" />
   </ItemGroup>
 </Project>

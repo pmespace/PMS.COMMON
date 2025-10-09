@@ -75,6 +75,7 @@ Global
 		COMMON_CORE\COMMON_CORE.projitems*{19d3dce0-ad83-4403-a7b4-ab5cb1e6882d}*SharedItemsImports = 13
 		COMMON_ODBC\COMMON_ODBC.projitems*{7aff3ff8-b99e-4690-ac1a-730fd76f3b90}*SharedItemsImports = 5
 		COMMON_SHARED\COMMON_SHARED.projitems*{7aff3ff8-b99e-4690-ac1a-730fd76f3b90}*SharedItemsImports = 5
+		COMMON_WIN32\COMMON_WIN32.projitems*{7aff3ff8-b99e-4690-ac1a-730fd76f3b90}*SharedItemsImports = 5
 		COMMON_WIN32\COMMON_WIN32.projitems*{ab7828db-a9ad-4c0d-9320-3d71f0f4e000}*SharedItemsImports = 13
 		COMMON_SHARED\COMMON_SHARED.projitems*{fca4181f-59b5-42fd-8015-e10af44c0dac}*SharedItemsImports = 13
 		COMMON_ODBC\COMMON_ODBC.projitems*{ff85ac31-5139-4dc2-b573-1ebee353a1d9}*SharedItemsImports = 13

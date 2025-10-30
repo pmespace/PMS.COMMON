@@ -1,3 +1,6 @@
+8.2.1
+- Added LockWindowUpdate in Win32, assorted with possible function
+
 8.0.21
 - Added a new CJson.GetSettings/CJson.SetSettings allowinig to easily read/write a JSON file and get/set its content all in 1 call
 

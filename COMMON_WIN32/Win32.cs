@@ -25,6 +25,8 @@ namespace COMMON.WIN32
 		public static extern int SetWindowLong32(IntPtr hWnd, SWL nIndex, IntPtr newLong);
 		[DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto, EntryPoint = "GetDesktopWindow")]
 		public static extern IntPtr GetDesktopWindow();
+		[DllImport("user32.dll")]
+		private static extern long LockWindowUpdate(IntPtr Handle);
 
 		/// <summary>
 		/// Set a window property (refer to Platform SDK)
@@ -45,6 +47,20 @@ namespace COMMON.WIN32
 			catch (Exception) { }
 			return IntPtr.Zero;
 		}
+		/// <summary>
+		/// Locks updates on the form
+		/// </summary>
+		/// <param name="handle"><see cref="Form"/> object</param>
+		public static void LockWindowUpdate(Form handle) => LockWindowUpdate(handle.Handle);
+		/// <summary>
+		/// Locks updates on the control
+		/// </summary>
+		/// <param name="handle"><see cref="Control"/> object</param>
+		public static void LockWindowUpdate(Control handle) => LockWindowUpdate(handle.Handle);
+		/// <summary>
+		/// Unlocks updates
+		/// </summary>
+		public static void UnlockWindowUpdate() => LockWindowUpdate(IntPtr.Zero);
 
 		public enum SWL
 		{
@@ -65,14 +81,14 @@ namespace COMMON.WIN32
 		public static int WMUser { get => WM_USER; }
 		public const int WM_USER_MAX = 0x7FFF;
 		public static int WMUserMax { get => WM_USER_MAX; }
-		public static bool IsValidWMUser(int value) { return WM_USER <= value && WM_USER_MAX >= value; }
+		public static bool IsValidWMUser(int value) => WM_USER <= value && WM_USER_MAX >= value;
 
 		// WM_APP, starting point of application defined messages
 		public const int WM_APP = 0x8000;
 		public static int WMApp { get => WM_APP; }
 		public const int WM_APP_MAX = 0xBFFF;
 		public static int WMAppMax { get => WM_APP_MAX; }
-		public static bool IsValidWMApp(int value) { return WM_APP <= value && WM_APP_MAX >= value; }
+		public static bool IsValidWMApp(int value) => WM_APP <= value && WM_APP_MAX >= value;
 
 		public static IntPtr HWND_DESKTOP { get => GetDesktopWindow(); }
 	}

@@ -311,26 +311,23 @@ namespace COMMON
 		/// <returns>true if full primitive type, false otherwise (class, struct, array,...)</returns>
 		public static bool IsPrimitiveEx(this Type type) => type.IsPrimitive || type.IsDecimal() || type.IsString();
 		/// <summary>
-		/// Indicates if a type derives from <see cref="IList"/>
+		/// Indicates if a type is a <see cref="List{T}"/> but not an <see cref="Array"/>
 		/// </summary>
 		/// <param name="type">Type to test</param>
-		/// <returns>true if derived from <see cref="IList"/>, false otherwise</returns>
-		/// <exception cref="ArgumentNullException"></exception>
-		public static bool IsGenericList(this Type type)
-		{
-			if (type == null) throw new ArgumentNullException("type");
-			foreach (Type @interface in type.GetInterfaces())
-			{
-				if (@interface.IsGenericType)
-				{
-					if (@interface.GetGenericTypeDefinition() == typeof(IList<>))
-					{
-						return true;
-					}
-				}
-			}
-			return false;
-		}
+		/// <returns>true if an <see cref="List{T}"/>, false otherwise</returns>
+		public static bool IsList(this Type type) => IsArrayOrList(type) && type.IsGenericType;
+		/// <summary>
+		/// Indicates if a type is an <see cref="Array"/> but not a <see cref="List{T}"/>
+		/// </summary>
+		/// <param name="type">Type to test</param>
+		/// <returns>true if an <see cref="Array"/>, false otherwise</returns>
+		public static bool IsArray(this Type type) => IsArrayOrList(type) && !type.IsGenericType;
+		/// <summary>
+		/// Indicates if a type is a list of any type (<see cref="Array"/> or <see cref="List{T}"/>)
+		/// </summary>
+		/// <param name="type">Type to test</param>
+		/// <returns>true if an array of any type, false otherwise</returns>
+		public static bool IsArrayOrList(this Type type) => typeof(System.Collections.IEnumerable).IsAssignableFrom(type);
 		///// <summary>
 		///// Indicates if a type derives from another <paramref name="derivesFrom"/>
 		///// </summary>

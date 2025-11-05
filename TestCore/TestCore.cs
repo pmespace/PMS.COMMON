@@ -115,6 +115,20 @@ namespace TestCore
 			}
 
 
+			List<string> ls1 = new List<string>();
+			string[] as1 = new string[0];
+
+			Func<Type, bool> testType = (Type _type_) =>
+			{
+				bool f1;
+				f1 = _type_.IsList();
+				f1 = _type_.IsArray();
+				f1 = _type_.IsArrayOrList();
+				return true;
+			};
+
+			testType(ls1.GetType());
+			testType(as1.GetType());
 
 			var aa = new CStreamClientSettings("2.8.18.65:6897");
 			var aaa = new CStreamClientSettings("192.168.534.39:65536");

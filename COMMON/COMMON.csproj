@@ -1,11 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>net462;netstandard2.0;net6.0;net8.0</TargetFrameworks>
 		<AssemblyName>PMS.COMMON</AssemblyName>
-		<Version>8.2.3</Version>
+		<Version>8.2.4</Version>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<FileVersion>8.2.3</FileVersion>
-		<AssemblyVersion>8.2.3</AssemblyVersion>
+		<FileVersion>8.2.4</FileVersion>
+		<AssemblyVersion>8.2.4</AssemblyVersion>
 		<Authors>philippemp31</Authors>
 		<Company>PMS</Company>
 		<Description>
@@ -71,7 +71,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="PMS.png">
+	  <None Include="PMS.png">
 	    <Pack>True</Pack>
 	    <PackagePath>\</PackagePath>
 	  </None>
@@ -115,6 +115,7 @@
 
 	<PropertyGroup>
 		<TestNugetPath>$(SolutionDir)..\nuget\test</TestNugetPath>
+		<PackageIcon>PMS.png</PackageIcon>
 	</PropertyGroup>
 	<Target Name="CopyPackage" AfterTargets="Pack">
 		<ItemGroup>

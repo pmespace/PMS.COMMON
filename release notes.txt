@@ -1,3 +1,6 @@
+8.2.3
+- Added ShellExecute and SW_... flags to WIN32 namespace
+
 8.2.2
 - Fixed a bug in an extension
 

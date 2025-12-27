@@ -8,6 +8,48 @@ namespace COMMON.WIN32
 	[ComVisible(false)]
 	public static class Win32
 	{
+		[DllImport("shell32.dll")]
+		public static extern IntPtr ShellExecute
+			(
+			// Handle to a parent window.
+			IntPtr hwnd,
+			// Pointer to a null-terminated string, referred to in 
+			// this case as a verb, that specifies the action to 
+			// be performed.
+			[MarshalAs(UnmanagedType.LPTStr)]
+			String lpOperation,
+			[MarshalAs(UnmanagedType.LPTStr)]
+					// Pointer to a null-terminated string that specifies 
+					// the file or object on which to execute the specified 
+					// verb.
+			String lpFile,
+			// If the lpFile parameter specifies an executable file, 
+			// lpParameters is a pointer to a null-terminated string 
+			// that specifies the parameters to be passed to the 
+			// application.
+			[MarshalAs(UnmanagedType.LPTStr)]
+			String lpParameters,
+			// Pointer to a null-terminated string that specifies
+			// the default directory. 
+			[MarshalAs(UnmanagedType.LPTStr)]
+			String lpDirectory,
+			// Flags that specify how an application is to be
+			// displayed when it is opened.
+			Int32 nShowCmd
+			);
+		public const int SW_HIDE = 0;
+		public const int SW_SHOWNORMAL = 1;
+		public const int SW_SHOWMINIMIZED = 2;
+		public const int SW_SHOWMAXIMIZED = 3;
+		public const int SW_SHOWNOACTIVATE = 4;
+		public const int SW_SHOW = 5;
+		public const int SW_MINIMIZE = 6;
+		public const int SW_SHOWMINNOACTIVE = 7;
+		public const int SW_SHOWNA = 8;
+		public const int SW_RESTORE = 9;
+		public const int SW_SHOWDEFAULT = 10;
+		public const int SW_FORCEMINIMIZE = 11;
+
 		[DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
 		public static extern bool PostMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
 		[DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]

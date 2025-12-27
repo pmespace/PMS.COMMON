@@ -10,7 +10,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Threading;
 using System.IO;
-using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 
 namespace TestCore

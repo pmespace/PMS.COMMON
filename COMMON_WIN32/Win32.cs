@@ -8,33 +8,28 @@ namespace COMMON.WIN32
 	[ComVisible(false)]
 	public static class Win32
 	{
+		/// <summary>
+		/// WinAPI ShellExecute
+		/// </summary>
+		/// <param name="hwnd">Handle to a parent window.</param>
+		/// <param name="lpOperation">Pointer to a null-terminated string, referred to in this case as a verb, that specifies the action to be performed.</param>
+		/// <param name="lpFile">Pointer to a null-terminated string that specifies the file or object on which to execute the specified verb.</param>
+		/// <param name="lpParameters">If the lpFile parameter specifies an executable file, lpParameters is a pointer to a null-terminated string that specifies the parameters to be passed to the application.</param>
+		/// <param name="lpDirectory">Pointer to a null-terminated string that specifies the default directory.</param>
+		/// <param name="nShowCmd">Flags that specify how an application is to be displayed when it is opened.</param>
+		/// <returns></returns>
 		[DllImport("shell32.dll")]
 		public static extern IntPtr ShellExecute
 			(
-			// Handle to a parent window.
 			IntPtr hwnd,
-			// Pointer to a null-terminated string, referred to in 
-			// this case as a verb, that specifies the action to 
-			// be performed.
 			[MarshalAs(UnmanagedType.LPTStr)]
 			String lpOperation,
 			[MarshalAs(UnmanagedType.LPTStr)]
-					// Pointer to a null-terminated string that specifies 
-					// the file or object on which to execute the specified 
-					// verb.
 			String lpFile,
-			// If the lpFile parameter specifies an executable file, 
-			// lpParameters is a pointer to a null-terminated string 
-			// that specifies the parameters to be passed to the 
-			// application.
 			[MarshalAs(UnmanagedType.LPTStr)]
 			String lpParameters,
-			// Pointer to a null-terminated string that specifies
-			// the default directory. 
 			[MarshalAs(UnmanagedType.LPTStr)]
 			String lpDirectory,
-			// Flags that specify how an application is to be
-			// displayed when it is opened.
 			Int32 nShowCmd
 			);
 		public const int SW_HIDE = 0;

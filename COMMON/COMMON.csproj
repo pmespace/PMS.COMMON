@@ -2,10 +2,10 @@
 	<PropertyGroup>
 		<TargetFrameworks>net462;netstandard2.0;net6.0;net8.0;net8.0-windows</TargetFrameworks>
 		<AssemblyName>PMS.COMMON</AssemblyName>
-		<Version>8.2.5</Version>
+		<Version>8.2.6</Version>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<FileVersion>8.2.5</FileVersion>
-		<AssemblyVersion>8.2.5</AssemblyVersion>
+		<FileVersion>8.2.6</FileVersion>
+		<AssemblyVersion>8.2.6</AssemblyVersion>
 		<Authors>philippemp31</Authors>
 		<Company>PMS</Company>
 		<Description>

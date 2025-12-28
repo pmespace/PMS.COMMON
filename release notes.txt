@@ -1,6 +1,5 @@
-8.2.5
+8.2.6
 - Added ShellExecute and SW_... flags to WIN32 namespace
-- 8.2.3 and 8.2.4 have been deprecated
 
 8.2.2
 - Fixed a bug in an extension

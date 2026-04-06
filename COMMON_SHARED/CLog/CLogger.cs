@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace COMMON
+namespace PMS.COMMON
 {
 	[ComVisible(false)]
 	public static class CLogger

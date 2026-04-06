@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
-namespace COMMON
+namespace PMS.COMMON
 {
 	[ComVisible(true)]
 	[Guid("0D6D4011-3542-4192-97B8-7B67358F6DBE")]

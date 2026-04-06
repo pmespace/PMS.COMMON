@@ -6,10 +6,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Threading;
-using COMMON;
-using COMMON.Properties;
+using PMS.COMMON;
+using PMS.COMMON.Properties;
 
-namespace COMMON
+namespace PMS.COMMON
 {
 	[ComVisible(true)]
 	[Guid("7711DAC5-9223-4760-A93C-D2C993359A61")]

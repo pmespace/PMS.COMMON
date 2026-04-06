@@ -2,13 +2,13 @@
 using System.Reflection;
 using System.Threading;
 using System;
-using COMMON.Properties;
+using PMS.COMMON.Properties;
 
 #if NETFRAMEWORK
-using COMMON.WIN32;
+using PMS.COMMON.WIN32;
 #endif
 
-namespace COMMON
+namespace PMS.COMMON
 {
 	[ComVisible(true)]
 	public enum ThreadResult

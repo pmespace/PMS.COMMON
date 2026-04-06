@@ -7,10 +7,10 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System;
-using COMMON;
+using PMS.COMMON;
 using System.Threading.Tasks;
 
-namespace COMMON.WSServer.Client
+namespace PMS.COMMON.WSServer.Client
 {
 	public class CWSClient : CWS
 	{

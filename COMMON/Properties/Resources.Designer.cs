@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace COMMON.Properties {
+namespace PMS.COMMON.Properties {
     using System;
     
     

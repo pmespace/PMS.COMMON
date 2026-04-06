@@ -1,10 +1,10 @@
-﻿using COMMON.Properties;
+﻿using PMS.COMMON.Properties;
 using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace COMMON.WIN32
+namespace PMS.COMMON.WIN32
 {
 	/// <summary>
 	/// Pre-defined activities

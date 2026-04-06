@@ -8,12 +8,12 @@ using System.Net.Security;
 using Newtonsoft.Json;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
-using COMMON.Properties;
+using PMS.COMMON.Properties;
 using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace COMMON
+namespace PMS.COMMON
 {
 	[ComVisible(false)]
 	interface IStreamSettings

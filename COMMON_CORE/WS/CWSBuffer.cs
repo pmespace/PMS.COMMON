@@ -1,9 +1,9 @@
 using System;
 using System.Net.WebSockets;
 using System.Text;
-using COMMON;
+using PMS.COMMON;
 
-namespace COMMON.WSServer
+namespace PMS.COMMON.WSServer
 {
 	/// <summary>
 	/// An object describing a buffer received by the <see cref="CWSServer"/> object.

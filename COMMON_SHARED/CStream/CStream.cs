@@ -7,10 +7,10 @@ using System.Linq;
 using System.Net;
 using System;
 using System.Threading;
-using COMMON.Properties;
+using PMS.COMMON.Properties;
 using System.Threading.Tasks;
 
-namespace COMMON
+namespace PMS.COMMON
 {
 	[ComVisible(true)]
 	public enum SendAsyncEnum

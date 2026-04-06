@@ -6,9 +6,9 @@ using Newtonsoft.Json;
 using System.Linq;
 using System.Collections;
 using Newtonsoft.Json.Linq;
-using COMMON.Properties;
+using PMS.COMMON.Properties;
 
-namespace COMMON
+namespace PMS.COMMON
 {
 	public abstract class CSafeBase
 	{

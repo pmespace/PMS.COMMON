@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Net.Sockets;
 
-namespace COMMON
+namespace PMS.COMMON
 {
 	public class CStreamParameters
 	{

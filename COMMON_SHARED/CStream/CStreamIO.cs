@@ -8,17 +8,17 @@ using System.Text;
 using System;
 using Microsoft.Win32;
 using System.Threading;
-using COMMON;
+using PMS.COMMON;
 using System.Net.NetworkInformation;
 using System.Linq;
 using System.Net;
 using Newtonsoft.Json;
 using System.IO;
 using System.Collections.Generic;
-using COMMON.Properties;
+using PMS.COMMON.Properties;
 using System.Threading.Tasks;
 
-namespace COMMON
+namespace PMS.COMMON
 {
 	[ComVisible(false)]
 	public abstract class CStreamIO : CStreamSettings

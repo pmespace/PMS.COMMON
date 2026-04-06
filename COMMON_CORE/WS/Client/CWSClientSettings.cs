@@ -13,7 +13,7 @@ using System.Net.Sockets;
 using System.Runtime;
 using System.Reflection;
 
-namespace COMMON.WSServer.Client
+namespace PMS.COMMON.WSServer.Client
 {
 	#region delegates
 	/// <summary>

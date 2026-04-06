@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net462;netstandard2.0;net6.0;net8.0;net8.0-windows</TargetFrameworks>
+		<TargetFrameworks>net462;netstandard2.0;net8.0;net8.0-windows</TargetFrameworks>
 		<AssemblyName>PMS.COMMON</AssemblyName>
-		<Version>8.2.6</Version>
+		<Version>8.3.0</Version>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<FileVersion>8.2.6</FileVersion>
-		<AssemblyVersion>8.2.6</AssemblyVersion>
+		<FileVersion>8.3.0</FileVersion>
+		<AssemblyVersion>8.3.0</AssemblyVersion>
 		<Authors>philippemp31</Authors>
 		<Company>PMS</Company>
 		<Description>
@@ -34,12 +34,12 @@
   <Import Project="..\COMMON_CORE\COMMON_CORE.projitems" Label="Shared" Condition="'$(TargetFramework)'=='net6.0'" />
   -->
 	<ItemGroup>
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<!--
 	  <PackageReference Include="System.Data.Odbc" Version="9.0.1" Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net6.0' Or '$(TargetFramework)'=='net6.0-windows' Or '$(TargetFramework)'=='netstandard2.0'" />
 	  -->
-		<PackageReference Include="System.Data.Odbc" Version="8.0.1" />
-		<PackageReference Include="System.ValueTuple" Version="4.5.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+		<PackageReference Include="System.Data.Odbc" Version="10.0.5" />
+		<PackageReference Include="System.ValueTuple" Version="4.6.2" />
 		<FrameworkReference Include="Microsoft.AspNetCore.App" Condition="'$(TargetFramework)'=='net6.0'" />
 	</ItemGroup>
 
@@ -100,10 +100,12 @@
 		<PackageVersionSettings>AssemblyVersion.IncrementWithAutoReset.None</PackageVersionSettings>
 		<AssemblyInfoVersionType>SettingsVersion</AssemblyInfoVersionType>
 		<InheritWinAppVersionFrom>None</InheritWinAppVersionFrom>
+		<DefineConstants>$(DefineConstants);USE_NEWTONSOFT</DefineConstants>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
 		<WarningLevel>4</WarningLevel>
+		<DefineConstants>$(DefineConstants);USE_NEWTONSOFT</DefineConstants>
 	</PropertyGroup>
 
 	<Target Name="PreparePackageReleaseNotesFromFile" BeforeTargets="PutReleaseNotesInsideNuspec">
@@ -116,6 +118,38 @@
 	<PropertyGroup>
 		<TestNugetPath>$(SolutionDir)..\nuget\test</TestNugetPath>
 		<PackageIcon>PMS.png</PackageIcon>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net462|AnyCPU'">
+	  <DefineConstants>$(DefineConstants);USE_NEWTONSOFT</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0|AnyCPU'">
+	  <DefineConstants>$(DefineConstants);USE_NEWTONSOFT</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0|AnyCPU'">
+	  <DefineConstants>$(DefineConstants);USE_NEWTONSOFT</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-windows|AnyCPU'">
+	  <DefineConstants>$(DefineConstants);USE_NEWTONSOFT</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net462|AnyCPU'">
+	  <DefineConstants>$(DefineConstants);USE_NEWTONSOFT</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0|AnyCPU'">
+	  <DefineConstants>$(DefineConstants);USE_NEWTONSOFT</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'">
+	  <DefineConstants>$(DefineConstants);USE_NEWTONSOFT</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-windows|AnyCPU'">
+	  <DefineConstants>$(DefineConstants);USE_NEWTONSOFT</DefineConstants>
 	</PropertyGroup>
 	<Target Name="CopyPackage" AfterTargets="Pack">
 		<ItemGroup>

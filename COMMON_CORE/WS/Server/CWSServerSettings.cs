@@ -1,10 +1,10 @@
 //#define USE_WSBUFFER
 
 using System.Net;
-using COMMON;
-using COMMON.WSServer.Client;
+using PMS.COMMON;
+using PMS.COMMON.WSServer.Client;
 
-namespace COMMON.WSServer
+namespace PMS.COMMON.WSServer
 {
 	#region delegates
 	/// <summary>

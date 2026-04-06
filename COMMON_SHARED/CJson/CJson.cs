@@ -5,14 +5,21 @@ using System.Text;
 using System.Xml;
 using System.IO;
 using System;
+#if USE_NEWTONSOFT
 using Newtonsoft.Json;
-using System.Collections.Generic;
-using Newtonsoft.Json.Serialization;
-using System.Linq;
-using COMMON.Properties;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
+#else
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
+using System.Text.Json;
+#endif
+using System.Collections.Generic;
+using System.Linq;
+using PMS.COMMON.Properties;
 
-namespace COMMON
+
+namespace PMS.COMMON
 {
 	static class CJsonTypeExtensions
 	{
@@ -41,6 +48,7 @@ namespace COMMON
 
 	public static class CJson
 	{
+#if USE_NEWTONSOFT
 		/// <summary>
 		/// To write elements base class before child class
 		/// </summary>
@@ -111,6 +119,78 @@ namespace COMMON
 			settings.Formatting = Newtonsoft.Json.Formatting.Indented;
 			return settings;
 		}
+#else
+		/// <summary>
+		/// To write elements base class before child class
+		/// </summary>
+		static readonly IContractResolver baseFirstResolver = new BaseFirstContractResolver { };
+		class BaseFirstContractResolver : DefaultJsonTypeInfoResolver
+		{
+			protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization) =>
+				 base.CreateProperties(type, memberSerialization)
+					  ?.OrderBy(b => b.DeclaringType.BaseTypesAndSelf().Count()).ToList();
+		}
+		/// <summary>
+		/// To write elements in alphabatical order
+		/// </summary>
+		static readonly IContractResolver alphabeticalResolver = new AlphabeticalContractResolver { };
+		class AlphabeticalContractResolver : DefaultJsonTypeInfoResolver
+		{
+			protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization) =>
+				 base.CreateProperties(type, memberSerialization)
+					  ?.OrderBy(p => p.PropertyName).ToList();
+		}
+		/// <summary>
+		/// To write elements base class first but in alphabetical order
+		/// </summary>
+		static readonly IContractResolver baseFirstThenAlphabeticalResolver = new BaseFirstThenAlphabeticalContractResolver { };
+		class BaseFirstThenAlphabeticalContractResolver : DefaultJsonTypeInfoResolver
+		{
+			protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization) =>
+					 base.CreateProperties(type, memberSerialization)
+						  ?.OrderBy(b => b.DeclaringType.BaseTypesAndSelf().Count()).ThenBy(p => p.PropertyName).ToList();
+		}
+		/// <summary>
+		/// Set <see cref="JsonSerializerSettings"/> to put base class properties first
+		/// </summary>
+		/// <param name="settings"><see cref="JsonSerializerSettings"/> to update if any</param>
+		/// <param name="alphabetical">true if properties must be order alphabetically inside the objects, false if not required</param>
+		/// <returns>A <see cref="JsonSerializerSettings"/> set accordingly, this could be <paramref name="settings"/> updated if specified</returns>
+		public static JsonSerializerSettings SerializeBaseClassFirstEx(JsonSerializerSettings settings = default, bool alphabetical = true)
+		{
+			if (default == settings) settings = new JsonSerializerSettings();
+			settings.ContractResolver = (alphabetical ? baseFirstThenAlphabeticalResolver : baseFirstResolver);
+			settings.TypeNameHandling = TypeNameHandling.None;
+			settings.Formatting = Newtonsoft.Json.Formatting.Indented;
+			return settings;
+		}
+		/// <summary>
+		/// Set <see cref="JsonSerializerSettings"/> to serialize objects alphabetical order
+		/// </summary>
+		/// <param name="settings"><see cref="JsonSerializerSettings"/> to update if any</param>
+		/// <returns>A <see cref="JsonSerializerSettings"/> set accordingly, this could be <paramref name="settings"/> updated if specified</returns>
+		public static JsonSerializerSettings SerializeAlphabeticallyEx(JsonSerializerSettings settings = default)
+		{
+			if (default == settings) settings = new JsonSerializerSettings();
+			settings.ContractResolver = alphabeticalResolver;
+			settings.TypeNameHandling = TypeNameHandling.None;
+			settings.Formatting = Newtonsoft.Json.Formatting.Indented;
+			return settings;
+		}
+		/// <summary>
+		/// Set <see cref="JsonSerializerSettings"/> to serialize objects without any specific order
+		/// </summary>
+		/// <param name="settings"><see cref="JsonSerializerSettings"/> to update if any</param>
+		/// <returns>A <see cref="JsonSerializerSettings"/> set accordingly, this could be <paramref name="settings"/> updated if specified</returns>
+		public static JsonSerializerSettings SerializeStandardEx(JsonSerializerSettings settings = default)
+		{
+			if (default == settings) settings = new JsonSerializerSettings();
+			settings.ContractResolver = default;
+			settings.TypeNameHandling = TypeNameHandling.None;
+			settings.Formatting = Newtonsoft.Json.Formatting.Indented;
+			return settings;
+		}
+#endif
 		/// <summary>
 		/// Sort JSON extension data alphabetically and recursively
 		/// The extension data MUST be of type <see cref="Dictionary{TKey, TValue}"/> with TKey=<see cref="string"/> and TValue=<see cref="object"/>
@@ -241,7 +321,7 @@ namespace COMMON
 			get => _filename;
 			set
 			{
-				value = string.IsNullOrEmpty(value) ? default : value.Trim();
+				value = value.IsNullOrEmpty(true) ? default : value.Trim();
 				// check whether the file is valid or not
 				try
 				{
@@ -266,36 +346,6 @@ namespace COMMON
 		/// Last exception encountered during processing
 		/// </summary>
 		public Exception LastException { get; private set; }
-		///// <summary>
-		///// To write elements base class before child class
-		///// </summary>
-		//static readonly IContractResolver baseFirstResolver = new BaseFirstContractResolver { };
-		//class BaseFirstContractResolver : DefaultContractResolver
-		//{
-		//	protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization) =>
-		//		 base.CreateProperties(type, memberSerialization)
-		//			  ?.OrderBy(b => b.DeclaringType.BaseTypesAndSelf().Count()).ToList();
-		//}
-		///// <summary>
-		///// To write elements in alphabatical order
-		///// </summary>
-		//static readonly IContractResolver alphabeticalResolver = new AlphabeticalContractResolver { };
-		//class AlphabeticalContractResolver : DefaultContractResolver
-		//{
-		//	protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization) =>
-		//		 base.CreateProperties(type, memberSerialization)
-		//			  ?.OrderBy(p => p.PropertyName).ToList();
-		//}
-		///// <summary>
-		///// To write elements base class first but in alphabetical order
-		///// </summary>
-		//static readonly IContractResolver baseFirstThenAlphabeticalResolver = new BaseFirstThenAlphabeticalContractResolver { };
-		//class BaseFirstThenAlphabeticalContractResolver : DefaultContractResolver
-		//{
-		//	protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization) =>
-		//			 base.CreateProperties(type, memberSerialization)
-		//				  ?.OrderBy(b => b.DeclaringType.BaseTypesAndSelf().Count()).ThenBy(p => p.PropertyName).ToList();
-		//}
 		#endregion
 
 		#region methods

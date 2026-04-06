@@ -7,7 +7,7 @@ using System.IO;
 using System;
 using Newtonsoft.Json;
 
-namespace COMMON
+namespace PMS.COMMON
 {
 	/// <summary>
 	/// 

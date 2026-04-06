@@ -10,9 +10,9 @@ using System.Threading;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using System.Xml.Schema;
-using COMMON.Properties;
+using PMS.COMMON.Properties;
 
-namespace COMMON
+namespace PMS.COMMON
 {
 	/// <summary>
 	/// Various useful strings

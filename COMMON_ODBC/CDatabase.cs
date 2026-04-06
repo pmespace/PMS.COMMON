@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Data.Odbc;
 using System.Data;
 using System.Text.RegularExpressions;
-using COMMON.Properties;
+using PMS.COMMON.Properties;
 
-namespace COMMON.ODBC
+namespace PMS.COMMON.ODBC
 {
 	/// <summary>
 	/// ODBC database wrapper

@@ -1,9 +1,9 @@
-﻿using COMMON.Properties;
+﻿using PMS.COMMON.Properties;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace COMMON
+namespace PMS.COMMON
 {
 	public class EInvalidFormat : Exception
 	{

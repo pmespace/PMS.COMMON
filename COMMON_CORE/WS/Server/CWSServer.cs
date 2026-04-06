@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Microsoft.AspNetCore.Http;
 
-namespace COMMON.WSServer
+namespace PMS.COMMON.WSServer
 {
 	/// <summary>
 	/// A Web Socket (WS) server ready to use,

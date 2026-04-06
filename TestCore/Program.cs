@@ -4,7 +4,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Net.Sockets;
 using System.Net.Security;
 using System.Collections.Generic;
-using COMMON;
+using PMS.COMMON;
 
 namespace TestCore
 {
@@ -12,6 +12,26 @@ namespace TestCore
 	{
 		static void Main(string[] args)
 		{
+			//decimal d1 = 0;
+			//decimal? d2 = null;
+			//if (d1 is decimal)
+			//	Console.WriteLine("OK");
+			//if (d1 is decimal?)
+			//	Console.WriteLine("OK");
+			//if (d1.GetType() == typeof(decimal))
+			//	Console.WriteLine("OK");
+			//if (d1.GetType() == typeof(decimal?))
+			//	Console.WriteLine("OK");
+			//if (d2 is decimal)
+			//	Console.WriteLine("OK");
+			//if (d2 is decimal?)
+			//	Console.WriteLine("OK");
+			//if (d2.GetType() == typeof(decimal))
+			//	Console.WriteLine("OK");
+			//Type ty = typeof(decimal?);
+			//if (d2.GetType() == typeof(decimal?))
+			//	Console.WriteLine("OK");
+
 			CLog.UseGMT = false;
 			CLog.UseLocal = true;
 			CLog.Filename = "console";

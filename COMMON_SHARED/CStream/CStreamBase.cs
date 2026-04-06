@@ -1,4 +1,4 @@
-﻿using COMMON.Properties;
+﻿using PMS.COMMON.Properties;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace COMMON
+namespace PMS.COMMON
 {
 	[ComVisible(false)]
 	public abstract class CStreamBase

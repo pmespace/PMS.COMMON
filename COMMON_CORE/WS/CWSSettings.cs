@@ -13,7 +13,7 @@ using Newtonsoft.Json.Linq;
 using System.Threading;
 using System.Net.Sockets;
 using System.Runtime;
-using COMMON;
+using PMS.COMMON;
 using Microsoft.Extensions.ObjectPool;
 using System.Diagnostics.Eventing.Reader;
 using Microsoft.AspNetCore.Razor.TagHelpers;
@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace COMMON.WSServer
+namespace PMS.COMMON.WSServer
 {
 	#region exceptions
 	/// <summary>

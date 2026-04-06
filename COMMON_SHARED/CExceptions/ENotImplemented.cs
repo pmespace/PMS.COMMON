@@ -1,8 +1,8 @@
 ﻿using System.Runtime.InteropServices;
 using System;
-using COMMON.Properties;
+using PMS.COMMON.Properties;
 
-namespace COMMON
+namespace PMS.COMMON
 {
 	public class ENotImplemented : Exception
 	{

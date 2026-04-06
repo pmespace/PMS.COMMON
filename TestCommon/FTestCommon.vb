@@ -4,9 +4,9 @@ Imports System.Text
 Imports System.Threading
 Imports System.Xml
 Imports System.Xml.Serialization
-Imports COMMON
-Imports COMMON.ODBC
-Imports COMMON.WIN32
+Imports PMS.COMMON
+Imports PMS.COMMON.ODBC
+Imports PMS.COMMON.WIN32
 Imports Newtonsoft.Json
 
 Public Class FTestCommon

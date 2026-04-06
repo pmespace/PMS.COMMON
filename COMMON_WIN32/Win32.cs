@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Windows;
 
-namespace COMMON.WIN32
+namespace PMS.COMMON.WIN32
 {
 	[ComVisible(false)]
 	public static class Win32

@@ -4,10 +4,10 @@ using System.Reflection;
 using System.Threading;
 
 #if NETFRAMEWORK
-using COMMON.WIN32;
+using PMS.COMMON.WIN32;
 #endif
 
-namespace COMMON
+namespace PMS.COMMON
 {
 	[ComVisible(true)]
 	[Guid("CD4AB05D-ED37-493A-B658-C4D5D86B6864")]

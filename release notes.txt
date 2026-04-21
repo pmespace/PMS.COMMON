@@ -1,3 +1,6 @@
+8.3.1
+- Fixed a bug in CMisc in extention IsArrayOrList.
+
 8.2.6
 - Added ShellExecute and SW_... flags to WIN32 namespace
 

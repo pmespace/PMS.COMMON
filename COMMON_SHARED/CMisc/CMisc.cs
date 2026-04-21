@@ -333,7 +333,7 @@ namespace PMS.COMMON
 		/// </summary>
 		/// <param name="type">Type to test</param>
 		/// <returns>true if an array of any type, false otherwise</returns>
-		public static bool IsArrayOrList(this Type type) => typeof(System.Collections.IEnumerable).IsAssignableFrom(type);
+		public static bool IsArrayOrList(this Type type) => type.IsArray || typeof(System.Collections.IList).IsAssignableFrom(type);
 		///// <summary>
 		///// Indicates if a type derives from another <paramref name="derivesFrom"/>
 		///// </summary>

@@ -1,3 +1,6 @@
+8.3.2
+- Added a IsNull specific function for DateTime and used it in the general IsNull function.
+
 8.3.1
 - Fixed a bug in CMisc in extention IsArrayOrList.
 

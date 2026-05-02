@@ -166,11 +166,20 @@ namespace PMS.COMMON
 		/// <returns>True if null or Length=0, false otherwise</returns>
 		public static bool IsNullOrEmpty(this string s, bool trim = true) => string.IsNullOrEmpty(trim ? s?.Trim() : s);
 		/// <summary>
+		/// Indicates whether an <see cref="DateTime"/> object is null or not
+		/// </summary>
+		/// <param name="o">The <see cref="DateTime"/> object to verify</param>
+		/// <returns>True if null or Length=0, false otherwise</returns>
+		public static bool IsNull(this DateTime o) => default(DateTime) == o;
+		/// <summary>
 		/// Indicates whether an object is null or not
 		/// </summary>
 		/// <param name="o">The object to verify</param>
-		/// <returns>True if null or Length=0, false otherwise</returns>
-		public static bool IsNull(this object o) => default == o;
+		/// <returns>True if null, false otherwise</returns>
+		public static bool IsNull(this object o) =>
+			default == o
+			|| (typeof(string) == o.GetType() && (o as string).IsNullOrEmpty())
+			|| typeof(DateTime).IsInstanceOfType(o) && ((DateTime)o).IsNull();
 		/// <summary>
 		/// Compares the current string with another one
 		/// </summary>

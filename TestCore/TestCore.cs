@@ -86,6 +86,21 @@ namespace TestCore
 			CMisc.YesNo("hello", true, true, true);
 #endif
 
+			DateTime dt = DateTime.Now;
+			if(dt.IsNull())
+			{ }
+			object odt = dt;
+			if (dt.IsNull())
+			{ }
+			if (odt.IsNull())
+			{ }
+			dt = new DateTime();
+			odt = dt;
+			if (dt.IsNull())
+			{ }
+			if (odt.IsNull())
+			{ }
+
 			Func<string, bool> GetIPPort = (string _d_) =>
 			{
 				uint _p_ = 0;

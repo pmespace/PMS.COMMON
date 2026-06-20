@@ -86,8 +86,11 @@ namespace TestCore
 			CMisc.YesNo("hello", true, true, true);
 #endif
 
+			var answer = CMisc.Input("question", "answer", out bool isdef);
+			Console.WriteLine(answer);
+
 			DateTime dt = DateTime.Now;
-			if(dt.IsNull())
+			if (dt.IsNull())
 			{ }
 			object odt = dt;
 			if (dt.IsNull())
@@ -202,7 +205,7 @@ namespace TestCore
 				js.WriteSettings(setting);
 			}
 			Console.WriteLine(setting.ToString());
-			CMisc.Input("modify " + js.FileName, default, out bool isdef, "invite");
+			CMisc.Input("modify " + js.FileName, default, out isdef, "invite");
 			setting = js.ReadSettings();
 			Console.WriteLine(setting.ToString());
 

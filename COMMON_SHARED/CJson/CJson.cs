@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿#define USE_NEWTONSOFT
+
+using System.Runtime.InteropServices;
 using System.Reflection;
 using System.Xml.Linq;
 using System.Text;

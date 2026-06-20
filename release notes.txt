@@ -1,3 +1,6 @@
+8.3.3
+- Fixed IsNull in case of a string.
+
 8.3.2
 - Added a IsNull specific function for DateTime and used it in the general IsNull function.
 

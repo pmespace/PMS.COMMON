@@ -659,12 +659,16 @@ namespace PMS.COMMON
 					client.ReceiveTimeout = settings.ConnectTimeout * 1000;// CStreamSettings.NO_TIMEOUT;// 5000;
 					try
 					{
-						X509CertificateCollection xcco = default != Settings.Certificates && 0 != Settings.Certificates.Count ? new X509CertificateCollection() : default;
+						X509Certificate2Collection xcco = default != Settings.Certificates && 0 != Settings.Certificates.Count ? new X509Certificate2Collection() : default;
 						try
 						{
 							if (default != xcco)
 								foreach (CStreamClientSettings.SCertificate k in Settings.Certificates)
+#if NET10_0_OR_GREATER
+									xcco.Add(X509CertificateLoader.LoadPkcs12FromFile(k.Filename, k.Password, X509KeyStorageFlags.EphemeralKeySet));
+#else
 									xcco.Add(new X509Certificate2(k.Filename, k.Password));
+#endif
 						}
 						catch (Exception ex)
 						{

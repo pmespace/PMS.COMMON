@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net462;netstandard2.0;net8.0;net8.0-windows</TargetFrameworks>
+		<TargetFrameworks>net462;netstandard2.0;net8.0;net8.0-windows;net10.0;net10.0-windows</TargetFrameworks>
 		<AssemblyName>PMS.COMMON</AssemblyName>
-		<Version>8.3.2</Version>
+		<Version>8.3.3</Version>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<FileVersion>8.3.2</FileVersion>
-		<AssemblyVersion>8.3.2</AssemblyVersion>
+		<FileVersion>8.3.3</FileVersion>
+		<AssemblyVersion>8.3.3</AssemblyVersion>
 		<Authors>philippemp31</Authors>
 		<Company>PMS</Company>
 		<Description>
@@ -118,6 +118,7 @@
 	<PropertyGroup>
 		<TestNugetPath>$(SolutionDir)..\nuget\test</TestNugetPath>
 		<PackageIcon>PMS.png</PackageIcon>
+		<RootNamespace>PMS.COMMON</RootNamespace>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net462|AnyCPU'">

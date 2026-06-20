@@ -211,7 +211,7 @@
     <value>envoi d'un message de {0} octets ({1}) vers {2}</value>
   </data>
   <data name="CStreamIOData" xml:space="preserve">
-    <value>data [{0}]</value>
+    <value>données [{0}]</value>
   </data>
   <data name="CStreamIOFailedSendingMessage" xml:space="preserve">
     <value>échec de l'envoi d'un message de {0} octets ({1}) vers {2}</value>

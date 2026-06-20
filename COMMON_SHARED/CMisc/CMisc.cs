@@ -178,7 +178,7 @@ namespace PMS.COMMON
 		/// <returns>True if null, false otherwise</returns>
 		public static bool IsNull(this object o) =>
 			default == o
-			|| (typeof(string) == o.GetType() && (o as string).IsNullOrEmpty())
+			//|| (typeof(string) == o.GetType() && (o as string).IsNullOrEmpty())
 			|| typeof(DateTime).IsInstanceOfType(o) && ((DateTime)o).IsNull();
 		/// <summary>
 		/// Compares the current string with another one
